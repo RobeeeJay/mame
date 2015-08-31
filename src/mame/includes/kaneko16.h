@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia, David Haywood
 /***************************************************************************
 
                             -= Kaneko 16 Bit Games =-
@@ -56,7 +58,7 @@ public:
 
 	optional_shared_ptr<UINT16> m_spriteram;
 	optional_shared_ptr<UINT16> m_mainram;
-	
+
 	UINT16 m_disp_enable;
 
 	int m_VIEW2_2_pri;

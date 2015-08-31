@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /*************************************************************************
 
     88 Games
@@ -27,9 +29,6 @@ public:
 
 	/* video-related */
 	int          m_k88games_priority;
-	int          m_layer_colorbase[3];
-	int          m_sprite_colorbase;
-	int          m_zoom_colorbase;
 	int          m_videobank;
 	int          m_zoomreadroms;
 	int          m_speech_chip;

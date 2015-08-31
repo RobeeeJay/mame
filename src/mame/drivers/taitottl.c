@@ -1,56 +1,61 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli, Scott Stone
 /***************************************************************************
 
  Taito Discrete Hardware Games
 
 
- Game Name(s)                                               Part #'s       Data      PROM/ROM Chip Numbers
- ---------------------------------------------------------+--------------+---------+---------------------------------------
- Astro Race (11/1973)                                                      UNKNOWN
- Attack (09/1976)                                                          UNKNOWN
- Attack UFO (08/1974)                                                      UNKNOWN
- Avenger (??/1976) (clone of Electra's Avenger)                            UNKNOWN
- Ball Park/TT Ball Park (??/1974)                                          UNKNOWN
- Basketball (04/1974)                                                      UNKNOWN
- Bombs Away (??/1977)                                                      UNKNOWN
- Cisco/Fisco 400 (04/1977)                                                 UNKNOWN
- Clean Sweep (??/1976) (clone of Ramtek's Clean Sweep)                     UNKNOWN
- Clean Sweep II (??/1976) (clone of Ramtek's Clean Sweep)                  UNKNOWN
- Crashing Race (06/1976)                                                   UNKNOWN
- Cross Fire (08/1977) (aka Bazooka)                                        UNKNOWN
- Davis Cup (12/1973)                                                       UNKNOWN
- Dead Heat (??/1975)                                                       UNKNOWN
- Elepong (07/1973)                                                         UNKNOWN
- Flying Fortress (??/1977)                                                 UNKNOWN
- Flying Fortress II (06/1977)                                             UNKNOWN
- Gunman (10/1977)                                                          YES        8 x 32bytes (or 11? )
- Interceptor (03/1976)                                                     UNKNOWN
- Missile-X (??/1977)                                                       YES        10 - (5 x 512bytes, 5x32bytes)
- Pro Hockey (11/1973)                                                      UNKNOWN
- Road Champion (04/1977)                                                   UNKNOWN
- Road Champion S (06/1977)                                                 UNKNOWN
- Soccer (11/1973)                                                          UNKNOWN
- Soccer DX (??/1977)                                                       UNKNOWN
- Speed Race (11/1974)                                                      UNKNOWN
- Speed Race CL-5 (10/1978)                                                 UNKNOWN
- Speed Race Color (10/1978)                                                UNKNOWN
- Speed Race DX (08/1975)                                                   UNKNOWN
- Speed Race Twin (04/1976)                                                 UNKNOWN
- Speed Race GP-5 (??/1980)                                                 UNKNOWN
- Super Block (02/1978)                                                     UNKNOWN
- Super Speed Race (12/1977)                                                UNKNOWN
- Super Speed Race V (07/1978)                                              UNKNOWN
- Super Speed Race GP-V (??/1980)                                           UNKNOWN
- Table Football (??/1977)                                                  UNKNOWN
- Tahitian (??/1975)                                                        UNKNOWN
- Tennis (??/1977)                                                          UNKNOWN
- T. T. Block (08/1977)                                                     YES        1 x 2048bytes
- T. T. Block C (05/1978)                                                   UNKNOWN
- T. T. Block CU (08/1978)                                                  UNKNOWN
- T. T. Speed Race (??/1978)                                                UNKNOWN
- Wall Block (08/1978)                                                      UNKNOWN
- Wall Break (01/1977)                                                      UNKNOWN
- Western Gun (09/1975)                                                     UNKNOWN
- Zun Zun Block (04/1979)                                                   YES        3 - (2 x 512bytes, 1 x 32bytes)
+ Game Name(s)                                                      Part #'s       Data      PROM/ROM Chip Numbers
+ ----------------------------------------------------------------+--------------+---------+---------------------------------------
+ Astro Race (11/1973) (clone of Atari's Space Race)                               UNKNOWN
+ Anti-Aircraft (1975) (clone of Atari's Anti-Aircraft)                            YES
+ Attack (09/1976)                                                                 UNKNOWN
+ Attack UFO (08/1974)                                                             UNKNOWN
+ Avenger (??/1976) (clone of Electra's Avenger)                                   YES
+ Ball Park/TT Ball Park (??/1974)  (clone of Midway's Ball Park)                  YES
+ Basketball (04/1974) (clone of Midway's TV Basketball)                           YES
+ Bombs Away (??/1977)  (clone of Meadows' Bombs Away)                             YES
+ Cisco/Fisco 400 (04/1977)                                                        UNKNOWN
+ Clean Sweep (??/1976) (clone of Ramtek's Clean Sweep)                            YES
+ Clean Sweep II (??/1976) (clone of Ramtek's Clean Sweep)                         YES
+ Crashing Race (06/1976) (clone of Atari's Crash'n Score?)                        UNKNOWN
+ Cross Fire (08/1977) (clone of PSE's Bazooka)                                    YES
+ Davis Cup (12/1973) (clone of Atari's Coupe Davis / Pong Doubles?)               UNKNOWN
+ Dead Heat (??/1975)                                                              UNKNOWN
+ Elepong (07/1973)                                                                UNKNOWN
+ Flying Fortress (??/1977) (clone of Electra's Flying Fortress?)                  UNKNOWN
+ Flying Fortress II (06/1977)                                                     UNKNOWN
+ Gunman (10/1977)                                                                 YES        8 x 32bytes (or 11? )
+ Interceptor (03/1976)                                                            UNKNOWN
+ Missile-X (??/1977)                                                              YES        10 - (5 x 512bytes, 5x32bytes)
+ Pro Hockey (11/1973)                                                             UNKNOWN
+ Road Champion (04/1977) (clone of Williams' Road Champion?)                      UNKNOWN
+ Road Champion S (06/1977)                                                        UNKNOWN
+ Soccer (11/1973)                                                                 UNKNOWN
+ Soccer DX (??/1977)                                                              UNKNOWN
+ Speed Race (11/1974)                                                             UNKNOWN
+ Speed Race CL-5 (10/1978)                                                        UNKNOWN
+ Speed Race Color (10/1978)                                                       UNKNOWN
+ Speed Race DX (08/1975)                                                          UNKNOWN
+ Speed Race Twin (04/1976)                                                        UNKNOWN
+ Speed Race GP-5 (??/1980)                                                        UNKNOWN
+ Super Block (02/1978)                                                            UNKNOWN
+ Super High-Way (10/1977)?                                                        UNKNOWN
+ Super Speed Race (12/1977)                                                       UNKNOWN
+ Super Speed Race V (07/1978)                                                     UNKNOWN
+ Super Speed Race GP-V (??/1980)                                                  UNKNOWN
+ Table Football (??/1977) (clone of Exidy's Table Football?)                      UNKNOWN
+ Tahitian (??/1975)                                                               UNKNOWN
+ Tennis (??/1977)                                                                 UNKNOWN
+ T. T. Ball Park (??/1974) (clone of Midway's Ball Park)                          YES
+ T. T. Block (08/1977)                                                            YES        1 x 2048bytes
+ T. T. Block C (05/1978)                                                          UNKNOWN
+ T. T. Block CU (08/1978)                                                         UNKNOWN
+ T. T. Speed Race (??/1978)                                                       UNKNOWN
+ Wall Block (08/1978)                                                             UNKNOWN
+ Wall Break (01/1977)                                                             UNKNOWN
+ Western Gun (09/1975)                                                            UNKNOWN
+ Zun Zun Block (04/1979)                                                          YES        3 - (2 x 512bytes, 1 x 32bytes)
 
 ***************************************************************************/
 
@@ -60,7 +65,6 @@
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied by Pong, not accurate for this driver!
 // start
@@ -156,7 +160,7 @@ MACHINE_CONFIG_END
 /*
 
  Gunman
- 
+
  label  loc. Part #
  ==========================================================
  CR11   N5  74s287      yes, it says CRxx not GNxx
@@ -270,9 +274,9 @@ ROM_START( zzblock )
 ROM_END
 
 
-GAME( 1977, gunman,    0,       taitottl, 0, driver_device,  0, ROT0, "Taito", "Gunman [TTL]", GAME_IS_SKELETON )
-GAME( 1977, bazooka,   0,       taitottl, 0, driver_device,  0, ROT0, "Project Support Engineering", "Bazooka [TTL]", GAME_IS_SKELETON ) // clone of Taito Cross Fire - or is Cross Fire a clone of PSE Bazooka?
-GAME( 1977, bazookabr, bazooka, taitottl, 0, driver_device,  0, ROT0, "Taito do Brasil", "Bazooka (Brazil) [TTL]", GAME_IS_SKELETON )
-GAME( 1977, missilex,  0,       taitottl, 0, driver_device,  0, ROT0, "Taito", "Missile-X [TTL]", GAME_IS_SKELETON )
-GAME( 1977, ttblock,   0,       taitottl, 0, driver_device,  0, ROT0, "Taito", "T.T. Block [TTL]", GAME_IS_SKELETON )
-GAME( 1979, zzblock,   0,       taitottl, 0, driver_device,  0, ROT0, "Taito", "Zun Zun Block [TTL]", GAME_IS_SKELETON )
+GAME( 1977, gunman,    0,       taitottl, 0, driver_device,  0, ROT0, "Taito", "Gunman [TTL]", MACHINE_IS_SKELETON )
+GAME( 1977, bazooka,   0,       taitottl, 0, driver_device,  0, ROT0, "Project Support Engineering", "Bazooka [TTL]", MACHINE_IS_SKELETON ) // clone of Taito Cross Fire - or is Cross Fire a clone of PSE Bazooka?
+GAME( 1977, bazookabr, bazooka, taitottl, 0, driver_device,  0, ROT0, "Taito do Brasil", "Bazooka (Brazil) [TTL]", MACHINE_IS_SKELETON )
+GAME( 1977, missilex,  0,       taitottl, 0, driver_device,  0, ROT0, "Taito", "Missile-X [TTL]", MACHINE_IS_SKELETON )
+GAME( 1977, ttblock,   0,       taitottl, 0, driver_device,  0, ROT0, "Taito", "T.T. Block [TTL]", MACHINE_IS_SKELETON )
+GAME( 1979, zzblock,   0,       taitottl, 0, driver_device,  0, ROT0, "Taito", "Zun Zun Block [TTL]", MACHINE_IS_SKELETON )

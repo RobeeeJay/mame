@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /***************************************************************************
 
     am29000.h
@@ -271,7 +273,7 @@ enum
 	SPR_CR   = 135,
 	SPR_FPE  = 160,
 	SPR_INTE = 161,
-	SPR_FPS  = 162,
+	SPR_FPS  = 162
 };
 
 
@@ -280,7 +282,7 @@ enum
 	SPACE_INSTRUCTION = 0,
 	SPACE_DATA,
 	SPACE_IO,
-	SPACE_COPROCESSOR,
+	SPACE_COPROCESSOR
 };
 
 
@@ -317,7 +319,7 @@ enum
 	EXCEPTION_MULTMU                    = 31,
 	EXCEPTION_MULTIPLY                  = 32,
 	EXCEPTION_DIVIDE                    = 33,
-	EXCEPTION_MULTIPLU                  = 44,      // TODO: FINISH ME
+	EXCEPTION_MULTIPLU                  = 44       // TODO: FINISH ME
 };
 
 
@@ -460,7 +462,7 @@ protected:
 	}
 
 	// device_state_interface overrides
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 4; }

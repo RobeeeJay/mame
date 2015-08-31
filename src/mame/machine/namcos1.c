@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 #include "emu.h"
 #include "includes/namcos1.h"
 
@@ -8,7 +10,7 @@
 *                                                                              *
 *******************************************************************************/
 
-WRITE8_MEMBER( namcos1_state::namcos1_3dcs_w )
+WRITE8_MEMBER( namcos1_state::_3dcs_w )
 {
 	if (offset & 1) popmessage("LEFT");
 	else            popmessage("RIGHT");
@@ -473,12 +475,9 @@ WRITE8_MEMBER( namcos1_state::key_type3_w )
 *                                                                              *
 *******************************************************************************/
 
-WRITE8_MEMBER(namcos1_state::namcos1_sound_bankswitch_w)
+WRITE8_MEMBER(namcos1_state::sound_bankswitch_w)
 {
-	UINT8 *rom = memregion("audiocpu")->base() + 0xc000;
-
-	int bank = (data & 0x70) >> 4;
-	membank("soundbank")->set_base(rom + 0x4000 * bank);
+	m_soundbank->set_entry((data & 0x70) >> 4);
 }
 
 
@@ -488,34 +487,6 @@ WRITE8_MEMBER(namcos1_state::namcos1_sound_bankswitch_w)
 *   Banking emulation (CUS117)                                                 *
 *                                                                              *
 *******************************************************************************/
-
-// These direct handlers are merely for speed - taking two trips
-// through the memory system for every opcode fetch is rather slow
-
-DIRECT_UPDATE_MEMBER(namcos1_state::direct_handler_main)
-{
-	return direct_handler(0, direct, address);
-}
-
-DIRECT_UPDATE_MEMBER(namcos1_state::direct_handler_sub)
-{
-	return direct_handler(1, direct, address);
-}
-
-inline offs_t namcos1_state::direct_handler(int whichcpu, direct_read_data &direct, offs_t address)
-{
-	offs_t remapped_address = m_c117->remap(whichcpu, address);
-
-	// if not in ROM, return
-	if (remapped_address < 0x400000) return address;
-
-	// calculate the base of the 8KB ROM page
-	remapped_address &= 0x3fe000;
-
-	direct.explicit_configure(address & 0xe000, address | 0x1fff, 0x1fff, &m_rom[remapped_address]);
-	return ~0;
-}
-
 
 WRITE_LINE_MEMBER(namcos1_state::subres_w)
 {
@@ -537,12 +508,26 @@ WRITE_LINE_MEMBER(namcos1_state::subres_w)
 *                                                                              *
 *******************************************************************************/
 
+void namcos1_state::machine_start()
+{
+	m_soundbank->configure_entries(0, 8, memregion("audiocpu")->base(), 0x4000);
+	m_mcubank->configure_entries(0, 24, memregion("voice")->base(), 0x8000);
+
+	save_item(NAME(m_dac0_value));
+	save_item(NAME(m_dac1_value));
+	save_item(NAME(m_dac0_gain));
+	save_item(NAME(m_dac1_gain));
+	save_item(NAME(m_key));
+	save_item(NAME(m_mcu_patch_data));
+	save_item(NAME(m_reset));
+}
+
 void namcos1_state::machine_reset()
 {
 	/* mcu patch data clear */
 	m_mcu_patch_data = 0;
 
-	namcos1_init_DACs();
+	init_DACs();
 	memset(m_key, 0, sizeof(m_key));
 	m_key_quotient = 0;
 	m_key_reminder = 0;
@@ -564,32 +549,32 @@ void namcos1_state::machine_reset()
 *******************************************************************************/
 
 /* mcu banked rom area select */
-WRITE8_MEMBER(namcos1_state::namcos1_mcu_bankswitch_w)
+WRITE8_MEMBER(namcos1_state::mcu_bankswitch_w)
 {
-	int addr;
+	int bank;
 
 	/* bit 2-7 : chip select line of ROM chip */
 	switch (data & 0xfc)
 	{
-		case 0xf8: addr = 0x10000; data ^= 2; break;    /* bit 2 : ROM 0 (bit 1 is inverted in that case) */
-		case 0xf4: addr = 0x30000; break;               /* bit 3 : ROM 1 */
-		case 0xec: addr = 0x50000; break;               /* bit 4 : ROM 2 */
-		case 0xdc: addr = 0x70000; break;               /* bit 5 : ROM 3 */
-		case 0xbc: addr = 0x90000; break;               /* bit 6 : ROM 4 */
-		case 0x7c: addr = 0xb0000; break;               /* bit 7 : ROM 5 */
-		default:   addr = 0x10000; break;               /* illegal */
+		case 0xf8: bank = 0;  data ^= 2; break;    /* bit 2 : ROM 0, A16 is inverted */
+		case 0xf4: bank = 4;  break;               /* bit 3 : ROM 1 */
+		case 0xec: bank = 8;  break;               /* bit 4 : ROM 2 */
+		case 0xdc: bank = 12; break;               /* bit 5 : ROM 3 */
+		case 0xbc: bank = 16; break;               /* bit 6 : ROM 4 */
+		case 0x7c: bank = 20; break;               /* bit 7 : ROM 5 */
+		default:   bank = 0;  break;               /* illegal (selects multiple ROMs at once) */
 	}
 
 	/* bit 0-1 : address line A15-A16 */
-	addr += (data & 3) * 0x8000;
+	bank += (data & 3);
 
-	membank("mcubank")->set_base(memregion("mcu")->base() + addr);
+	m_mcubank->set_entry(bank);
 }
 
 
 
-/* This point is very obscure, but i havent found any better way yet. */
-/* Works with all games so far.                                       */
+/* This point is very obscure, but I haven't found any better way yet. */
+/* Works with all games so far.                                        */
 
 /* patch points of memory address */
 /* CPU0/1 bank[17f][1000] */
@@ -600,7 +585,7 @@ WRITE8_MEMBER(namcos1_state::namcos1_mcu_bankswitch_w)
 /* I found set $A6 only initialize in MCU                       */
 /* This patch kill write this data by MCU case $A6 to xx(clear) */
 
-WRITE8_MEMBER(namcos1_state::namcos1_mcu_patch_w)
+WRITE8_MEMBER(namcos1_state::mcu_patch_w)
 {
 	//logerror("mcu C000 write pc=%04x data=%02x\n",space.device().safe_pc(),data);
 	if (m_mcu_patch_data == 0xa6) return;
@@ -615,7 +600,7 @@ WRITE8_MEMBER(namcos1_state::namcos1_mcu_patch_w)
 *   driver specific initialize routine                                         *
 *                                                                              *
 *******************************************************************************/
-void namcos1_state::namcos1_driver_init()
+void namcos1_state::driver_init()
 {
 	// bit 16 of the address is inverted for PRG7 (and bits 17,18 just not connected)
 	for (int i = 0x380000;i < 0x400000;i++)
@@ -628,11 +613,8 @@ void namcos1_state::namcos1_driver_init()
 		}
 	}
 
-	m_maincpu->space(AS_PROGRAM).set_direct_update_handler(direct_update_delegate(FUNC(namcos1_state::direct_handler_main), this));
-	m_subcpu->space(AS_PROGRAM).set_direct_update_handler(direct_update_delegate(FUNC(namcos1_state::direct_handler_sub), this));
-
 	// kludge! see notes
-	m_mcu->space(AS_PROGRAM).install_write_handler(0xc000, 0xc000, write8_delegate(FUNC(namcos1_state::namcos1_mcu_patch_w), this));
+	m_mcu->space(AS_PROGRAM).install_write_handler(0xc000, 0xc000, write8_delegate(FUNC(namcos1_state::mcu_patch_w), this));
 
 	// these are overridden as needed in the specific DRIVER_INIT_MEMBERs
 	m_key_id        = 0;
@@ -650,7 +632,7 @@ void namcos1_state::namcos1_driver_init()
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,shadowld)
 {
-	namcos1_driver_init();
+	driver_init();
 }
 
 /*******************************************************************************
@@ -658,7 +640,7 @@ DRIVER_INIT_MEMBER(namcos1_state,shadowld)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,dspirit)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type1_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type1_w),this));
@@ -670,7 +652,7 @@ DRIVER_INIT_MEMBER(namcos1_state,dspirit)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,wldcourt)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type1_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type1_w),this));
@@ -682,7 +664,7 @@ DRIVER_INIT_MEMBER(namcos1_state,wldcourt)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,blazer)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type1_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type1_w),this));
@@ -694,7 +676,7 @@ DRIVER_INIT_MEMBER(namcos1_state,blazer)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,puzlclub)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type1_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type1_w),this));
@@ -706,11 +688,14 @@ DRIVER_INIT_MEMBER(namcos1_state,puzlclub)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,pacmania)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type2_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type2_w),this));
 	m_key_id = 0x12;
+	save_item(NAME(m_key_quotient));
+	save_item(NAME(m_key_reminder));
+	save_item(NAME(m_key_numerator_high_word));
 }
 
 /*******************************************************************************
@@ -718,11 +703,14 @@ DRIVER_INIT_MEMBER(namcos1_state,pacmania)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,alice)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type2_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type2_w),this));
 	m_key_id = 0x25;
+	save_item(NAME(m_key_quotient));
+	save_item(NAME(m_key_reminder));
+	save_item(NAME(m_key_numerator_high_word));
 }
 
 /*******************************************************************************
@@ -730,11 +718,14 @@ DRIVER_INIT_MEMBER(namcos1_state,alice)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,galaga88)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type2_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type2_w),this));
 	m_key_id = 0x31;
+	save_item(NAME(m_key_quotient));
+	save_item(NAME(m_key_reminder));
+	save_item(NAME(m_key_numerator_high_word));
 }
 
 /*******************************************************************************
@@ -742,11 +733,14 @@ DRIVER_INIT_MEMBER(namcos1_state,galaga88)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,ws)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type2_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type2_w),this));
 	m_key_id = 0x07;
+	save_item(NAME(m_key_quotient));
+	save_item(NAME(m_key_reminder));
+	save_item(NAME(m_key_numerator_high_word));
 }
 
 /*******************************************************************************
@@ -754,11 +748,14 @@ DRIVER_INIT_MEMBER(namcos1_state,ws)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,bakutotu)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type2_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type2_w),this));
 	m_key_id = 0x22;
+	save_item(NAME(m_key_quotient));
+	save_item(NAME(m_key_reminder));
+	save_item(NAME(m_key_numerator_high_word));
 }
 
 /*******************************************************************************
@@ -766,7 +763,7 @@ DRIVER_INIT_MEMBER(namcos1_state,bakutotu)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,splatter)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -784,7 +781,7 @@ DRIVER_INIT_MEMBER(namcos1_state,splatter)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,rompers)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -802,7 +799,7 @@ DRIVER_INIT_MEMBER(namcos1_state,rompers)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,blastoff)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -820,7 +817,7 @@ DRIVER_INIT_MEMBER(namcos1_state,blastoff)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,ws89)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -838,7 +835,7 @@ DRIVER_INIT_MEMBER(namcos1_state,ws89)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,tankfrce)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -861,6 +858,8 @@ DRIVER_INIT_MEMBER(namcos1_state,tankfrc4)
 	m_stored_input[1] = 0;
 
 	m_mcu->space(AS_PROGRAM).install_read_handler(0x1400, 0x1401, read8_delegate(FUNC(namcos1_state::faceoff_inputs_r), this));
+	save_item(NAME(m_input_count));
+	save_item(NAME(m_stored_input));
 }
 
 /*******************************************************************************
@@ -868,7 +867,7 @@ DRIVER_INIT_MEMBER(namcos1_state,tankfrc4)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,dangseed)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -886,7 +885,7 @@ DRIVER_INIT_MEMBER(namcos1_state,dangseed)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,pistoldm)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -904,7 +903,7 @@ DRIVER_INIT_MEMBER(namcos1_state,pistoldm)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,ws90)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -922,7 +921,7 @@ DRIVER_INIT_MEMBER(namcos1_state,ws90)
 *******************************************************************************/
 DRIVER_INIT_MEMBER(namcos1_state,soukobdx)
 {
-	namcos1_driver_init();
+	driver_init();
 	m_c117->space(AS_PROGRAM).install_readwrite_handler(0x2f8000, 0x2f9fff,
 		read8_delegate(FUNC(namcos1_state::key_type3_r),this),
 		write8_delegate(FUNC(namcos1_state::key_type3_w),this));
@@ -973,8 +972,9 @@ READ8_MEMBER( namcos1_state::quester_paddle_r )
 DRIVER_INIT_MEMBER(namcos1_state,quester)
 {
 	m_strobe = 0;
-	namcos1_driver_init();
+	driver_init();
 	m_mcu->space(AS_PROGRAM).install_read_handler(0x1400, 0x1401, read8_delegate(FUNC(namcos1_state::quester_paddle_r), this));
+	save_item(NAME(m_strobe));
 }
 
 
@@ -1063,8 +1063,11 @@ DRIVER_INIT_MEMBER(namcos1_state,berabohm)
 	m_input_count = 0;
 	m_strobe = 0;
 	m_strobe_count = 0;
-	namcos1_driver_init();
+	driver_init();
 	m_mcu->space(AS_PROGRAM).install_read_handler(0x1400, 0x1401, read8_delegate(FUNC(namcos1_state::berabohm_buttons_r), this));
+	save_item(NAME(m_input_count));
+	save_item(NAME(m_strobe));
+	save_item(NAME(m_strobe_count));
 }
 
 
@@ -1139,6 +1142,8 @@ DRIVER_INIT_MEMBER(namcos1_state,faceoff)
 	m_stored_input[0] = 0;
 	m_stored_input[1] = 0;
 
-	namcos1_driver_init();
+	driver_init();
 	m_mcu->space(AS_PROGRAM).install_read_handler(0x1400, 0x1401, read8_delegate(FUNC(namcos1_state::faceoff_inputs_r), this));
+	save_item(NAME(m_input_count));
+	save_item(NAME(m_stored_input));
 }

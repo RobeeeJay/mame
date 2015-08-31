@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /***************************************************************************
 
  Chicago Coin discrete hardware games
@@ -21,7 +23,6 @@
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied by Pong, not accurate for this driver!
 // start
@@ -137,4 +138,4 @@ ROM_START( destdrby )
 ROM_END
 
 
-GAME( 1976, destdrby,  0, chicago, 0, driver_device,  0, ROT0, "Chicago Coin", "Destruction Derby [TTL]", GAME_IS_SKELETON )
+GAME( 1976, destdrby,  0, chicago, 0, driver_device,  0, ROT0, "Chicago Coin", "Destruction Derby [TTL]", MACHINE_IS_SKELETON )

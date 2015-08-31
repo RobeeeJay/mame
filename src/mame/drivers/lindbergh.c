@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /***************************************************************************
 
     Sega Lindbergh skeleton driver
@@ -31,16 +33,22 @@ Security
 The security seems to work in multiple steps.  The information here
 is a combination of our research and things found on the internet.
 
-- At boot, the bios unlocks the CF card through an IDE 0x82 command
-  with a currently unknown key.  There is also a hardware heartbeat
-  signal on the IDE bus to avoid hotswapping.
+- At boot, the bios unlocks the CF card through an IDE command.  There
+  is also a hardware heartbeat signal on the IDE bus to avoid
+  hotswapping, and making it hard to dump the card outside of a Lindberg
+  motherboard.
 
 - The system boots on the CF which holds a customized Montavista linux.
 
-- The CF system can either install the game (from the DVD) or start it (on the HD)
+- The CF system can either install the game (from the DVD) or start it
+  (on the HD) through the "/usr/sbin/segaboot" executable in the second
+  partition.
 
-- The DVD is decrypted (probably on-the-fly with aesloop) using a
-  fixed system key (all the dvd images start identically).
+- The DVD includes an ISO-9660 filesystem at a (game-dependant)
+  offset. It has a handful of files, all encrypted.  Of specific
+  interest and the su[0-3].dat files which are system updates, and the
+  frontend file which handles the setup of all the other files for the
+  game.
 
 - The PIC includes an AES-CBC engine and has as data an IV, a key,
   some game-specific identification information, and two pre and
@@ -49,12 +57,16 @@ is a combination of our research and things found on the internet.
   decrypt very large amounts of data through it though, the bandwidth
   would be way too low.
 
-- The HD is probably unlocked by the CF and bootstrap code is
-  decrypted through the PIC.  That code in turn loop-decrypts/mounts all the
-  data needed from the partition (probably /usr, /X11R6 and /home).
+- The CF decrypts the dvd/hd files with a custom crypto system which
+  is keyed by the result of decrypting 16 times 0x00, 16 times 0x01,
+  ..., 16 times 0x0b through the PIC, giving a 176 bytes secondary key.
+  segaboot (in the second partition) and lxdecrypt_hard (in the first
+  partition's initrd) take care of that.
 
-Currently, we do not have access to the CF image, making it impossible
-to do a complete boot/install.
+- The HD is unlocked by the CF with lxunlock.hdb in the first
+  partition's initrd.  The method varies depending on the HD model.
+  That code is also capable of unlocking the CF (but don't forget
+  the hardware hearbeat there).
 
 
 Lindbergh Game List
@@ -386,7 +398,11 @@ MACHINE_CONFIG_END
 	ROM_LOAD("fpr-24370b.ic6", 0x000000, 0x400000, CRC(c3b021a4) SHA1(1b6938a50fe0e4ae813864649eb103838c399ac0)) \
 \
 	ROM_REGION32_LE(0x10000, ":pci:01.0:00.0", 0) /* Geforce bios extension (custom for the card) */ \
-	ROM_LOAD("vid_bios.u504", 0x00000, 0x10000, CRC(f78d14d7) SHA1(f129787e487984edd23bf344f2e9500c85052275))
+	ROM_LOAD("vid_bios.u504", 0x00000, 0x10000, CRC(f78d14d7) SHA1(f129787e487984edd23bf344f2e9500c85052275)) \
+	DISK_REGION("cf") \
+	DISK_IMAGE_READONLY("mda-c0004a_revb_lindyellow_v2.4.20_mvl31a_boot_2.01", 0, SHA1(e13da5f827df852e742b594729ee3f933b387410))
+
+
 ROM_START(lindbios)
 	LINDBERGH_BIOS
 ROM_END
@@ -552,21 +568,21 @@ ROM_START(lbvbiosu)
 	DISK_IMAGE_READONLY("dvp-0021b", 0, SHA1(362ac028ba19ba4762678953a033034a5ee8ad53))
 ROM_END
 
-GAME(1999, lindbios,         0, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Sega Lindbergh Bios",                      GAME_IS_BIOS_ROOT)
-GAME(2005, hotd4,     lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "House of the Dead 4 (Export)",             GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2005, vf5,       lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Virtua Fighter 5 (Export)",                GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2006, abclimax,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "After Burner Climax (Export)",             GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2006, letsgoju,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Let's Go Jungle (Export)",                 GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2006, outr2sdx,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Outrun 2 SP SDX",                          GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2006, psmash3,   lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Power Smash 3 / Virtua Tennis 3 (Export)", GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2006, vtennis3,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Virtua Tennis 3 (Japan)",                  GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2007, 2spicy,    lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "2 Spicy",                                  GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2007, ghostsev,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Ghost Squad Evolution",                    GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2007, initiad4,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Initial D4 (Rev D)",                       GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2007, initiad4c, initiad4, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Initial D4 (Rev C)",                       GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2007, segartv,   lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Sega Race-TV (Export)",                    GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2008, hotdex,    lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "House of the Dead EX (Japan)",             GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2008, primevah,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Primeval Hunt",                            GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2008, rambo,     lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Rambo (Export)",                           GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(2009, hummerxt,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Hummer Extreme",                           GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
-GAME(200?, lbvbiosu,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "VBios updater",                            GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION|GAME_NO_SOUND)
+GAME(1999, lindbios,         0, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Sega Lindbergh Bios",                      MACHINE_IS_BIOS_ROOT)
+GAME(2005, hotd4,     lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "House of the Dead 4 (Export)",             MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2005, vf5,       lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Virtua Fighter 5 (Export)",                MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2006, abclimax,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "After Burner Climax (Export)",             MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2006, letsgoju,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Let's Go Jungle (Export)",                 MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2006, outr2sdx,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "OutRun 2 SP SDX",                          MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2006, psmash3,   lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Power Smash 3 / Virtua Tennis 3 (Export)", MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2006, vtennis3,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Virtua Tennis 3 (Japan)",                  MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2007, 2spicy,    lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "2 Spicy",                                  MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2007, ghostsev,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Ghost Squad Evolution",                    MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2007, initiad4,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Initial D4 (Rev D)",                       MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2007, initiad4c, initiad4, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Initial D4 (Rev C)",                       MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2007, segartv,   lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Sega Race-TV (Export)",                    MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2008, hotdex,    lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "House of the Dead EX (Japan)",             MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2008, primevah,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Primeval Hunt",                            MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2008, rambo,     lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Rambo (Export)",                           MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(2009, hummerxt,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "Hummer Extreme",                           MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)
+GAME(200?, lbvbiosu,  lindbios, lindbergh, 0, driver_device, 0, ROT0, "Sega", "VBios updater",                            MACHINE_NOT_WORKING|MACHINE_UNEMULATED_PROTECTION|MACHINE_NO_SOUND)

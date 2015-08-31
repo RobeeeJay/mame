@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 /***************************************************************************
 
 Jailbreak - (c) 1986 Konami
@@ -244,7 +246,7 @@ void jailbrek_state::machine_reset()
 static MACHINE_CONFIG_START( jailbrek, jailbrek_state )
 
 	/* basic machine hardware */
-	MCFG_CPU_ADD("maincpu", M6809, MASTER_CLOCK/12)
+	MCFG_CPU_ADD("maincpu", KONAMI1, MASTER_CLOCK/12)
 	MCFG_CPU_PROGRAM_MAP(jailbrek_map)
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", jailbrek_state,  jb_interrupt)
 	MCFG_CPU_PERIODIC_INT_DRIVER(jailbrek_state, jb_interrupt_nmi,  500) /* ? */
@@ -412,10 +414,8 @@ DRIVER_INIT_MEMBER(jailbrek_state,jailbrek)
 			SPEECH_ROM[ind] = SPEECH_ROM[ind + 0x2000];
 		}
 	}
-
-	konami1_decode(machine(), "maincpu");
 }
 
-GAME( 1986, jailbrek, 0,        jailbrek, jailbrek, jailbrek_state, jailbrek, ROT0, "Konami", "Jail Break", GAME_SUPPORTS_SAVE )
-GAME( 1986, jailbrekb,jailbrek, jailbrek, jailbrek, jailbrek_state, jailbrek, ROT0, "bootleg","Jail Break (bootleg)", GAME_SUPPORTS_SAVE )
-GAME( 1986, manhatan, jailbrek, jailbrek, jailbrek, jailbrek_state, jailbrek, ROT0, "Konami", "Manhattan 24 Bunsyo (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1986, jailbrek, 0,        jailbrek, jailbrek, jailbrek_state, jailbrek, ROT0, "Konami", "Jail Break", MACHINE_SUPPORTS_SAVE )
+GAME( 1986, jailbrekb,jailbrek, jailbrek, jailbrek, jailbrek_state, jailbrek, ROT0, "bootleg","Jail Break (bootleg)", MACHINE_SUPPORTS_SAVE )
+GAME( 1986, manhatan, jailbrek, jailbrek, jailbrek, jailbrek_state, jailbrek, ROT0, "Konami", "Manhattan 24 Bunsyo (Japan)", MACHINE_SUPPORTS_SAVE )

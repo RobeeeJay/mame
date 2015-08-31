@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         Orion machine driver by Miodrag Milanovic
@@ -67,7 +69,7 @@ WRITE8_MEMBER(orion_state::orion128_romdisk_w)
 void orion_state::orion_set_video_mode(int width)
 {
 	rectangle visarea(0, width-1, 0, 255);
-	machine().first_screen()->configure(width, 256, visarea, machine().first_screen()->frame_period().attoseconds);
+	machine().first_screen()->configure(width, 256, visarea, machine().first_screen()->frame_period().attoseconds());
 }
 
 WRITE8_MEMBER(orion_state::orion128_video_mode_w)

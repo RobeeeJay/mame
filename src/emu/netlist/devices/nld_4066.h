@@ -24,30 +24,25 @@
 #ifndef NLD_4066_H_
 #define NLD_4066_H_
 
-#include "../nl_base.h"
+#include "nl_base.h"
 #include "nld_cmos.h"
 
-#define CD_4066_DIP(_name)                                                         \
-		NET_REGISTER_DEV(4066_dip, _name)
+#define CD4066_GATE(_name)                                                     \
+		NET_REGISTER_DEV(CD4066_GATE, _name)
 
-NETLIB_SUBDEVICE(4066,
-	NETLIB_LOGIC_FAMILY(CD4000)
+NETLIB_NAMESPACE_DEVICES_START()
+
+NETLIB_DEVICE(CD4066_GATE,
+	NETLIB_LOGIC_FAMILY(CD4XXX)
 public:
 
-	netlist_analog_input_t m_control;
+	analog_input_t m_control;
 	NETLIB_NAME(R) m_R;
 
-	netlist_state_t<NETLIB_NAME(vdd_vss) *>m_supply;
-);
-
-NETLIB_DEVICE(4066_dip,
-	NETLIB_LOGIC_FAMILY(CD4000)
-
-	NETLIB_NAME(4066) m_A;
-	NETLIB_NAME(4066) m_B;
-	NETLIB_NAME(4066) m_C;
-	NETLIB_NAME(4066) m_D;
 	NETLIB_NAME(vdd_vss) m_supply;
+	param_double_t m_base_r;
 );
+
+NETLIB_NAMESPACE_DEVICES_END()
 
 #endif /* NLD_4066_H_ */

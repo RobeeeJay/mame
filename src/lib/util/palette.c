@@ -8,6 +8,8 @@
 
 ******************************************************************************/
 
+#include <assert.h>
+
 #include "palette.h"
 #include <stdlib.h>
 #include <math.h>
@@ -77,7 +79,8 @@ void palette_client::dirty_state::resize(UINT32 colors)
 {
 	// resize to the correct number of dwords and mark all entries dirty
 	UINT32 dirty_dwords = (colors + 31) / 32;
-	m_dirty.resize_and_clear(dirty_dwords, 0xff);
+	m_dirty.resize(dirty_dwords);
+	memset(&m_dirty[0], 0xff, dirty_dwords*4);
 
 	// mark all entries dirty
 	m_dirty[dirty_dwords - 1] &= (1 << (colors % 32)) - 1;
@@ -109,7 +112,7 @@ void palette_client::dirty_state::reset()
 {
 	// erase relevant entries in the new live one
 	memset(&m_dirty[m_mindirty / 32], 0, ((m_maxdirty / 32) + 1 - (m_mindirty / 32)) * sizeof(UINT32));
-	m_mindirty = m_dirty.count() * 32 - 1;
+	m_mindirty = m_dirty.size() * 32 - 1;
 	m_maxdirty = 0;
 }
 
@@ -362,6 +365,66 @@ void palette_t::entry_set_color(UINT32 index, rgb_t rgb)
 
 
 //-------------------------------------------------
+//  entry_set_red_level - set the red level for a
+//  given palette index
+//-------------------------------------------------
+
+void palette_t::entry_set_red_level(UINT32 index, UINT8 level)
+{
+	// if out of range, or unchanged, ignore
+	if (index >= m_numcolors || m_entry_color[index].r() == level)
+		return;
+
+	// set the level
+	m_entry_color[index].set_r(level);
+
+	// update across all groups
+	for (int groupnum = 0; groupnum < m_numgroups; groupnum++)
+		update_adjusted_color(groupnum, index);
+}
+
+
+//-------------------------------------------------
+//  entry_set_green_level - set the green level for a
+//  given palette index
+//-------------------------------------------------
+
+void palette_t::entry_set_green_level(UINT32 index, UINT8 level)
+{
+	// if out of range, or unchanged, ignore
+	if (index >= m_numcolors || m_entry_color[index].g() == level)
+		return;
+
+	// set the level
+	m_entry_color[index].set_g(level);
+
+	// update across all groups
+	for (int groupnum = 0; groupnum < m_numgroups; groupnum++)
+		update_adjusted_color(groupnum, index);
+}
+
+
+//-------------------------------------------------
+//  entry_set_blue_level - set the blue level for a
+//  given palette index
+//-------------------------------------------------
+
+void palette_t::entry_set_blue_level(UINT32 index, UINT8 level)
+{
+	// if out of range, or unchanged, ignore
+	if (index >= m_numcolors || m_entry_color[index].b() == level)
+		return;
+
+	// set the level
+	m_entry_color[index].set_b(level);
+
+	// update across all groups
+	for (int groupnum = 0; groupnum < m_numgroups; groupnum++)
+		update_adjusted_color(groupnum, index);
+}
+
+
+//-------------------------------------------------
 //  entry_set_contrast - set the contrast
 //  adjustment for a single palette index
 //-------------------------------------------------
@@ -464,11 +527,16 @@ void palette_t::normalize_range(UINT32 start, UINT32 end, int lum_min, int lum_m
 	}
 }
 
-
-//-------------------------------------------------
-//  update_adjusted_color - update a color index
-//  by group and index pair
-//-------------------------------------------------
+/**
+ * @fn  void palette_t::update_adjusted_color(UINT32 group, UINT32 index)
+ *
+ * @brief   -------------------------------------------------
+ *            update_adjusted_color - update a color index by group and index pair
+ *          -------------------------------------------------.
+ *
+ * @param   group   The group.
+ * @param   index   Zero-based index of the.
+ */
 
 void palette_t::update_adjusted_color(UINT32 group, UINT32 index)
 {

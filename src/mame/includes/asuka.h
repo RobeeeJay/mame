@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Graves, Brian Troha
 /*************************************************************************
 
     Asuka & Asuka  (+ Taito/Visco games on similar hardware)
@@ -28,9 +30,6 @@ public:
 		m_tc0100scn(*this, "tc0100scn"),
 		m_tc0110pcr(*this, "tc0110pcr"),
 		m_tc0220ioc(*this, "tc0220ioc") { }
-
-	/* memory pointers */
-//  UINT16 *    paletteram; // this currently uses generic palette handlers
 
 	/* video-related */
 	UINT16      m_video_ctrl;

@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 /*
 Taiwan Chess Legend
 Uniwang, 1995
@@ -171,13 +173,12 @@ DRIVER_INIT_MEMBER(tcl_state,tcl)
 {
 	/* only the first part is decrypted (and verified)*/
 
-	address_space &space = m_maincpu->space(AS_PROGRAM);
 	UINT8 *dest = memregion("maincpu")->base();
 	int len = memregion("maincpu")->bytes();
 	dynamic_buffer src(len);
 
 	int i,idx=0;
-	memcpy(src, dest, len);
+	memcpy(&src[0], dest, len);
 	for(i=0;i<64*1024;i+=4)
 	{
 		if(i&0x8000)
@@ -195,8 +196,6 @@ DRIVER_INIT_MEMBER(tcl_state,tcl)
 			WRITEDEST((src[idx]^0x11)^0xf0); // abcdefgh -> ABCdefgH
 		}
 	}
-
-	space.set_decrypted_region(0x0000, 0x7fff, dest+0x10000);
 }
 
-GAME( 1995, tcl,  0,       tcl,  tcl, tcl_state,  tcl, ROT0, "Uniwang", "Taiwan Chess Legend", GAME_NOT_WORKING )
+GAME( 1995, tcl,  0,       tcl,  tcl, tcl_state,  tcl, ROT0, "Uniwang", "Taiwan Chess Legend", MACHINE_NOT_WORKING )

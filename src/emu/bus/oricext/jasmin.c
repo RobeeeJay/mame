@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #include "jasmin.h"
 #include "formats/oric_dsk.h"
 
@@ -17,7 +19,7 @@ static SLOT_INTERFACE_START( jasmin_floppies )
 SLOT_INTERFACE_END
 
 static MACHINE_CONFIG_FRAGMENT( jasmin )
-	MCFG_WD1770x_ADD("fdc", XTAL_8MHz)
+	MCFG_WD1770_ADD("fdc", XTAL_8MHz)
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(oricext_device, irq_w))
 
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", jasmin_floppies, "3dsdd", jasmin_device::floppy_formats)
@@ -53,8 +55,7 @@ jasmin_device::~jasmin_device()
 void jasmin_device::device_start()
 {
 	oricext_device::device_start();
-	astring tempstring;
-	jasmin_rom = device().machine().root_device().memregion(this->subtag(tempstring, "jasmin"))->base();
+	jasmin_rom = device().machine().root_device().memregion(this->subtag("jasmin").c_str())->base();
 	cpu->space(AS_PROGRAM).install_device(0x0000, 0xffff, *this, &jasmin_device::map);
 
 	for(int i=0; i<4; i++) {

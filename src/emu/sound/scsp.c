@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:ElSemi, R. Belmont
 /*
     Sega/Yamaha YMF292-F (SCSP = Saturn Custom Sound Processor) emulation
     By ElSemi
@@ -28,6 +30,7 @@
 */
 
 #include "emu.h"
+#include "sound/cdda.h"
 #include "scsp.h"
 
 
@@ -279,6 +282,8 @@ void scsp_device::MainCheckPendingIRQ(UINT16 irq_type)
 {
 	m_mcipd |= irq_type;
 
+	//machine().scheduler().synchronize(); // force resync
+
 	if(m_mcipd & m_mcieb)
 		m_main_irq_cb(1);
 	else
@@ -526,7 +531,7 @@ void scsp_device::init()
 	{
 		float envDB=((float)(3*(i-0x3ff)))/32.0f;
 		float scale=(float)(1<<SHIFT);
-		m_EG_TABLE[i]=(INT32)(pow(10.0,envDB/20.0)*scale);
+		m_EG_TABLE[i]=(INT32)(powf(10.0f,envDB/20.0f)*scale);
 	}
 
 	for(i=0;i<0x10000;++i)
@@ -549,7 +554,7 @@ void scsp_device::init()
 		if(iTL&0x40) SegaDB-=24.0f;
 		if(iTL&0x80) SegaDB-=48.0f;
 
-		TL=pow(10.0,SegaDB/20.0);
+		TL=powf(10.0f,SegaDB/20.0f);
 
 		SegaDB=0;
 		if(iPAN&0x1) SegaDB-=3.0f;
@@ -558,7 +563,7 @@ void scsp_device::init()
 		if(iPAN&0x8) SegaDB-=24.0f;
 
 		if((iPAN&0xf)==0xf) PAN=0.0;
-		else PAN=pow(10.0,SegaDB/20.0);
+		else PAN=powf(10.0f,SegaDB/20.0f);
 
 		if(iPAN<0x10)
 		{
@@ -572,12 +577,12 @@ void scsp_device::init()
 		}
 
 		if(iSDL)
-			fSDL=pow(10.0,(SDLT[iSDL])/20.0);
+			fSDL=powf(10.0f,(SDLT[iSDL])/20.0f);
 		else
 			fSDL=0.0;
 
-		m_LPANTABLE[i]=FIX((4.0*LPAN*TL*fSDL));
-		m_RPANTABLE[i]=FIX((4.0*RPAN*TL*fSDL));
+		m_LPANTABLE[i]=FIX((4.0f*LPAN*TL*fSDL));
+		m_RPANTABLE[i]=FIX((4.0f*RPAN*TL*fSDL));
 	}
 
 	m_ARTABLE[0]=m_DRTABLE[0]=0;    //Infinite time
@@ -588,7 +593,7 @@ void scsp_device::init()
 		t=ARTimes[i];   //In ms
 		if(t!=0.0)
 		{
-			step=(1023*1000.0)/((float) 44100.0f*t);
+			step=(1023*1000.0)/( 44100.0*t);
 			scale=(double) (1<<EG_SHIFT);
 			m_ARTABLE[i]=(int) (step*scale);
 		}
@@ -596,7 +601,7 @@ void scsp_device::init()
 			m_ARTABLE[i]=1024<<EG_SHIFT;
 
 		t=DRTimes[i];   //In ms
-		step=(1023*1000.0)/((float) 44100.0f*t);
+		step=(1023*1000.0)/( 44100.0*t);
 		scale=(double) (1<<EG_SHIFT);
 		m_DRTABLE[i]=(int) (step*scale);
 	}
@@ -693,8 +698,8 @@ void scsp_device::UpdateReg(address_space &space, int reg)
 			break;
 		case 8:
 		case 9:
-			/* Only MSLC could be written. */
-			m_udata.data[0x8/2] &= 0x7800;
+			/* Only MSLC could be written.  */
+			m_udata.data[0x8/2] &= 0xf800; /**< @todo Docs claims MSLC to be 0x7800, but Jikkyou Parodius doesn't agree. */
 			break;
 		case 0x12:
 		case 0x13:
@@ -1008,8 +1013,10 @@ unsigned short scsp_device::r16(address_space &space, unsigned int addr)
 			v= *((unsigned short *) (m_DSP.EFREG+(addr-0xec0)/2));
 		else
 		{
-			/*
-			TODO: Kyuutenkai reads from 0xee0/0xee2, it's an undocumented "DSP internal buffer" register ...
+			/**!
+			@todo Kyuutenkai reads from 0xee0/0xee2, it's tied with EXTS register(s) also used for CD-Rom Player equalizer.
+			This port is actually an external parallel port, directly connected from the CD Block device, hence code is a bit of an hack.
+			Kyuutenkai code snippet for reference:
 			004A3A: 207C 0010 0EE0             movea.l #$100ee0, A0
 			004A40: 43EA 0090                  lea     ($90,A2), A1 ;A2=0x700
 			004A44: 6100 0254                  bsr     $4c9a
@@ -1042,11 +1049,11 @@ unsigned short scsp_device::r16(address_space &space, unsigned int addr)
 			    004CB0: 4CDF 0002                  movem.l (A7)+, D1
 			    004CB4: 4E75                       rts
 			*/
-			logerror("SCSP: Reading from unmapped register %08x\n",addr);
+			logerror("SCSP: Reading from EXTS register %08x\n",addr);
 			if(addr == 0xee0)
-				v= m_DSP.TEMP[0] >> 16;
+				v = space.machine().device<cdda_device>("cdda")->get_channel_volume(0);
 			if(addr == 0xee2)
-				v= m_DSP.TEMP[0] & 0xffff;
+				v = space.machine().device<cdda_device>("cdda")->get_channel_volume(1);
 		}
 	}
 	return v;
@@ -1430,10 +1437,10 @@ READ16_MEMBER( scsp_device::midi_out_r )
 #define LFIX(v) ((unsigned int) ((float) (1<<LFO_SHIFT)*(v)))
 
 //Convert DB to multiply amplitude
-#define DB(v)   LFIX(pow(10.0,v/20.0))
+#define DB(v)   LFIX(powf(10.0f,v/20.0f))
 
 //Convert cents to step increment
-#define CENTS(v) LFIX(pow(2.0,v/1200.0))
+#define CENTS(v) LFIX(powf(2.0f,v/1200.0f))
 
 
 static const float LFOFreq[32]=
@@ -1504,12 +1511,12 @@ void scsp_device::LFO_Init()
 		float limit=PSCALE[s];
 		for(i=-128;i<128;++i)
 		{
-			m_PSCALES[s][i+128]=CENTS(((limit*(float) i)/128.0));
+			m_PSCALES[s][i+128]=CENTS(((limit*(float) i)/128.0f));
 		}
 		limit=-ASCALE[s];
 		for(i=0;i<256;++i)
 		{
-			m_ASCALES[s][i]=DB(((limit*(float) i)/256.0));
+			m_ASCALES[s][i]=DB(((limit*(float) i)/256.0f));
 		}
 	}
 }
@@ -1540,7 +1547,7 @@ signed int scsp_device::ALFO_Step(SCSP_LFO_t *LFO)
 
 void scsp_device::LFO_ComputeStep(SCSP_LFO_t *LFO,UINT32 LFOF,UINT32 LFOWS,UINT32 LFOS,int ALFO)
 {
-	float step=(float) LFOFreq[LFOF]*256.0/(float)44100;
+	float step=(float) LFOFreq[LFOF]*256.0f/(float)44100;
 	LFO->phase_step=(unsigned int) ((float) (1<<LFO_SHIFT)*step);
 	if(ALFO)
 	{

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail, David Haywood
 /***************************************************************************
 
     Dynamite Duke                       (c) 1989 Seibu Kaihatsu/Fabtek
@@ -80,19 +82,19 @@ static ADDRESS_MAP_START( master_map, AS_PROGRAM, 16, dynduke_state )
 	AM_RANGE(0x0b000, 0x0b001) AM_READ_PORT("P1_P2")
 	AM_RANGE(0x0b002, 0x0b003) AM_READ_PORT("DSW")
 	AM_RANGE(0x0b004, 0x0b005) AM_WRITENOP
-	AM_RANGE(0x0b006, 0x0b007) AM_WRITE(dynduke_control_w)
-	AM_RANGE(0x0c000, 0x0c7ff) AM_RAM_WRITE(dynduke_text_w) AM_SHARE("videoram")
+	AM_RANGE(0x0b006, 0x0b007) AM_WRITE(control_w)
+	AM_RANGE(0x0c000, 0x0c7ff) AM_RAM_WRITE(text_w) AM_SHARE("videoram")
 	AM_RANGE(0x0d000, 0x0d00d) AM_DEVREADWRITE("seibu_sound", seibu_sound_device, main_word_r, main_word_w)
 	AM_RANGE(0xa0000, 0xfffff) AM_ROM
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( slave_map, AS_PROGRAM, 16, dynduke_state )
 	AM_RANGE(0x00000, 0x05fff) AM_RAM
-	AM_RANGE(0x06000, 0x067ff) AM_RAM_WRITE(dynduke_background_w) AM_SHARE("back_data")
-	AM_RANGE(0x06800, 0x06fff) AM_RAM_WRITE(dynduke_foreground_w) AM_SHARE("fore_data")
-	AM_RANGE(0x07000, 0x07fff) AM_RAM_WRITE(dynduke_paletteram_w) AM_SHARE("paletteram")
+	AM_RANGE(0x06000, 0x067ff) AM_RAM_WRITE(background_w) AM_SHARE("back_data")
+	AM_RANGE(0x06800, 0x06fff) AM_RAM_WRITE(foreground_w) AM_SHARE("fore_data")
+	AM_RANGE(0x07000, 0x07fff) AM_RAM_DEVWRITE("palette", palette_device, write) AM_SHARE("palette")
 	AM_RANGE(0x08000, 0x08fff) AM_RAM AM_SHARE("share1")
-	AM_RANGE(0x0a000, 0x0a001) AM_WRITE(dynduke_gfxbank_w)
+	AM_RANGE(0x0a000, 0x0a001) AM_WRITE(gfxbank_w)
 	AM_RANGE(0x0c000, 0x0c001) AM_WRITENOP
 	AM_RANGE(0xc0000, 0xfffff) AM_ROM
 ADDRESS_MAP_END
@@ -101,14 +103,14 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( masterj_map, AS_PROGRAM, 16, dynduke_state )
 	AM_RANGE(0x00000, 0x06fff) AM_RAM
 	AM_RANGE(0x07000, 0x07fff) AM_RAM AM_SHARE("spriteram")
-	AM_RANGE(0x08000, 0x087ff) AM_RAM_WRITE(dynduke_text_w) AM_SHARE("videoram")
+	AM_RANGE(0x08000, 0x087ff) AM_RAM_WRITE(text_w) AM_SHARE("videoram")
 	AM_RANGE(0x09000, 0x0900d) AM_DEVREADWRITE("seibu_sound", seibu_sound_device, main_word_r, main_word_w)
 	AM_RANGE(0x0c000, 0x0c0ff) AM_RAM AM_SHARE("scroll_ram")
 	AM_RANGE(0x0e000, 0x0efff) AM_RAM AM_SHARE("share1")
 	AM_RANGE(0x0f000, 0x0f001) AM_READ_PORT("P1_P2")
 	AM_RANGE(0x0f002, 0x0f003) AM_READ_PORT("DSW")
 	AM_RANGE(0x0f004, 0x0f005) AM_WRITENOP
-	AM_RANGE(0x0f006, 0x0f007) AM_WRITE(dynduke_control_w)
+	AM_RANGE(0x0f006, 0x0f007) AM_WRITE(control_w)
 	AM_RANGE(0xa0000, 0xfffff) AM_ROM
 ADDRESS_MAP_END
 
@@ -263,7 +265,7 @@ GFXDECODE_END
 
 /* Interrupt Generator */
 
-INTERRUPT_GEN_MEMBER(dynduke_state::dynduke_interrupt)
+INTERRUPT_GEN_MEMBER(dynduke_state::interrupt)
 {
 	device.execute().set_input_line_and_vector(0, HOLD_LINE, 0xc8/4);   // VBL
 }
@@ -274,13 +276,14 @@ static MACHINE_CONFIG_START( dynduke, dynduke_state )
 	// basic machine hardware
 	MCFG_CPU_ADD("maincpu", V30, 16000000/2) // NEC V30-8 CPU
 	MCFG_CPU_PROGRAM_MAP(master_map)
-	MCFG_CPU_VBLANK_INT_DRIVER("screen", dynduke_state,  dynduke_interrupt)
+	MCFG_CPU_VBLANK_INT_DRIVER("screen", dynduke_state, interrupt)
 
 	MCFG_CPU_ADD("slave", V30, 16000000/2) // NEC V30-8 CPU
 	MCFG_CPU_PROGRAM_MAP(slave_map)
-	MCFG_CPU_VBLANK_INT_DRIVER("screen", dynduke_state,  dynduke_interrupt)
+	MCFG_CPU_VBLANK_INT_DRIVER("screen", dynduke_state, interrupt)
 
 	SEIBU_SOUND_SYSTEM_CPU(14318180/4)
+	SEIBU_SOUND_SYSTEM_ENCRYPTED_FULL()
 
 	MCFG_QUANTUM_TIME(attotime::from_hz(3600))
 
@@ -292,13 +295,14 @@ static MACHINE_CONFIG_START( dynduke, dynduke_state )
 	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(2500) /* not accurate */)
 	MCFG_SCREEN_SIZE(32*8, 32*8)
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
-	MCFG_SCREEN_UPDATE_DRIVER(dynduke_state, screen_update_dynduke)
+	MCFG_SCREEN_UPDATE_DRIVER(dynduke_state, screen_update)
 	MCFG_SCREEN_VBLANK_DEVICE("spriteram", buffered_spriteram16_device, vblank_copy_rising)
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", dynduke)
-	MCFG_PALETTE_ADD("palette", 2048)
 
+	MCFG_PALETTE_ADD("palette", 2048)
+	MCFG_PALETTE_FORMAT(xxxxBBBBGGGGRRRR)
 
 	// sound hardware
 	SEIBU_SOUND_SYSTEM_YM3812_INTERFACE(14318180/4,1320000)
@@ -605,14 +609,13 @@ ROM_END
 
 DRIVER_INIT_MEMBER(dynduke_state,dynduke)
 {
-	m_seibu_sound->decrypt("audiocpu",0x20000);
 }
 
 /* Game Drivers */
 
-GAME( 1989, dynduke,  0,       dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu",                  "Dynamite Duke (Europe set 1)", 0 )
-GAME( 1989, dyndukea, dynduke, dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu",                  "Dynamite Duke (Europe set 2)", 0 )
-GAME( 1989, dyndukej, dynduke, dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu",                  "Dynamite Duke (Japan)", 0 )
-GAME( 1989, dyndukeu, dynduke, dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu (Fabtek license)", "Dynamite Duke (US)", 0 )
-GAME( 1989, dbldynj,  dynduke, dbldyn,  dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu",                  "The Double Dynamites (Japan)", 0 )
-GAME( 1989, dbldynu,  dynduke, dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu (Fabtek license)", "The Double Dynamites (US)", 0 )
+GAME( 1989, dynduke,  0,       dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu",                  "Dynamite Duke (Europe set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, dyndukea, dynduke, dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu",                  "Dynamite Duke (Europe set 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, dyndukej, dynduke, dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu",                  "Dynamite Duke (Japan)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, dyndukeu, dynduke, dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu (Fabtek license)", "Dynamite Duke (US)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, dbldynj,  dynduke, dbldyn,  dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu",                  "The Double Dynamites (Japan)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, dbldynu,  dynduke, dynduke, dynduke, dynduke_state, dynduke, ROT0, "Seibu Kaihatsu (Fabtek license)", "The Double Dynamites (US)", MACHINE_SUPPORTS_SAVE )

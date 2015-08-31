@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #pragma once
 
 #ifndef __LR35902_H__
@@ -27,7 +29,7 @@ enum
 	/* Pseudo registers to keep track of the interrupt statuses */
 	LR35902_IE, LR35902_IF,
 	/* Pseudo register to change and check the cpu operating speed */
-	LR35902_SPEED,
+	LR35902_SPEED
 };
 
 
@@ -68,7 +70,7 @@ protected:
 	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : NULL; }
 
 	// device_state_interface overrides
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 1; }

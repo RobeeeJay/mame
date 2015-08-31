@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /***********************************************************************************************************
 
 
@@ -54,7 +56,7 @@ device_sega8_cart_interface::device_sega8_cart_interface(const machine_config &m
 		m_rom_page_count(0),
 		has_battery(FALSE),
 		m_late_battery_enable(FALSE),
-		m_lphaser_xoffs(0),
+		m_lphaser_xoffs(-1),
 		m_sms_mode(0)
 {
 }
@@ -76,9 +78,7 @@ void device_sega8_cart_interface::rom_alloc(UINT32 size, const char *tag)
 {
 	if (m_rom == NULL)
 	{
-		astring tempstring(tag);
-		tempstring.cat(S8SLOT_ROM_REGION_TAG);
-		m_rom = device().machine().memory().region_alloc(tempstring, size, 1, ENDIANNESS_LITTLE)->base();
+		m_rom = device().machine().memory().region_alloc(std::string(tag).append(S8SLOT_ROM_REGION_TAG).c_str(), size, 1, ENDIANNESS_LITTLE)->base();
 		m_rom_size = size;
 		m_rom_page_count = size / 0x4000;
 		if (!m_rom_page_count)
@@ -247,26 +247,21 @@ void sega8_cart_slot_device::set_lphaser_xoffset( UINT8 *rom, int size )
 		{ 0x54, 0x4d, 0x52, 0x20, 0x53, 0x45, 0x47, 0x41, 0x41, 0x4c, 0x15, 0x4a, 0x01, 0x80, 0x00, 0x4f }
 	};
 
-	int xoff = 36;
+	int xoff = -1;
 
 	if (size >= 0x8000)
 	{
 		if (!memcmp(&rom[0x7ff0], signatures[0], 16) || !memcmp(&rom[0x7ff0], signatures[1], 16))
 			xoff = 26;
-
-		if (!memcmp(&rom[0x7ff0], signatures[2], 16))
+		else if (!memcmp(&rom[0x7ff0], signatures[2], 16))
 			xoff = 36;
-
-		if (!memcmp(&rom[0x7ff0], signatures[3], 16))
+		else if (!memcmp(&rom[0x7ff0], signatures[3], 16))
 			xoff = 32;
-
-		if (!memcmp(&rom[0x7ff0], signatures[4], 16))
+		else if (!memcmp(&rom[0x7ff0], signatures[4], 16))
 			xoff = 30;
-
-		if (!memcmp(&rom[0x7ff0], signatures[5], 16))
+		else if (!memcmp(&rom[0x7ff0], signatures[5], 16))
 			xoff = 39;
-
-		if (!memcmp(&rom[0x7ff0], signatures[6], 16))
+		else if (!memcmp(&rom[0x7ff0], signatures[6], 16))
 			xoff = 38;
 	}
 
@@ -415,7 +410,7 @@ bool sega8_cart_slot_device::call_load()
 
 void sega8_cart_slot_device::call_unload()
 {
-	if (m_cart && m_cart->get_ram_size() && m_cart->get_has_battery())
+	if (m_cart && m_cart->get_ram_base() && m_cart->get_ram_size() && m_cart->get_has_battery())
 		battery_save(m_cart->get_ram_base(), m_cart->get_ram_size());
 }
 
@@ -608,7 +603,7 @@ int sega8_cart_slot_device::get_cart_type(UINT8 *ROM, UINT32 len)
  get default card software
  -------------------------------------------------*/
 
-void sega8_cart_slot_device::get_default_card_software(astring &result)
+void sega8_cart_slot_device::get_default_card_software(std::string &result)
 {
 	if (open_image_file(mconfig().options()))
 	{
@@ -617,18 +612,18 @@ void sega8_cart_slot_device::get_default_card_software(astring &result)
 		dynamic_buffer rom(len);
 		int type;
 
-		core_fread(m_file, rom, len);
+		core_fread(m_file, &rom[0], len);
 
 		if ((len % 0x4000) == 512)
 			offset = 512;
 
-		type = get_cart_type(rom + offset, len - offset);
+		type = get_cart_type(&rom[offset], len - offset);
 		slot_string = sega8_get_slot(type);
 
 		//printf("type: %s\n", slot_string);
 		clear();
 
-		result.cpy(slot_string);
+		result.assign(slot_string);
 		return;
 	}
 
@@ -736,7 +731,7 @@ void sega8_cart_slot_device::internal_header_logging(UINT8 *ROM, UINT32 len, UIN
 	logerror("FILE DETAILS\n" );
 	logerror("============\n" );
 	logerror("Name: %s\n", basename());
-	logerror("File Size: 0x%" I64FMT "x\n", (software_entry() == NULL) ? length() : get_software_region_length("rom"));
+	logerror("File Size: 0x%08x\n", (software_entry() == NULL) ? (int)length() : (int)get_software_region_length("rom"));
 	logerror("Detected type: %s\n", sega8_get_slot(m_type));
 	logerror("ROM (Allocated) Size: 0x%X\n", len);
 	logerror("RAM: %s\n", nvram_len ? "Yes" : "No");

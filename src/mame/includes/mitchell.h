@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /*************************************************************************
 
     Mitchell hardware
@@ -23,7 +25,10 @@ public:
 		m_eeprom(*this, "eeprom"),
 		m_msm(*this, "msm"),
 		m_gfxdecode(*this, "gfxdecode"),
-		m_palette(*this, "palette"){ }
+		m_palette(*this, "palette"),
+		m_bank1(*this, "bank1"),
+		m_bank0d(*this, "bank0d"),
+		m_bank1d(*this, "bank1d") { }
 
 	/* devices */
 	required_device<cpu_device> m_maincpu;
@@ -38,14 +43,17 @@ public:
 	optional_device<msm5205_device> m_msm;
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
+	required_memory_bank m_bank1;
+	optional_memory_bank m_bank0d;
+	optional_memory_bank m_bank1d;
 
 	/* video-related */
 	tilemap_t    *m_bg_tilemap;
-	dynamic_array<UINT8> m_objram;           /* Sprite RAM */
+	std::vector<UINT8> m_objram;           /* Sprite RAM */
 	int        m_flipscreen;
 	int        m_video_bank;
 	int        m_paletteram_bank;
-	dynamic_array<UINT8> m_paletteram;
+	std::vector<UINT8> m_paletteram;
 
 	/* sound-related */
 	int        m_sample_buffer;
@@ -115,7 +123,7 @@ public:
 	UINT32 screen_update_pang(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	TIMER_DEVICE_CALLBACK_MEMBER(mitchell_irq);
 	void draw_sprites( bitmap_ind16 &bitmap, const rectangle &cliprect );
-	void bootleg_decode(  );
-	void configure_banks(  );
+	void bootleg_decode();
+	void configure_banks(void (*decode)(UINT8 *src, UINT8 *dst, int size));
 	DECLARE_WRITE_LINE_MEMBER(spangbl_adpcm_int);
 };

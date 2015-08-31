@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -319,4 +319,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME     PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY   FULLNAME       FLAGS */
-COMP( 1982, beehive, 0,      0,       beehive,   beehive, driver_device, 0,     "BeeHive", "DM3270", GAME_NO_SOUND)
+COMP( 1982, beehive, 0,      0,       beehive,   beehive, driver_device, 0,     "BeeHive", "DM3270", MACHINE_NO_SOUND)

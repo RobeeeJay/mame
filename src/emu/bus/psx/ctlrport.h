@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Carl
 #pragma once
 
 #ifndef __PSXCPORT_H__
@@ -37,7 +39,7 @@ protected:
 	enum
 	{
 		QUERY_PAD_STATE = 0x42,
-		CONFIG_MODE = 0x43,
+		CONFIG_MODE = 0x43
 	};
 
 private:

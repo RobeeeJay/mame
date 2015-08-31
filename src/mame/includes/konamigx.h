@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Acho A. Tang, Phil Stroffolino, Olivier Galibert
 #include "sound/k056800.h"
 #include "sound/k054539.h"
 #include "cpu/tms57002/tms57002.h"
@@ -94,8 +96,6 @@ public:
 	DECLARE_WRITE16_MEMBER(K053990_martchmp_word_w);
 	DECLARE_WRITE32_MEMBER(fantjour_dma_w);
 	DECLARE_WRITE32_MEMBER(konamigx_type3_psac2_bank_w);
-	DECLARE_WRITE32_MEMBER(konamigx_palette_w);
-	DECLARE_WRITE32_MEMBER(konamigx_palette2_w);
 	DECLARE_WRITE32_MEMBER(konamigx_555_palette_w);
 	DECLARE_WRITE32_MEMBER(konamigx_555_palette2_w);
 	DECLARE_WRITE32_MEMBER(konamigx_tilebank_w);

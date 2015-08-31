@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
     esq5505.c - Ensoniq ES5505 + ES5510 based synthesizers and samplers
@@ -446,7 +448,7 @@ WRITE_LINE_MEMBER(esq5505_state::duart_irq_handler)
 				duart_irq_state = 0;
 	}
 	update_irq_to_maincpu();
-};
+}
 
 WRITE8_MEMBER(esq5505_state::duart_output)
 {
@@ -655,7 +657,7 @@ static MACHINE_CONFIG_DERIVED(eps, vfx)
 	MCFG_ESQPANEL_TX_CALLBACK(DEVWRITELINE("duart", mc68681_device, rx_b_w))
 	MCFG_ESQPANEL_ANALOG_CALLBACK(WRITE16(esq5505_state, analog_w))
 
-	MCFG_WD1772x_ADD("wd1772", 8000000)
+	MCFG_WD1772_ADD("wd1772", 8000000)
 	MCFG_FLOPPY_DRIVE_ADD("wd1772:0", ensoniq_floppies, "35dd", esq5505_state::floppy_formats)
 
 	MCFG_DEVICE_ADD("mc68450", HD63450, 0)   // MC68450 compatible
@@ -672,7 +674,7 @@ static MACHINE_CONFIG_DERIVED(vfxsd, vfx)
 	MCFG_CPU_MODIFY( "maincpu" )
 	MCFG_CPU_PROGRAM_MAP(vfxsd_map)
 
-	MCFG_WD1772x_ADD("wd1772", 8000000)
+	MCFG_WD1772_ADD("wd1772", 8000000)
 	MCFG_FLOPPY_DRIVE_ADD("wd1772:0", ensoniq_floppies, "35dd", esq5505_state::floppy_formats)
 MACHINE_CONFIG_END
 
@@ -722,7 +724,7 @@ static MACHINE_CONFIG_START(vfx32, esq5505_state)
 	MCFG_SOUND_ROUTE_EX(6, "pump", 1.0, 6)
 	MCFG_SOUND_ROUTE_EX(7, "pump", 1.0, 7)
 
-	MCFG_WD1772x_ADD("wd1772", 8000000)
+	MCFG_WD1772_ADD("wd1772", 8000000)
 	MCFG_FLOPPY_DRIVE_ADD("wd1772:0", ensoniq_floppies, "35dd", esq5505_state::floppy_formats)
 MACHINE_CONFIG_END
 
@@ -943,11 +945,11 @@ DRIVER_INIT_MEMBER(esq5505_state,denib)
 	}
 }
 
-CONS( 1988, eps,   0, 0,   eps,   vfx, esq5505_state, eps,    "Ensoniq", "EPS", GAME_NOT_WORKING )   // custom VFD: one alphanumeric 22-char row, one graphics-capable row (alpha row can also do bar graphs)
-CONS( 1989, vfx,   0, 0,   vfx,   vfx, esq5505_state, denib,  "Ensoniq", "VFX", GAME_NOT_WORKING )       // 2x40 VFD
-CONS( 1989, vfxsd, 0, 0,   vfxsd, vfx, esq5505_state, denib,  "Ensoniq", "VFX-SD", GAME_NOT_WORKING )    // 2x40 VFD
-CONS( 1990, eps16p,eps, 0, eps,   vfx, esq5505_state, eps,    "Ensoniq", "EPS-16 Plus", GAME_NOT_WORKING )   // custom VFD: one alphanumeric 22-char row, one graphics-capable row (alpha row can also do bar graphs)
-CONS( 1990, sd1,   0, 0,   vfxsd, vfx, esq5505_state, denib,  "Ensoniq", "SD-1 (21 voice)", GAME_NOT_WORKING )  // 2x40 VFD
-CONS( 1990, sq1,   0, 0,   sq1,   vfx, esq5505_state, sq1,    "Ensoniq", "SQ-1", GAME_NOT_WORKING )      // 2x16 LCD
-CONS( 1990, sqrack,sq1, 0, sq1,   vfx, esq5505_state, sq1,    "Ensoniq", "SQ-Rack", GAME_NOT_WORKING )   // 2x16 LCD
-CONS( 1991, sd132, sd1,0,  vfx32, vfx, esq5505_state, denib,  "Ensoniq", "SD-1 (32 voice)", GAME_NOT_WORKING )  // 2x40 VFD
+CONS( 1988, eps,   0, 0,   eps,   vfx, esq5505_state, eps,    "Ensoniq", "EPS", MACHINE_NOT_WORKING )   // custom VFD: one alphanumeric 22-char row, one graphics-capable row (alpha row can also do bar graphs)
+CONS( 1989, vfx,   0, 0,   vfx,   vfx, esq5505_state, denib,  "Ensoniq", "VFX", MACHINE_NOT_WORKING )       // 2x40 VFD
+CONS( 1989, vfxsd, 0, 0,   vfxsd, vfx, esq5505_state, denib,  "Ensoniq", "VFX-SD", MACHINE_NOT_WORKING )    // 2x40 VFD
+CONS( 1990, eps16p,eps, 0, eps,   vfx, esq5505_state, eps,    "Ensoniq", "EPS-16 Plus", MACHINE_NOT_WORKING )   // custom VFD: one alphanumeric 22-char row, one graphics-capable row (alpha row can also do bar graphs)
+CONS( 1990, sd1,   0, 0,   vfxsd, vfx, esq5505_state, denib,  "Ensoniq", "SD-1 (21 voice)", MACHINE_NOT_WORKING )  // 2x40 VFD
+CONS( 1990, sq1,   0, 0,   sq1,   vfx, esq5505_state, sq1,    "Ensoniq", "SQ-1", MACHINE_NOT_WORKING )      // 2x16 LCD
+CONS( 1990, sqrack,sq1, 0, sq1,   vfx, esq5505_state, sq1,    "Ensoniq", "SQ-Rack", MACHINE_NOT_WORKING )   // 2x16 LCD
+CONS( 1991, sd132, sd1,0,  vfx32, vfx, esq5505_state, denib,  "Ensoniq", "SD-1 (32 voice)", MACHINE_NOT_WORKING )  // 2x40 VFD

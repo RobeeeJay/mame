@@ -1,11 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 /***************************************************************************
 
     Z80 CTC (Z8430) implementation
 
     based on original version (c) 1997, Tatsuyuki Satoh
-
-    Copyright Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 ***************************************************************************/
 
@@ -365,7 +364,7 @@ UINT8 z80ctc_device::ctc_channel::read()
 	{
 		attotime period = ((m_mode & PRESCALER) == PRESCALER_16) ? m_device->m_period16 : m_device->m_period256;
 
-		VPRINTF(("CTC clock %f\n",ATTOSECONDS_TO_HZ(period.attoseconds)));
+		VPRINTF(("CTC clock %f\n",ATTOSECONDS_TO_HZ(period.attoseconds())));
 
 		if (m_timer != NULL)
 			return ((int)(m_timer->remaining().as_double() / period.as_double()) + 1) & 0xff;

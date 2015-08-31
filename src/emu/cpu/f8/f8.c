@@ -1,21 +1,9 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 /*****************************************************************************
  *
  *   f8.c
  *   Portable F8 emulator (Fairchild 3850)
- *
- *   Copyright Juergen Buchmueller, all rights reserved.
- *
- *   - This source code is released as freeware for non-commercial purposes.
- *   - You are free to use and redistribute this code in modified or
- *     unmodified form, provided you list me in the credits.
- *   - If you modify this source code, you must add a notice to each modified
- *     source file that it has been changed.  If you're a nice person, you
- *     will clearly mark each change too.  :)
- *   - If you wish to use this for commercial purposes, please contact me at
- *     pullmoll@t-online.de
- *   - The author of this copywritten work reserves the right to change the
- *     terms of its usage and license at any time, including retroactively
- *   - This entire notice must remain in the source code.
  *
  *  This work is based on Frank Palazzolo's F8 emulation in a standalone
  *  Fairchild Channel F emulator and the 'Fairchild F3850 CPU' data sheets.
@@ -108,7 +96,7 @@ void f8_cpu_device::ROMC_00(int insttim) /* SKR - added parameter to tell if  */
 	 * of PC0.
 	 */
 
-	m_dbus = m_direct->read_decrypted_byte(m_pc0);
+	m_dbus = m_direct->read_byte(m_pc0);
 	m_pc0 += 1;
 	m_icount -= insttim;    /* SKR - ROMC00 is usually short, not short+long, */
 							/* but DS is long */
@@ -122,7 +110,7 @@ void f8_cpu_device::ROMC_01()
 	 * location addressed by PC0; then all devices add the 8-bit value
 	 * on the data bus as signed binary number to PC0.
 	 */
-	m_dbus = m_direct->read_raw_byte(m_pc0);
+	m_dbus = m_direct->read_byte(m_pc0);
 	m_pc0 += (INT8)m_dbus;
 	m_icount -= cL;
 }
@@ -146,7 +134,7 @@ void f8_cpu_device::ROMC_03(int insttim) /* SKR - added parameter to tell if  */
 	 * Similiar to 0x00, except that it is used for immediate operands
 	 * fetches (using PC0) instead of instruction fetches.
 	 */
-	m_dbus = m_io = m_direct->read_raw_byte(m_pc0);
+	m_dbus = m_io = m_direct->read_byte(m_pc0);
 	m_pc0 += 1;
 	m_icount -= insttim;
 }
@@ -240,7 +228,7 @@ void f8_cpu_device::ROMC_0C()
 	 * by PC0 into the data bus; then all devices move the value that
 	 * has just been placed on the data bus into the low order byte of PC0.
 	 */
-	m_dbus = m_direct->read_raw_byte(m_pc0);
+	m_dbus = m_direct->read_byte(m_pc0);
 	m_pc0 = (m_pc0 & 0xff00) | m_dbus;
 	m_icount -= cL;
 }
@@ -263,7 +251,7 @@ void f8_cpu_device::ROMC_0E()
 	 * The value on the data bus is then moved to the low order byte
 	 * of DC0 by all devices.
 	 */
-	m_dbus = m_direct->read_raw_byte(m_pc0);
+	m_dbus = m_direct->read_byte(m_pc0);
 	m_dc0 = (m_dc0 & 0xff00) | m_dbus;
 	m_icount -= cL;
 }
@@ -301,7 +289,7 @@ void f8_cpu_device::ROMC_11()
 	 * data bus. All devices must then move the contents of the
 	 * data bus to the upper byte of DC0.
 	 */
-	m_dbus = m_direct->read_raw_byte(m_pc0);
+	m_dbus = m_direct->read_byte(m_pc0);
 	m_dc0 = (m_dc0 & 0x00ff) | (m_dbus << 8);
 	m_icount -= cL;
 }
@@ -2057,12 +2045,12 @@ void f8_cpu_device::device_start()
 }
 
 
-void f8_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void f8_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c",
+			strprintf(str, "%c%c%c%c%c",
 							m_w & 0x10 ? 'I':'.',
 							m_w & 0x08 ? 'O':'.',
 							m_w & 0x04 ? 'Z':'.',

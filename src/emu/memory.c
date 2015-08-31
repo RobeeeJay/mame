@@ -586,7 +586,7 @@ protected:
 	UINT16 *subtable_ptr(UINT16 entry) { return &m_table[level2_index(entry, 0)]; }
 
 	// internal state
-	dynamic_array<UINT16>   m_table;                    // pointer to base of table
+	std::vector<UINT16>   m_table;                    // pointer to base of table
 	UINT16 *                m_live_lookup;              // current lookup
 	address_space &         m_space;                    // pointer back to the space
 	bool                    m_large;                    // large memory model?
@@ -604,7 +604,7 @@ protected:
 		UINT32              m_checksum;                 // checksum over all the bytes
 		UINT32              m_usecount;                 // number of times this has been used
 	};
-	dynamic_array<subtable_data> m_subtable;            // info about each subtable
+	std::vector<subtable_data>   m_subtable;            // info about each subtable
 	UINT16                  m_subtable_alloc;           // number of subtables allocated
 
 	// static global read-only watchpoint table
@@ -698,7 +698,7 @@ private:
 		m_space.device().debug()->memory_read_hook(m_space, offset * sizeof(_UintType), mask);
 
 		UINT16 *oldtable = m_live_lookup;
-		m_live_lookup = m_table;
+		m_live_lookup = &m_table[0];
 		_UintType result;
 		if (sizeof(_UintType) == 1) result = m_space.read_byte(offset);
 		if (sizeof(_UintType) == 2) result = m_space.read_word(offset << 1, mask);
@@ -768,7 +768,7 @@ private:
 		m_space.device().debug()->memory_write_hook(m_space, offset * sizeof(_UintType), data, mask);
 
 		UINT16 *oldtable = m_live_lookup;
-		m_live_lookup = m_table;
+		m_live_lookup = &m_table[0];
 		if (sizeof(_UintType) == 1) m_space.write_byte(offset, data);
 		if (sizeof(_UintType) == 2) m_space.write_word(offset << 1, data, mask);
 		if (sizeof(_UintType) == 4) m_space.write_dword(offset << 2, data, mask);
@@ -1510,7 +1510,6 @@ memory_manager::memory_manager(running_machine &machine)
 		m_banknext(STATIC_BANK1)
 {
 	memset(m_bank_ptr, 0, sizeof(m_bank_ptr));
-	memset(m_bankd_ptr, 0, sizeof(m_bankd_ptr));
 }
 
 
@@ -1835,12 +1834,12 @@ void address_space::prepare_map()
 		if (entry->m_share != NULL)
 		{
 			// if we can't find it, add it to our map
-			astring fulltag;
-			if (manager().m_sharelist.find(entry->m_devbase.subtag(fulltag, entry->m_share).cstr()) == NULL)
+			std::string fulltag = entry->m_devbase.subtag(entry->m_share);
+			if (manager().m_sharelist.find(fulltag.c_str()) == NULL)
 			{
-				VPRINTF(("Creating share '%s' of length 0x%X\n", fulltag.cstr(), entry->m_byteend + 1 - entry->m_bytestart));
+				VPRINTF(("Creating share '%s' of length 0x%X\n", fulltag.c_str(), entry->m_byteend + 1 - entry->m_bytestart));
 				memory_share *share = global_alloc(memory_share(m_map->m_databits, entry->m_byteend + 1 - entry->m_bytestart, endianness()));
-				manager().m_sharelist.append(fulltag, *share);
+				manager().m_sharelist.append(fulltag.c_str(), *share);
 			}
 		}
 
@@ -1859,11 +1858,10 @@ void address_space::prepare_map()
 		if (entry->m_region != NULL && entry->m_share == NULL)
 		{
 			// determine full tag
-			astring fulltag;
-			entry->m_devbase.subtag(fulltag, entry->m_region);
+			std::string fulltag = entry->m_devbase.subtag(entry->m_region);
 
 			// find the region
-			memory_region *region = machine().root_device().memregion(fulltag);
+			memory_region *region = machine().root_device().memregion(fulltag.c_str());
 			if (region == NULL)
 				fatalerror("Error: device '%s' %s space memory map entry %X-%X references non-existant region \"%s\"\n", m_device.tag(), m_name, entry->m_addrstart, entry->m_addrend, entry->m_region);
 
@@ -1876,11 +1874,10 @@ void address_space::prepare_map()
 		if (entry->m_region != NULL)
 		{
 			// determine full tag
-			astring fulltag;
-			entry->m_devbase.subtag(fulltag, entry->m_region);
+			std::string fulltag = entry->m_devbase.subtag(entry->m_region);
 
 			// set the memory address
-			entry->m_memory = machine().root_device().memregion(fulltag.cstr())->base() + entry->m_rgnoffs;
+			entry->m_memory = machine().root_device().memregion(fulltag.c_str())->base() + entry->m_rgnoffs;
 		}
 	}
 
@@ -1932,7 +1929,7 @@ void address_space::populate_from_map(address_map *map)
 void address_space::populate_map_entry(const address_map_entry &entry, read_or_write readorwrite)
 {
 	const map_handler_data &data = (readorwrite == ROW_READ) ? entry.m_read : entry.m_write;
-	astring fulltag;
+	std::string fulltag;
 
 	// based on the handler type, alter the bits, name, funcptr, and object
 	switch (data.m_type)
@@ -2101,41 +2098,6 @@ void address_space::locate_memory()
 }
 
 
-//-------------------------------------------------
-//  set_decrypted_region - registers an address
-//  range as having a decrypted data pointer
-//-------------------------------------------------
-
-void address_space::set_decrypted_region(offs_t addrstart, offs_t addrend, void *base)
-{
-	offs_t bytestart = address_to_byte(addrstart);
-	offs_t byteend = address_to_byte_end(addrend);
-	bool found = false;
-
-	// loop over banks looking for a match
-	for (memory_bank *bank = manager().m_banklist.first(); bank != NULL; bank = bank->next())
-	{
-		// consider this bank if it is used for reading and matches the address space
-		if (bank->references_space(*this, ROW_READ))
-		{
-			// verify that the provided range fully covers this bank
-			if (bank->is_covered_by(bytestart, byteend))
-			{
-				// set the decrypted pointer for the corresponding memory bank
-				bank->set_base_decrypted(reinterpret_cast<UINT8 *>(base) + bank->bytestart() - bytestart);
-				found = true;
-			}
-
-			// fatal error if the decrypted region straddles the bank
-			else if (bank->straddles(bytestart, byteend))
-				throw emu_fatalerror("memory_set_decrypted_region found straddled region %08X-%08X for device '%s'", bytestart, byteend, m_device.tag());
-		}
-	}
-
-	// fatal error as well if we didn't find any relevant memory banks
-	if (!found)
-		throw emu_fatalerror("memory_set_decrypted_region unable to find matching region %08X-%08X for device '%s'", bytestart, byteend, m_device.tag());
-}
 
 
 //-------------------------------------------------
@@ -2153,8 +2115,8 @@ address_map_entry *address_space::block_assign_intersecting(offs_t bytestart, of
 		// if we haven't assigned this block yet, see if we have a mapped shared pointer for it
 		if (entry->m_memory == NULL && entry->m_share != NULL)
 		{
-			astring fulltag;
-			memory_share *share = manager().m_sharelist.find(entry->m_devbase.subtag(fulltag, entry->m_share).cstr());
+			std::string fulltag = entry->m_devbase.subtag(entry->m_share);
+			memory_share *share = manager().m_sharelist.find(fulltag.c_str());
 			if (share != NULL && share->ptr() != NULL)
 			{
 				entry->m_memory = share->ptr();
@@ -2176,8 +2138,8 @@ address_map_entry *address_space::block_assign_intersecting(offs_t bytestart, of
 		// if we're the first match on a shared pointer, assign it now
 		if (entry->m_memory != NULL && entry->m_share != NULL)
 		{
-			astring fulltag;
-			memory_share *share = manager().m_sharelist.find(entry->m_devbase.subtag(fulltag, entry->m_share).cstr());
+			std::string fulltag = entry->m_devbase.subtag(entry->m_share);
+			memory_share *share = manager().m_sharelist.find(fulltag.c_str());
 			if (share != NULL && share->ptr() == NULL)
 			{
 				share->set_ptr(entry->m_memory);
@@ -2292,8 +2254,7 @@ void address_space::install_readwrite_port(offs_t addrstart, offs_t addrend, off
 	if (rtag != NULL)
 	{
 		// find the port
-		astring fulltag;
-		ioport_port *port = machine().root_device().ioport(device().siblingtag(fulltag, rtag));
+		ioport_port *port = machine().root_device().ioport(device().siblingtag(rtag).c_str());
 		if (port == NULL)
 			throw emu_fatalerror("Attempted to map non-existent port '%s' for read in space %s of device '%s'\n", rtag, m_name, m_device.tag());
 
@@ -2304,8 +2265,7 @@ void address_space::install_readwrite_port(offs_t addrstart, offs_t addrend, off
 	if (wtag != NULL)
 	{
 		// find the port
-		astring fulltag;
-		ioport_port *port = machine().root_device().ioport(device().siblingtag(fulltag, wtag));
+		ioport_port *port = machine().root_device().ioport(device().siblingtag(wtag).c_str());
 		if (port == NULL)
 			fatalerror("Attempted to map non-existent port '%s' for write in space %s of device '%s'\n", wtag, m_name, m_device.tag());
 
@@ -2333,19 +2293,41 @@ void address_space::install_bank_generic(offs_t addrstart, offs_t addrend, offs_
 	// map the read bank
 	if (rtag != NULL)
 	{
-		astring fulltag;
-		device().siblingtag(fulltag, rtag);
-		memory_bank &bank = bank_find_or_allocate(fulltag, addrstart, addrend, addrmask, addrmirror, ROW_READ);
+		std::string fulltag = device().siblingtag(rtag);
+		memory_bank &bank = bank_find_or_allocate(fulltag.c_str(), addrstart, addrend, addrmask, addrmirror, ROW_READ);
 		read().map_range(addrstart, addrend, addrmask, addrmirror, bank.index());
 	}
 
 	// map the write bank
 	if (wtag != NULL)
 	{
-		astring fulltag;
-		device().siblingtag(fulltag, wtag);
-		memory_bank &bank = bank_find_or_allocate(fulltag, addrstart, addrend, addrmask, addrmirror, ROW_WRITE);
+		std::string fulltag = device().siblingtag(wtag);
+		memory_bank &bank = bank_find_or_allocate(fulltag.c_str(), addrstart, addrend, addrmask, addrmirror, ROW_WRITE);
 		write().map_range(addrstart, addrend, addrmask, addrmirror, bank.index());
+	}
+
+	// update the memory dump
+	generate_memdump(machine());
+}
+
+
+void address_space::install_bank_generic(offs_t addrstart, offs_t addrend, offs_t addrmask, offs_t addrmirror, memory_bank *rbank, memory_bank *wbank)
+{
+	VPRINTF(("address_space::install_readwrite_bank(%s-%s mask=%s mirror=%s, read=\"%s\" / write=\"%s\")\n",
+				core_i64_hex_format(addrstart, m_addrchars), core_i64_hex_format(addrend, m_addrchars),
+				core_i64_hex_format(addrmask, m_addrchars), core_i64_hex_format(addrmirror, m_addrchars),
+				(rbank != NULL) ? rbank->tag() : "(none)", (wbank != NULL) ? wbank->tag() : "(none)"));
+
+	// map the read bank
+	if (rbank != NULL)
+	{
+		read().map_range(addrstart, addrend, addrmask, addrmirror, rbank->index());
+	}
+
+	// map the write bank
+	if (wbank != NULL)
+	{
+		write().map_range(addrstart, addrend, addrmask, addrmirror, wbank->index());
 	}
 
 	// update the memory dump
@@ -2612,8 +2594,8 @@ bool address_space::needs_backing_store(const address_map_entry *entry)
 	// if we are sharing, and we don't have a pointer yet, create one
 	if (entry->m_share != NULL)
 	{
-		astring fulltag;
-		memory_share *share = manager().m_sharelist.find(entry->m_devbase.subtag(fulltag, entry->m_share).cstr());
+		std::string fulltag = entry->m_devbase.subtag(entry->m_share);
+		memory_share *share = manager().m_sharelist.find(fulltag.c_str());
 		if (share != NULL && share->ptr() == NULL)
 			return true;
 	}
@@ -2679,9 +2661,11 @@ memory_bank &address_space::bank_find_or_allocate(const char *tag, offs_t addrst
 
 		// if no tag, create a unique one
 		membank = global_alloc(memory_bank(*this, banknum, bytestart, byteend, tag));
-		astring temptag;
-		if (tag == NULL)
-			tag = temptag.format("anon_%p", membank);
+		std::string temptag;
+		if (tag == NULL) {
+			strprintf(temptag, "anon_%p", (void *) membank);
+			tag = temptag.c_str();
+		}
 		manager().m_banklist.append(tag, *membank);
 	}
 
@@ -2702,12 +2686,13 @@ memory_bank &address_space::bank_find_or_allocate(const char *tag, offs_t addrst
 
 address_table::address_table(address_space &space, bool large)
 	: m_table(1 << LEVEL1_BITS),
-		m_live_lookup(m_table),
 		m_space(space),
 		m_large(large),
 		m_subtable(SUBTABLE_COUNT),
 		m_subtable_alloc(0)
 {
+	m_live_lookup = &m_table[0];
+
 	// make our static table all watchpoints
 	if (s_watchpoint_table[0] != STATIC_WATCHPOINT)
 		for (unsigned int i=0; i != ARRAY_LENGTH(s_watchpoint_table); i++)
@@ -2827,7 +2812,7 @@ namespace {
 		offs_t start, end;
 		subrange(offs_t _start, offs_t _end) : start(_start), end(_end) {}
 	};
-};
+}
 
 void address_table::setup_range_masked(offs_t addrstart, offs_t addrend, offs_t addrmask, offs_t addrmirror, UINT64 mask, std::list<UINT32> &entries)
 {
@@ -3297,10 +3282,12 @@ UINT16 address_table::subtable_alloc()
 					m_subtable_alloc += SUBTABLE_ALLOC;
 					UINT32 newsize = (1 << LEVEL1_BITS) + (m_subtable_alloc << level2_bits());
 
-					bool was_live = (m_live_lookup == m_table);
-					m_table.resize_keep_and_clear_new(newsize);
+					bool was_live = (m_live_lookup == &m_table[0]);
+					int oldsize = m_table.size();
+					m_table.resize(newsize);
+					memset(&m_table[oldsize], 0, (newsize-oldsize)*sizeof(m_table[0]));
 					if (was_live)
-						m_live_lookup = m_table;
+						m_live_lookup = &m_table[0];
 				}
 				// bump the usecount and return
 				m_subtable[subindex].m_usecount++;
@@ -3667,8 +3654,7 @@ handler_entry &address_table_write::handler(UINT32 index) const
 
 direct_read_data::direct_read_data(address_space &space)
 	: m_space(space),
-		m_raw(NULL),
-		m_decrypted(NULL),
+		m_ptr(NULL),
 		m_bytemask(space.bytemask()),
 		m_bytestart(1),
 		m_byteend(0),
@@ -3719,17 +3705,12 @@ bool direct_read_data::set_direct_region(offs_t &byteaddress)
 		return false;
 	}
 
-	// if no decrypted opcodes, point to the same base
-	UINT8 *base = *m_space.manager().bank_pointer_addr(m_entry, false);
-	UINT8 *based = *m_space.manager().bank_pointer_addr(m_entry, true);
-	if (based == NULL)
-		based = base;
+	UINT8 *base = *m_space.manager().bank_pointer_addr(m_entry);
 
 	// compute the adjusted base
 	const handler_entry_read &handler = m_space.read().handler_read(m_entry);
 	m_bytemask = handler.bytemask();
-	m_raw = base - (handler.bytestart() & m_bytemask);
-	m_decrypted = based - (handler.bytestart() & m_bytemask);
+	m_ptr = base - (handler.bytestart() & m_bytemask);
 	m_bytestart = maskedbits | range->m_bytestart;
 	m_byteend = maskedbits | range->m_byteend;
 	return true;
@@ -3812,15 +3793,12 @@ direct_update_delegate direct_read_data::set_direct_update(direct_update_delegat
 //  within a custom callback
 //-------------------------------------------------
 
-void direct_read_data::explicit_configure(offs_t bytestart, offs_t byteend, offs_t bytemask, void *raw, void *decrypted)
+void direct_read_data::explicit_configure(offs_t bytestart, offs_t byteend, offs_t bytemask, void *ptr)
 {
 	m_bytestart = bytestart;
 	m_byteend = byteend;
 	m_bytemask = bytemask;
-	m_raw = reinterpret_cast<UINT8 *>(raw);
-	m_decrypted = reinterpret_cast<UINT8 *>((decrypted == NULL) ? raw : decrypted);
-	m_raw -= bytestart & bytemask;
-	m_decrypted -= bytestart & bytemask;
+	m_ptr = reinterpret_cast<UINT8 *>(ptr) - (bytestart & bytemask);
 }
 
 
@@ -3849,12 +3827,14 @@ memory_block::memory_block(address_space &space, offs_t bytestart, offs_t byteen
 		offs_t length = byteend + 1 - bytestart;
 		if (length < 4096)
 		{
-			m_allocated.resize_and_clear(length);
-			m_data = m_allocated;
+			m_allocated.resize(length);
+			memset(&m_allocated[0], 0, length);
+			m_data = &m_allocated[0];
 		}
 		else
 		{
-			m_allocated.resize_and_clear(length + 0xfff);
+			m_allocated.resize(length + 0xfff);
+			memset(&m_allocated[0], 0, length + 0xfff);
 			m_data = reinterpret_cast<UINT8 *>((reinterpret_cast<FPTR>(&m_allocated[0]) + 0xfff) & ~0xfff);
 		}
 	}
@@ -3872,9 +3852,9 @@ memory_block::memory_block(address_space &space, offs_t bytestart, offs_t byteen
 	if (region == NULL)
 	{
 		int bytes_per_element = space.data_width() / 8;
-		astring name;
-		name.printf("%08x-%08x", bytestart, byteend);
-		space.machine().save().save_memory("memory", space.device().tag(), space.spacenum(), name, m_data, bytes_per_element, (UINT32)(byteend + 1 - bytestart) / bytes_per_element);
+		std::string name;
+		strprintf(name,"%08x-%08x", bytestart, byteend);
+		space.machine().save().save_memory(NULL, "memory", space.device().tag(), space.spacenum(), name.c_str(), m_data, bytes_per_element, (UINT32)(byteend + 1 - bytestart) / bytes_per_element);
 	}
 }
 
@@ -3900,8 +3880,7 @@ memory_block::~memory_block()
 memory_bank::memory_bank(address_space &space, int index, offs_t bytestart, offs_t byteend, const char *tag)
 	: m_next(NULL),
 		m_machine(space.machine()),
-		m_baseptr(space.manager().bank_pointer_addr(index, false)),
-		m_basedptr(space.manager().bank_pointer_addr(index, true)),
+		m_baseptr(space.manager().bank_pointer_addr(index)),
 		m_index(index),
 		m_anonymous(tag == NULL),
 		m_bytestart(bytestart),
@@ -3911,17 +3890,17 @@ memory_bank::memory_bank(address_space &space, int index, offs_t bytestart, offs
 	// generate an internal tag if we don't have one
 	if (tag == NULL)
 	{
-		m_tag.printf("~%d~", index);
-		m_name.printf("Internal bank #%d", index);
+		strprintf(m_tag,"~%d~", index);
+		strprintf(m_name,"Internal bank #%d", index);
 	}
 	else
 	{
-		m_tag.cpy(tag);
-		m_name.printf("Bank '%s'", tag);
+		m_tag.assign(tag);
+		strprintf(m_name,"Bank '%s'", tag);
 	}
 
 	if (!m_anonymous && space.machine().save().registration_allowed())
-		space.machine().save().save_item("memory", m_tag, 0, NAME(m_curentry));
+		space.machine().save().save_item(NULL, "memory", m_tag.c_str(), 0, NAME(m_curentry));
 }
 
 
@@ -3993,23 +3972,6 @@ void memory_bank::set_base(void *base)
 
 
 //-------------------------------------------------
-//  set_base_decrypted - set the decrypted base
-//  explicitly
-//-------------------------------------------------
-
-void memory_bank::set_base_decrypted(void *base)
-{
-	// NULL is not an option
-	if (base == NULL)
-		throw emu_fatalerror("memory_bank::set_base_decrypted called NULL base");
-
-	// set the base and invalidate any referencing spaces
-	*m_basedptr = reinterpret_cast<UINT8 *>(base);
-	invalidate_references();
-}
-
-
-//-------------------------------------------------
 //  set_entry - set the base to a pre-configured
 //  entry
 //-------------------------------------------------
@@ -4019,15 +3981,13 @@ void memory_bank::set_entry(int entrynum)
 	// validate
 	if (m_anonymous)
 		throw emu_fatalerror("memory_bank::set_entry called for anonymous bank");
-	if (entrynum < 0 || entrynum >= m_entry.count())
+	if (entrynum < 0 || entrynum >= int(m_entry.size()))
 		throw emu_fatalerror("memory_bank::set_entry called with out-of-range entry %d", entrynum);
-	if (m_entry[entrynum].m_raw == NULL)
-		throw emu_fatalerror("memory_bank::set_entry called for bank '%s' with invalid bank entry %d", m_tag.cstr(), entrynum);
+	if (m_entry[entrynum].m_ptr == NULL)
+		throw emu_fatalerror("memory_bank::set_entry called for bank '%s' with invalid bank entry %d", m_tag.c_str(), entrynum);
 
-	// set both raw and decrypted values
 	m_curentry = entrynum;
-	*m_baseptr = m_entry[entrynum].m_raw;
-	*m_basedptr = m_entry[entrynum].m_decrypted;
+	*m_baseptr = m_entry[entrynum].m_ptr;
 
 	// invalidate referencing spaces
 	invalidate_references();
@@ -4042,7 +4002,9 @@ void memory_bank::set_entry(int entrynum)
 void memory_bank::expand_entries(int entrynum)
 {
 	// allocate a new array and copy from the old one; zero out the new entries
-	m_entry.resize_keep_and_clear_new(entrynum + 1);
+	int old_size = m_entry.size();
+	m_entry.resize(entrynum + 1);
+	memset(&m_entry[old_size], 0, (entrynum+1-old_size)*sizeof(m_entry[0]));
 }
 
 
@@ -4057,15 +4019,15 @@ void memory_bank::configure_entry(int entrynum, void *base)
 		throw emu_fatalerror("memory_bank::configure_entry called with out-of-range entry %d", entrynum);
 
 	// if we haven't allocated this many entries yet, expand our array
-	if (entrynum >= m_entry.count())
+	if (entrynum >= int(m_entry.size()))
 		expand_entries(entrynum);
 
 	// set the entry
-	m_entry[entrynum].m_raw = reinterpret_cast<UINT8 *>(base);
+	m_entry[entrynum].m_ptr = reinterpret_cast<UINT8 *>(base);
 
 	// if the bank base is not configured, and we're the first entry, set us up
 	if (*m_baseptr == NULL && entrynum == 0)
-		*m_baseptr = m_entry[entrynum].m_raw;
+		*m_baseptr = m_entry[entrynum].m_ptr;
 }
 
 
@@ -4078,43 +4040,6 @@ void memory_bank::configure_entries(int startentry, int numentries, void *base, 
 	// fill in the requested bank entries (backwards to improve allocation)
 	for (int entrynum = startentry + numentries - 1; entrynum >= startentry; entrynum--)
 		configure_entry(entrynum, reinterpret_cast<UINT8 *>(base) + (entrynum - startentry) * stride);
-}
-
-
-//-------------------------------------------------
-//  configure_decrypted_entry - configure a
-//  decrypted entry
-//-------------------------------------------------
-
-void memory_bank::configure_decrypted_entry(int entrynum, void *base)
-{
-	// must be positive
-	if (entrynum < 0)
-		throw emu_fatalerror("memory_bank::configure_decrypted_entry called with out-of-range entry %d", entrynum);
-
-	// if we haven't allocated this many entries yet, expand our array
-	if (entrynum >= m_entry.count())
-		expand_entries(entrynum);
-
-	// set the entry
-	m_entry[entrynum].m_decrypted = reinterpret_cast<UINT8 *>(base);
-
-	// if the bank base is not configured, and we're the first entry, set us up
-	if (*m_basedptr == NULL && entrynum == 0)
-		*m_basedptr = m_entry[entrynum].m_decrypted;
-}
-
-
-//-------------------------------------------------
-//  configure_decrypted_entries - configure
-//  multiple decrypted entries
-//-------------------------------------------------
-
-void memory_bank::configure_decrypted_entries(int startentry, int numentries, void *base, offs_t stride)
-{
-	// fill in the requested bank entries (backwards to improve allocation)
-	for (int entrynum = startentry + numentries - 1; entrynum >= startentry; entrynum--)
-		configure_decrypted_entry(entrynum, reinterpret_cast<UINT8 *>(base) + (entrynum - startentry) * stride);
 }
 
 

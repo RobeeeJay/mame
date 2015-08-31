@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Andrew Gardner
 /***************************************************************************
 
     dsp56k.h
@@ -193,7 +195,7 @@ struct dsp56k_core
 	address_space *data;
 
 	UINT16 peripheral_ram[0x40];
-	UINT16 program_ram[0x800];
+	UINT16 *program_ram;
 };
 
 
@@ -202,7 +204,6 @@ class dsp56k_device : public cpu_device
 public:
 	dsp56k_device(const machine_config &mconfig, const char *_tag, device_t *_owner, UINT32 _clock);
 
-	DECLARE_DIRECT_UPDATE_MEMBER(dsp56k_direct_handler);
 	DECLARE_READ16_MEMBER( program_r );
 	DECLARE_WRITE16_MEMBER( program_w );
 	DECLARE_READ16_MEMBER( peripheral_register_r );
@@ -232,7 +233,7 @@ protected:
 	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : ((spacenum == AS_DATA) ? &m_data_config : NULL ); }
 
 	// device_state_interface overrides
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 2; }
@@ -242,6 +243,7 @@ protected:
 private:
 	address_space_config m_program_config;
 	address_space_config m_data_config;
+	required_shared_ptr<UINT16> m_program_ram;
 
 	dsp56k_core m_dsp56k_core;
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         Partner driver by Miodrag Milanovic
@@ -210,7 +212,7 @@ static MACHINE_CONFIG_START( partner, partner_state )
 
 	MCFG_SOFTWARE_LIST_ADD("cass_list","partner_cass")
 
-	MCFG_FD1793x_ADD("wd1793", XTAL_16MHz / 16)
+	MCFG_FD1793_ADD("wd1793", XTAL_16MHz / 16)
 	MCFG_WD_FDC_DRQ_CALLBACK(DEVWRITELINE("dma8257", i8257_device, dreq0_w))
 	MCFG_FLOPPY_DRIVE_ADD("wd1793:0", partner_floppies, "525qd", partner_state::floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD("wd1793:1", partner_floppies, "525qd", partner_state::floppy_formats)
@@ -237,4 +239,4 @@ ROM_END
 
 /* Driver */
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT   INIT        COMPANY   FULLNAME       FLAGS */
-COMP( 1987, partner, radio86,   0,  partner,    partner, partner_state,partner, "SAM SKB VM",   "Partner-01.01",    GAME_NOT_WORKING)
+COMP( 1987, partner, radio86,   0,  partner,    partner, partner_state,partner, "SAM SKB VM",   "Partner-01.01",    MACHINE_NOT_WORKING)

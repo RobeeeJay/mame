@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 /*
 Sliver - Hollow Corp.1996
 driver by Tomasz Slanina
@@ -513,4 +515,4 @@ ROM_START( sliver )
 	ROM_LOAD( "ka-12.bin", 0x100000, 0x80000, CRC(0901e142) SHA1(68ebd38beeedf53414a831c01813881feee33446) )
 ROM_END
 
-GAME( 1996, sliver, 0,        sliver, sliver, driver_device, 0, ROT0,  "Hollow Corp", "Sliver", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, sliver, 0,        sliver, sliver, driver_device, 0, ROT0,  "Hollow Corp", "Sliver", MACHINE_IMPERFECT_GRAPHICS )

@@ -174,7 +174,9 @@ bits(7:4) and bit(24)), X, and Y:
 
 #define MODIFY_PIXEL(VV)
 
-
+// Need to turn off cycle eating when debugging MIPS drc
+// otherwise timer interrupts won't match nodrc debug mode.
+#define EAT_CYCLES          (1)
 
 
 /*************************************
@@ -211,7 +213,8 @@ static TIMER_CALLBACK( stall_cpu_callback );
 static void stall_cpu(voodoo_state *v, int state, attotime current_time);
 static TIMER_CALLBACK( vblank_callback );
 static INT32 register_w(voodoo_state *v, offs_t offset, UINT32 data);
-static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask, int forcefront);
+static INT32 lfb_direct_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask);
+static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask);
 static INT32 texture_w(voodoo_state *v, offs_t offset, UINT32 data);
 static INT32 banshee_2d_w(voodoo_state *v, offs_t offset, UINT32 data);
 
@@ -892,7 +895,7 @@ static void swap_buffers(voodoo_state *v)
 
 	/* periodically log rasterizer info */
 	v->stats.swaps++;
-	if (LOG_RASTERIZERS && v->stats.swaps % 100 == 0)
+	if (LOG_RASTERIZERS && v->stats.swaps % 1000 == 0)
 		dump_rasterizer_stats(v);
 
 	/* update the statistics (debug) */
@@ -1457,8 +1460,14 @@ INLINE INT32 prepare_tmu(tmu_state *t)
 	/* adjust the result: negative to get the log of the original value */
 	/* plus 12 to account for the extra exponent, and divided by 2 to */
 	/* get the log of the square root of texdx */
-	(void)fast_reciplog(texdx, &lodbase);
-	return (-lodbase + (12 << 8)) / 2;
+	#if USE_FAST_RECIP == 1
+		(void)fast_reciplog(texdx, &lodbase);
+		return (-lodbase + (12 << 8)) / 2;
+	#else
+		double tmpTex = texdx;
+		lodbase = new_log2(tmpTex);
+		return (lodbase + (12 << 8)) / 2;
+	#endif
 }
 
 
@@ -1725,7 +1734,7 @@ static UINT32 cmdfifo_execute(voodoo_state *v, cmdfifo_info *f)
 			/* loop over all registers and write them one at a time */
 			for (i = 3; i <= 31; i++)
 				if (command & (1 << i))
-					cycles += register_w(v, bltSrcBaseAddr + (i - 3), *src++);
+					cycles += register_w(v, banshee2D_clip0Min + (i - 3), *src++);
 			break;
 
 		/*
@@ -1874,11 +1883,12 @@ static UINT32 cmdfifo_execute(voodoo_state *v, cmdfifo_info *f)
 				//  Banshee/Voodoo3 2D register writes
 
 				/* loop over all registers and write them one at a time */
+				target &= 0xff;
 				for (i = 15; i <= 28; i++)
 				{
 					if (command & (1 << i))
 					{
-						cycles += banshee_2d_w(v, target & 0xff, *src);
+						cycles += banshee_2d_w(v, target + (i - 15), *src);
 						//logerror("    2d reg: %03x = %08X\n", target & 0x7ff, *src);
 						src++;
 					}
@@ -1942,7 +1952,7 @@ static UINT32 cmdfifo_execute(voodoo_state *v, cmdfifo_info *f)
 
 					/* loop over words */
 					for (i = 0; i < count; i++)
-						cycles += lfb_w(v, target++, *src++, 0xffffffff, FALSE);
+						cycles += lfb_w(v, target++, *src++, 0xffffffff);
 
 					break;
 				}
@@ -2085,8 +2095,8 @@ static void cmdfifo_w(voodoo_state *v, cmdfifo_info *f, offs_t offset, UINT32 da
 			v->pci.op_end_time = v->device->machine().time() + attotime(0, (attoseconds_t)cycles * v->attoseconds_per_cycle);
 
 			if (LOG_FIFO_VERBOSE) logerror("VOODOO.%d.FIFO:direct write start at %d.%08X%08X end at %d.%08X%08X\n", v->index,
-				v->device->machine().time().seconds, (UINT32)(v->device->machine().time().attoseconds >> 32), (UINT32)v->device->machine().time().attoseconds,
-				v->pci.op_end_time.seconds, (UINT32)(v->pci.op_end_time.attoseconds >> 32), (UINT32)v->pci.op_end_time.attoseconds);
+				v->device->machine().time().seconds(), (UINT32)(v->device->machine().time().attoseconds() >> 32), (UINT32)v->device->machine().time().attoseconds(),
+				v->pci.op_end_time.seconds(), (UINT32)(v->pci.op_end_time.attoseconds() >> 32), (UINT32)v->pci.op_end_time.attoseconds());
 		}
 	}
 }
@@ -2575,7 +2585,7 @@ static INT32 register_w(voodoo_state *v, offs_t offset, UINT32 data)
 				if (v->reg[hSync].u != 0 && v->reg[vSync].u != 0 && v->reg[videoDimensions].u != 0)
 				{
 					int hvis, vvis, htotal, vtotal, hbp, vbp;
-					attoseconds_t refresh = v->screen->frame_period().attoseconds;
+					attoseconds_t refresh = v->screen->frame_period().attoseconds();
 					attoseconds_t stdperiod, medperiod, vgaperiod;
 					attoseconds_t stddiff, meddiff, vgadiff;
 					rectangle visarea;
@@ -2917,7 +2927,7 @@ default_case:
 		if (regnum < fvertexAx || regnum > fdWdY)
 			logerror("VOODOO.%d.REG:%s(%d) write = %08X\n", v->index, (regnum < 0x384/4) ? v->regnames[regnum] : "oob", chips, origdata);
 		else
-			logerror("VOODOO.%d.REG:%s(%d) write = %f\n", v->index, (regnum < 0x384/4) ? v->regnames[regnum] : "oob", chips, u2f(origdata));
+			logerror("VOODOO.%d.REG:%s(%d) write = %f\n", v->index, (regnum < 0x384/4) ? v->regnames[regnum] : "oob", chips, (double) u2f(origdata));
 	}
 
 	return cycles;
@@ -2930,8 +2940,52 @@ default_case:
  *  Voodoo LFB writes
  *
  *************************************/
+static INT32 lfb_direct_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask)
+{
+	UINT16 *dest;
+	UINT32 destmax;
+	int x, y;
+	UINT32 bufoffs;
 
-static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask, int forcefront)
+	/* statistics */
+	v->stats.lfb_writes++;
+
+	/* byte swizzling */
+	if (LFBMODE_BYTE_SWIZZLE_WRITES(v->reg[lfbMode].u))
+	{
+		data = FLIPENDIAN_INT32(data);
+		mem_mask = FLIPENDIAN_INT32(mem_mask);
+	}
+
+	/* word swapping */
+	if (LFBMODE_WORD_SWAP_WRITES(v->reg[lfbMode].u))
+	{
+		data = (data << 16) | (data >> 16);
+		mem_mask = (mem_mask << 16) | (mem_mask >> 16);
+	}
+
+	// TODO: This direct write is not verified.
+	// For direct lfb access just write the data
+	/* compute X,Y */
+	offset <<= 1;
+	x = offset & ((1 << v->fbi.lfb_stride) - 1);
+	y = (offset >> v->fbi.lfb_stride);
+	dest = (UINT16 *)(v->fbi.ram + v->fbi.lfb_base*4);
+	destmax = (v->fbi.mask + 1 - v->fbi.lfb_base*4) / 2;
+	bufoffs = y * v->fbi.rowpixels + x;
+	if (bufoffs >= destmax) {
+		logerror("lfb_direct_w: Buffer offset out of bounds x=%i y=%i offset=%08X bufoffs=%08X data=%08X\n", x, y, offset, (UINT32) bufoffs, data);
+		return 0;
+	}
+	if (ACCESSING_BITS_0_15)
+		dest[bufoffs + 0] = data&0xffff;
+	if (ACCESSING_BITS_16_31)
+		dest[bufoffs + 1] = data>>16;
+	if (LOG_LFB) logerror("VOODOO.%d.LFB:write direct (%d,%d) = %08X & %08X\n", v->index, x, y, data, mem_mask);
+	return 0;
+}
+
+static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask)
 {
 	UINT16 *dest, *depth;
 	UINT32 destmax, depthmax;
@@ -3128,12 +3182,13 @@ static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask,
 			break;
 
 		default:            /* reserved */
+			logerror("lfb_w: Unknown format\n");
 			return 0;
 	}
 
 	/* compute X,Y */
-	x = (offset << 0) & ((1 << v->fbi.lfb_stride) - 1);
-	y = (offset >> v->fbi.lfb_stride) & ((1 << v->fbi.lfb_stride) - 1);
+	x = offset & ((1 << v->fbi.lfb_stride) - 1);
+	y = (offset >> v->fbi.lfb_stride) & 0x3ff;
 
 	/* adjust the mask based on which half of the data is written */
 	if (!ACCESSING_BITS_0_15)
@@ -3142,7 +3197,7 @@ static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask,
 		mask &= ~(0xf0 + LFB_DEPTH_PRESENT_MSW);
 
 	/* select the target buffer */
-	destbuf = (v->type >= TYPE_VOODOO_BANSHEE) ? (!forcefront) : LFBMODE_WRITE_BUFFER_SELECT(v->reg[lfbMode].u);
+	destbuf = (v->type >= TYPE_VOODOO_BANSHEE) ? 1 : LFBMODE_WRITE_BUFFER_SELECT(v->reg[lfbMode].u);
 	switch (destbuf)
 	{
 		case 0:         /* front buffer */
@@ -3162,9 +3217,6 @@ static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask,
 	depth = (UINT16 *)(v->fbi.ram + v->fbi.auxoffs);
 	depthmax = (v->fbi.mask + 1 - v->fbi.auxoffs) / 2;
 
-	/* wait for any outstanding work to finish */
-	poly_wait(v->poly, "LFB Write");
-
 	/* simple case: no pipeline */
 	if (!LFBMODE_ENABLE_PIXEL_PIPELINE(v->reg[lfbMode].u))
 	{
@@ -3183,6 +3235,9 @@ static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask,
 
 		/* compute dithering */
 		COMPUTE_DITHER_POINTERS_NO_DITHER_VAR(v->reg[fbzMode].u, y);
+
+		/* wait for any outstanding work to finish */
+		poly_wait(v->poly, "LFB Write");
 
 		/* loop over up to two pixels */
 		for (pix = 0; mask; pix++)
@@ -3248,9 +3303,14 @@ static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask,
 			if (mask & 0x0f)
 			{
 				stats_block *stats = &v->fbi.lfb_stats;
-				INT64 iterw = sw[pix] << (30-16);
+				INT64 iterw;
+				if (LFBMODE_WRITE_W_SELECT(v->reg[lfbMode].u)) {
+					iterw = (UINT32) v->reg[zaColor].u << 16;
+				} else {
+					// The most significant fractional bits of 16.32 W are set to z
+					iterw = (UINT32) sw[pix] << 16;
+				}
 				INT32 iterz = sw[pix] << 12;
-				rgb_union color;
 
 				/* apply clipping */
 				if (FBZMODE_ENABLE_CLIPPING(v->reg[fbzMode].u))
@@ -3265,24 +3325,96 @@ static INT32 lfb_w(voodoo_state *v, offs_t offset, UINT32 data, UINT32 mem_mask,
 						goto nextpixel;
 					}
 				}
+				#if USE_OLD_RASTER == 1
+					rgb_union color;
+					rgb_union iterargb = { 0 };
+				#else
+					rgbaint_t color, preFog;
+					rgbaint_t iterargb(0);
+				#endif
 
 				/* pixel pipeline part 1 handles depth testing and stippling */
-				PIXEL_PIPELINE_BEGIN(v, stats, x, y, v->reg[fbzColorPath].u, v->reg[fbzMode].u, iterz, iterw);
+				//PIXEL_PIPELINE_BEGIN(v, stats, x, y, v->reg[fbzColorPath].u, v->reg[fbzMode].u, iterz, iterw);
+// Start PIXEL_PIPE_BEGIN copy
+				//#define PIXEL_PIPELINE_BEGIN(VV, STATS, XX, YY, FBZCOLORPATH, FBZMODE, ITERZ, ITERW)
+					INT32 fogdepth, biasdepth;
+					INT32 r, g, b, a;
 
-				/* use the RGBA we stashed above */
-				color.rgb.r = r = sr[pix];
-				color.rgb.g = g = sg[pix];
-				color.rgb.b = b = sb[pix];
-				color.rgb.a = a = sa[pix];
+					(stats)->pixels_in++;
 
-				/* apply chroma key, alpha mask, and alpha testing */
-				APPLY_CHROMAKEY(v, stats, v->reg[fbzMode].u, color);
-				APPLY_ALPHAMASK(v, stats, v->reg[fbzMode].u, color.rgb.a);
-				APPLY_ALPHATEST(v, stats, v->reg[alphaMode].u, color.rgb.a);
+					/* apply clipping */
+					/* note that for perf reasons, we assume the caller has done clipping */
+
+					/* handle stippling */
+					if (FBZMODE_ENABLE_STIPPLE(v->reg[fbzMode].u))
+					{
+						/* rotate mode */
+						if (FBZMODE_STIPPLE_PATTERN(v->reg[fbzMode].u) == 0)
+						{
+							v->reg[stipple].u = (v->reg[stipple].u << 1) | (v->reg[stipple].u >> 31);
+							if ((v->reg[stipple].u & 0x80000000) == 0)
+							{
+								v->stats.total_stippled++;
+								goto skipdrawdepth;
+							}
+						}
+
+						/* pattern mode */
+						else
+						{
+							int stipple_index = ((y & 3) << 3) | (~x & 7);
+							if (((v->reg[stipple].u >> stipple_index) & 1) == 0)
+							{
+								v->stats.total_stippled++;
+								goto nextpixel;
+							}
+						}
+					}
+// End PIXEL_PIPELINE_BEGIN COPY
+
+				// Depth testing value for lfb pipeline writes is directly from write data, no biasing is used
+				fogdepth = biasdepth = (UINT32) sw[pix];
+
+				#if USE_OLD_RASTER == 1
+					/* Perform depth testing */
+					DEPTH_TEST(v, stats, x, v->reg[fbzMode].u);
+
+					/* use the RGBA we stashed above */
+					color.rgb.r = r = sr[pix];
+					color.rgb.g = g = sg[pix];
+					color.rgb.b = b = sb[pix];
+					color.rgb.a = a = sa[pix];
+
+					/* apply chroma key, alpha mask, and alpha testing */
+					APPLY_CHROMAKEY(v, stats, v->reg[fbzMode].u, color);
+					APPLY_ALPHAMASK(v, stats, v->reg[fbzMode].u, color.rgb.a);
+					APPLY_ALPHATEST(v, stats, v->reg[alphaMode].u, color.rgb.a);
+				#else
+					/* Perform depth testing */
+					if (!depthTest((UINT16) v->reg[zaColor].u, stats, depth[x], v->reg[fbzMode].u, biasdepth))
+						goto nextpixel;
+
+					/* use the RGBA we stashed above */
+					color.set(sa[pix], sr[pix], sg[pix], sb[pix]);
+
+					/* handle chroma key */
+					if (!chromaKeyTest(v, stats, v->reg[fbzMode].u, color))
+						goto nextpixel;
+					/* handle alpha mask */
+					if (!alphaMaskTest(stats, v->reg[fbzMode].u, color.get_a()))
+						goto nextpixel;
+					/* handle alpha test */
+					if (!alphaTest(v, stats, v->reg[alphaMode].u, color.get_a()))
+						goto nextpixel;
+				#endif
+
+				/* wait for any outstanding work to finish */
+				poly_wait(v->poly, "LFB Write");
 
 				/* pixel pipeline part 2 handles color combine, fog, alpha, and final output */
-				PIXEL_PIPELINE_END(v, stats, dither, dither4, dither_lookup, x, dest, depth, v->reg[fbzMode].u, v->reg[fbzColorPath].u, v->reg[alphaMode].u, v->reg[fogMode].u, iterz, iterw, v->reg[zaColor]);
-			}
+				PIXEL_PIPELINE_END(v, stats, dither, dither4, dither_lookup, x, dest, depth,
+					v->reg[fbzMode].u, v->reg[fbzColorPath].u, v->reg[alphaMode].u, v->reg[fogMode].u,
+					iterz, iterw, iterargb);
 nextpixel:
 			/* advance our pointers */
 			x++;
@@ -3363,7 +3495,7 @@ static INT32 texture_w(voodoo_state *v, offs_t offset, UINT32 data)
 		{
 			tbaseaddr = t->lodoffset[0] + offset*4;
 
-			if (LOG_TEXTURE_RAM) logerror("Texture 16-bit w: offset=%X data=%08X\n", offset*4, data);
+			if (LOG_TEXTURE_RAM) logerror("Texture 8-bit w: offset=%X data=%08X\n", offset*4, data);
 		}
 
 		/* write the four bytes in little-endian order */
@@ -3437,8 +3569,8 @@ static void flush_fifos(voodoo_state *v, attotime current_time)
 	if (!v->pci.op_pending) fatalerror("flush_fifos called with no pending operation\n");
 
 	if (LOG_FIFO_VERBOSE) logerror("VOODOO.%d.FIFO:flush_fifos start -- pending=%d.%08X%08X cur=%d.%08X%08X\n", v->index,
-		v->pci.op_end_time.seconds, (UINT32)(v->pci.op_end_time.attoseconds >> 32), (UINT32)v->pci.op_end_time.attoseconds,
-		current_time.seconds, (UINT32)(current_time.attoseconds >> 32), (UINT32)current_time.attoseconds);
+		v->pci.op_end_time.seconds(), (UINT32)(v->pci.op_end_time.attoseconds() >> 32), (UINT32)v->pci.op_end_time.attoseconds(),
+		current_time.seconds(), (UINT32)(current_time.attoseconds() >> 32), (UINT32)current_time.attoseconds());
 
 	/* loop while we still have cycles to burn */
 	while (v->pci.op_end_time <= current_time)
@@ -3515,7 +3647,7 @@ static void flush_fifos(voodoo_state *v, attotime current_time)
 						mem_mask &= 0xffff0000;
 					address &= 0xffffff;
 
-					cycles = lfb_w(v, address, data, mem_mask, FALSE);
+					cycles = lfb_w(v, address, data, mem_mask);
 				}
 			}
 
@@ -3535,12 +3667,12 @@ static void flush_fifos(voodoo_state *v, attotime current_time)
 		v->pci.op_end_time += attotime(0, (attoseconds_t)cycles * v->attoseconds_per_cycle);
 
 		if (LOG_FIFO_VERBOSE) logerror("VOODOO.%d.FIFO:update -- pending=%d.%08X%08X cur=%d.%08X%08X\n", v->index,
-			v->pci.op_end_time.seconds, (UINT32)(v->pci.op_end_time.attoseconds >> 32), (UINT32)v->pci.op_end_time.attoseconds,
-			current_time.seconds, (UINT32)(current_time.attoseconds >> 32), (UINT32)current_time.attoseconds);
+			v->pci.op_end_time.seconds(), (UINT32)(v->pci.op_end_time.attoseconds() >> 32), (UINT32)v->pci.op_end_time.attoseconds(),
+			current_time.seconds(), (UINT32)(current_time.attoseconds() >> 32), (UINT32)current_time.attoseconds());
 	}
 
 	if (LOG_FIFO_VERBOSE) logerror("VOODOO.%d.FIFO:flush_fifos end -- pending command complete at %d.%08X%08X\n", v->index,
-		v->pci.op_end_time.seconds, (UINT32)(v->pci.op_end_time.attoseconds >> 32), (UINT32)v->pci.op_end_time.attoseconds);
+		v->pci.op_end_time.seconds(), (UINT32)(v->pci.op_end_time.attoseconds() >> 32), (UINT32)v->pci.op_end_time.attoseconds());
 
 	in_flush = FALSE;
 }
@@ -3641,7 +3773,7 @@ WRITE32_MEMBER( voodoo_device::voodoo_w )
 		else if (offset & (0x800000/4))
 			cycles = texture_w(v, offset, data);
 		else
-			cycles = lfb_w(v, offset, data, mem_mask, FALSE);
+			cycles = lfb_w(v, offset, data, mem_mask);
 
 		/* if we ended up with cycles, mark the operation pending */
 		if (cycles)
@@ -3650,8 +3782,8 @@ WRITE32_MEMBER( voodoo_device::voodoo_w )
 			v->pci.op_end_time = machine().time() + attotime(0, (attoseconds_t)cycles * v->attoseconds_per_cycle);
 
 			if (LOG_FIFO_VERBOSE) logerror("VOODOO.%d.FIFO:direct write start at %d.%08X%08X end at %d.%08X%08X\n", v->index,
-				machine().time().seconds, (UINT32)(machine().time().attoseconds >> 32), (UINT32)machine().time().attoseconds,
-				v->pci.op_end_time.seconds, (UINT32)(v->pci.op_end_time.attoseconds >> 32), (UINT32)v->pci.op_end_time.attoseconds);
+				machine().time().seconds(), (UINT32)(machine().time().attoseconds() >> 32), (UINT32)machine().time().attoseconds(),
+				v->pci.op_end_time.seconds(), (UINT32)(v->pci.op_end_time.attoseconds() >> 32), (UINT32)v->pci.op_end_time.attoseconds());
 		}
 		g_profiler.stop();
 		return;
@@ -3821,7 +3953,7 @@ static UINT32 register_r(voodoo_state *v, offs_t offset)
 			/* bit 31 is not used */
 
 			/* eat some cycles since people like polling here */
-			v->cpu->execute().eat_cycles(1000);
+			if (EAT_CYCLES) v->cpu->execute().eat_cycles(1000);
 			break;
 
 		/* bit 2 of the initEnable register maps this to dacRead */
@@ -3834,7 +3966,7 @@ static UINT32 register_r(voodoo_state *v, offs_t offset)
 		case vRetrace:
 
 			/* eat some cycles since people like polling here */
-			v->cpu->execute().eat_cycles(10);
+			if (EAT_CYCLES) v->cpu->execute().eat_cycles(10);
 			result = v->screen->vpos();
 			break;
 
@@ -3849,7 +3981,7 @@ static UINT32 register_r(voodoo_state *v, offs_t offset)
 			result = v->fbi.cmdfifo[0].rdptr;
 
 			/* eat some cycles since people like polling here */
-			v->cpu->execute().eat_cycles(1000);
+			if (EAT_CYCLES) v->cpu->execute().eat_cycles(1000);
 			break;
 
 		case cmdFifoAMin:
@@ -3911,7 +4043,7 @@ static UINT32 register_r(voodoo_state *v, offs_t offset)
  *
  *************************************/
 
-static UINT32 lfb_r(voodoo_state *v, offs_t offset, int forcefront)
+static UINT32 lfb_r(voodoo_state *v, offs_t offset, bool lfb_3d)
 {
 	UINT16 *buffer;
 	UINT32 bufmax;
@@ -3923,43 +4055,54 @@ static UINT32 lfb_r(voodoo_state *v, offs_t offset, int forcefront)
 	v->stats.lfb_reads++;
 
 	/* compute X,Y */
-	x = (offset << 1) & 0x3fe;
-	y = (offset >> 9) & 0x3ff;
+	offset <<= 1;
+	x = offset & ((1 << v->fbi.lfb_stride) - 1);
+	y = (offset >> v->fbi.lfb_stride);
 
 	/* select the target buffer */
-	destbuf = (v->type >= TYPE_VOODOO_BANSHEE) ? (!forcefront) : LFBMODE_READ_BUFFER_SELECT(v->reg[lfbMode].u);
-	switch (destbuf)
-	{
-		case 0:         /* front buffer */
-			buffer = (UINT16 *)(v->fbi.ram + v->fbi.rgboffs[v->fbi.frontbuf]);
-			bufmax = (v->fbi.mask + 1 - v->fbi.rgboffs[v->fbi.frontbuf]) / 2;
-			break;
+	if (lfb_3d) {
+		y &= 0x3ff;
+		destbuf = (v->type >= TYPE_VOODOO_BANSHEE) ? 1 : LFBMODE_READ_BUFFER_SELECT(v->reg[lfbMode].u);
+		switch (destbuf)
+		{
+			case 0:         /* front buffer */
+				buffer = (UINT16 *)(v->fbi.ram + v->fbi.rgboffs[v->fbi.frontbuf]);
+				bufmax = (v->fbi.mask + 1 - v->fbi.rgboffs[v->fbi.frontbuf]) / 2;
+				break;
 
-		case 1:         /* back buffer */
-			buffer = (UINT16 *)(v->fbi.ram + v->fbi.rgboffs[v->fbi.backbuf]);
-			bufmax = (v->fbi.mask + 1 - v->fbi.rgboffs[v->fbi.backbuf]) / 2;
-			break;
+			case 1:         /* back buffer */
+				buffer = (UINT16 *)(v->fbi.ram + v->fbi.rgboffs[v->fbi.backbuf]);
+				bufmax = (v->fbi.mask + 1 - v->fbi.rgboffs[v->fbi.backbuf]) / 2;
+				break;
 
-		case 2:         /* aux buffer */
-			if (v->fbi.auxoffs == ~0)
+			case 2:         /* aux buffer */
+				if (v->fbi.auxoffs == ~0)
+					return 0xffffffff;
+				buffer = (UINT16 *)(v->fbi.ram + v->fbi.auxoffs);
+				bufmax = (v->fbi.mask + 1 - v->fbi.auxoffs) / 2;
+				break;
+
+			default:        /* reserved */
 				return 0xffffffff;
-			buffer = (UINT16 *)(v->fbi.ram + v->fbi.auxoffs);
-			bufmax = (v->fbi.mask + 1 - v->fbi.auxoffs) / 2;
-			break;
+		}
 
-		default:        /* reserved */
-			return 0xffffffff;
+		/* determine the screen Y */
+		scry = y;
+		if (LFBMODE_Y_ORIGIN(v->reg[lfbMode].u))
+			scry = (v->fbi.yorigin - y) & 0x3ff;
+	} else {
+		// Direct lfb access
+		buffer = (UINT16 *)(v->fbi.ram + v->fbi.lfb_base*4);
+		bufmax = (v->fbi.mask + 1 - v->fbi.lfb_base*4) / 2;
+		scry = y;
 	}
-
-	/* determine the screen Y */
-	scry = y;
-	if (LFBMODE_Y_ORIGIN(v->reg[lfbMode].u))
-		scry = (v->fbi.yorigin - y) & 0x3ff;
 
 	/* advance pointers to the proper row */
 	bufoffs = scry * v->fbi.rowpixels + x;
-	if (bufoffs >= bufmax)
+	if (bufoffs >= bufmax) {
+		logerror("LFB_R: Buffer offset out of bounds x=%i y=%i lfb_3d=%i offset=%08X bufoffs=%08X\n", x, y, lfb_3d, offset, (UINT32) bufoffs);
 		return 0xffffffff;
+	}
 
 	/* wait for any outstanding work to finish */
 	poly_wait(v->poly, "LFB read");
@@ -4000,7 +4143,7 @@ READ32_MEMBER( voodoo_device::voodoo_r )
 	if (!(offset & (0xc00000/4)))
 		return register_r(v, offset);
 	else if (!(offset & (0x800000/4)))
-		return lfb_r(v, offset, FALSE);
+		return lfb_r(v, offset, true);
 
 	return 0xffffffff;
 }
@@ -4093,17 +4236,18 @@ READ32_MEMBER( voodoo_banshee_device::banshee_r )
 	else if (offset < 0x600000/4)
 		result = register_r(v, offset & 0x1fffff/4);
 	else if (offset < 0x800000/4)
-		logerror("%s:banshee_r(TEX:%X)\n", machine().describe_context(), (offset*4) & 0x1fffff);
+		logerror("%s:banshee_r(TEX0:%X)\n", machine().describe_context(), (offset*4) & 0x1fffff);
+	else if (offset < 0xa00000/4)
+		logerror("%s:banshee_r(TEX1:%X)\n", machine().describe_context(), (offset*4) & 0x1fffff);
 	else if (offset < 0xc00000/4)
-		logerror("%s:banshee_r(RES:%X)\n", machine().describe_context(), (offset*4) & 0x3fffff);
+		logerror("%s:banshee_r(FLASH Bios ROM:%X)\n", machine().describe_context(), (offset*4) & 0x3fffff);
 	else if (offset < 0x1000000/4)
 		logerror("%s:banshee_r(YUV:%X)\n", machine().describe_context(), (offset*4) & 0x3fffff);
 	else if (offset < 0x2000000/4)
 	{
-		UINT8 temp = v->fbi.lfb_stride;
-		v->fbi.lfb_stride = 11;
-		result = lfb_r(v, offset & 0xffffff/4, FALSE);
-		v->fbi.lfb_stride = temp;
+		result = lfb_r(v, offset & 0xffffff/4, true);
+	} else {
+			logerror("%s:banshee_r(%X) Access out of bounds\n", machine().describe_context(), offset*4);
 	}
 	return result;
 }
@@ -4125,9 +4269,14 @@ READ32_MEMBER( voodoo_banshee_device::banshee_fb_r )
 #endif
 		if (offset*4 <= v->fbi.mask)
 			result = ((UINT32 *)v->fbi.ram)[offset];
+		else
+			logerror("%s:banshee_fb_r(%X) Access out of bounds\n", machine().describe_context(), offset*4);
 	}
-	else
-		result = lfb_r(v, offset - v->fbi.lfb_base, FALSE);
+	else {
+		if (LOG_LFB)
+			logerror("%s:banshee_fb_r(%X) to lfb_r: %08X lfb_base=%08X\n", machine().describe_context(), offset*4, offset - v->fbi.lfb_base, v->fbi.lfb_base);
+		result = lfb_r(v, offset - v->fbi.lfb_base, false);
+	}
 	return result;
 }
 
@@ -4652,17 +4801,18 @@ WRITE32_MEMBER( voodoo_banshee_device::banshee_w )
 	else if (offset < 0x600000/4)
 		register_w(v, offset & 0x1fffff/4, data);
 	else if (offset < 0x800000/4)
-		logerror("%s:banshee_w(TEX:%X) = %08X & %08X\n", machine().describe_context(), (offset*4) & 0x1fffff, data, mem_mask);
+		logerror("%s:banshee_w(TEX0:%X) = %08X & %08X\n", machine().describe_context(), (offset*4) & 0x1fffff, data, mem_mask);
+	else if (offset < 0xa00000/4)
+		logerror("%s:banshee_w(TEX1:%X) = %08X & %08X\n", machine().describe_context(), (offset*4) & 0x1fffff, data, mem_mask);
 	else if (offset < 0xc00000/4)
-		logerror("%s:banshee_w(RES:%X) = %08X & %08X\n", machine().describe_context(), (offset*4) & 0x3fffff, data, mem_mask);
+		logerror("%s:banshee_r(FLASH Bios ROM:%X)\n", machine().describe_context(), (offset*4) & 0x3fffff);
 	else if (offset < 0x1000000/4)
 		logerror("%s:banshee_w(YUV:%X) = %08X & %08X\n", machine().describe_context(), (offset*4) & 0x3fffff, data, mem_mask);
 	else if (offset < 0x2000000/4)
 	{
-		UINT8 temp = v->fbi.lfb_stride;
-		v->fbi.lfb_stride = 11;
-		lfb_w(v, offset & 0xffffff/4, data, mem_mask, FALSE);
-		v->fbi.lfb_stride = temp;
+		lfb_w(v, offset & 0xffffff/4, data, mem_mask);
+	} else {
+		logerror("%s:banshee_w Address out of range %08X = %08X & %08X\n", machine().describe_context(), (offset*4), data, mem_mask);
 	}
 }
 
@@ -4686,13 +4836,15 @@ WRITE32_MEMBER( voodoo_banshee_device::banshee_fb_w )
 		{
 			if (offset*4 <= v->fbi.mask)
 				COMBINE_DATA(&((UINT32 *)v->fbi.ram)[offset]);
+			else
+				logerror("%s:banshee_fb_w Out of bounds (%X) = %08X & %08X\n", machine().describe_context(), offset*4, data, mem_mask);
 #if LOG_LFB
 			logerror("%s:banshee_fb_w(%X) = %08X & %08X\n", machine().describe_context(), offset*4, data, mem_mask);
 #endif
 		}
 	}
 	else
-		lfb_w(v, offset - v->fbi.lfb_base, data, mem_mask, FALSE);
+		lfb_direct_w(v, offset - v->fbi.lfb_base, data, mem_mask);
 }
 
 
@@ -4823,7 +4975,7 @@ WRITE32_MEMBER( voodoo_banshee_device::banshee_io_w )
 		}
 
 		case io_lfbMemoryConfig:
-			v->fbi.lfb_base = (data & 0x1fff) << 10;
+			v->fbi.lfb_base = (data & 0x1fff) << (12-2);
 			v->fbi.lfb_stride = ((data >> 13) & 7) + 9;
 			if (LOG_REGISTERS)
 				logerror("%s:banshee_io_w(%s) = %08X & %08X\n", machine().describe_context(), banshee_io_reg_name[offset], data, mem_mask);
@@ -4865,7 +5017,7 @@ void voodoo_device::common_start_voodoo(UINT8 type)
 	voodoo_state *v = get_safe_token(this);
 	const raster_info *info;
 	void *fbmem, *tmumem[2];
-	UINT32 tmumem0;
+	UINT32 tmumem0, tmumem1;
 	int val;
 
 	/* validate configuration */
@@ -4988,6 +5140,7 @@ void voodoo_device::common_start_voodoo(UINT8 type)
 
 	/* allocate memory */
 	tmumem0 = m_tmumem0;
+	tmumem1 = m_tmumem1;
 	if (v->type <= TYPE_VOODOO_2)
 	{
 		/* separate FB/TMU memory */
@@ -5000,6 +5153,8 @@ void voodoo_device::common_start_voodoo(UINT8 type)
 		/* shared memory */
 		tmumem[0] = tmumem[1] = fbmem = auto_alloc_array(machine(), UINT8, m_fbmem << 20);
 		tmumem0 = m_fbmem;
+		if (v->type == TYPE_VOODOO_3)
+			tmumem1 = m_fbmem;
 	}
 
 	/* set up frame buffer */
@@ -5011,9 +5166,9 @@ void voodoo_device::common_start_voodoo(UINT8 type)
 	/* set up the TMUs */
 	init_tmu(v, &v->tmu[0], &v->reg[0x100], tmumem[0], tmumem0 << 20);
 	v->chipmask |= 0x02;
-	if (m_tmumem1 != 0 || v->type == TYPE_VOODOO_3)
+	if (tmumem1 != 0)
 	{
-		init_tmu(v, &v->tmu[1], &v->reg[0x200], tmumem[1], m_tmumem1 << 20);
+		init_tmu(v, &v->tmu[1], &v->reg[0x200], tmumem[1], tmumem1 << 20);
 		v->chipmask |= 0x04;
 		v->tmu_config |= 0x40;
 	}
@@ -5334,12 +5489,12 @@ static INT32 setup_and_draw_triangle(voodoo_state *v)
 	float divisor, tdiv;
 
 	/* grab the X/Ys at least */
-	v->fbi.ax = (INT16)(v->fbi.svert[0].x * 16.0);
-	v->fbi.ay = (INT16)(v->fbi.svert[0].y * 16.0);
-	v->fbi.bx = (INT16)(v->fbi.svert[1].x * 16.0);
-	v->fbi.by = (INT16)(v->fbi.svert[1].y * 16.0);
-	v->fbi.cx = (INT16)(v->fbi.svert[2].x * 16.0);
-	v->fbi.cy = (INT16)(v->fbi.svert[2].y * 16.0);
+	v->fbi.ax = (INT16)(v->fbi.svert[0].x * 16.0f);
+	v->fbi.ay = (INT16)(v->fbi.svert[0].y * 16.0f);
+	v->fbi.bx = (INT16)(v->fbi.svert[1].x * 16.0f);
+	v->fbi.by = (INT16)(v->fbi.svert[1].y * 16.0f);
+	v->fbi.cx = (INT16)(v->fbi.svert[2].x * 16.0f);
+	v->fbi.cy = (INT16)(v->fbi.svert[2].y * 16.0f);
 
 	/* compute the divisor */
 	divisor = 1.0f / ((v->fbi.svert[0].x - v->fbi.svert[1].x) * (v->fbi.svert[0].y - v->fbi.svert[2].y) -
@@ -5384,7 +5539,7 @@ static INT32 setup_and_draw_triangle(voodoo_state *v)
 	/* set up alpha */
 	if (v->reg[sSetupMode].u & (1 << 1))
 	{
-		v->fbi.starta = (INT32)(v->fbi.svert[0].a * 4096.0);
+		v->fbi.starta = (INT32)(v->fbi.svert[0].a * 4096.0f);
 		v->fbi.dadx = (INT32)(((v->fbi.svert[0].a - v->fbi.svert[1].a) * dx1 - (v->fbi.svert[0].a - v->fbi.svert[2].a) * dx2) * tdiv);
 		v->fbi.dady = (INT32)(((v->fbi.svert[0].a - v->fbi.svert[2].a) * dy1 - (v->fbi.svert[0].a - v->fbi.svert[1].a) * dy2) * tdiv);
 	}
@@ -5392,7 +5547,7 @@ static INT32 setup_and_draw_triangle(voodoo_state *v)
 	/* set up Z */
 	if (v->reg[sSetupMode].u & (1 << 2))
 	{
-		v->fbi.startz = (INT32)(v->fbi.svert[0].z * 4096.0);
+		v->fbi.startz = (INT32)(v->fbi.svert[0].z * 4096.0f);
 		v->fbi.dzdx = (INT32)(((v->fbi.svert[0].z - v->fbi.svert[1].z) * dx1 - (v->fbi.svert[0].z - v->fbi.svert[2].z) * dx2) * tdiv);
 		v->fbi.dzdy = (INT32)(((v->fbi.svert[0].z - v->fbi.svert[2].z) * dy1 - (v->fbi.svert[0].z - v->fbi.svert[1].z) * dy2) * tdiv);
 	}
@@ -5556,14 +5711,15 @@ static raster_info *add_rasterizer(voodoo_state *v, const raster_info *cinfo)
 	/* fill in the data */
 	info->hits = 0;
 	info->polys = 0;
+	info->hash = hash;
 
 	/* hook us into the hash table */
 	info->next = v->raster_hash[hash];
 	v->raster_hash[hash] = info;
 
 	if (LOG_RASTERIZERS)
-		printf("Adding rasterizer @ %p : %08X %08X %08X %08X %08X %08X (hash=%d)\n",
-				info->callback,
+		printf("Adding rasterizer @ %p : cp=%08X am=%08X %08X fbzM=%08X tm0=%08X tm1=%08X (hash=%d)\n",
+				(void *)info->callback,
 				info->eff_color_path, info->eff_alpha_mode, info->eff_fog_mode, info->eff_fbz_mode,
 				info->eff_tex_mode_0, info->eff_tex_mode_1, hash);
 
@@ -5622,6 +5778,7 @@ static raster_info *find_rasterizer(voodoo_state *v, int texcount)
 	curinfo.polys = 0;
 	curinfo.hits = 0;
 	curinfo.next = 0;
+	curinfo.hash = hash;
 
 	return add_rasterizer(v, &curinfo);
 }
@@ -5657,7 +5814,7 @@ static void dump_rasterizer_stats(voodoo_state *v)
 			break;
 
 		/* print it */
-		printf("RASTERIZER_ENTRY( 0x%08X, 0x%08X, 0x%08X, 0x%08X, 0x%08X, 0x%08X ) /* %c %8d %10d */\n",
+		printf("RASTERIZER_ENTRY( 0x%08X, 0x%08X, 0x%08X, 0x%08X, 0x%08X, 0x%08X ) /* %c %2d %8d %10d */\n",
 			best->eff_color_path,
 			best->eff_alpha_mode,
 			best->eff_fog_mode,
@@ -5665,6 +5822,7 @@ static void dump_rasterizer_stats(voodoo_state *v)
 			best->eff_tex_mode_0,
 			best->eff_tex_mode_1,
 			best->is_generic ? '*' : ' ',
+			best->hash,
 			best->polys,
 			best->hits);
 
@@ -6333,5 +6491,47 @@ RASTERIZER_ENTRY( 0x00602439, 0x00044119, 0x00000000, 0x000B0379, 0x00000009, 0x
 //RASTERIZER_ENTRY( 0x00002809,  0x00004110, 0x00000001, 0x00030FFB, 0x08241AC7, 0xFFFFFFFF )   /* in-game */
 //RASTERIZER_ENTRY( 0x00424219,  0x00000000, 0x00000001, 0x00030F7B, 0x08241AC7, 0xFFFFFFFF )   /* in-game */
 //RASTERIZER_ENTRY( 0x0200421A,  0x00001510, 0x00000001, 0x00030F7B, 0x08241AC7, 0xFFFFFFFF )   /* in-game */
+/* gtfore06 ----> fbzColorPath alphaMode   fogMode,    fbzMode,    texMode0,   texMode1        hash */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x000000C1, 0x00010F79, 0x0C261ACD, 0x0C261ACD ) /*   18  1064626   69362127 */
+RASTERIZER_ENTRY( 0x00002425, 0x00045119, 0x000000C1, 0x00010F79, 0x0C224A0D, 0x0C261ACD ) /*   47  3272483   31242799 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x000000C1, 0x00010F79, 0x00000ACD, 0x0C261ACD ) /*    9   221917   12348555 */
+RASTERIZER_ENTRY( 0x00002425, 0x00045110, 0x000000C1, 0x00010FF9, 0x00000ACD, 0x0C261ACD ) /*   26    57291    9357989 */
+RASTERIZER_ENTRY( 0x00002429, 0x00000000, 0x000000C1, 0x00010FF9, 0x00000A09, 0x0C261A0F ) /*   12    97156    8530607 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x000000C1, 0x00010F79, 0x000000C4, 0x0C261ACD ) /*   55   110144    5265532 */
+RASTERIZER_ENTRY( 0x00002425, 0x00045110, 0x000000C1, 0x00010FF9, 0x000000C4, 0x0C261ACD ) /*   61    16644    1079382 */
+RASTERIZER_ENTRY( 0x00002425, 0x00045119, 0x000000C1, 0x00010FF9, 0x000000C4, 0x0C261ACD ) /*    5     8332    1065229 */
+RASTERIZER_ENTRY( 0x00002425, 0x00045119, 0x000000C1, 0x00010F79, 0x0C224A0D, 0x0C261A0D ) /*   45     8148     505013 */
+RASTERIZER_ENTRY( 0x00002425, 0x00045119, 0x00000000, 0x00010F79, 0x0C224A0D, 0x0C261A0D ) /*   84    45233     248267 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x000000C1, 0x00010F79, 0x0C261ACD, 0x0C2610C4 ) /*   90    10235     193036 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x000000C1, 0x00010FF9, 0x0C261ACD, 0x0C261ACD ) /* * 29     3777      83777 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x00000000, 0x00010FF9, 0x0C261ACD, 0x042210C0 ) /*    2    24952      66761 */
+RASTERIZER_ENTRY( 0x00002429, 0x00000000, 0x00000000, 0x00010FF9, 0x00000A09, 0x0C261A0F ) /*   24      661      50222 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x00000000, 0x00010FF9, 0x0C261ACD, 0x04221AC9 ) /*   92    12504      43720 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x000000C1, 0x00010FF9, 0x0C261ACD, 0x0C2610C4 ) /*   79     2160      43650 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x00000000, 0x00010FF9, 0x000000C4, 0x04221AC9 ) /*   19     2796      30377 */
+RASTERIZER_ENTRY( 0x00002425, 0x00045119, 0x000000C1, 0x00010FF9, 0x00000ACD, 0x0C261ACD ) /*   67     1962      14755 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x000000C1, 0x00010FF9, 0x000000C4, 0x0C261ACD ) /* * 66       74       3951 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x00000000, 0x00010FF9, 0x00000ACD, 0x04221AC9 ) /*   70      374       3691 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045119, 0x000000C1, 0x00010FF9, 0x00000ACD, 0x0C261ACD ) /* * 20      350       7928 */
+/* virtpool ----> fbzColorPath alphaMode   fogMode,    fbzMode,    texMode0,   texMode1        hash */
+RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B0739, 0x0C261A0F, 0x042210C0 ) /* * 78  2182388   74854175 */
+RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B07F9, 0x0C261A0F, 0x042210C0 ) /* * 46   114830    6776826 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045110, 0x00000000, 0x000B0739, 0x0C261A0F, 0x042210C0 ) /* * 58  1273673    4513463 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045110, 0x00000000, 0x000B0739, 0x0C261A09, 0x042210C0 ) /* * 46   634995    2275612 */
+RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B073B, 0x0C261A0F, 0x042210C0 ) /* * 46    26651    1883507 */
+RASTERIZER_ENTRY( 0x00482405, 0x00045110, 0x00000000, 0x000B073B, 0x0C261A0F, 0x042210C0 ) /* * 26   220644     751241 */
+//RASTERIZER_ENTRY( 0x00002421, 0x00445110, 0x00000000, 0x000B073B, 0x0C261A09, 0x042210C0 ) /* * 79    14846    3499120 */
+//RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B0739, 0x0C261A09, 0x042210C0 ) /* * 66    26665    1583363 */
+//RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B073B, 0x0C26100F, 0x042210C0 ) /* * 78    33096     957935 */
+//RASTERIZER_ENTRY( 0x00002425, 0x00445110, 0x00000000, 0x000B07F9, 0x0C261A0F, 0x042210C0 ) /* * 38    12494     678029 */
+//RASTERIZER_ENTRY( 0x00800000, 0x00000000, 0x00000000, 0x00000200, 0x00000000, 0x00000000 ) /* * 28    25348     316181 */
+//RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B0739, 0x0C26100F, 0x042210C0 ) /* * 13    11344     267903 */
+//RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B073B, 0x0C261A09, 0x042210C0 ) /* * 34     1548     112168 */
+//RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B07FB, 0x0C26100F, 0x042210C0 ) /* * 35      664      25222 */
+//RASTERIZER_ENTRY( 0x00000002, 0x00000000, 0x00000000, 0x00000300, 0xFFFFFFFF, 0xFFFFFFFF ) /* * 33      512      18393 */
+//RASTERIZER_ENTRY( 0x00002421, 0x00000000, 0x00000000, 0x000B07FB, 0x0C261A0F, 0x042210C0 ) /* * 14      216      16842 */
+//RASTERIZER_ENTRY( 0x00000001, 0x00000000, 0x00000000, 0x00000300, 0x00000800, 0x00000800 ) /* * 87        2         72 */
+//RASTERIZER_ENTRY( 0x00000001, 0x00000000, 0x00000000, 0x00000200, 0x08241A00, 0x08241A00 ) /* * 92        2          8 */
+//RASTERIZER_ENTRY( 0x00000001, 0x00000000, 0x00000000, 0x00000200, 0x00000000, 0x08241A00 ) /* * 93        2          8 */
 
 #endif

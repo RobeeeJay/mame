@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Chris Moore, Nicola Salmoria
 
 class bublbobl_state : public driver_device
 {
@@ -24,7 +26,6 @@ public:
 	required_shared_ptr<UINT8> m_videoram;
 	required_shared_ptr<UINT8> m_objectram;
 	optional_shared_ptr<UINT8> m_mcu_sharedram;
-//  UINT8 *  paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	int      m_video_enable;

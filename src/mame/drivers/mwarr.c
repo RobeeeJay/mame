@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli
 /*
 
 Mighty Warrior
@@ -76,7 +78,6 @@ public:
 	required_shared_ptr<UINT16> m_mhigh_scrollram;
 	required_shared_ptr<UINT16> m_vidattrram;
 	required_shared_ptr<UINT16> m_spriteram;
-//  UINT16 *m_paletteram;    // currently this uses generic palette handling
 	required_shared_ptr<UINT16> m_mwarr_ram;
 
 	/* video-related */
@@ -652,4 +653,4 @@ ROM_END
  *
  *************************************/
 
-GAME( 199?, mwarr, 0, mwarr, mwarr, driver_device, 0, ROT0,  "Elettronica Video-Games S.R.L.", "Mighty Warriors", GAME_SUPPORTS_SAVE )
+GAME( 199?, mwarr, 0, mwarr, mwarr, driver_device, 0, ROT0,  "Elettronica Video-Games S.R.L.", "Mighty Warriors", MACHINE_SUPPORTS_SAVE )

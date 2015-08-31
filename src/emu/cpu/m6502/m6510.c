@@ -1,39 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /***************************************************************************
 
     m6510.c
 
     6502 with 6 i/o pins, also known as 8500
-
-****************************************************************************
-
-    Copyright Olivier Galibert
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are
-    met:
-
-        * Redistributions of source code must retain the above copyright
-          notice, this list of conditions and the following disclaimer.
-        * Redistributions in binary form must reproduce the above copyright
-          notice, this list of conditions and the following disclaimer in
-          the documentation and/or other materials provided with the
-          distribution.
-        * Neither the name 'MAME' nor the names of its contributors may be
-          used to endorse or promote products derived from this software
-          without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY OLIVIER GALIBERT ''AS IS'' AND ANY EXPRESS OR
-    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL AARON GILES BE LIABLE FOR ANY DIRECT,
-    INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-    STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
-    IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-    POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************/
 
@@ -148,9 +119,9 @@ UINT8 m6510_device::mi_6510_normal::read(UINT16 adr)
 	return res;
 }
 
-UINT8 m6510_device::mi_6510_normal::read_direct(UINT16 adr)
+UINT8 m6510_device::mi_6510_normal::read_sync(UINT16 adr)
 {
-	UINT8 res = direct->read_raw_byte(adr);
+	UINT8 res = sdirect->read_byte(adr);
 	if(adr == 0x0000)
 		res = base->dir_r();
 	else if(adr == 0x0001)
@@ -158,9 +129,9 @@ UINT8 m6510_device::mi_6510_normal::read_direct(UINT16 adr)
 	return res;
 }
 
-UINT8 m6510_device::mi_6510_normal::read_decrypted(UINT16 adr)
+UINT8 m6510_device::mi_6510_normal::read_arg(UINT16 adr)
 {
-	UINT8 res = direct->read_decrypted_byte(adr);
+	UINT8 res = direct->read_byte(adr);
 	if(adr == 0x0000)
 		res = base->dir_r();
 	else if(adr == 0x0001)
@@ -181,14 +152,24 @@ m6510_device::mi_6510_nd::mi_6510_nd(m6510_device *_base) : mi_6510_normal(_base
 {
 }
 
-UINT8 m6510_device::mi_6510_nd::read_direct(UINT16 adr)
+UINT8 m6510_device::mi_6510_nd::read_sync(UINT16 adr)
 {
-	return read(adr);
+	UINT8 res = sprogram->read_byte(adr);
+	if(adr == 0x0000)
+		res = base->dir_r();
+	else if(adr == 0x0001)
+		res = base->port_r();
+	return res;
 }
 
-UINT8 m6510_device::mi_6510_nd::read_decrypted(UINT16 adr)
+UINT8 m6510_device::mi_6510_nd::read_arg(UINT16 adr)
 {
-	return read(adr);
+	UINT8 res = program->read_byte(adr);
+	if(adr == 0x0000)
+		res = base->dir_r();
+	else if(adr == 0x0001)
+		res = base->port_r();
+	return res;
 }
 
 #include "cpu/m6502/m6510.inc"

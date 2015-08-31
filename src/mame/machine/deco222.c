@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 
 /* Data East encrypted CPU 222, aka C10707?
  also sometimes implemented as basic logic outside the CPU on early revs and bootlegs */
@@ -23,9 +25,9 @@ void deco_222_device::device_reset()
 	static_cast<mi_decrypt *>(mintf)->had_written = false;
 }
 
-UINT8 deco_222_device::mi_decrypt::read_decrypted(UINT16 adr)
+UINT8 deco_222_device::mi_decrypt::read_sync(UINT16 adr)
 {
-	return BITSWAP8(direct->read_raw_byte(adr) ,7,5,6,4,3,2,1,0);
+	return BITSWAP8(direct->read_byte(adr) ,7,5,6,4,3,2,1,0);
 }
 
 
@@ -47,7 +49,7 @@ void deco_c10707_device::device_reset()
 	static_cast<mi_decrypt *>(mintf)->had_written = false;
 }
 
-UINT8 deco_c10707_device::mi_decrypt::read_decrypted(UINT16 adr)
+UINT8 deco_c10707_device::mi_decrypt::read_sync(UINT16 adr)
 {
-	return BITSWAP8(direct->read_raw_byte(adr) ,7,5,6,4,3,2,1,0);
+	return BITSWAP8(direct->read_byte(adr) ,7,5,6,4,3,2,1,0);
 }

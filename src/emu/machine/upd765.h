@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #ifndef __UPD765_F_H__
 #define __UPD765_F_H__
 
@@ -191,7 +193,7 @@ protected:
 		FIF_DIS  = 0x20,
 		FIF_EIS  = 0x40,
 
-		SPEC_ND  = 0x0001,
+		SPEC_ND  = 0x0001
 	};
 
 
@@ -256,7 +258,7 @@ protected:
 		WRITE_TRACK_SECTOR_BYTE,
 
 		WRITE_TRACK_POST_SECTORS,
-		WRITE_TRACK_POST_SECTORS_BYTE,
+		WRITE_TRACK_POST_SECTORS_BYTE
 	};
 
 	struct pll_t {
@@ -329,8 +331,8 @@ protected:
 
 	emu_timer *poll_timer;
 
-	static astring tts(attotime t);
-	astring ttsn();
+	static std::string tts(attotime t);
+	std::string ttsn();
 
 	enum {
 		C_CONFIGURE,
@@ -352,7 +354,7 @@ protected:
 		C_SCAN_HIGH,
 
 		C_INVALID,
-		C_INCOMPLETE,
+		C_INCOMPLETE
 	};
 
 	void delay_cycles(emu_timer *tm, int cycles);

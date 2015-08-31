@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Tony La Porta, hap
 	/**************************************************************************\
 	*                Texas Instruments TMS320x25 DSP Emulator                  *
 	*                                                                          *
@@ -132,8 +134,8 @@ Table 3-2.  TMS32025/26 Memory Blocks
 #define S_IN(A)         (m_io->read_word((A)<<1))
 #define S_OUT(A,V)      (m_io->write_word(((A)<<1),(V)))
 
-#define M_RDOP(A)       ((m_pgmmap[(A) >> 7]) ? (m_pgmmap[(A) >> 7][(A) & 0x7f]) : m_direct->read_decrypted_word((A)<<1))
-#define M_RDOP_ARG(A)   ((m_pgmmap[(A) >> 7]) ? (m_pgmmap[(A) >> 7][(A) & 0x7f]) : m_direct->read_decrypted_word((A)<<1))
+#define M_RDOP(A)       ((m_pgmmap[(A) >> 7]) ? (m_pgmmap[(A) >> 7][(A) & 0x7f]) : m_direct->read_word((A)<<1))
+#define M_RDOP_ARG(A)   ((m_pgmmap[(A) >> 7]) ? (m_pgmmap[(A) >> 7][(A) & 0x7f]) : m_direct->read_word((A)<<1))
 
 
 /************************** Memory mapped registers ****************/
@@ -1102,7 +1104,7 @@ void tms32025_device::macd()          /** RAM blocks B0,B1,B2 may be important !
 	CALCULATE_ADD_OVERFLOW(m_ALU.d);
 	CALCULATE_ADD_CARRY();
 	GETDATA(0, 0);
-	if ( (m_opcode.b.l & 0x80) || m_init_load_addr ) {  /* No writing during repitition, or DMA mode */
+	if ( (m_opcode.b.l & 0x80) || m_init_load_addr ) {  /* No writing during repetition, or DMA mode */
 		M_WRTRAM((m_memaccess+1), m_ALU.w.l);
 	}
 	m_Treg = m_ALU.w.l;
@@ -1799,12 +1801,12 @@ void tms32025_device::state_export(const device_state_entry &entry)
 }
 
 
-void tms32025_device::state_string_export(const device_state_entry &entry, astring &string)
+void tms32025_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("arp%d%c%c%c%cdp%03x  arb%d%c%c%c%c%c%c%c%c%c%c%cpm%d",
+			strprintf(str, "arp%d%c%c%c%cdp%03x  arb%d%c%c%c%c%c%c%c%c%c%c%cpm%d",
 				(m_STR0 & 0xe000) >> 13,
 				m_STR0 & 0x1000 ? 'O':'.',
 				m_STR0 & 0x0800 ? 'M':'.',

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /***************************************************************************
 
                             -= Jaleco Mega System 1 =-
@@ -102,6 +104,7 @@ public:
 	DECLARE_WRITE16_MEMBER(megasys1_scrollram_1_w);
 	DECLARE_WRITE16_MEMBER(megasys1_scrollram_2_w);
 	DECLARE_WRITE16_MEMBER(megasys1_vregs_A_w);
+	DECLARE_WRITE16_MEMBER(megasys1_vregs_monkelf_w);
 	DECLARE_READ16_MEMBER(megasys1_vregs_C_r);
 	DECLARE_WRITE16_MEMBER(megasys1_vregs_C_w);
 	DECLARE_WRITE16_MEMBER(megasys1_vregs_D_w);
@@ -123,6 +126,8 @@ public:
 	DECLARE_DRIVER_INIT(iganinju);
 	DECLARE_DRIVER_INIT(cybattlr);
 	DECLARE_DRIVER_INIT(rodlandj);
+	DECLARE_DRIVER_INIT(rittam);
+	DECLARE_DRIVER_INIT(rodlandjb);
 	DECLARE_DRIVER_INIT(avspirit);
 	DECLARE_DRIVER_INIT(monkelf);
 	DECLARE_DRIVER_INIT(edf);
@@ -130,6 +135,7 @@ public:
 	DECLARE_DRIVER_INIT(rodland);
 	DECLARE_DRIVER_INIT(edfbl);
 	DECLARE_DRIVER_INIT(stdragona);
+	DECLARE_DRIVER_INIT(stdragonb);
 	TILEMAP_MAPPER_MEMBER(megasys1_scan_8x8);
 	TILEMAP_MAPPER_MEMBER(megasys1_scan_16x16);
 	TILE_GET_INFO_MEMBER(megasys1_get_scroll_tile_info_8x8);
@@ -145,8 +151,9 @@ public:
 	TIMER_DEVICE_CALLBACK_MEMBER(megasys1B_scanline);
 	inline void scrollram_w(offs_t offset, UINT16 data, UINT16 mem_mask, int which);
 	void create_tilemaps();
+	void megasys1_priority_create();
 	void draw_sprites(screen_device &screen, bitmap_ind16 &bitmap,const rectangle &cliprect);
-	void rodlandj_gfx_unmangle(const char *region);
+	void rodland_gfx_unmangle(const char *region);
 	void jitsupro_gfx_unmangle(const char *region);
 	void stdragona_gfx_unmangle(const char *region);
 	DECLARE_WRITE_LINE_MEMBER(irqhandler);

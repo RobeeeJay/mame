@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, David Haywood
 /* Little Robin */
 
 /* driver by
@@ -281,4 +283,4 @@ ROM_START( littlerb )
 ROM_END
 
 
-GAME( 1994, littlerb, 0, littlerb, littlerb, driver_device, 0, ROT0, "TCH", "Little Robin", GAME_IMPERFECT_GRAPHICS|GAME_IMPERFECT_SOUND )
+GAME( 1994, littlerb, 0, littlerb, littlerb, driver_device, 0, ROT0, "TCH", "Little Robin", MACHINE_IMPERFECT_GRAPHICS|MACHINE_IMPERFECT_SOUND )

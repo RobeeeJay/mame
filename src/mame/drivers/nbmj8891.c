@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Takahiro Nogi
 /******************************************************************************
 
     nbmj8891 - Nichibutsu Mahjong games for years 1988-1991
@@ -224,83 +226,83 @@ DRIVER_INIT_MEMBER(nbmj8891_state,pairsten)
 
 static ADDRESS_MAP_START( gionbana_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf000, 0xf00f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
-	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(nbmj8891_palette_type1_r,nbmj8891_palette_type1_w)
+	AM_RANGE(0xf000, 0xf00f) AM_READWRITE(clut_r, clut_w)
+	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(palette_type1_r, palette_type1_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM AM_SHARE("nvram")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( mgion_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(nbmj8891_palette_type1_r,nbmj8891_palette_type1_w)
-	AM_RANGE(0xf400, 0xf40f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
+	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(palette_type1_r, palette_type1_w)
+	AM_RANGE(0xf400, 0xf40f) AM_READWRITE(clut_r, clut_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM AM_SHARE("nvram")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( omotesnd_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(nbmj8891_palette_type1_r,nbmj8891_palette_type1_w)
+	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(palette_type1_r, palette_type1_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM AM_SHARE("nvram")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( hanamomo_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(nbmj8891_palette_type1_r,nbmj8891_palette_type1_w)
-	AM_RANGE(0xf400, 0xf40f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
+	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(palette_type1_r, palette_type1_w)
+	AM_RANGE(0xf400, 0xf40f) AM_READWRITE(clut_r, clut_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( scandalm_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(nbmj8891_palette_type1_r,nbmj8891_palette_type1_w)
+	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(palette_type1_r, palette_type1_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM AM_SHARE("nvram")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( club90s_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
 	AM_RANGE(0xf000, 0xf7ff) AM_RAM
-	AM_RANGE(0xf800, 0xf80f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
-	AM_RANGE(0xfc00, 0xfdff) AM_READWRITE(nbmj8891_palette_type1_r,nbmj8891_palette_type1_w)
+	AM_RANGE(0xf800, 0xf80f) AM_READWRITE(clut_r, clut_w)
+	AM_RANGE(0xfc00, 0xfdff) AM_READWRITE(palette_type1_r, palette_type1_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( lovehous_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf000, 0xf00f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
-	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(nbmj8891_palette_type2_r,nbmj8891_palette_type2_w)
+	AM_RANGE(0xf000, 0xf00f) AM_READWRITE(clut_r, clut_w)
+	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(palette_type2_r, palette_type2_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM AM_SHARE("nvram")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( maiko_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(nbmj8891_palette_type2_r,nbmj8891_palette_type2_w)
-	AM_RANGE(0xf400, 0xf40f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
+	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(palette_type2_r, palette_type2_w)
+	AM_RANGE(0xf400, 0xf40f) AM_READWRITE(clut_r, clut_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( hnxmasev_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf200, 0xf3ff) AM_READWRITE(nbmj8891_palette_type2_r,nbmj8891_palette_type2_w)
-	AM_RANGE(0xf700, 0xf70f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
+	AM_RANGE(0xf200, 0xf3ff) AM_READWRITE(palette_type2_r, palette_type2_w)
+	AM_RANGE(0xf700, 0xf70f) AM_READWRITE(clut_r, clut_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( hnageman_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf000, 0xf00f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
-	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(nbmj8891_palette_type2_r,nbmj8891_palette_type2_w)
+	AM_RANGE(0xf000, 0xf00f) AM_READWRITE(clut_r, clut_w)
+	AM_RANGE(0xf400, 0xf5ff) AM_READWRITE(palette_type2_r, palette_type2_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( mmaiko_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(nbmj8891_palette_type2_r,nbmj8891_palette_type2_w)
-	AM_RANGE(0xf400, 0xf40f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
+	AM_RANGE(0xf000, 0xf1ff) AM_READWRITE(palette_type2_r, palette_type2_w)
+	AM_RANGE(0xf400, 0xf40f) AM_READWRITE(clut_r, clut_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM AM_SHARE("nvram")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( hanaoji_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0xefff) AM_ROM
-	AM_RANGE(0xf200, 0xf3ff) AM_READWRITE(nbmj8891_palette_type2_r,nbmj8891_palette_type2_w)
-	AM_RANGE(0xf700, 0xf70f) AM_READWRITE(nbmj8891_clut_r,nbmj8891_clut_w)
+	AM_RANGE(0xf200, 0xf3ff) AM_READWRITE(palette_type2_r, palette_type2_w)
+	AM_RANGE(0xf700, 0xf70f) AM_READWRITE(clut_r, clut_w)
 	AM_RANGE(0xf800, 0xffff) AM_RAM AM_SHARE("nvram")
 ADDRESS_MAP_END
 
@@ -311,18 +313,18 @@ READ8_MEMBER(nbmj8891_state::taiwanmb_unk_r)
 
 static ADDRESS_MAP_START( taiwanmb_map, AS_PROGRAM, 8, nbmj8891_state )
 	AM_RANGE(0x0000, 0x7fff) AM_ROM
-	AM_RANGE(0xec00, 0xedff) AM_READWRITE(nbmj8891_palette_type3_r,nbmj8891_palette_type3_w)
+	AM_RANGE(0xec00, 0xedff) AM_READWRITE(palette_type3_r, palette_type3_w)
 	AM_RANGE(0xf800, 0xfeff) AM_RAM AM_SHARE("nvram")
 	AM_RANGE(0xff00, 0xff1f) AM_NOP                                 // ?
 	AM_RANGE(0xff20, 0xff20) AM_READ(taiwanmb_unk_r)                // MCU or 1413M3 STATUS? (return != 0x00 then loop)
-	AM_RANGE(0xff20, 0xff20) AM_WRITE(nbmj8891_taiwanmb_mcu_w)      // MCU PARAMETER?
+	AM_RANGE(0xff20, 0xff20) AM_WRITE(taiwanmb_mcu_w)      // MCU PARAMETER?
 	AM_RANGE(0xff21, 0xff2f) AM_READNOP                             // ?
 	AM_RANGE(0xff21, 0xff21) AM_WRITENOP                            // blitter parameter set end (write 0x01 only)
-	AM_RANGE(0xff22, 0xff27) AM_WRITE(nbmj8891_taiwanmb_blitter_w)  // blitter parameter
-	AM_RANGE(0xff28, 0xff28) AM_WRITE(nbmj8891_romsel_w)            // gfx rombank select
-	AM_RANGE(0xff29, 0xff29) AM_WRITE(nbmj8891_taiwanmb_gfxflag_w)  // screen flip flag?
+	AM_RANGE(0xff22, 0xff27) AM_WRITE(taiwanmb_blitter_w)  // blitter parameter
+	AM_RANGE(0xff28, 0xff28) AM_WRITE(romsel_w)            // gfx rombank select
+	AM_RANGE(0xff29, 0xff29) AM_WRITE(taiwanmb_gfxflag_w)  // screen flip flag?
 	AM_RANGE(0xff2a, 0xff2a) AM_WRITENOP                            // not used?
-	AM_RANGE(0xff2b, 0xff2b) AM_WRITE(nbmj8891_clutsel_w)           // color look up table select
+	AM_RANGE(0xff2b, 0xff2b) AM_WRITE(clutsel_w)           // color look up table select
 	AM_RANGE(0xff2c, 0xff2c) AM_WRITENOP                            // blitter parameter set start (write 0xff only)
 	AM_RANGE(0xff2d, 0xff2d) AM_WRITENOP                            // not used?
 	AM_RANGE(0xff2e, 0xff2e) AM_WRITENOP                            // not used?
@@ -335,17 +337,17 @@ static ADDRESS_MAP_START( gionbana_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
 	AM_RANGE(0x00, 0x00) AM_DEVWRITE("nb1413m3", nb1413m3_device, nmi_clock_w)
-	AM_RANGE(0x20, 0x27) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x40, 0x40) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x60, 0x60) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x70, 0x70) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x20, 0x27) AM_WRITE(blitter_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(clutsel_w)
+	AM_RANGE(0x60, 0x60) AM_WRITE(romsel_w)
+	AM_RANGE(0x70, 0x70) AM_WRITE(scrolly_w)
 	AM_RANGE(0x80, 0x81) AM_DEVWRITE("fmsnd", ym3812_device, write)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r)
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
 	AM_RANGE(0xb0, 0xb0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport2_r, sndrombank1_w)
 	AM_RANGE(0xc0, 0xc0) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport3_r) //AM_WRITENOP
 	AM_RANGE(0xd0, 0xd0) AM_DEVWRITE("dac", dac_device, write_unsigned8)
-	AM_RANGE(0xe0, 0xe0) AM_WRITE(nbmj8891_vramsel_w)
+	AM_RANGE(0xe0, 0xe0) AM_WRITE(vramsel_w)
 	AM_RANGE(0xf0, 0xf0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, dipsw1_r, outcoin_w)
 	AM_RANGE(0xf1, 0xf1) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw2_r)
 ADDRESS_MAP_END
@@ -354,17 +356,17 @@ static ADDRESS_MAP_START( mgion_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
 	AM_RANGE(0x00, 0x00) AM_DEVWRITE("nb1413m3", nb1413m3_device, nmi_clock_w)
-	AM_RANGE(0x30, 0x37) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x40, 0x40) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x60, 0x60) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x70, 0x70) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x30, 0x37) AM_WRITE(blitter_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(clutsel_w)
+	AM_RANGE(0x60, 0x60) AM_WRITE(romsel_w)
+	AM_RANGE(0x70, 0x70) AM_WRITE(scrolly_w)
 	AM_RANGE(0x80, 0x81) AM_DEVWRITE("fmsnd", ym3812_device, write)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r)
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
 	AM_RANGE(0xb0, 0xb0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport2_r, sndrombank1_w)
 	AM_RANGE(0xc0, 0xc0) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport3_r) //AM_WRITENOP
 	AM_RANGE(0xd0, 0xd0) AM_DEVWRITE("dac", dac_device, write_unsigned8)
-	AM_RANGE(0xe0, 0xe0) AM_WRITE(nbmj8891_vramsel_w)
+	AM_RANGE(0xe0, 0xe0) AM_WRITE(vramsel_w)
 	AM_RANGE(0xf0, 0xf0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, dipsw1_r, outcoin_w)
 	AM_RANGE(0xf1, 0xf1) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw2_r)
 ADDRESS_MAP_END
@@ -372,20 +374,20 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( omotesnd_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
-	AM_RANGE(0x00, 0x07) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x30, 0x30) AM_WRITE(nbmj8891_vramsel_w)
-	AM_RANGE(0x10, 0x10) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x20, 0x20) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x40, 0x4f) AM_WRITE(nbmj8891_clut_w)
+	AM_RANGE(0x00, 0x07) AM_WRITE(blitter_w)
+	AM_RANGE(0x30, 0x30) AM_WRITE(vramsel_w)
+	AM_RANGE(0x10, 0x10) AM_WRITE(romsel_w)
+	AM_RANGE(0x20, 0x20) AM_WRITE(clutsel_w)
+	AM_RANGE(0x40, 0x4f) AM_WRITE(clut_w)
 //  AM_RANGE(0x50, 0x50) AM_DEVWRITE("nb1413m3", nb1413m3_device, nmi_clock_w)
-	AM_RANGE(0x70, 0x70) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x70, 0x70) AM_WRITE(scrolly_w)
 	AM_RANGE(0x81, 0x81) AM_DEVREAD("fmsnd", ay8910_device, data_r)
 	AM_RANGE(0x82, 0x83) AM_DEVWRITE("fmsnd", ay8910_device, data_address_w)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r) AM_WRITENOP
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
 	AM_RANGE(0xb0, 0xb0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport2_r, sndrombank1_w)
 	AM_RANGE(0xc0, 0xc0) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport3_r) AM_WRITENOP
-	AM_RANGE(0xd0, 0xdf) AM_READ(nbmj8891_clut_r)
+	AM_RANGE(0xd0, 0xdf) AM_READ(clut_r)
 	AM_RANGE(0xd0, 0xd0) AM_DEVWRITE("dac", dac_device, write_unsigned8)
 	AM_RANGE(0xf0, 0xf0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, dipsw1_r, outcoin_w)
 	AM_RANGE(0xf1, 0xf1) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw2_r)
@@ -395,10 +397,10 @@ static ADDRESS_MAP_START( hanamomo_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
 	AM_RANGE(0x00, 0x00) AM_DEVWRITE("nb1413m3", nb1413m3_device, nmi_clock_w)
-	AM_RANGE(0x30, 0x37) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x40, 0x40) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x60, 0x60) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x70, 0x70) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x30, 0x37) AM_WRITE(blitter_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(clutsel_w)
+	AM_RANGE(0x60, 0x60) AM_WRITE(romsel_w)
+	AM_RANGE(0x70, 0x70) AM_WRITE(scrolly_w)
 	AM_RANGE(0x80, 0x81) AM_DEVWRITE("fmsnd", ym3812_device, write)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r)
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
@@ -414,10 +416,10 @@ static ADDRESS_MAP_START( msjiken_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
 	AM_RANGE(0x00, 0x00) AM_DEVWRITE("nb1413m3", nb1413m3_device, nmi_clock_w)
-	AM_RANGE(0x40, 0x40) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x50, 0x57) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x60, 0x60) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x70, 0x70) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(clutsel_w)
+	AM_RANGE(0x50, 0x57) AM_WRITE(blitter_w)
+	AM_RANGE(0x60, 0x60) AM_WRITE(romsel_w)
+	AM_RANGE(0x70, 0x70) AM_WRITE(scrolly_w)
 	AM_RANGE(0x80, 0x81) AM_DEVWRITE("fmsnd", ym3812_device, write)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r)
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
@@ -432,11 +434,11 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( scandal_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
-	AM_RANGE(0x40, 0x4f) AM_WRITE(nbmj8891_clut_w)
-	AM_RANGE(0x00, 0x07) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x10, 0x10) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x20, 0x20) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x50, 0x50) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x40, 0x4f) AM_WRITE(clut_w)
+	AM_RANGE(0x00, 0x07) AM_WRITE(blitter_w)
+	AM_RANGE(0x10, 0x10) AM_WRITE(romsel_w)
+	AM_RANGE(0x20, 0x20) AM_WRITE(clutsel_w)
+	AM_RANGE(0x50, 0x50) AM_WRITE(scrolly_w)
 	AM_RANGE(0x80, 0x81) AM_DEVWRITE("fmsnd", ym3812_device, write)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r)
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
@@ -451,11 +453,11 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( scandalm_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
-	AM_RANGE(0x00, 0x07) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x10, 0x10) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x20, 0x20) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x40, 0x4f) AM_WRITE(nbmj8891_clut_w)
-	AM_RANGE(0x50, 0x50) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x00, 0x07) AM_WRITE(blitter_w)
+	AM_RANGE(0x10, 0x10) AM_WRITE(romsel_w)
+	AM_RANGE(0x20, 0x20) AM_WRITE(clutsel_w)
+	AM_RANGE(0x40, 0x4f) AM_WRITE(clut_w)
+	AM_RANGE(0x50, 0x50) AM_WRITE(scrolly_w)
 	AM_RANGE(0x81, 0x81) AM_DEVREAD("fmsnd", ay8910_device, data_r)
 	AM_RANGE(0x82, 0x83) AM_DEVWRITE("fmsnd", ay8910_device, data_address_w)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r)
@@ -471,12 +473,12 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( bananadr_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
-	AM_RANGE(0x00, 0x07) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x10, 0x10) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x20, 0x20) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x30, 0x30) AM_WRITE(nbmj8891_vramsel_w)
-	AM_RANGE(0x40, 0x4f) AM_WRITE(nbmj8891_clut_w)
-	AM_RANGE(0x50, 0x50) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x00, 0x07) AM_WRITE(blitter_w)
+	AM_RANGE(0x10, 0x10) AM_WRITE(romsel_w)
+	AM_RANGE(0x20, 0x20) AM_WRITE(clutsel_w)
+	AM_RANGE(0x30, 0x30) AM_WRITE(vramsel_w)
+	AM_RANGE(0x40, 0x4f) AM_WRITE(clut_w)
+	AM_RANGE(0x50, 0x50) AM_WRITE(scrolly_w)
 	AM_RANGE(0x80, 0x81) AM_DEVWRITE("fmsnd", ym3812_device, write)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r)
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
@@ -492,17 +494,17 @@ static ADDRESS_MAP_START( lovehous_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
 	AM_RANGE(0x00, 0x00) AM_DEVWRITE("nb1413m3", nb1413m3_device, nmi_clock_w)
-	AM_RANGE(0x40, 0x40) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x50, 0x57) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x60, 0x60) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x70, 0x70) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(clutsel_w)
+	AM_RANGE(0x50, 0x57) AM_WRITE(blitter_w)
+	AM_RANGE(0x60, 0x60) AM_WRITE(romsel_w)
+	AM_RANGE(0x70, 0x70) AM_WRITE(scrolly_w)
 	AM_RANGE(0x80, 0x81) AM_DEVWRITE("fmsnd", ym3812_device, write)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r) //AM_WRITENOP
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
 	AM_RANGE(0xb0, 0xb0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport2_r, sndrombank1_w)
 	AM_RANGE(0xc0, 0xc0) AM_READ_PORT("PORT0-2")
 	AM_RANGE(0xd0, 0xd0) AM_DEVWRITE("dac", dac_device, write_unsigned8)
-	AM_RANGE(0xe0, 0xe0) AM_WRITE(nbmj8891_vramsel_w)
+	AM_RANGE(0xe0, 0xe0) AM_WRITE(vramsel_w)
 	AM_RANGE(0xf0, 0xf0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, dipsw1_r, outcoin_w)
 	AM_RANGE(0xf1, 0xf1) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw2_r)
 ADDRESS_MAP_END
@@ -511,17 +513,17 @@ static ADDRESS_MAP_START( maiko_io_map, AS_IO, 8, nbmj8891_state )
 	ADDRESS_MAP_GLOBAL_MASK(0xff)
 	AM_RANGE(0x00, 0x7f) AM_DEVREAD("nb1413m3", nb1413m3_device, sndrom_r)
 	AM_RANGE(0x00, 0x00) AM_DEVWRITE("nb1413m3", nb1413m3_device, nmi_clock_w)
-	AM_RANGE(0x40, 0x40) AM_WRITE(nbmj8891_clutsel_w)
-	AM_RANGE(0x50, 0x57) AM_WRITE(nbmj8891_blitter_w)
-	AM_RANGE(0x60, 0x60) AM_WRITE(nbmj8891_romsel_w)
-	AM_RANGE(0x70, 0x70) AM_WRITE(nbmj8891_scrolly_w)
+	AM_RANGE(0x40, 0x40) AM_WRITE(clutsel_w)
+	AM_RANGE(0x50, 0x57) AM_WRITE(blitter_w)
+	AM_RANGE(0x60, 0x60) AM_WRITE(romsel_w)
+	AM_RANGE(0x70, 0x70) AM_WRITE(scrolly_w)
 	AM_RANGE(0x80, 0x81) AM_DEVWRITE("fmsnd", ym3812_device, write)
 	AM_RANGE(0x90, 0x90) AM_DEVREAD("nb1413m3", nb1413m3_device, inputport0_r)
 	AM_RANGE(0xa0, 0xa0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport1_r, inputportsel_w)
 	AM_RANGE(0xb0, 0xb0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, inputport2_r, sndrombank1_w)
 	AM_RANGE(0xc0, 0xc0) AM_READ_PORT("PORT0-2") //AM_WRITENOP
 	AM_RANGE(0xd0, 0xd0) AM_DEVWRITE("dac", dac_device, write_unsigned8)
-	AM_RANGE(0xe0, 0xe0) AM_WRITE(nbmj8891_vramsel_w)
+	AM_RANGE(0xe0, 0xe0) AM_WRITE(vramsel_w)
 	AM_RANGE(0xf0, 0xf0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, dipsw1_r, outcoin_w)
 	AM_RANGE(0xf1, 0xf1) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw2_r)
 ADDRESS_MAP_END
@@ -537,7 +539,7 @@ static ADDRESS_MAP_START( taiwanmb_io_map, AS_IO, 8, nbmj8891_state )
 //  AM_RANGE(0xc0, 0xc0) AM_WRITENOP                    // ?
 //  AM_RANGE(0xd0, 0xd0) AM_READ(ff_r)  // irq ack? watchdog?
 	AM_RANGE(0xd0, 0xd0) AM_DEVWRITE("dac", dac_device, write_unsigned8)
-	AM_RANGE(0xe0, 0xe0) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw3_h_r) AM_WRITE(nbmj8891_taiwanmb_gfxdraw_w)  // blitter draw start
+	AM_RANGE(0xe0, 0xe0) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw3_h_r) AM_WRITE(taiwanmb_gfxdraw_w)  // blitter draw start
 	AM_RANGE(0xe1, 0xe1) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw3_l_r)
 	AM_RANGE(0xf0, 0xf0) AM_DEVREADWRITE("nb1413m3", nb1413m3_device, dipsw2_r, outcoin_w)
 	AM_RANGE(0xf1, 0xf1) AM_DEVREAD("nb1413m3", nb1413m3_device, dipsw1_r)
@@ -2523,7 +2525,7 @@ static MACHINE_CONFIG_START( gionbana, nbmj8891_state )
 	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(0))
 	MCFG_SCREEN_SIZE(512, 256)
 	MCFG_SCREEN_VISIBLE_AREA(0, 512-1, 8, 248-1)
-	MCFG_SCREEN_UPDATE_DRIVER(nbmj8891_state, screen_update_nbmj8891)
+	MCFG_SCREEN_UPDATE_DRIVER(nbmj8891_state, screen_update)
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_PALETTE_ADD("palette", 256)
@@ -2592,7 +2594,7 @@ static MACHINE_CONFIG_DERIVED( mjcamerb, gionbana )
 	/* video hardware */
 	MCFG_SCREEN_MODIFY("screen")
 	MCFG_SCREEN_VISIBLE_AREA(0, 512-1, 16, 240-1)
-	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,nbmj8891_1layer)
+	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,_1layer)
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_DERIVED( mmcamera, gionbana )
@@ -2609,7 +2611,7 @@ static MACHINE_CONFIG_DERIVED( mmcamera, gionbana )
 	/* video hardware */
 	MCFG_SCREEN_MODIFY("screen")
 	MCFG_SCREEN_VISIBLE_AREA(0, 512-1, 16, 240-1)
-	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,nbmj8891_1layer)
+	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,_1layer)
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_DERIVED( hanamomo, gionbana )
@@ -2625,7 +2627,7 @@ static MACHINE_CONFIG_DERIVED( hanamomo, gionbana )
 	/* video hardware */
 	MCFG_SCREEN_MODIFY("screen")
 	MCFG_SCREEN_VISIBLE_AREA(0, 512-1, 16, 240-1)
-	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,nbmj8891_1layer)
+	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,_1layer)
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_DERIVED( msjiken, hanamomo )
@@ -2646,7 +2648,7 @@ static MACHINE_CONFIG_DERIVED( telmahjn, gionbana )
 	MCFG_NB1413M3_TYPE( NB1413M3_TELMAHJN )
 
 	/* video hardware */
-	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,nbmj8891_1layer)
+	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,_1layer)
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_DERIVED( mgmen89, telmahjn )
@@ -2665,7 +2667,7 @@ static MACHINE_CONFIG_DERIVED( mjfocus, gionbana )
 	MCFG_NB1413M3_TYPE( NB1413M3_MJFOCUS )
 
 	/* video hardware */
-	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,nbmj8891_1layer)
+	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,_1layer)
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_DERIVED( pairsnb, gionbana )
@@ -2813,7 +2815,7 @@ static MACHINE_CONFIG_DERIVED( mjfocusm, gionbana )
 	/* video hardware */
 	MCFG_SCREEN_MODIFY("screen")
 	MCFG_SCREEN_VISIBLE_AREA(0, 512-1, 16, 240-1)
-	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,nbmj8891_1layer)
+	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,_1layer)
 
 	/* sound hardware */
 	MCFG_SOUND_REPLACE("fmsnd", AY8910, 1250000)
@@ -2844,7 +2846,7 @@ static MACHINE_CONFIG_DERIVED( taiwanmb, gionbana )
 	/* video hardware */
 	MCFG_SCREEN_MODIFY("screen")
 	MCFG_SCREEN_VISIBLE_AREA(0, 512-1, 16, 240-1)
-	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,nbmj8891_1layer)
+	MCFG_VIDEO_START_OVERRIDE(nbmj8891_state,_1layer)
 
 	/* sound hardware */
 	MCFG_SOUND_REPLACE("fmsnd", AY8910, 1250000)
@@ -3639,6 +3641,25 @@ ROM_START( hanaoji )
 	ROM_LOAD( "hnoj_11.bin", 0x100000, 0x20000, CRC(bfe38671) SHA1(6c81864caab61ea60dfe446b390221bdcfb0895e) )
 ROM_END
 
+ROM_START( hanaojia )
+	ROM_REGION( 0x10000, "maincpu", 0 ) /* program */
+	ROM_LOAD( "02.f3.bin", 0x00000, 0x10000, CRC(2f493c0b) SHA1(0c2b2ece744556f8b2d25fde9017680a77afcf6b) )
+
+	ROM_REGION( 0x10000, "voice", 0 ) /* voice */
+	ROM_LOAD( "hnoj_01.bin", 0x00000, 0x10000, CRC(3f7fcb94) SHA1(7bb0bc3a8c34b1b707b39ba52be40900cca0f015) )
+
+	ROM_REGION( 0x200000, "gfx1", 0 ) /* gfx */
+	ROM_LOAD( "hnoj_03.bin", 0x000000, 0x20000, CRC(fbbe1dce) SHA1(f742bb8e06a1e71e7c586d0a821f96238bdbc6ac) )
+	ROM_LOAD( "hnoj_04.bin", 0x020000, 0x20000, CRC(2074b04f) SHA1(e759e49474bcb1caeea5a60708844ec53aed64c6) )
+	ROM_LOAD( "hnoj_05.bin", 0x040000, 0x20000, CRC(84d20ba6) SHA1(0f270d43cdb390492f349b3680978e2e36a6a5d4) )
+	ROM_LOAD( "hnoj_06.bin", 0x060000, 0x20000, CRC(f85fedd8) SHA1(224a5b05c28b1f84df0bd32b32cb2aa416156460) )
+	ROM_LOAD( "hnoj_07.bin", 0x080000, 0x20000, CRC(c72cdde1) SHA1(877cd52461ecc9cd44d5b328c36ac8878056059d) )
+	ROM_LOAD( "hnoj_08.bin", 0x0a0000, 0x20000, CRC(12e70429) SHA1(4728a5a0f636f793099c5a3a7bc998931921623f) )
+	ROM_LOAD( "hnoj_09.bin", 0x0c0000, 0x20000, CRC(4ec74a59) SHA1(92803e99aa6fb5c8f2227db3b7cc875266249ed1) )
+	ROM_LOAD( "hnoj_10.bin", 0x0e0000, 0x20000, CRC(e9212fc5) SHA1(c09f4a93f01630696acb0e80b1c6adb711377319) )
+	ROM_LOAD( "hnoj_11.bin", 0x100000, 0x20000, CRC(bfe38671) SHA1(6c81864caab61ea60dfe446b390221bdcfb0895e) )
+ROM_END
+
 ROM_START( mjcamerb )
 	ROM_REGION( 0x10000, "maincpu", 0 ) /* program */
 	ROM_LOAD( "2.3h",        0x00000, 0x10000, CRC(3a0f110b) SHA1(8923136ed25ed91c90f93c3f75f5532ff8f9d420) )
@@ -3826,36 +3847,37 @@ ROM_END
 
 
 //     YEAR,     NAME,   PARENT,  MACHINE,    INPUT,     INIT, MONITOR,COMPANY,FULLNAME,FLAGS)
-GAME( 1988, msjiken,   0,        msjiken,  msjiken,   driver_device,        0, ROT270, "Nichibutsu", "Mahjong Satsujin Jiken (Japan 881017)", 0 )
-GAME( 1988, hanamomo,  0,        hanamomo, hanamomo,  driver_device,        0, ROT0,   "Nichibutsu", "Mahjong Hana no Momoko gumi (Japan 881201)", 0 )
-GAME( 1988, hanamomb,  hanamomo, hanamomo, hanamomo,  driver_device,        0, ROT0,   "Nichibutsu", "Mahjong Hana no Momoko gumi (Japan 881125)", 0 )
-GAME( 1988, telmahjn,  0,        telmahjn, telmahjn, nbmj8891_state, telmahjn, ROT270, "Nichibutsu", "Telephone Mahjong (Japan 890111)", 0 )
-GAME( 1989, gionbana,  0,        gionbana, gionbana, nbmj8891_state, gionbana, ROT0,   "Nichibutsu", "Gionbana (Japan 890120)", 0 )
-GAME( 1989, mgion,     0,        mgion,    mgion,     driver_device,        0, ROT0,   "Nichibutsu", "Gionbana [BET] (Japan 890207)", 0 )
-GAME( 1989, omotesnd,  0,        omotesnd, omotesnd, nbmj8891_state, omotesnd, ROT0,   "Anime Tec", "Omotesandou (Japan 890215)", 0 )
-GAME( 1989, abunai,    0,        abunai,   abunai,    driver_device,        0, ROT0,   "Green Soft", "Abunai Houkago - Mou Matenai (Japan 890325)", 0 )
-GAME( 1989, mjfocus,   0,        mjfocus,  mjfocus, nbmj8891_state,  mjfocus,  ROT0,   "Nichibutsu", "Mahjong Focus (Japan 890313)", 0 )
-GAME( 1989, mjfocusm,  mjfocus,  mjfocusm, mjfocusm, nbmj8891_state, mjfocusm, ROT0,   "Nichibutsu", "Mahjong Focus [BET] (Japan 890510)", 0 )
-GAME( 1989, peepshow,  mjfocus,  mjfocus,  peepshow, nbmj8891_state, mjfocus,  ROT0,   "AC", "Nozokimeguri Mahjong Peep Show (Japan 890404)", 0 )
-GAME( 1989, mjcamerb,  0,        mjcamerb, mjcamerb, driver_device,         0, ROT0,   "Miki Syouji", "Mahjong Camera Kozou (set 2) (Japan 881109)", 0 )
-GAME( 1989, mmcamera,  mjcamerb, mmcamera, mmcamera, driver_device,         0, ROT0,   "Miki Syouji", "Mahjong Camera Kozou [BET] (Japan 890509)", 0 )
-GAME( 1989, scandal,   0,        scandal,  scandal, nbmj8891_state,  scandal,  ROT0,   "Nichibutsu", "Scandal Mahjong (Japan 890213)", 0 )
-GAME( 1989, scandalm,  scandal,  scandalm, scandalm, driver_device,         0, ROT0,   "Nichibutsu", "Scandal Mahjong [BET] (Japan 890217)", 0 )
-GAME( 1989, mgmen89,   0,        mgmen89,  mgmen89,  nbmj8891_state, mgmen89,  ROT0,   "Nichibutsu", "Mahjong G-MEN'89 (Japan 890425)", 0 )
-GAME( 1989, mjnanpas,  0,        mjnanpas, mjnanpas, nbmj8891_state, mjnanpas, ROT0,   "Brooks", "Mahjong Nanpa Story (Japan 890713)", 0 )
-GAME( 1989, mjnanpaa,  mjnanpas, mjnanpas, mjnanpaa, nbmj8891_state, mjnanpas, ROT0,   "Brooks", "Mahjong Nanpa Story (Japan 890712)", 0 )
-GAME( 1989, mjnanpau,  mjnanpas, mjnanpas, mjnanpas, nbmj8891_state, mjnanpas, ROT0,   "Brooks", "Mahjong Nanpa Story (Ura) (Japan 890805)", 0 )
-GAME( 1989, bananadr,  0,        bananadr, bananadr, driver_device,         0, ROT0,   "Digital Soft", "Mahjong Banana Dream [BET] (Japan 891124)", 0 )
-GAME( 1990, mladyhtr,  0,        mladyhtr, mladyhtr, driver_device,         0, ROT0,   "Nichibutsu", "Mahjong The Lady Hunter (Japan 900509)", 0 )
-GAME( 1990, chinmoku,  0,        chinmoku, chinmoku, driver_device,         0, ROT0,   "Nichibutsu", "Mahjong Chinmoku no Hentai (Japan 900511)", 0 )
-GAME( 1990, maiko,     0,        maiko,    maiko,    driver_device,         0, ROT0,   "Nichibutsu", "Maikobana (Japan 900802)", 0 )
-GAME( 1990, mmaiko,    0,        mmaiko,   mmaiko,   driver_device,         0, ROT0,   "Nichibutsu", "Maikobana [BET] (Japan 900911)", 0 )
-GAME( 1990, hnxmasev,  0,        hnxmasev, maiko,    driver_device,         0, ROT180, "Nichibutsu / AV Japan", "AV Hanafuda Hana no Christmas Eve (Japan 901204)", GAME_NOT_WORKING )
-GAME( 1990, hnageman,  0,        hnageman, maiko,    driver_device,         0, ROT180, "Nichibutsu / AV Japan", "AV Hanafuda Hana no Ageman (Japan 900716)", GAME_NOT_WORKING )
-GAME( 1990, club90s,   0,        club90s,  club90s,  driver_device,         0, ROT0,   "Nichibutsu", "Mahjong CLUB 90's (set 1) (Japan 900919)", 0 )
-GAME( 1990, club90sa,  club90s,  club90s,  club90s,  driver_device,         0, ROT0,   "Nichibutsu", "Mahjong CLUB 90's (set 2) (Japan 900919)", 0 )
-GAME( 1990, lovehous,  club90s,  lovehous, lovehous, driver_device,         0, ROT0,   "Nichibutsu", "Mahjong Love House [BET] (Japan 901024)", 0 )
-GAME( 1991, hanaoji,   0,        hanaoji,  hanaoji,  driver_device,         0, ROT0,   "Nichibutsu", "Hana to Ojisan [BET] (Japan 911209)", 0 )
-GAME( 1988, taiwanmb,  0,        taiwanmb, taiwanmb, driver_device,         0, ROT0,   "Miki Syouji", "Taiwan Mahjong [BET] (Japan 881208)", 0 )
-GAME( 1989, pairsnb,   0,        pairsnb, pairsnb,  nbmj8891_state,  pairsnb,  ROT0,   "Nichibutsu", "Pairs (Nichibutsu) (Japan 890822)", 0 )
-GAME( 1989, pairsten,  pairsnb,  pairsten, pairsnb, nbmj8891_state,  pairsten, ROT0,   "System Ten", "Pairs (System Ten) (Japan 890826)", 0 )
+GAME( 1988, msjiken,   0,        msjiken,  msjiken,   driver_device,        0, ROT270, "Nichibutsu", "Mahjong Satsujin Jiken (Japan 881017)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, hanamomo,  0,        hanamomo, hanamomo,  driver_device,        0, ROT0,   "Nichibutsu", "Mahjong Hana no Momoko gumi (Japan 881201)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, hanamomb,  hanamomo, hanamomo, hanamomo,  driver_device,        0, ROT0,   "Nichibutsu", "Mahjong Hana no Momoko gumi (Japan 881125)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, telmahjn,  0,        telmahjn, telmahjn, nbmj8891_state, telmahjn, ROT270, "Nichibutsu", "Telephone Mahjong (Japan 890111)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, gionbana,  0,        gionbana, gionbana, nbmj8891_state, gionbana, ROT0,   "Nichibutsu", "Gionbana (Japan 890120)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mgion,     0,        mgion,    mgion,     driver_device,        0, ROT0,   "Nichibutsu", "Gionbana [BET] (Japan 890207)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, omotesnd,  0,        omotesnd, omotesnd, nbmj8891_state, omotesnd, ROT0,   "Anime Tec", "Omotesandou (Japan 890215)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, abunai,    0,        abunai,   abunai,    driver_device,        0, ROT0,   "Green Soft", "Abunai Houkago - Mou Matenai (Japan 890325)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mjfocus,   0,        mjfocus,  mjfocus, nbmj8891_state,  mjfocus,  ROT0,   "Nichibutsu", "Mahjong Focus (Japan 890313)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mjfocusm,  mjfocus,  mjfocusm, mjfocusm, nbmj8891_state, mjfocusm, ROT0,   "Nichibutsu", "Mahjong Focus [BET] (Japan 890510)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, peepshow,  mjfocus,  mjfocus,  peepshow, nbmj8891_state, mjfocus,  ROT0,   "AC", "Nozokimeguri Mahjong Peep Show (Japan 890404)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mjcamerb,  0,        mjcamerb, mjcamerb, driver_device,         0, ROT0,   "Miki Syouji", "Mahjong Camera Kozou (set 2) (Japan 881109)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mmcamera,  mjcamerb, mmcamera, mmcamera, driver_device,         0, ROT0,   "Miki Syouji", "Mahjong Camera Kozou [BET] (Japan 890509)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, scandal,   0,        scandal,  scandal, nbmj8891_state,  scandal,  ROT0,   "Nichibutsu", "Scandal Mahjong (Japan 890213)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, scandalm,  scandal,  scandalm, scandalm, driver_device,         0, ROT0,   "Nichibutsu", "Scandal Mahjong [BET] (Japan 890217)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mgmen89,   0,        mgmen89,  mgmen89,  nbmj8891_state, mgmen89,  ROT0,   "Nichibutsu", "Mahjong G-MEN'89 (Japan 890425)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mjnanpas,  0,        mjnanpas, mjnanpas, nbmj8891_state, mjnanpas, ROT0,   "Brooks", "Mahjong Nanpa Story (Japan 890713)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mjnanpaa,  mjnanpas, mjnanpas, mjnanpaa, nbmj8891_state, mjnanpas, ROT0,   "Brooks", "Mahjong Nanpa Story (Japan 890712)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mjnanpau,  mjnanpas, mjnanpas, mjnanpas, nbmj8891_state, mjnanpas, ROT0,   "Brooks", "Mahjong Nanpa Story (Ura) (Japan 890805)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, bananadr,  0,        bananadr, bananadr, driver_device,         0, ROT0,   "Digital Soft", "Mahjong Banana Dream [BET] (Japan 891124)", MACHINE_SUPPORTS_SAVE )
+GAME( 1990, mladyhtr,  0,        mladyhtr, mladyhtr, driver_device,         0, ROT0,   "Nichibutsu", "Mahjong The Lady Hunter (Japan 900509)", MACHINE_SUPPORTS_SAVE )
+GAME( 1990, chinmoku,  0,        chinmoku, chinmoku, driver_device,         0, ROT0,   "Nichibutsu", "Mahjong Chinmoku no Hentai (Japan 900511)", MACHINE_SUPPORTS_SAVE )
+GAME( 1990, maiko,     0,        maiko,    maiko,    driver_device,         0, ROT0,   "Nichibutsu", "Maikobana (Japan 900802)", MACHINE_SUPPORTS_SAVE )
+GAME( 1990, mmaiko,    0,        mmaiko,   mmaiko,   driver_device,         0, ROT0,   "Nichibutsu", "Maikobana [BET] (Japan 900911)", MACHINE_SUPPORTS_SAVE )
+GAME( 1990, hnxmasev,  0,        hnxmasev, maiko,    driver_device,         0, ROT180, "Nichibutsu / AV Japan", "AV Hanafuda Hana no Christmas Eve (Japan 901204)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1990, hnageman,  0,        hnageman, maiko,    driver_device,         0, ROT180, "Nichibutsu / AV Japan", "AV Hanafuda Hana no Ageman (Japan 900716)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1990, club90s,   0,        club90s,  club90s,  driver_device,         0, ROT0,   "Nichibutsu", "Mahjong CLUB 90's (set 1) (Japan 900919)", MACHINE_SUPPORTS_SAVE )
+GAME( 1990, club90sa,  club90s,  club90s,  club90s,  driver_device,         0, ROT0,   "Nichibutsu", "Mahjong CLUB 90's (set 2) (Japan 900919)", MACHINE_SUPPORTS_SAVE )
+GAME( 1990, lovehous,  club90s,  lovehous, lovehous, driver_device,         0, ROT0,   "Nichibutsu", "Mahjong Love House [BET] (Japan 901024)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, hanaoji,   0,        hanaoji,  hanaoji,  driver_device,         0, ROT0,   "Nichibutsu", "Hana to Ojisan [BET] (ver 1.01, 1991/12/09)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, hanaojia,  hanaoji,  hanaoji,  hanaoji,  driver_device,         0, ROT0,   "Nichibutsu", "Hana to Ojisan [BET] (ver 1.00, 1991/08/23)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, taiwanmb,  0,        taiwanmb, taiwanmb, driver_device,         0, ROT0,   "Miki Syouji", "Taiwan Mahjong [BET] (Japan 881208)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, pairsnb,   0,        pairsnb, pairsnb,  nbmj8891_state,  pairsnb,  ROT0,   "Nichibutsu", "Pairs (Nichibutsu) (Japan 890822)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, pairsten,  pairsnb,  pairsten, pairsnb, nbmj8891_state,  pairsten, ROT0,   "System Ten", "Pairs (System Ten) (Japan 890826)", MACHINE_SUPPORTS_SAVE )

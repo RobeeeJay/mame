@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -179,8 +179,9 @@ static MACHINE_CONFIG_START( ampro, ampro_state )
 	MCFG_RS232_RXD_HANDLER(DEVWRITELINE("z80dart", z80dart_device, rxa_w))
 
 	MCFG_TIMER_DRIVER_ADD_PERIODIC("ctc_tick", ampro_state, ctc_tick, attotime::from_hz(XTAL_16MHz / 8))
-	MCFG_WD1772x_ADD("fdc", XTAL_16MHz / 2)
+	MCFG_WD1772_ADD("fdc", XTAL_16MHz / 2)
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", ampro_floppies, "525dd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_SOUND(true)
 	MCFG_SOFTWARE_LIST_ADD("flop_list", "ampro")
 MACHINE_CONFIG_END
 
@@ -198,4 +199,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    CLASS          INIT     COMPANY       FULLNAME       FLAGS */
-COMP( 1980, ampro,  0,      0,       ampro,     ampro,   ampro_state,   ampro,  "Ampro", "Little Z80 Board", GAME_NO_SOUND_HW)
+COMP( 1980, ampro,  0,      0,       ampro,     ampro,   ampro_state,   ampro,  "Ampro", "Little Z80 Board", MACHINE_NO_SOUND_HW)

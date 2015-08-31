@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /********************************************************
 
   KO Punch (c) 1981 Sega
@@ -308,4 +310,4 @@ ROM_START( kopunch )
 ROM_END
 
 
-GAME( 1981, kopunch, 0, kopunch, kopunch, driver_device, 0, ROT270, "Sega", "KO Punch", GAME_NO_SOUND | GAME_NOT_WORKING | GAME_MECHANICAL | GAME_SUPPORTS_SAVE )
+GAME( 1981, kopunch, 0, kopunch, kopunch, driver_device, 0, ROT270, "Sega", "KO Punch", MACHINE_NO_SOUND | MACHINE_NOT_WORKING | MACHINE_MECHANICAL | MACHINE_SUPPORTS_SAVE )

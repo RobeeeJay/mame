@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker
 /***************************************************************************
 
     NOTE: ****** Specbusy: press N, R, or E to boot *************
@@ -172,6 +174,9 @@ WRITE8_MEMBER(spectrum_state::spectrum_128_port_7ffd_w)
 	if (m_port_7ffd_data & 0x20)
 			return;
 
+	if ((m_port_7ffd_data ^ data) & 0x08)
+		spectrum_UpdateScreenBitmap();
+
 	/* store new state */
 	m_port_7ffd_data = data;
 
@@ -217,7 +222,7 @@ static ADDRESS_MAP_START (spectrum_128_io, AS_IO, 8, spectrum_state )
 	AM_RANGE(0x001f, 0x001f) AM_READ(spectrum_port_1f_r) AM_MIRROR(0xff00)
 	AM_RANGE(0x007f, 0x007f) AM_READ(spectrum_port_7f_r) AM_MIRROR(0xff00)
 	AM_RANGE(0x00df, 0x00df) AM_READ(spectrum_port_df_r) AM_MIRROR(0xff00)
-	AM_RANGE(0x4000, 0x4000) AM_WRITE(spectrum_128_port_7ffd_w) AM_MIRROR(0x3ffd)
+	AM_RANGE(0x0000, 0x0000) AM_WRITE(spectrum_128_port_7ffd_w) AM_MIRROR(0x7ffd)   // (A15 | A1) == 0, note: reading from this port does write to it by value from data bus
 	AM_RANGE(0x8000, 0x8000) AM_DEVWRITE("ay8912", ay8910_device, data_w) AM_MIRROR(0x3ffd)
 	AM_RANGE(0xc000, 0xc000) AM_DEVREADWRITE("ay8912", ay8910_device, data_r, address_w) AM_MIRROR(0x3ffd)
 	AM_RANGE(0x0001, 0x0001) AM_READ(spectrum_128_ula_r) AM_MIRROR(0xfffe)
@@ -356,4 +361,4 @@ ROM_END
 COMP( 1986, spec128,  0,       0,       spectrum_128,   spec_plus, driver_device,   0,  "Sinclair Research Ltd", "ZX Spectrum 128" , 0 )
 COMP( 1986, specpls2, spec128, 0,       spectrum_128,   spec_plus, driver_device,   0,  "Amstrad plc",           "ZX Spectrum +2" , 0 )
 COMP( 1991, hc128,    spec128, 0,       spectrum_128,   spec_plus, driver_device,   0,  "ICE-Felix",             "HC-128" , 0 )
-COMP( 1992, hc2000,   spec128, 0,       spectrum_128,   spec_plus, driver_device,   0,  "ICE-Felix",             "HC-2000" , GAME_NOT_WORKING )
+COMP( 1992, hc2000,   spec128, 0,       spectrum_128,   spec_plus, driver_device,   0,  "ICE-Felix",             "HC-2000" , MACHINE_NOT_WORKING )

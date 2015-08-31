@@ -1,10 +1,12 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /***************************************************************************
 
  Fun Games discrete hardware games
 
  Biplane (1975)
  Biplane 4 (1976)
- King
+ King (1976) - unreleased
  Race! (1976)
  Take 5 (1975)
  Take 7 (1975)
@@ -18,7 +20,6 @@
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied by Pong, not accurate for this driver!
 // start
@@ -133,5 +134,5 @@ ROM_START( take5 )
 ROM_END
 
 
-GAME( 1976, biplane4,  0, fungames, 0, driver_device,  0, ROT0, "Fun Games", "Biplane 4 [TTL]", GAME_IS_SKELETON )
-GAME( 1975, take5,     0, fungames, 0, driver_device,  0, ROT0, "Fun Games", "Take 5 [TTL]", GAME_IS_SKELETON )
+GAME( 1976, biplane4,  0, fungames, 0, driver_device,  0, ROT0, "Fun Games", "Biplane 4 [TTL]", MACHINE_IS_SKELETON )
+GAME( 1975, take5,     0, fungames, 0, driver_device,  0, ROT0, "Fun Games", "Take 5 [TTL]", MACHINE_IS_SKELETON )

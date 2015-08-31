@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese
 /***************************************************************************
 
     Korg M1 (c) 1988
@@ -204,4 +206,4 @@ ROM_START( korgm1 )
 //  ROM_REGION( 0x10000, "gfx1", ROMREGION_ERASE00 )
 ROM_END
 
-GAME( 1988, korgm1,  0,   korgm1,  korgm1,  0,       ROT0, "Korg",      "M1", GAME_IS_SKELETON )
+GAME( 1988, korgm1,  0,   korgm1,  korgm1,  0,       ROT0, "Korg",      "M1", MACHINE_IS_SKELETON )

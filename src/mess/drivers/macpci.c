@@ -1,5 +1,5 @@
-// license:?
-// copyright-holders:R.Belmont
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
   macpci.c: second-generation Old World PowerMacs based on PCI instead of NuBus
@@ -163,4 +163,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY            FULLNAME       FLAGS */
-COMP( 1996, pippin,  0,       0,     pippin,    pippin, driver_device,  0,  "Apple / Bandai",   "Pippin @mark", GAME_NOT_WORKING)
+COMP( 1996, pippin,  0,       0,     pippin,    pippin, driver_device,  0,  "Apple / Bandai",   "Pippin @mark", MACHINE_NOT_WORKING)

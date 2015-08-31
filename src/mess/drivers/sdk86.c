@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Miodrag Milanovic, Jonathan Gevaryahu, Robbbert
 /***************************************************************************
 
@@ -209,4 +209,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY   FULLNAME       FLAGS */
-COMP( 1979, sdk86,  0,      0,       sdk86,     sdk86, driver_device,    0,    "Intel",  "SDK-86", GAME_NO_SOUND_HW)
+COMP( 1979, sdk86,  0,      0,       sdk86,     sdk86, driver_device,    0,    "Intel",  "SDK-86", MACHINE_NO_SOUND_HW)

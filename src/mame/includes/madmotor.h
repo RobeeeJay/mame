@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*************************************************************************
 
     Mad Motor
@@ -22,7 +24,6 @@ public:
 
 	/* memory pointers */
 	required_shared_ptr<UINT16> m_spriteram;
-//  UINT16 *        m_paletteram;     // this currently uses generic palette handlers
 
 	/* video-related */
 	int             m_flipscreen;

@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Raphael Nabet
 /*****************************************************************************
  *
  * includes/tx0.h
@@ -58,7 +60,7 @@ enum irg_pos_t
 
 
 /* tape reader registers */
-struct tape_reader_t
+struct tx0_tape_reader_t
 {
 	device_image_interface *fd; /* file descriptor of tape image */
 
@@ -83,7 +85,7 @@ struct tape_puncher_t
 
 
 /* typewriter registers */
-struct typewriter_t
+struct tx0_typewriter_t
 {
 	device_image_interface *fd; /* file descriptor of output image */
 
@@ -134,11 +136,15 @@ public:
 		: driver_device(mconfig, type, tag),
 		m_maincpu(*this, "maincpu"),
 		m_gfxdecode(*this, "gfxdecode"),
-		m_palette(*this, "palette")  { }
+		m_palette(*this, "palette"),
+		m_crt(*this, "crt"),
+		m_csw(*this, "CSW"),
+		m_twr(*this, "TWR")
+	{ }
 
-	tape_reader_t m_tape_reader;
+	tx0_tape_reader_t m_tape_reader;
 	tape_puncher_t m_tape_puncher;
-	typewriter_t m_typewriter;
+	tx0_typewriter_t m_typewriter;
 	emu_timer *m_dis_timer;
 	magtape_t m_magtape;
 	int m_old_typewriter_keys[4];
@@ -150,7 +156,6 @@ public:
 	bitmap_ind16 m_typewriter_bitmap;
 	int m_pos;
 	int m_case_shift;
-	crt_device *m_crt;
 	DECLARE_DRIVER_INIT(tx0);
 	virtual void machine_start();
 	virtual void machine_reset();
@@ -196,8 +201,13 @@ public:
 	DECLARE_WRITE_LINE_MEMBER(tx0_sel);
 	DECLARE_WRITE_LINE_MEMBER(tx0_io_reset_callback);
 	void magtape_callback();
+
+private:
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
+	required_device<crt_device> m_crt;
+	required_ioport m_csw;
+	required_ioport_array<4> m_twr;
 };
 
 /* defines for each bit and mask in input port "CSW" */

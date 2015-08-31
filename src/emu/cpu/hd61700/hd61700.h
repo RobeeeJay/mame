@@ -46,7 +46,7 @@ enum
 {
 	HD61700_PC=1, HD61700_F, HD61700_SX, HD61700_SY, HD61700_SZ, HD61700_PE, HD61700_PD,
 	HD61700_IB,  HD61700_UA, HD61700_IA, HD61700_IE, HD61700_TM, HD61700_IX,
-	HD61700_IY,  HD61700_IZ, HD61700_US, HD61700_SS, HD61700_KY, HD61700_MAINREG,
+	HD61700_IY,  HD61700_IZ, HD61700_US, HD61700_SS, HD61700_KY, HD61700_MAINREG
 };
 
 // input lines
@@ -92,7 +92,7 @@ protected:
 
 	// device_state_interface overrides
 	virtual void state_import(const device_state_entry &entry);
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_memory_interface overrides
 	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : NULL; }

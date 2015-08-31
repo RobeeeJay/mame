@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Stephane Humbert
 /* Hanaroku - Alba ZC HW */
 
 /*
@@ -307,4 +309,4 @@ ROM_START( hanaroku )
 ROM_END
 
 
-GAME( 1988, hanaroku, 0,        hanaroku, hanaroku, driver_device, 0, ROT0, "Alba", "Hanaroku", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_SUPPORTS_SAVE )
+GAME( 1988, hanaroku, 0,        hanaroku, hanaroku, driver_device, 0, ROT0, "Alba", "Hanaroku", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_COLORS | MACHINE_SUPPORTS_SAVE )

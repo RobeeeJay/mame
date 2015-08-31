@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*************************************************************************
 
     American Speedway
@@ -46,7 +48,6 @@ public:
 	DECLARE_READ8_MEMBER(amspdwy_wheel_0_r);
 	DECLARE_READ8_MEMBER(amspdwy_wheel_1_r);
 	DECLARE_WRITE8_MEMBER(amspdwy_sound_w);
-	DECLARE_WRITE8_MEMBER(amspdwy_paletteram_w);
 	DECLARE_WRITE8_MEMBER(amspdwy_flipscreen_w);
 	DECLARE_WRITE8_MEMBER(amspdwy_videoram_w);
 	DECLARE_WRITE8_MEMBER(amspdwy_colorram_w);

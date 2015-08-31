@@ -1,8 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Andrew Gardner
 /***************************************************************************
 
     okim9810.h
 
-    OKI MSM9810 ADCPM(2) sound chip.
+    OKI MSM9810 ADPCM(2) sound chip.
 
 ***************************************************************************/
 
@@ -103,8 +105,35 @@ void okim9810_device::device_start()
 	m_stream = machine().sound().stream_alloc(*this, 0, 2, clock());
 
 	// save state stuff
-	// m_TMP_register
-	// m_voice
+	save_item(NAME(m_TMP_register));
+	save_item(NAME(m_global_volume));
+	save_item(NAME(m_filter_type));
+	save_item(NAME(m_output_level));
+
+	for  (int i = 0; i < OKIM9810_VOICES; i++)
+	{
+		okim_voice *voice = &m_voice[i];
+
+		save_item(NAME(voice->m_adpcm.m_signal), i);
+		save_item(NAME(voice->m_adpcm.m_step), i);
+		save_item(NAME(voice->m_adpcm2.m_signal), i);
+		save_item(NAME(voice->m_adpcm2.m_step), i);
+		save_item(NAME(voice->m_playbackAlgo), i);
+		save_item(NAME(voice->m_looping), i);
+		save_item(NAME(voice->m_startFlags), i);
+		save_item(NAME(voice->m_endFlags), i);
+		save_item(NAME(voice->m_base_offset), i);
+		save_item(NAME(voice->m_count), i);
+		save_item(NAME(voice->m_samplingFreq), i);
+		save_item(NAME(voice->m_playing), i);
+		save_item(NAME(voice->m_sample), i);
+		save_item(NAME(voice->m_channel_volume), i);
+		save_item(NAME(voice->m_pan_volume_left), i);
+		save_item(NAME(voice->m_pan_volume_right), i);
+		save_item(NAME(voice->m_startSample), i);
+		save_item(NAME(voice->m_endSample), i);
+		save_item(NAME(voice->m_interpSampleNum), i);
+	}
 }
 
 
@@ -284,31 +313,31 @@ void okim9810_device::write_command(UINT8 data)
 			const offs_t base = m_TMP_register * 8;
 
 			offs_t startAddr;
-			UINT8 startFlags = m_direct->read_raw_byte(base + 0);
-			startAddr  = m_direct->read_raw_byte(base + 1) << 16;
-			startAddr |= m_direct->read_raw_byte(base + 2) << 8;
-			startAddr |= m_direct->read_raw_byte(base + 3) << 0;
+			UINT8 startFlags = m_direct->read_byte(base + 0);
+			startAddr  = m_direct->read_byte(base + 1) << 16;
+			startAddr |= m_direct->read_byte(base + 2) << 8;
+			startAddr |= m_direct->read_byte(base + 3) << 0;
 
 			offs_t endAddr;
-			UINT8 endFlags = m_direct->read_raw_byte(base + 4);
-			endAddr  = m_direct->read_raw_byte(base + 5) << 16;
-			endAddr |= m_direct->read_raw_byte(base + 6) << 8;
-			endAddr |= m_direct->read_raw_byte(base + 7) << 0;
+			UINT8 endFlags = m_direct->read_byte(base + 4);
+			endAddr  = m_direct->read_byte(base + 5) << 16;
+			endAddr |= m_direct->read_byte(base + 6) << 8;
+			endAddr |= m_direct->read_byte(base + 7) << 0;
 
 			// Sub-table
 			if (startFlags & 0x80)
 			{
 				offs_t subTable = startAddr;
 				// TODO: New startFlags &= 0x80.  Are there further subtables?
-				startFlags = m_direct->read_raw_byte(subTable + 0);
-				startAddr  = m_direct->read_raw_byte(subTable + 1) << 16;
-				startAddr |= m_direct->read_raw_byte(subTable + 2) << 8;
-				startAddr |= m_direct->read_raw_byte(subTable + 3) << 0;
+				startFlags = m_direct->read_byte(subTable + 0);
+				startAddr  = m_direct->read_byte(subTable + 1) << 16;
+				startAddr |= m_direct->read_byte(subTable + 2) << 8;
+				startAddr |= m_direct->read_byte(subTable + 3) << 0;
 
 				// TODO: What does byte (subTable + 4) refer to?
-				endAddr  = m_direct->read_raw_byte(subTable + 5) << 16;
-				endAddr |= m_direct->read_raw_byte(subTable + 6) << 8;
-				endAddr |= m_direct->read_raw_byte(subTable + 7) << 0;
+				endAddr  = m_direct->read_byte(subTable + 5) << 16;
+				endAddr |= m_direct->read_byte(subTable + 6) << 8;
+				endAddr |= m_direct->read_byte(subTable + 7) << 0;
 			}
 
 			m_voice[channel].m_sample = 0;
@@ -449,7 +478,7 @@ void okim9810_device::okim_voice::generate_audio(direct_read_data &direct,
 			if (m_sample == 0)
 			{
 				// fetch the first sample nibble
-				int nibble0 = direct.read_raw_byte(m_base_offset + m_sample / 2) >> (((m_sample & 1) << 2) ^ 4);
+				int nibble0 = direct.read_byte(m_base_offset + m_sample / 2) >> (((m_sample & 1) << 2) ^ 4);
 				switch (m_playbackAlgo)
 				{
 					case OKIM9810_ADPCM_PLAYBACK:
@@ -475,7 +504,7 @@ void okim9810_device::okim_voice::generate_audio(direct_read_data &direct,
 			}
 
 			// And fetch the second sample nibble
-			int nibble1 = direct.read_raw_byte(m_base_offset + (m_sample+1) / 2) >> ((((m_sample+1) & 1) << 2) ^ 4);
+			int nibble1 = direct.read_byte(m_base_offset + (m_sample+1) / 2) >> ((((m_sample+1) & 1) << 2) ^ 4);
 			switch (m_playbackAlgo)
 			{
 				case OKIM9810_ADPCM_PLAYBACK:

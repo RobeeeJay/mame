@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /***************************************************************************
 
     Stadium Hero (Japan)            (c) 1988 Data East Corporation
@@ -283,4 +285,4 @@ ROM_END
 
 /******************************************************************************/
 
-GAME( 1988, stadhero, 0, stadhero, stadhero, driver_device, 0, ROT0, "Data East Corporation", "Stadium Hero (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1988, stadhero, 0, stadhero, stadhero, driver_device, 0, ROT0, "Data East Corporation", "Stadium Hero (Japan)", MACHINE_SUPPORTS_SAVE )

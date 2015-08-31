@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Guru
 /* Hide & Seek
 
 the AG-2 AX51201 should be the follow-up to the AG-1 AX51101 in gunpey.c
@@ -152,4 +154,4 @@ DRIVER_INIT_MEMBER(hideseek_state,hideseek)
 }
 
 
-GAME( 200?, hideseek, 0, hideseek, hideseek, hideseek_state, hideseek,    ROT0, "<unknown>", "Hide & Seek",GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 200?, hideseek, 0, hideseek, hideseek, hideseek_state, hideseek,    ROT0, "<unknown>", "Hide & Seek",MACHINE_NOT_WORKING | MACHINE_NO_SOUND )

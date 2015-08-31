@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Fresca
 /******************************************************************************
 
   NSM TMS9995 BASED HARDWARE
@@ -456,4 +458,4 @@ ROM_END
 *************************/
 
 /*    YEAR  NAME      PARENT  MACHINE   INPUT     INIT  ROT    COMPANY   FULLNAME              FLAGS */
-GAME( 198?, nsmpoker, 0,      nsmpoker, nsmpoker, driver_device, 0,    ROT0, "NSM",    "NSM Poker (TMS9995)", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 198?, nsmpoker, 0,      nsmpoker, nsmpoker, driver_device, 0,    ROT0, "NSM",    "NSM Poker (TMS9995)", MACHINE_NO_SOUND | MACHINE_NOT_WORKING )

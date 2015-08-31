@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari
 /***************************************************************************
 
   Hana Awase driver by Zsolt Vasvari
@@ -240,4 +242,4 @@ ROM_START( hanaawas )
 ROM_END
 
 
-GAME( 1982, hanaawas, 0, hanaawas, hanaawas, driver_device, 0, ROT0, "Seta Kikaku, Ltd.", "Hana Awase", GAME_SUPPORTS_SAVE )
+GAME( 1982, hanaawas, 0, hanaawas, hanaawas, driver_device, 0, ROT0, "Seta Kikaku, Ltd.", "Hana Awase", MACHINE_SUPPORTS_SAVE )

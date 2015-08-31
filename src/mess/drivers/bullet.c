@@ -1137,7 +1137,7 @@ static MACHINE_CONFIG_START( bullet, bullet_state )
 	MCFG_Z80PIO_OUT_PA_CB(DEVWRITE8("cent_data_out", output_latch_device, write))
 	MCFG_Z80PIO_IN_PB_CB(READ8(bullet_state, pio_pb_r))
 
-	MCFG_MB8877x_ADD(MB8877_TAG, XTAL_16MHz/16)
+	MCFG_MB8877_ADD(MB8877_TAG, XTAL_16MHz/16)
 	MCFG_WD_FDC_INTRQ_CALLBACK(DEVWRITELINE(Z80DART_TAG, z80dart_device, dcda_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(bullet_state, fdc_drq_w))
 	MCFG_FLOPPY_DRIVE_ADD(MB8877_TAG":0", bullet_525_floppies, "525qd", floppy_image_device::default_floppy_formats)
@@ -1219,7 +1219,7 @@ static MACHINE_CONFIG_START( bulletf, bulletf_state )
 	MCFG_Z80PIO_OUT_ARDY_CB(DEVWRITE8("cent_data_out", output_latch_device, write))
 	MCFG_Z80PIO_OUT_BRDY_CB(WRITELINE(bulletf_state, cstrb_w))
 
-	MCFG_MB8877x_ADD(MB8877_TAG, XTAL_16MHz/16)
+	MCFG_MB8877_ADD(MB8877_TAG, XTAL_16MHz/16)
 	MCFG_WD_FDC_INTRQ_CALLBACK(DEVWRITELINE(Z80DART_TAG, z80dart_device, rib_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(bullet_state, fdc_drq_w))
 	MCFG_FLOPPY_DRIVE_ADD(MB8877_TAG":0", bullet_525_floppies, "525qd", floppy_image_device::default_floppy_formats)
@@ -1293,5 +1293,5 @@ ROM_END
 
 //    YEAR  NAME        PARENT      COMPAT  MACHINE     INPUT       INIT    COMPANY         FULLNAME                FLAGS
 // the setname 'bullet' is used by Sega's Bullet in MAME.
-COMP( 1982, wmbullet,       0,          0,      bullet,     bullet, driver_device,  0,      "Wave Mate",    "Bullet",               GAME_NOT_WORKING | GAME_SUPPORTS_SAVE | GAME_NO_SOUND_HW )
-COMP( 1984, wmbulletf,  wmbullet,       0,      bulletf,    bulletf, driver_device, 0,      "Wave Mate",    "Bullet (Revision F)",  GAME_NOT_WORKING | GAME_SUPPORTS_SAVE | GAME_NO_SOUND_HW )
+COMP( 1982, wmbullet,       0,          0,      bullet,     bullet, driver_device,  0,      "Wave Mate",    "Bullet",               MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE | MACHINE_NO_SOUND_HW )
+COMP( 1984, wmbulletf,  wmbullet,       0,      bulletf,    bulletf, driver_device, 0,      "Wave Mate",    "Bullet (Revision F)",  MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE | MACHINE_NO_SOUND_HW )

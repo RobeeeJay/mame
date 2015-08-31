@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /***************************************************************************
 
     cstrpool.c
@@ -5,6 +7,8 @@
     Constant string pool helper class.
 
 ***************************************************************************/
+
+#include <assert.h>
 
 #include "cstrpool.h"
 
@@ -66,10 +70,13 @@ bool const_string_pool::contains(const char *string)
 	return false;
 }
 
-
-//-------------------------------------------------
-//  pool_chunk - constructor
-//-------------------------------------------------
+/**
+ * @fn  const_string_pool::pool_chunk::pool_chunk()
+ *
+ * @brief   -------------------------------------------------
+ *            pool_chunk - constructor
+ *          -------------------------------------------------.
+ */
 
 const_string_pool::pool_chunk::pool_chunk()
 	: m_next(NULL),
@@ -77,10 +84,17 @@ const_string_pool::pool_chunk::pool_chunk()
 {
 }
 
-
-//-------------------------------------------------
-//  add - add a string to this pool
-//-------------------------------------------------
+/**
+ * @fn  const char *const_string_pool::pool_chunk::add(const char *string)
+ *
+ * @brief   -------------------------------------------------
+ *            add - add a string to this pool
+ *          -------------------------------------------------.
+ *
+ * @param   string  The string to add.
+ *
+ * @return  null if it fails, else a char*.
+ */
 
 const char *const_string_pool::pool_chunk::add(const char *string)
 {

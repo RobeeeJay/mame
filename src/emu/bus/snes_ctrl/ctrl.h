@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /**********************************************************************
 
     Nintendo Super Famicom & SNES controller port emulation
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 **********************************************************************/
 
@@ -29,13 +28,13 @@ public:
 	// construction/destruction
 	device_snes_control_port_interface(const machine_config &mconfig, device_t &device);
 	virtual ~device_snes_control_port_interface();
-	
+
 	virtual UINT8 read_pin4() { return 0; };
 	virtual UINT8 read_pin5() { return 0; };
 	virtual void write_pin6(UINT8 data) { };
 	virtual void write_strobe(UINT8 data) { };
 	virtual void port_poll() { };
-	
+
 protected:
 	snes_control_port_device *m_port;
 };

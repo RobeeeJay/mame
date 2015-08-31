@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods,R. Belmont
 /*****************************************************************************
  *
  * includes/apple2gs.h
@@ -164,8 +166,6 @@ public:
 	int m_adb_dtime;
 	UINT32 m_a2_palette[16];
 	UINT32 m_shr_palette[256];
-
-	DECLARE_DIRECT_UPDATE_MEMBER(apple2gs_opbase);
 
 	READ8_MEMBER( apple2gs_c0xx_r );
 	WRITE8_MEMBER( apple2gs_c0xx_w );

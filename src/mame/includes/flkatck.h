@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /*************************************************************************
 
     Flak Attack / MX5000
@@ -20,7 +22,6 @@ public:
 
 	/* memory pointers */
 	required_shared_ptr<UINT8> m_k007121_ram;
-//  UINT8 *    paletteram;  // this currently uses generic palette handling
 
 	/* video-related */
 	tilemap_t    *m_k007121_tilemap[2];

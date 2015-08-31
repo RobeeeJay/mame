@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Couriersud
 /*
  * nld_SN74LS629.c
  *
@@ -38,14 +40,16 @@
 
 
 #include "nld_74ls629.h"
-#include "../nl_setup.h"
+#include "nl_setup.h"
+
+NETLIB_NAMESPACE_DEVICES_START()
 
 NETLIB_START(SN74LS629clk)
 {
 	register_input("FB",    m_FB);
 	register_output("Y",    m_Y);
 
-	connect(m_FB, m_Y);
+	connect_late(m_FB, m_Y);
 
 	reset();
 
@@ -76,18 +80,18 @@ NETLIB_UPDATE(SN74LS629clk)
 
 NETLIB_START(SN74LS629)
 {
-	register_sub(m_clock, "OSC");
-	register_sub(m_R_FC,  "R_FC");
-	register_sub(m_R_RNG,  "R_RNG");
+	register_sub("OSC", m_clock);
+	register_sub("R_FC", m_R_FC);
+	register_sub("R_RNG", m_R_RNG);
 
 	register_input("ENQ", m_ENQ);
 	register_input("RNG",    m_RNG);
 	register_input("FC",     m_FC);
 	register_subalias("GND",    m_R_FC.m_N);
 
-	connect(m_FC, m_R_FC.m_P);
-	connect(m_RNG, m_R_RNG.m_P);
-	connect(m_R_FC.m_N, m_R_RNG.m_N);
+	connect_late(m_FC, m_R_FC.m_P);
+	connect_late(m_RNG, m_R_RNG.m_P);
+	connect_late(m_R_FC.m_N, m_R_RNG.m_N);
 
 	register_subalias("Y", m_clock.m_Y);
 	register_param("CAP", m_CAP, 1e-6);
@@ -139,14 +143,14 @@ NETLIB_UPDATE(SN74LS629)
 		freq += k9 * v_rng * v_freq_3;
 		freq += k10 * v_rng * v_freq_4;
 
-		freq *= 0.1e-6 / m_CAP.Value();
+		freq *= NL_FCONST(0.1e-6) / m_CAP;
 
 		// FIXME: we need a possibility to remove entries from queue ...
 		//        or an exact model ...
-		m_clock.m_inc = netlist_time::from_double(0.5 / freq);
+		m_clock.m_inc = netlist_time::from_double(0.5 / (double) freq);
 		//m_clock.update();
 
-		NL_VERBOSE_OUT(("%s %f %f %f\n", name().cstr(), v_freq, v_rng, freq));
+		//NL_VERBOSE_OUT(("{1} {2} {3} {4}\n", name(), v_freq, v_rng, freq));
 	}
 
 	if (!m_clock.m_enableq && INPLOGIC(m_ENQ))
@@ -165,7 +169,6 @@ NETLIB_UPDATE(SN74LS629)
 
 NETLIB_UPDATE_PARAM(SN74LS629)
 {
-	//printf("updating %s to %f\n", name().cstr(), m_R.Value());
 	update_dev();
 }
 
@@ -173,8 +176,8 @@ NETLIB_UPDATE_PARAM(SN74LS629)
 
 NETLIB_START(SN74LS629_dip)
 {
-	register_sub(m_1, "1");
-	register_sub(m_2, "2");
+	register_sub("1", m_1);
+	register_sub("2", m_2);
 
 	register_subalias("1",  m_2.m_FC);
 	register_subalias("2",  m_1.m_FC);
@@ -185,7 +188,7 @@ NETLIB_START(SN74LS629_dip)
 
 	register_subalias("8",  m_1.m_R_FC.m_N);
 	register_subalias("9",  m_1.m_R_FC.m_N);
-	connect(m_1.m_R_FC.m_N, m_2.m_R_FC.m_N);
+	connect_late(m_1.m_R_FC.m_N, m_2.m_R_FC.m_N);
 
 	register_subalias("10",  m_2.m_clock.m_Y);
 
@@ -203,3 +206,5 @@ NETLIB_RESET(SN74LS629_dip)
 	m_1.do_reset();
 	m_2.do_reset();
 }
+
+NETLIB_NAMESPACE_DEVICES_END()

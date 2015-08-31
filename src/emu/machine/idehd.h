@@ -1,13 +1,10 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:smf
 /***************************************************************************
 
     idehd.h
 
     IDE Harddisk
-
-    Copyright Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 ***************************************************************************/
 
@@ -110,7 +107,7 @@ protected:
 
 	enum
 	{
-		TID_NULL = TID_BUSY + 1,
+		TID_NULL = TID_BUSY + 1
 	};
 
 private:

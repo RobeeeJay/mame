@@ -1,4 +1,4 @@
-// license:?
+// license:BSD-3-Clause
 // copyright-holders:Angelo Salese, Tomasz Slanina, David Haywood
 /*
  Two Minute Drill - Taito 1993
@@ -561,4 +561,4 @@ DRIVER_INIT_MEMBER(_2mindril_state,drill)
 	tile_decode();
 }
 
-GAME( 1993, 2mindril,    0,        drill,    drill, _2mindril_state,    drill, ROT0,  "Taito", "Two Minute Drill", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_MECHANICAL)
+GAME( 1993, 2mindril,    0,        drill,    drill, _2mindril_state,    drill, ROT0,  "Taito", "Two Minute Drill", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_GRAPHICS | MACHINE_MECHANICAL)

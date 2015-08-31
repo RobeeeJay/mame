@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:JJ Stacino
 /********************************************************************
 
 Support for Micronique machine .K7 and *.FOR cassette images
@@ -12,6 +14,8 @@ You can find some *.K7 file on serveral server in France
 
 Updated 3/1/10 : use real value for timing.
 ********************************************************************/
+#include <assert.h>
+
 #include "hect_tap.h"
 
 
@@ -27,7 +31,7 @@ enum
 {
 	Header_cycles = 77, /* Valeur Th?orique 66 = 44100 * 1.5 / 1000  // mesur? sur jeu Formule1 = 1,75ms*/
 	Zero_cycles =   27, /* Valeur Th?orique 17 = 44100 * 0.4 / 1000  // mesur? sur jeu Formule1 = 0,61ms*/
-	Un_cycles =     50, /* Valeur Th?orique 40 = 44100 * 0.9 / 1000  // mesur? sur jeu Formule1 = 1,13ms*/
+	Un_cycles =     50  /* Valeur Th?orique 40 = 44100 * 0.9 / 1000  // mesur? sur jeu Formule1 = 1,13ms*/
 };
 
 /* Here I prefer use the value that I read on a real tape, and not the theorical value; note that these

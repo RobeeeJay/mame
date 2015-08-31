@@ -1,4 +1,4 @@
-// license:BSD
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -575,4 +575,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE  INPUT   CLASS          INIT    COMPANY    FULLNAME  FLAGS */
-CONS( 1982, fc100,  0,      0,       fc100,   fc100,  fc100_state, fc100,   "Goldstar", "FC-100", GAME_NOT_WORKING )
+CONS( 1982, fc100,  0,      0,       fc100,   fc100,  fc100_state, fc100,   "Goldstar", "FC-100", MACHINE_NOT_WORKING )

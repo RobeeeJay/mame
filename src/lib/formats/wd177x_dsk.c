@@ -8,7 +8,7 @@
 
 *********************************************************************/
 
-#include "emu.h"
+#include "emu.h" // emu_fatalerror
 #include "formats/wd177x_dsk.h"
 
 wd177x_format::wd177x_format(const format *_formats)
@@ -204,6 +204,11 @@ bool wd177x_format::load(io_generic *io, UINT32 form_factor, floppy_image *image
 
 	for(int track=0; track < f.track_count; track++)
 		for(int head=0; head < f.head_count; head++) {
+			if (f.encoding == floppy_image::FM)
+				desc[14].p1 = get_track_dam_fm(f, head, track);
+			else
+				desc[16].p1 = get_track_dam_mfm(f, head, track);
+
 			io_generic_read(io, sectdata, get_image_offset(f, head, track), track_size);
 			generate_track(desc, track, head, sectors, f.sector_count, total_size, image);
 		}
@@ -226,7 +231,7 @@ bool wd177x_format::save(io_generic *io, floppy_image *image)
 
 	// Allocate the storage for the list of testable formats for a
 	// given cell size
-	dynamic_array<int> candidates(formats_count);
+	std::vector<int> candidates;
 
 	// Format we're finally choosing
 	int chosen_candidate = -1;
@@ -234,18 +239,18 @@ bool wd177x_format::save(io_generic *io, floppy_image *image)
 	// Previously tested cell size
 	int min_cell_size = 0;
 	for(;;) {
-		// Build the list of all formats for the immediatly superior cell size
+		// Build the list of all formats for the immediately superior cell size
 		int cur_cell_size = 0;
-		int candidates_count = 0;
+		candidates.clear();
 		for(int i=0; i != formats_count; i++) {
 			if(image->get_form_factor() == floppy_image::FF_UNKNOWN ||
 				image->get_form_factor() == formats[i].form_factor) {
 				if(formats[i].cell_size == cur_cell_size)
-					candidates[candidates_count++] = i;
+					candidates.push_back(i);
 				else if((!cur_cell_size || formats[i].cell_size < cur_cell_size) &&
 						formats[i].cell_size > min_cell_size) {
-					candidates[0] = i;
-					candidates_count = 1;
+					candidates.clear();
+					candidates.push_back(i);
 					cur_cell_size = formats[i].cell_size;
 				}
 			}
@@ -255,21 +260,21 @@ bool wd177x_format::save(io_generic *io, floppy_image *image)
 
 		// No candidates with a cell size bigger than the previously
 		// tested one, we're done
-		if(!candidates_count)
+		if(candidates.empty())
 			break;
 
 		// Filter with track 0 head 0
-		check_compatibility(image, candidates, candidates_count);
+		check_compatibility(image, candidates);
 
 		// Nobody matches, try with the next cell size
-		if(!candidates_count)
+		if(candidates.empty())
 			continue;
 
 		// We have a match at that cell size, we just need to find the
 		// best one given the geometry
 
 		// If there's only one, we're done
-		if(candidates_count == 1) {
+		if(candidates.size() == 1) {
 			chosen_candidate = candidates[0];
 			break;
 		}
@@ -278,7 +283,7 @@ bool wd177x_format::save(io_generic *io, floppy_image *image)
 		int tracks, heads;
 		image->get_actual_geometry(tracks, heads);
 		chosen_candidate = candidates[0];
-		for(int i=1; i != candidates_count; i++) {
+		for(unsigned int i=1; i != candidates.size(); i++) {
 			const format &cc = formats[chosen_candidate];
 			const format &cn = formats[candidates[i]];
 
@@ -288,13 +293,10 @@ bool wd177x_format::save(io_generic *io, floppy_image *image)
 			else if(cc.head_count >= heads && cn.head_count < heads)
 				goto dont_change;
 
-			// Since we're limited to two heads, at that point head
-			// count is identical for both formats.
-
 			// Handling enough tracks is better than not
 			if(cn.track_count >= tracks && cc.track_count < tracks)
 				goto change;
-			else if(cn.track_count >= tracks && cc.track_count < tracks)
+			else if(cc.track_count >= tracks && cn.track_count < tracks)
 				goto dont_change;
 
 			// Both are on the same side of the track count, so closest is best
@@ -302,6 +304,11 @@ bool wd177x_format::save(io_generic *io, floppy_image *image)
 				goto change;
 			if(cc.track_count >= tracks && cn.track_count < cc.track_count)
 				goto change;
+
+			// Lower number of heads is better
+			if (cn.head_count < cc.head_count && cn.head_count <= heads)
+				goto change;
+
 			goto dont_change;
 
 		change:
@@ -343,7 +350,19 @@ int wd177x_format::get_image_offset(const format &f, int head, int track)
 	return (track * f.head_count + head) * compute_track_size(f);
 }
 
-void wd177x_format::check_compatibility(floppy_image *image, int *candidates, int &candidates_count)
+int wd177x_format::get_track_dam_fm(const format &f, int head, int track)
+{
+	// everything marked as data by default
+	return FM_DAM;
+}
+
+int wd177x_format::get_track_dam_mfm(const format &f, int head, int track)
+{
+	// everything marked as data by default
+	return MFM_DAM;
+}
+
+void wd177x_format::check_compatibility(floppy_image *image, std::vector<int> &candidates)
 {
 	UINT8 bitstream[500000/8];
 	UINT8 sectdata[50000];
@@ -364,8 +383,8 @@ void wd177x_format::check_compatibility(floppy_image *image, int *candidates, in
 	}
 
 	// Check compatibility with every candidate, copy in-place
-	int *ok_cands = candidates;
-	for(int i=0; i != candidates_count; i++) {
+	int *ok_cands = &candidates[0];
+	for(unsigned int i=0; i != candidates.size(); i++) {
 		const format &f = formats[candidates[i]];
 		int ns = 0;
 		for(int j=0; j<256; j++)
@@ -393,7 +412,7 @@ void wd177x_format::check_compatibility(floppy_image *image, int *candidates, in
 	fail:
 		;
 	}
-	candidates_count = ok_cands - candidates;
+	candidates.resize(ok_cands - &candidates[0]);
 }
 
 void wd177x_format::extract_sectors(floppy_image *image, const format &f, desc_s *sdesc, int track, int head)

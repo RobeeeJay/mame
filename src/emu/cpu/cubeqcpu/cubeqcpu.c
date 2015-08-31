@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /***************************************************************************
 
     cubeqcpu.c
@@ -30,7 +32,7 @@ enum alu_src
 	ZA = 4,
 	DA = 5,
 	DQ = 6,
-	DZ = 7,
+	DZ = 7
 };
 
 enum alu_ins
@@ -42,7 +44,7 @@ enum alu_ins
 	AND   = 4,
 	NOTRS = 5,
 	EXOR  = 6,
-	EXNOR = 7,
+	EXNOR = 7
 };
 
 enum alu_dst
@@ -54,7 +56,7 @@ enum alu_dst
 	RAMQD = 4,
 	RAMD  = 5,
 	RAMQU = 6,
-	RAMU  = 7,
+	RAMU  = 7
 };
 
 /***************************************************************************
@@ -345,12 +347,12 @@ void cquestrot_cpu_device::device_reset()
 }
 
 
-void cquestrot_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void cquestrot_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf( "%c%c%c", m_cflag ? 'C' : '.',
+			strprintf(str, "%c%c%c", m_cflag ? 'C' : '.',
 										m_vflag ? 'V' : '.',
 										m_f ? '.' : 'Z');
 			break;
@@ -469,12 +471,12 @@ void cquestlin_cpu_device::device_reset()
 }
 
 
-void cquestlin_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void cquestlin_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf( "%c%c%c|%cG", m_cflag ? 'C' : '.',
+			strprintf(str, "%c%c%c|%cG", m_cflag ? 'C' : '.',
 											m_vflag ? 'V' : '.',
 											m_f ? '.' : 'Z',
 											( m_clkcnt & 3 ) ? 'B' : 'F');
@@ -494,7 +496,7 @@ enum snd_latch_type
 {
 	PLTCH = 0,
 	DAC = 1,
-	ADLATCH = 2,
+	ADLATCH = 2
 };
 
 int cquestsnd_cpu_device::do_sndjmp(int jmp)
@@ -518,7 +520,7 @@ void cquestsnd_cpu_device::execute_run()
 	do
 	{
 		/* Decode the instruction */
-		UINT64 inst = m_direct->read_decrypted_qword(SND_PC << 3);
+		UINT64 inst = m_direct->read_qword(SND_PC << 3);
 		UINT32 inslow = inst & 0xffffffff;
 		UINT32 inshig = inst >> 32;
 
@@ -726,7 +728,7 @@ enum rot_spf
 	SPF_DIV     = 6,
 	SPF_MULT    = 7,
 	SPF_DRED    = 8,
-	SPF_DWRT    = 9,
+	SPF_DWRT    = 9
 };
 
 enum rot_yout
@@ -738,7 +740,7 @@ enum rot_yout
 	YOUT_Y2DAD   = 4,
 	YOUT_Y2DYN   = 5,
 	YOUT_Y2R     = 6,
-	YOUT_Y2D     = 7,
+	YOUT_Y2D     = 7
 };
 
 /* Sync is asserted for the duration of every fourth cycle */
@@ -774,7 +776,7 @@ void cquestrot_cpu_device::execute_run()
 	do
 	{
 		/* Decode the instruction */
-		UINT64 inst = m_direct->read_decrypted_qword(ROT_PC << 3);
+		UINT64 inst = m_direct->read_qword(ROT_PC << 3);
 
 		UINT32 inslow = inst & 0xffffffff;
 		UINT32 inshig = inst >> 32;
@@ -1096,7 +1098,7 @@ enum line_spf
 	LSPF_PWRT    = 4,
 	LSPF_MULT    = 5,
 	LSPF_LSTOP   = 6,
-	LSPF_BRES    = 7,
+	LSPF_BRES    = 7
 };
 
 enum line_latch
@@ -1108,7 +1110,7 @@ enum line_latch
 	LLATCH_BADLATCH = 4,
 	LLATCH_FADLATCH = 5,
 	LLATCH_CLATCH   = 6,
-	LLATCH_ZLATCH   = 7,
+	LLATCH_ZLATCH   = 7
 };
 
 enum sreg_bits
@@ -1120,7 +1122,7 @@ enum sreg_bits
 	SREG_LE0    = 4,
 	SREG_LDX_DY = 5,
 	SREG_LDY    = 6,
-	SREG_LDX    = 7,
+	SREG_LDX    = 7
 };
 
 int cquestlin_cpu_device::do_linjmp(int jmp)
@@ -1194,7 +1196,7 @@ void cquestlin_cpu_device::execute_run()
 		int prog = (m_clkcnt & 3) ? BACKGROUND : FOREGROUND;
 
 		m_curpc = LINE_PC;
-		UINT64 inst = m_direct->read_decrypted_qword(LINE_PC << 3);
+		UINT64 inst = m_direct->read_qword(LINE_PC << 3);
 
 		UINT32 inslow = inst & 0xffffffff;
 		UINT32 inshig = inst >> 32;

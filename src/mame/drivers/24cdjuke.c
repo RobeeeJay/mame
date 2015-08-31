@@ -84,7 +84,7 @@ public:
 	DECLARE_WRITE8_MEMBER(kb_col_w);
 	DECLARE_WRITE8_MEMBER(digit_w);
 
-	DECLARE_READ8_MEMBER(rand_r){ return machine().rand(); }
+	DECLARE_READ8_MEMBER(unknown_r) { return machine().rand(); }
 
 private:
 	UINT8 m_kb_col;
@@ -134,7 +134,7 @@ static ADDRESS_MAP_START( midcoin24cdjuke_io, AS_IO, 8, midcoin24cdjuke_state )
 	AM_RANGE(0x04, 0x07) AM_DEVREADWRITE("ic11", i8255_device, read, write)
 	AM_RANGE(0x08, 0x0b) AM_DEVREADWRITE("ic25", i8255_device, read, write)
 	AM_RANGE(0x0c, 0x0c) AM_WRITENOP
-	AM_RANGE(0x10, 0x1f) AM_READ(rand_r)
+	AM_RANGE(0x10, 0x1f) AM_READ(unknown_r)
 ADDRESS_MAP_END
 
 static INPUT_PORTS_START( midcoin24cdjuke )
@@ -313,4 +313,4 @@ ROM_START( 24cdjuke )
 ROM_END
 
 
-GAME( 1988, 24cdjuke,  0,    midcoin24cdjuke, midcoin24cdjuke, driver_device,  0, ROT0, "Midcoin", "Midcoin Juke Box 24CD", GAME_NO_SOUND | GAME_NOT_WORKING ) // what name was it sold under? name is from the PCB text
+GAME( 1988, 24cdjuke,  0,    midcoin24cdjuke, midcoin24cdjuke, driver_device,  0, ROT0, "Midcoin", "Midcoin Juke Box 24CD", MACHINE_NO_SOUND | MACHINE_NOT_WORKING ) // what name was it sold under? name is from the PCB text

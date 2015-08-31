@@ -1,39 +1,11 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /***************************************************************************
 
     h8.h
 
     H8-300 base cpu emulation
 
-****************************************************************************
-
-    Copyright Olivier Galibert
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are
-    met:
-
-        * Redistributions of source code must retain the above copyright
-          notice, this list of conditions and the following disclaimer.
-        * Redistributions in binary form must reproduce the above copyright
-          notice, this list of conditions and the following disclaimer in
-          the documentation and/or other materials provided with the
-          distribution.
-        * Neither the name 'MAME' nor the names of its contributors may be
-          used to endorse or promote products derived from this software
-          without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY OLIVIER GALIBERT ''AS IS'' AND ANY EXPRESS OR
-    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL OLIVIER GALIBERT BE LIABLE FOR ANY DIRECT,
-    INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-    STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
-    IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-    POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************/
 
@@ -71,7 +43,7 @@ public:
 		ADC_4,
 		ADC_5,
 		ADC_6,
-		ADC_7,
+		ADC_7
 	};
 
 	h8_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source, bool mode_a16, address_map_delegate map_delegate);
@@ -93,7 +65,7 @@ protected:
 	enum {
 		STATE_RESET = 0x10000,
 		STATE_IRQ   = 0x10001,
-		STATE_TRACE = 0x10002,
+		STATE_TRACE = 0x10002
 	};
 
 	enum {
@@ -108,7 +80,7 @@ protected:
 
 		EXR_T  = 0x80,
 		EXR_NC = 0x78,
-		EXR_I  = 0x07,
+		EXR_I  = 0x07
 	};
 
 	enum {
@@ -166,7 +138,7 @@ protected:
 		DASM_ccr,      /* internal register ccr */
 		DASM_exr,      /* internal register exr */
 		DASM_macl,     /* internal register macl */
-		DASM_mach,     /* internal register mach */
+		DASM_mach      /* internal register mach */
 	};
 
 	// device-level overrides
@@ -185,7 +157,7 @@ protected:
 	// device_state_interface overrides
 	virtual void state_import(const device_state_entry &entry);
 	virtual void state_export(const device_state_entry &entry);
-	virtual void state_string_export(const device_state_entry &entry, astring &string);
+	virtual void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const;
@@ -497,7 +469,7 @@ enum {
 	H8_E6,
 	H8_E7,
 	H8_CCR,
-	H8_EXR,
+	H8_EXR
 };
 
 #endif

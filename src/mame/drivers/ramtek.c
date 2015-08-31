@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /*********************************************************************************
 
  Ramtek Discrete Games List
@@ -9,29 +11,29 @@
  Deluxe Baseball (1975/06)  YES       550188
  Hockey (1973/11)           YES       500699         500629
  Horoscope (1976)           UNKNOWN
- Knock Out (1974/09)?       UNKNOWN
+ Knock Out (1974/09)        YES       550300
  Lie Detector (1976)        UNKNOWN   Unreleased     Unreleased
  Sea Battle (1976/04)       UNKNOWN
  Soccer (1973/11)           YES       500880         500889
- Trivia (1975/11)           YES
+ Trivia (1975/11)           YES       550436
  Volly (1973/03?)           YES       500378A        500322A
  Wipe Out (1974/01)         YES       500986B/C      500963B/?
- 
+
  Volly Industries Discrete Games List
  (Volly was Ramtek's Canada-based affiliate and distributor.)
 
- Game Name                                       Clone Of                         
+ Game Name                                       Clone Of
  ---------------------------------------------------------------------------------
- Batter Up (1974/??)                             Deluxe Baseball (Ramtek, 1975/06)
- Crossfire (1974/01) (registered trademark?)     Knock Out (Ramtek, 1974/09)?
+ Batter Up (1974/??)                             Baseball (1974/10)
  Countdown (1974/02)                             Wipe Out (Ramtek, 1974/01)
- Elimination (1973/12?) (registered trademark?)  unknown
+ Crossfire (1974/01) (registered trademark?)     Knock Out (Ramtek, 1974/09)?
+ Elimination (1973/12?) (registered trademark?)  unused name for Countdown (1974/02)
  Flip-Out (1974/05?)                             Clean Sweep (Ramtek, 1974/06)
  Hockey (1973/??)                                Hockey (Ramtek, 1973/11)
  Hockey (Cocktail) (1973/??)                     Soccer (Ramtek, 1973/11)
  Scoring (1973/11?)                              Soccer (Ramtek, 1973/11)?
  Tennis (1973/??)                                Volly (Ramtek, 1973/03?)
- 
+
  *********************************************************************************/
 
 
@@ -40,7 +42,6 @@
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied from Pong, not accurate for this driver!
 // start
@@ -163,6 +164,13 @@ ROM_START( cleanswp )
 	ROM_LOAD( "501074.k3",     0x0000, 0x0020, CRC(515a34ba) SHA1(471ca9d99851591ff11a87d18b88871edd7fd268) )   // number character generation
 ROM_END
 
+// Knockout - believed to be Knockout - XTAL is 10.733 MHz
+/* contains 4 proms (soldered in) labelled :
+5H - 55030604
+9C - 500399
+4B - 550306-02
+3B - 550306-03
+2B - 550306-01 */
 
 ROM_START( ramtek3 )    // maybe Hockey?
 	ROM_REGION( 0x10000, "maincpu", ROMREGION_ERASE00 )
@@ -233,10 +241,10 @@ ROM_END
 
 
 
-GAME( 1973, vollyrmt,  0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Volly (Ramtek) [TTL]", GAME_IS_SKELETON )
-GAME( 1974, wipeormt,  0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Wipeout (Ramtek) [TTL]", GAME_IS_SKELETON )
-GAME( 1974, bballrmt,  0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Baseball (Ramtek) [TTL]", GAME_IS_SKELETON )
-GAME( 1974, cleanswp,  0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Clean Sweep [TTL]", GAME_IS_SKELETON )
-GAME( 1975, trivia,    0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Trivia (Rev B) [TTL]", GAME_IS_SKELETON )
+GAME( 1973, vollyrmt,  0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Volly (Ramtek) [TTL]", MACHINE_IS_SKELETON )
+GAME( 1974, wipeormt,  0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Wipeout (Ramtek) [TTL]", MACHINE_IS_SKELETON )
+GAME( 1974, bballrmt,  0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Baseball (Ramtek) [TTL]", MACHINE_IS_SKELETON )
+GAME( 1974, cleanswp,  0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Clean Sweep [TTL]", MACHINE_IS_SKELETON )
+GAME( 1975, trivia,    0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "Trivia (Rev B) [TTL]", MACHINE_IS_SKELETON )
 
-GAME( 197?, ramtek3,   0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "unknown Ramtek Game (Maybe Hockey?) [TTL]", GAME_IS_SKELETON )
+GAME( 197?, ramtek3,   0, ramtek, 0, driver_device,  0, ROT0, "Ramtek", "unknown Ramtek Game (Maybe Hockey?) [TTL]", MACHINE_IS_SKELETON )

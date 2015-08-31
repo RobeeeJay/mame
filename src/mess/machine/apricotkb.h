@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 /**********************************************************************
 
     Apricot keyboard emulation
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 *********************************************************************/
 

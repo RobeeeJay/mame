@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 /*
    Texas Instruments TMS320C51 DSP Emulator
 
@@ -33,7 +35,7 @@ enum
 	TMS32051_AR4,
 	TMS32051_AR5,
 	TMS32051_AR6,
-	TMS32051_AR7,
+	TMS32051_AR7
 };
 
 
@@ -76,7 +78,7 @@ offs_t tms32051_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 
 
 #define CYCLES(x)       (m_icount -= x)
 
-#define ROPCODE()       m_direct->read_decrypted_word((m_pc++) << 1)
+#define ROPCODE()       m_direct->read_word((m_pc++) << 1)
 
 void tms32051_device::CHANGE_PC(UINT16 new_pc)
 {

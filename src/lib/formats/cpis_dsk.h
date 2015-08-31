@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /*********************************************************************
 
     formats/cpis_dsk.h
@@ -8,14 +10,6 @@
 
 #ifndef CPIS_DSK_H
 #define CPIS_DSK_H
-
-#include "flopimg.h"
-
-
-/**************************************************************************/
-
-LEGACY_FLOPPY_OPTIONS_EXTERN(compis);
-
 
 #include "upd765_dsk.h"
 

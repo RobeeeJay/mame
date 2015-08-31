@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Takahiro Nogi
 
 class inufuku_state : public driver_device
 {
@@ -22,7 +24,6 @@ public:
 	required_shared_ptr<UINT16> m_spriteram1;
 	required_shared_ptr<UINT16> m_spriteram2;
 	required_device<vsystem_spr_device> m_spr;
-//      UINT16 *  m_paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t  *m_bg_tilemap;

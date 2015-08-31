@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Eric Smith, Brad Oliver, Bernd Wiebelt, Aaron Giles, Andrew Caldwell
 #ifndef __AVGDVG__
 #define __AVGDVG__
 
@@ -187,7 +189,7 @@ public:
 
 	virtual int handler_6();
 	virtual int handler_7();
-	virtual void vggo();
+	//virtual void vggo();
 };
 
 // device type definition

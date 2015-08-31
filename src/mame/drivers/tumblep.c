@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood,Bryan McPhail
 /***************************************************************************
 
   Tumblepop (World)     (c) 1991 Data East Corporation
@@ -394,6 +396,6 @@ DRIVER_INIT_MEMBER(tumblep_state,tumblep)
 
 /******************************************************************************/
 
-GAME( 1991, tumblep,  0,       tumblep,   tumblep, tumblep_state,  tumblep,  ROT0, "Data East Corporation", "Tumble Pop (World)", GAME_SUPPORTS_SAVE )
-GAME( 1991, tumblepj, tumblep, tumblep,   tumblep, tumblep_state,  tumblep,  ROT0, "Data East Corporation", "Tumble Pop (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1991, tumblep,  0,       tumblep,   tumblep, tumblep_state,  tumblep,  ROT0, "Data East Corporation", "Tumble Pop (World)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, tumblepj, tumblep, tumblep,   tumblep, tumblep_state,  tumblep,  ROT0, "Data East Corporation", "Tumble Pop (Japan)", MACHINE_SUPPORTS_SAVE )
 /* for bootlegs and games on similar hardware see tumbleb.c */

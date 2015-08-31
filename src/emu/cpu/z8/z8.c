@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 /**********************************************************************
 
     Zilog Z8 Single-Chip MCU emulation
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 **********************************************************************/
 
@@ -211,7 +210,7 @@ offs_t z8_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom
 
 UINT8 z8_device::fetch()
 {
-	UINT8 data = m_direct->read_decrypted_byte(m_pc);
+	UINT8 data = m_direct->read_byte(m_pc);
 
 	m_pc++;
 
@@ -678,9 +677,9 @@ void z8_device::device_start()
 		state_add(Z8_T1,         "T1",        m_t1);
 		state_add(STATE_GENFLAGS, "GENFLAGS", m_r[Z8_REGISTER_FLAGS]).noshow().formatstr("%6s");
 
-		astring tempstr;
+		std::string tempstr;
 		for (int regnum = 0; regnum < 16; regnum++)
-			state_add(Z8_R0 + regnum, tempstr.format("R%d", regnum), m_fake_r[regnum]).callimport().callexport();
+			state_add(Z8_R0 + regnum, strformat(tempstr, "R%d", regnum).c_str(), m_fake_r[regnum]).callimport().callexport();
 	}
 
 	/* find address spaces */
@@ -807,11 +806,11 @@ void z8_device::state_export(const device_state_entry &entry)
 	}
 }
 
-void z8_device::state_string_export(const device_state_entry &entry, astring &string)
+void z8_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
-		case STATE_GENFLAGS: string.printf("%c%c%c%c%c%c",
+		case STATE_GENFLAGS: strprintf(str, "%c%c%c%c%c%c",
 										m_r[Z8_REGISTER_FLAGS] & Z8_FLAGS_C ? 'C' : '.',
 										m_r[Z8_REGISTER_FLAGS] & Z8_FLAGS_Z ? 'Z' : '.',
 										m_r[Z8_REGISTER_FLAGS] & Z8_FLAGS_S ? 'S' : '.',

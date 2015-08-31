@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Graves, R. Belmont
 
 #include "sound/okim6295.h"
 #include "sound/msm5205.h"
@@ -35,7 +37,6 @@ public:
 
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
-//  UINT16 *    m_paletteram; // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t     *m_tilemap[3];

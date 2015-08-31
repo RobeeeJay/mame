@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Couriersud
 /**********************************************************************************************
 
      TMS6100 simulator
@@ -27,6 +29,19 @@
        /CS       | 13           16 |  NC
        VSS       | 14           15 |  NC
                  +-----------------+
+
+     TMS6125:
+
+                 +---------+
+       DATA/ADD1 | 1    16 |  NC
+       DATA/ADD2 | 2    15 |  NC
+       DATA/ADD4 | 3    14 |  NC
+       DATA/ADD8 | 4    13 |  NC
+       CLK       | 5    12 |  VDD
+       NC        | 6    11 |  /CS
+       NC        | 7    10 |  M1
+       M0        | 8     9 |  VSS
+                 +---------+
 
     M58819 (from radarscope schematics):
 
@@ -72,6 +87,11 @@
 
 #define TMS6100_READ_PENDING        0x01
 #define TMS6100_NEXT_READ_IS_DUMMY  0x02
+
+/* Variants */
+
+#define TMS6110_IS_TMS6100    (1)
+#define TMS6110_IS_M58819     (2)
 
 
 const device_type TMS6100 = &device_creator<tms6100_device>;
@@ -121,13 +141,15 @@ void tms6100_device::device_start()
 	save_item(NAME(m_m0));
 	save_item(NAME(m_m1));
 	save_item(NAME(m_state));
+	save_item(NAME(m_variant));
+	set_variant(TMS6110_IS_TMS6100);
 
 }
 
 void m58819_device::device_start()
 {
-	//tms5110_set_variant(tms, TMS5110_IS_5100);
 	tms6100_device::device_start();
+	set_variant(TMS6110_IS_M58819);
 }
 
 //-------------------------------------------------
@@ -146,6 +168,11 @@ void tms6100_device::device_reset()
 	m_state = 0;
 	m_tms_clock = 0;
 	m_data = 0;
+}
+
+void tms6100_device::set_variant(int variant)
+{
+	m_variant = variant;
 }
 
 WRITE_LINE_MEMBER(tms6100_device::tms6100_m0_w)
@@ -182,7 +209,14 @@ WRITE_LINE_MEMBER(tms6100_device::tms6100_romclock_w)
 				else
 				{
 					/* read bit at address */
-					m_data = (m_rom[m_address >> 3] >> (m_address & 0x07)) & 1;
+					if (m_variant == TMS6110_IS_M58819)
+					{
+						m_data = (m_rom[m_address >> 3] >> (7-(m_address & 0x07))) & 1;
+					}
+					else // m_variant == (TMS6110_IS_TMS6100 || TMS6110_IS_TMS6125)
+					{
+						m_data = (m_rom[m_address >> 3] >> (m_address & 0x07)) & 1;
+					}
 					m_address++;
 				}
 				m_state &= ~TMS6100_READ_PENDING;

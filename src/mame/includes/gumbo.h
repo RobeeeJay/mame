@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*************************************************************************
 
     Gumbo - Miss Bingo - Miss Puzzle
@@ -17,7 +19,6 @@ public:
 	/* memory pointers */
 	required_shared_ptr<UINT16> m_bg_videoram;
 	required_shared_ptr<UINT16> m_fg_videoram;
-//  UINT16 *    paletteram; // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t    *m_bg_tilemap;

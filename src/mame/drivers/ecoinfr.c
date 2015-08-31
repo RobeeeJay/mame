@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Electrocoin Fruit Machines
 
  This seems to be the most common Electrocoin hardware type, used
@@ -46,7 +48,7 @@
 
 #define UPD8251_TAG      "upd8251"
 
-#define GAME_FLAGS GAME_NO_SOUND|GAME_REQUIRES_ARTWORK|GAME_NOT_WORKING|GAME_MECHANICAL
+#define GAME_FLAGS MACHINE_NO_SOUND|MACHINE_REQUIRES_ARTWORK|MACHINE_NOT_WORKING|MACHINE_MECHANICAL
 
 class ecoinfr_state : public driver_device
 {

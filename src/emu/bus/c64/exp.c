@@ -4,9 +4,6 @@
 
     Commodore 64 Expansion Port emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 #include "exp.h"
@@ -220,7 +217,7 @@ bool c64_expansion_slot_device::call_softlist_load(software_list_device &swlist,
 //  get_default_card_software -
 //-------------------------------------------------
 
-void c64_expansion_slot_device::get_default_card_software(astring &result)
+void c64_expansion_slot_device::get_default_card_software(std::string &result)
 {
 	if (open_image_file(mconfig().options()))
 	{
@@ -311,6 +308,7 @@ int c64_expansion_slot_device::exrom_r(offs_t offset, int sphi2, int ba, int rw,
 // slot devices
 #include "16kb.h"
 #include "c128_comal80.h"
+#include "c128_partner.h"
 #include "comal80.h"
 #include "cpm.h"
 #include "currah_speech.h"
@@ -423,6 +421,7 @@ SLOT_INTERFACE_START( c64_expansion_cards )
 	SLOT_INTERFACE_INTERNAL("ocean", C64_OCEAN)
 	SLOT_INTERFACE_INTERNAL("pagefox", C64_PAGEFOX)
 	SLOT_INTERFACE_INTERNAL("partner", C64_PARTNER)
+	SLOT_INTERFACE_INTERNAL("partner128", C128_PARTNER)
 	SLOT_INTERFACE_INTERNAL("prophet64", C64_PROPHET64)
 	SLOT_INTERFACE_INTERNAL("ps64", C64_PS64)
 	SLOT_INTERFACE_INTERNAL("rex", C64_REX)

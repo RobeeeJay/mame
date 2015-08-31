@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, David Haywood
 /***************************************************************************
 
     rtc9701.h
@@ -32,7 +34,7 @@ enum rtc9701_state_t
 	RTC9701_RTC_WRITE,
 	RTC9701_EEPROM_READ,
 	RTC9701_EEPROM_WRITE,
-	RTC9701_AFTER_WRITE_ENABLE,
+	RTC9701_AFTER_WRITE_ENABLE
 
 };
 

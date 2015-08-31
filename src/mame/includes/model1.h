@@ -1,5 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #include "audio/dsbz80.h"
 #include "audio/segam1audio.h"
+#include "machine/m1comm.h"
 #include "cpu/v60/v60.h"
 
 #define DECLARE_TGP_FUNCTION(name) void name()
@@ -14,6 +17,7 @@ public:
 		: driver_device(mconfig, type, tag),
 		m_maincpu(*this, "maincpu"),
 		m_m1audio(*this, "m1audio"),
+		m_m1comm(*this, "m1comm"),
 		m_dsbz80(*this, DSBZ80_TAG),
 		m_tgp(*this, "tgp"),
 		m_screen(*this, "screen"),
@@ -27,6 +31,7 @@ public:
 
 	required_device<v60_device> m_maincpu;      // V60
 	required_device<segam1audio_device> m_m1audio;  // Model 1 standard sound board
+	optional_device<m1comm_device> m_m1comm;    // Model 1 communication board
 	optional_device<dsbz80_device> m_dsbz80;    // Digital Sound Board
 	optional_device<mb86233_cpu_device> m_tgp;
 	required_device<screen_device> m_screen;
@@ -38,8 +43,8 @@ public:
 	required_shared_ptr<UINT16> m_color_xlat;
 
 	struct view *m_view;
-	struct point *m_pointdb;
-	struct point *m_pointpt;
+	struct m1_point *m_pointdb;
+	struct m1_point *m_pointpt;
 	struct quad_m1 *m_quaddb;
 	struct quad_m1 *m_quadpt;
 	struct quad_m1 **m_quadind;
@@ -274,7 +279,7 @@ public:
 	void sort_quads();
 	void unsort_quads();
 	void draw_quads(bitmap_rgb32 &bitmap, const rectangle &cliprect);
-	void fclip_push_quad_next(int level, struct quad_m1 *q, struct point *p1, struct point *p2, struct point *p3, struct point *p4);
+	void fclip_push_quad_next(int level, struct quad_m1 *q, struct m1_point *p1, struct m1_point *p2, struct m1_point *p3, struct m1_point *p4);
 	void fclip_push_quad(int level, struct quad_m1 *q);
 	void push_object(UINT32 tex_adr, UINT32 poly_adr, UINT32 size);
 	UINT16 *push_direct(UINT16 *list);

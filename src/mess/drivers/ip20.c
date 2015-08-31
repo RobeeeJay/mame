@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ryan Holtz
 /*********************************************************************\
 *
 *   SGI IP20 IRIS Indigo workstation
@@ -37,7 +39,7 @@ struct HPC_t
 	UINT32 nSCSI0DMACtrl;
 };
 
-struct RTC_t
+struct ip20_RTC_t
 {
 	UINT8 nRAM[32];
 	UINT8 nTemp;
@@ -61,7 +63,7 @@ public:
 	}
 
 	HPC_t m_HPC;
-	RTC_t m_RTC;
+	ip20_RTC_t m_RTC;
 	DECLARE_READ32_MEMBER(hpc_r);
 	DECLARE_WRITE32_MEMBER(hpc_w);
 	DECLARE_READ32_MEMBER(int_r);
@@ -627,4 +629,4 @@ ROM_START( ip204415 )
 ROM_END
 
 /*    YEAR  NAME      PARENT    COMPAT    MACHINE   INPUT     INIT      COMPANY   FULLNAME */
-COMP( 1993, ip204415, 0,        0,        ip204415, ip204415, ip20_state, ip204415, "Silicon Graphics Inc", "IRIS Indigo (R4400, 150MHz)", GAME_NOT_WORKING | GAME_NO_SOUND )
+COMP( 1993, ip204415, 0,        0,        ip204415, ip204415, ip20_state, ip204415, "Silicon Graphics Inc", "IRIS Indigo (R4400, 150MHz)", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )

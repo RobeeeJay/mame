@@ -1,28 +1,26 @@
-// license:MAME|LGPL-2.1+
+// license:LGPL-2.1+
 // copyright-holders:Michael Zapf
 /****************************************************************************
 
     Myarc Hard and Floppy Disk Controller
     See hfdc.c for documentation
 
-    Michael Zapf, September 2010
-
     January 2012: rewritten as class
     June 2014: rewritten for modern floppy implementation
 
-    WORK IN PROGRESS
+    Michael Zapf
+    July 2015
 
 ****************************************************************************/
 
 #ifndef __HFDC__
 #define __HFDC__
 
-#define HFDC_MAX_FLOPPY 4
-#define HFDC_MAX_HARD 4
-
 #include "imagedev/floppy.h"
+#include "imagedev/mfmhd.h"
+
 #include "machine/mm58274c.h"
-#include "machine/hdc9234.h"
+#include "machine/hdc92x4.h"
 
 extern const device_type TI99_HFDC;
 
@@ -49,11 +47,13 @@ public:
 
 	DECLARE_FLOPPY_FORMATS( floppy_formats );
 
+protected:
+	void device_config_complete();
+
 private:
 	void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
 	void device_start();
 	void device_reset();
-	void device_config_complete();
 
 	const rom_entry *device_rom_region() const;
 	machine_config_constructor device_mconfig_additions() const;
@@ -63,17 +63,24 @@ private:
 	void debug_read(offs_t offset, UINT8* value);
 	void debug_write(offs_t offset, UINT8 data);
 
-	// Callback for the index hole
+	// Callbacks for the index hole and seek complete
 	void floppy_index_callback(floppy_image_device *floppy, int state);
+	void harddisk_index_callback(mfm_harddisk_device *harddisk, int state);
+	void harddisk_ready_callback(mfm_harddisk_device *harddisk, int state);
+	void harddisk_skcom_callback(mfm_harddisk_device *harddisk, int state);
 
 	// Operate the floppy motors
 	void set_floppy_motors_running(bool run);
 
-	// Connect or disconnect floppy drives
+	// Connect floppy drives
 	void connect_floppy_unit(int index);
 
-	// Connect or disconnect harddisk drives
+	// Connect harddisk drives
 	void connect_harddisk_unit(int index);
+
+	// Disconnect drives
+	void disconnect_floppy_drives();
+	void disconnect_hard_drives();
 
 	// Pushes the drive status to the HDC
 	void signal_drive_status();
@@ -90,11 +97,14 @@ private:
 	// Link to the attached floppy drives
 	floppy_image_device*    m_floppy_unit[4];
 
+	// Link to the attached hard disks
+	mfm_harddisk_device*    m_harddisk_unit[3];
+
 	// Currently selected floppy drive
 	floppy_image_device*    m_current_floppy;
 
 	// Currently selected hard drive
-	void*    m_current_harddisk;
+	mfm_harddisk_device*    m_current_harddisk;
 
 	// True: Access to DIP switch settings, false: access to line states
 	bool    m_see_switches;
@@ -129,6 +139,12 @@ private:
 	// Recent address
 	int m_address;
 
+	// DMA in progress
+	bool m_dma_in_progress;
+
+	// Wait for HD. This was an addition in later cards.
+	bool m_wait_for_hd1;
+
 	// Device Service Routine ROM (firmware)
 	UINT8*  m_dsrrom;
 
@@ -159,8 +175,8 @@ private:
 	// Signal motor_on. When TRUE, makes all drives turning.
 	line_state m_MOTOR_ON;
 
-	// Calculates a simple version of a binary logarithm
-	int     slog2(int value);
+	// Calculates the index from the bit
+	int bit_to_index(int value);
 
 	// Utility function to set or unset bits in a byte
 	void set_bits(UINT8& byte, int mask, bool set);
@@ -169,104 +185,4 @@ private:
 	void set_ready(int dev, bool ready);
 	int  m_readyflags;
 };
-
-// =========================================================================
-
-/*
-    Legacy implementation.
-*/
-extern const device_type TI99_HFDC_LEG;
-
-#include "machine/smc92x4.h"
-
-class myarc_hfdc_legacy_device : public ti_expansion_card_device
-{
-public:
-	myarc_hfdc_legacy_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock);
-	DECLARE_READ8Z_MEMBER(readz);
-	DECLARE_WRITE8_MEMBER(write);
-	DECLARE_READ8Z_MEMBER(crureadz);
-	DECLARE_WRITE8_MEMBER(cruwrite);
-
-	DECLARE_WRITE_LINE_MEMBER( intrq_w );
-	DECLARE_WRITE_LINE_MEMBER( drq_w );
-	DECLARE_WRITE_LINE_MEMBER( dip_w );
-	DECLARE_READ8_MEMBER( auxbus_in );
-	DECLARE_WRITE8_MEMBER( auxbus_out );
-	DECLARE_READ8_MEMBER( read_buffer );
-	DECLARE_WRITE8_MEMBER( write_buffer );
-
-protected:
-	virtual void device_start(void);
-	virtual void device_reset(void);
-	virtual const rom_entry *device_rom_region() const;
-	virtual machine_config_constructor device_mconfig_additions() const;
-	virtual ioport_constructor device_input_ports() const;
-	virtual void device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr);
-
-
-private:
-	// Calculates a simple version of a binary logarithm
-	int             slog2(int value);
-
-	// When true, triggers motor monoflop.
-	bool            m_trigger_motor;
-
-	// When true, motor monoflop is high
-	bool            m_motor_running;
-
-	/* Clock divider bit 0. Unused in this emulation. */
-	int             m_CD0;
-
-	/* Clock divider bit 1. Unused in this emulation. */
-	int             m_CD1;
-
-	/* count 4.23s from rising edge of motor_on */
-	emu_timer*      m_motor_on_timer;
-
-	// Link to the HDC9234 controller on the board. In fact, the proper name
-	// is HDC 9234, the manufacturer is Standard Microsystems Corp.
-	required_device<smc92x4_device> m_hdc9234;
-
-	/* Link to the clock chip on the board. */
-	required_device<mm58274c_device> m_clock;
-
-	/* Determines whether we have access to the CRU bits. */
-	bool            m_cru_select;
-
-	/* IRQ state */
-	bool            m_irq;
-
-	/* DMA in Progress state */
-	bool            m_dip;
-
-	/* Output 1 latch */
-	UINT8           m_output1_latch;
-
-	/* Output 2 latch */
-	UINT8           m_output2_latch;
-
-	/* Connected floppy drives. */
-	legacy_floppy_image_device*       m_floppy_unit[HFDC_MAX_FLOPPY];
-
-	/* Connected harddisk drives. */
-	mfm_harddisk_device*       m_harddisk_unit[HFDC_MAX_HARD];
-
-	/* DMA address latch */
-	UINT32          m_dma_address;
-
-	// Device Service Routine ROM
-	UINT8*          m_dsrrom;
-
-	// ROM banks.
-	int             m_rom_page;
-
-	// HFDC RAM
-	UINT8*          m_buffer_ram;
-
-	// RAM page registers
-	int             m_ram_page[4];
-};
-
-
 #endif

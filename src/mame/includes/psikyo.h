@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia,Olivier Galibert,Paul Priest
 /*************************************************************************
 
     Psikyo Games
@@ -30,7 +32,6 @@ public:
 	optional_shared_ptr<UINT32> m_bootleg_spritebuffer;
 	UINT32 *       m_spritebuf1;
 	UINT32 *       m_spritebuf2;
-//      UINT32 *       m_paletteram;  // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t        *m_tilemap_0_size0;

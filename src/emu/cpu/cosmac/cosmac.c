@@ -4,9 +4,6 @@
 
     RCA COSMAC CPU emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 #include "emu.h"
@@ -356,9 +353,9 @@ void cosmac_device::device_start()
 	state_add(COSMAC_I,     "I",    m_i).mask(0xf);
 	state_add(COSMAC_N,     "N",    m_n).mask(0xf);
 
-	astring tempstr;
+	std::string tempstr;
 	for (int regnum = 0; regnum < 16; regnum++)
-		state_add(COSMAC_R0 + regnum, tempstr.format("R%x", regnum), m_r[regnum]);
+		state_add(COSMAC_R0 + regnum, strformat(tempstr, "R%x", regnum).c_str(), m_r[regnum]);
 
 	state_add(COSMAC_DF,    "DF",   m_df).mask(0x1).noshow();
 	state_add(COSMAC_IE,    "IE",   m_ie).mask(0x1).noshow();
@@ -472,12 +469,12 @@ void cosmac_device::state_export(const device_state_entry &entry)
 //  for the debugger
 //-------------------------------------------------
 
-void cosmac_device::state_string_export(const device_state_entry &entry, astring &string)
+void cosmac_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c",
+			strprintf(str, "%c%c%c",
 							m_df ? 'D' : '.',
 							m_ie ? 'I' : '.',
 							m_q  ? 'Q' : '.');
@@ -536,7 +533,7 @@ offs_t cdp1802_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *
 
 inline UINT8 cosmac_device::read_opcode(offs_t pc)
 {
-	return m_direct->read_decrypted_byte(pc);
+	return m_direct->read_byte(pc);
 }
 
 

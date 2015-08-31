@@ -84,13 +84,13 @@ void segas18_state::memory_mapper(sega_315_5195_mapper_device &mapper, UINT8 ind
 			switch (m_romboard)
 			{
 				case ROM_BOARD_171_SHADOW:  mapper.map_as_handler(0x00000, 0x00010, 0xfffff0, read16_delegate(FUNC(segas18_state::genesis_vdp_r), this), write16_delegate(FUNC(segas18_state::genesis_vdp_w), this)); break;
-				case ROM_BOARD_171_5874:    mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom1base", 0x80000, write16_delegate()); break;
+				case ROM_BOARD_171_5874:    mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom1base", "decrypted_rom1base", 0x80000, write16_delegate()); break;
 				case ROM_BOARD_171_5987:    if (romsize <= 0x100000)
-												mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom1base", 0x80000, write16_delegate(FUNC(segas18_state::rom_5987_bank_w), this));
+												mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom1base", "decrypted_rom1base", 0x80000, write16_delegate(FUNC(segas18_state::rom_5987_bank_w), this));
 											else
-												mapper.map_as_rom(0x00000,0x100000, 0xf00000, "rom1base",0x100000, write16_delegate(FUNC(segas18_state::rom_5987_bank_w), this));
+												mapper.map_as_rom(0x00000,0x100000, 0xf00000, "rom1base", "decrypted_rom1base",0x100000, write16_delegate(FUNC(segas18_state::rom_5987_bank_w), this));
 											break;
-				case ROM_BOARD_837_7525:    mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom1base", 0x80000, write16_delegate(FUNC(segas18_state::rom_837_7525_bank_w), this));
+				case ROM_BOARD_837_7525:    mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom1base", "decrypted_rom1base", 0x80000, write16_delegate(FUNC(segas18_state::rom_837_7525_bank_w), this));
 				break;
 
 				default:                    assert(false);
@@ -101,12 +101,12 @@ void segas18_state::memory_mapper(sega_315_5195_mapper_device &mapper, UINT8 ind
 			switch (m_romboard)
 			{
 				case ROM_BOARD_171_SHADOW:
-				case ROM_BOARD_171_5874:    mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom0base", 0x00000, write16_delegate()); break;
+				case ROM_BOARD_171_5874:    mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom0base", "decrypted_rom0base", 0x00000, write16_delegate()); break;
 				case ROM_BOARD_837_7525:
 				case ROM_BOARD_171_5987:    if (romsize <= 0x100000)
-												mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom0base", 0x00000, write16_delegate());
+												mapper.map_as_rom(0x00000, 0x80000, 0xf80000, "rom0base", "decrypted_rom0base", 0x00000, write16_delegate());
 											else
-												mapper.map_as_rom(0x00000,0x100000, 0xf00000, "rom0base", 0x00000, write16_delegate());
+												mapper.map_as_rom(0x00000,0x100000, 0xf00000, "rom0base", "decrypted_rom0base", 0x00000, write16_delegate());
 											break;
 				default:                    assert(false);
 			}
@@ -2367,7 +2367,7 @@ GAME( 1990, lghostu,   lghost,   lghost,               lghost,   segas18_state, 
 GAME( 1990, mwalk,     0,        system18_fd1094_i8751,mwalk,    segas18_state, generic_5874, ROT0,   "Sega",          "Michael Jackson's Moonwalker (World, FD1094/8751 317-0159)", 0 )
 GAME( 1990, mwalku,    mwalk,    system18_fd1094_i8751,mwalka,   segas18_state, generic_5874, ROT0,   "Sega",          "Michael Jackson's Moonwalker (US, FD1094/8751 317-0158)", 0 )
 GAME( 1990, mwalkj,    mwalk,    system18_fd1094_i8751,mwalk,    segas18_state, generic_5874, ROT0,   "Sega",          "Michael Jackson's Moonwalker (Japan, FD1094/8751 317-0157)", 0 )
-GAME( 1989, pontoon,   0,        system18_fd1094,      shdancer, segas18_state, generic_5874, ROT0,   "Sega",          "Pontoon (FD1094 317-0153)", GAME_NOT_WORKING ) // satellite/networked gambling game?
+GAME( 1989, pontoon,   0,        system18_fd1094,      shdancer, segas18_state, generic_5874, ROT0,   "Sega",          "Pontoon (FD1094 317-0153)", MACHINE_NOT_WORKING ) // satellite/networked gambling game?
 GAME( 1989, shdancer,  0,        system18,             shdancer, segas18_state, generic_shad, ROT0,   "Sega",          "Shadow Dancer (World)", 0 )
 GAME( 1989, shdancerj, shdancer, system18,             shdancer, segas18_state, generic_shad, ROT0,   "Sega",          "Shadow Dancer (Japan)", 0 )
 GAME( 1989, shdancer1, shdancer, system18,             shdancer, segas18_state, generic_shad, ROT0,   "Sega",          "Shadow Dancer (US)", 0 )

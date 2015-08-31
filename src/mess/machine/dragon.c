@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 /***************************************************************************
 
     dragon.h
@@ -25,9 +27,9 @@ this is set to toggle at 1Hz, this seems to be good enough to trigger the
 cartline, but is so slow in real terms that it should have very little
 impact on the emulation speed.
 
-Re-factored the code common to all machines, and seperated the code different,
+Re-factored the code common to all machines, and separated the code different,
 into callbacks/functions unique to the machines, in preperation for splitting
-the code for individual machine types into seperate files, I have preposed, that
+the code for individual machine types into separate files, I have preposed, that
 the CoCo 1/2 should stay in coco.c, and that the coco3 and dragon specifc code
 should go into coco3.c and dragon.c which should (hopefully) make the code
 easier to manage.
@@ -46,13 +48,13 @@ easier to manage.
 //  pia1_pa_changed - called when PIA1 PA changes
 //-------------------------------------------------
 
-void dragon_state::pia1_pa_changed(void)
+void dragon_state::pia1_pa_changed(UINT8 data)
 {
 	/* call inherited function */
-	coco12_state::pia1_pa_changed();
+	coco12_state::pia1_pa_changed(data);
 
 	/* if strobe bit is high send data from pia0 port b to dragon parallel printer */
-	if (m_pia_1->a_output() & 0x02)
+	if (data & 0x02)
 	{
 		UINT8 output = m_pia_1->b_output();
 		m_printer->output(output);
@@ -111,9 +113,9 @@ WRITE8_MEMBER( dragon64_state::ff00_write )
 //  pia1_pb_changed
 //-------------------------------------------------
 
-void dragon64_state::pia1_pb_changed(void)
+void dragon64_state::pia1_pb_changed(UINT8 data)
 {
-	dragon_state::pia1_pb_changed();
+	dragon_state::pia1_pb_changed(data);
 
 	UINT8 ddr = ~m_pia_1->port_b_z_mask();
 
@@ -123,7 +125,7 @@ void dragon64_state::pia1_pb_changed(void)
 	/* always be high (enabling 32k basic rom) */
 	if (ddr & 0x04)
 	{
-		page_rom(m_pia_1->b_output() & 0x04 ? true : false);
+		page_rom(data & 0x04 ? true : false);
 		logerror("pia1_pb_changed\n");
 	}
 }

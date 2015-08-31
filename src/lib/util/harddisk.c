@@ -8,6 +8,8 @@
 
 ***************************************************************************/
 
+#include <assert.h>
+
 #include "harddisk.h"
 
 #include <stdlib.h>
@@ -38,7 +40,7 @@ hard_disk_file *hard_disk_open(chd_file *chd)
 {
 	int cylinders, heads, sectors, sectorbytes;
 	hard_disk_file *file;
-	astring metadata;
+	std::string metadata;
 	chd_error err;
 
 	/* punt if no CHD */
@@ -51,7 +53,7 @@ hard_disk_file *hard_disk_open(chd_file *chd)
 		return NULL;
 
 	/* parse the metadata */
-	if (sscanf(metadata, HARD_DISK_METADATA_FORMAT, &cylinders, &heads, &sectors, &sectorbytes) != 4)
+	if (sscanf(metadata.c_str(), HARD_DISK_METADATA_FORMAT, &cylinders, &heads, &sectors, &sectorbytes) != 4)
 		return NULL;
 
 	/* allocate memory for the hard disk file */
@@ -95,6 +97,16 @@ chd_file *hard_disk_get_chd(hard_disk_file *file)
     a hard disk
 -------------------------------------------------*/
 
+/**
+ * @fn  hard_disk_info *hard_disk_get_info(hard_disk_file *file)
+ *
+ * @brief   Hard disk get information.
+ *
+ * @param [in,out]  file    If non-null, the file.
+ *
+ * @return  null if it fails, else a hard_disk_info*.
+ */
+
 hard_disk_info *hard_disk_get_info(hard_disk_file *file)
 {
 	return &file->info;
@@ -105,6 +117,18 @@ hard_disk_info *hard_disk_get_info(hard_disk_file *file)
     hard_disk_read - read sectors from a hard
     disk
 -------------------------------------------------*/
+
+/**
+ * @fn  UINT32 hard_disk_read(hard_disk_file *file, UINT32 lbasector, void *buffer)
+ *
+ * @brief   Hard disk read.
+ *
+ * @param [in,out]  file    If non-null, the file.
+ * @param   lbasector       The lbasector.
+ * @param [in,out]  buffer  If non-null, the buffer.
+ *
+ * @return  An UINT32.
+ */
 
 UINT32 hard_disk_read(hard_disk_file *file, UINT32 lbasector, void *buffer)
 {
@@ -117,6 +141,18 @@ UINT32 hard_disk_read(hard_disk_file *file, UINT32 lbasector, void *buffer)
     hard_disk_write - write  sectors to a hard
     disk
 -------------------------------------------------*/
+
+/**
+ * @fn  UINT32 hard_disk_write(hard_disk_file *file, UINT32 lbasector, const void *buffer)
+ *
+ * @brief   Hard disk write.
+ *
+ * @param [in,out]  file    If non-null, the file.
+ * @param   lbasector       The lbasector.
+ * @param   buffer          The buffer.
+ *
+ * @return  An UINT32.
+ */
 
 UINT32 hard_disk_write(hard_disk_file *file, UINT32 lbasector, const void *buffer)
 {

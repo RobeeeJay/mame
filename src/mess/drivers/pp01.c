@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
@@ -273,4 +273,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT  MACHINE     INPUT   CLASS           INIT     COMPANY   FULLNAME   FLAGS */
-COMP( 198?, pp01,   0,      0,      pp01,       pp01,   driver_device,   0,       "ZVT",   "PP-01", GAME_NOT_WORKING )
+COMP( 198?, pp01,   0,      0,      pp01,       pp01,   driver_device,   0,       "ZVT",   "PP-01", MACHINE_NOT_WORKING )

@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:etabeta
+// copyright-holders:Fabio Priuli
 /***********************************************************************************************************
 
     Nintendo Virtual Boy cart emulation
@@ -50,9 +50,7 @@ void device_vboy_cart_interface::rom_alloc(UINT32 size, const char *tag)
 {
 	if (m_rom == NULL)
 	{
-		astring tempstring(tag);
-		tempstring.cat(VBOYSLOT_ROM_REGION_TAG);
-		m_rom = (UINT32 *)device().machine().memory().region_alloc(tempstring, size, 4, ENDIANNESS_LITTLE)->base();
+		m_rom = (UINT32 *)device().machine().memory().region_alloc(std::string(tag).append(VBOYSLOT_ROM_REGION_TAG).c_str(), size, 4, ENDIANNESS_LITTLE)->base();
 		m_rom_size = size/4;
 		m_rom_mask = m_rom_size - 1;
 	}
@@ -215,7 +213,7 @@ bool vboy_cart_slot_device::call_load()
 
 void vboy_cart_slot_device::call_unload()
 {
-	if (m_cart && m_cart->get_eeprom_size())
+	if (m_cart && m_cart->get_eeprom_base() && m_cart->get_eeprom_size())
 		battery_save(m_cart->get_eeprom_base(), m_cart->get_eeprom_size() * 4);
 }
 
@@ -235,7 +233,7 @@ bool vboy_cart_slot_device::call_softlist_load(software_list_device &swlist, con
  get default card software
  -------------------------------------------------*/
 
-void vboy_cart_slot_device::get_default_card_software(astring &result)
+void vboy_cart_slot_device::get_default_card_software(std::string &result)
 {
 	software_get_default_slot(result, "vb_rom");
 }

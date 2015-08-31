@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /*
  * disasm.c
  *
@@ -78,7 +80,7 @@ enum
 	F_FRT_FRA_FRC,  // frT, frA, frC
 	F_RA_RT_SH_MB_ME,   // rA, rT, SH, MB, ME
 	F_RLWNMx,       // rT, rA, rB, MB, ME   only used by RLWNMx
-	F_RT_RB,        // rT, rB
+	F_RT_RB         // rT, rB
 };
 
 /*

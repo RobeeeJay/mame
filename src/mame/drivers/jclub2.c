@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /**************************************************************************************************************************************
 
 
@@ -1320,16 +1322,16 @@ DRIVER_INIT_MEMBER(darkhors_state,darkhors)
 		for (i = 0; i < len; i++)
 			temp[i] = eeprom[BITSWAP8(i,7,5,4,3,2,1,0,6)];
 
-		memcpy(eeprom, temp, len);
+		memcpy(eeprom, &temp[0], len);
 
 	}
 }
 
 /*    YEAR  NAME      PARENT  MACHINE   INPUT     STATE           INIT      ROT    COMPANY    FULLNAME                                 FLAGS  */
-GAME( 199?, jclub2,   0,      jclub2,  jclub2, driver_device,  0,       ROT0, "Seta", "Jockey Club II (newer hardware)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 199?, jclub2o,  jclub2, jclub2o, jclub2, driver_device,  0,       ROT0, "Seta", "Jockey Club II (older hardware)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 199?, jclub2ob, jclub2, jclub2o, jclub2, driver_device,  0,       ROT0, "Seta", "Jockey Club II (older hardware, set 2)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2001, darkhors, jclub2, darkhors,darkhors,darkhors_state, darkhors,ROT0, "bootleg", "Dark Horse (bootleg of Jockey Club II)", GAME_IMPERFECT_GRAPHICS )
+GAME( 199?, jclub2,   0,      jclub2,  jclub2, driver_device,  0,       ROT0, "Seta", "Jockey Club II (newer hardware)", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 199?, jclub2o,  jclub2, jclub2o, jclub2, driver_device,  0,       ROT0, "Seta", "Jockey Club II (older hardware)", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 199?, jclub2ob, jclub2, jclub2o, jclub2, driver_device,  0,       ROT0, "Seta", "Jockey Club II (older hardware, set 2)", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2001, darkhors, jclub2, darkhors,darkhors,darkhors_state, darkhors,ROT0, "bootleg", "Dark Horse (bootleg of Jockey Club II)", MACHINE_IMPERFECT_GRAPHICS )
 
 
 //test boot = test mode

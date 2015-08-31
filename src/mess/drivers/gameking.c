@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 /* TimeTop - GameKing */
 
 // these are meant to have a 3-in-1 internal ROM, not dumped
@@ -104,7 +106,7 @@ DEVICE_IMAGE_LOAD_MEMBER( gameking_state, gameking_cart )
 {
 	UINT32 size = m_cart->common_get_size("rom");
 
-	if (size > 0x20000)
+	if (size > 0x80000)
 	{
 		image.seterror(IMAGE_ERROR_UNSPECIFIED, "Unsupported cartridge size");
 		return IMAGE_INIT_FAIL;
@@ -118,8 +120,8 @@ DEVICE_IMAGE_LOAD_MEMBER( gameking_state, gameking_cart )
 
 void gameking_state::machine_start()
 {
-	astring region_tag;
-	m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 
 	if (!m_cart_rom)
 	{
@@ -180,6 +182,7 @@ static MACHINE_CONFIG_START( gameking, gameking_state )
 
 	/* Software lists */
 	MCFG_SOFTWARE_LIST_ADD("cart_list", "gameking")
+	MCFG_SOFTWARE_LIST_ADD("cart_list_3", "gameking3") // maybe not compatible with this system (different internal bios?)
 MACHINE_CONFIG_END
 
 ROM_START(gameking)
@@ -188,5 +191,5 @@ ROM_END
 
 
 
-CONS(2003,  gameking,    0,  0,  gameking,    gameking, gameking_state, gameking,    "TimeTop",   "GameKing GM-218", GAME_NOT_WORKING | GAME_NO_SOUND )
+CONS(2003,  gameking,    0,  0,  gameking,    gameking, gameking_state, gameking,    "TimeTop",   "GameKing GM-218", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
 // the GameKing 2 (GM-219) is probably identical HW

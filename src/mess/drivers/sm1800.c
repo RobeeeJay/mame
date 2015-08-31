@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         SM1800 (original name is CM1800 in cyrilic letters)
@@ -196,4 +198,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY   FULLNAME       FLAGS */
-COMP( ????, sm1800,  0,       0,     sm1800,    sm1800, driver_device,     0,   "<unknown>", "SM1800", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( ????, sm1800,  0,       0,     sm1800,    sm1800, driver_device,     0,   "<unknown>", "SM1800", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

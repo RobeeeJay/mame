@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail, Alex W. Jackson
 /****************************************************************************
 
     NEC V25/V35 emulator
@@ -120,7 +122,7 @@ void v25_common_device::do_prefetch(int previous_ICount)
 UINT8 v25_common_device::fetch()
 {
 	prefetch();
-	return m_direct->read_raw_byte((Sreg(PS)<<4)+m_ip++, m_fetch_xor);
+	return m_direct->read_byte((Sreg(PS)<<4)+m_ip++, m_fetch_xor);
 }
 
 UINT16 v25_common_device::fetchword()
@@ -144,7 +146,7 @@ UINT8 v25_common_device::fetchop()
 	UINT8 ret;
 
 	prefetch();
-	ret = m_direct->read_decrypted_byte(( Sreg(PS)<<4)+m_ip++, m_fetch_xor);
+	ret = m_direct->read_byte(( Sreg(PS)<<4)+m_ip++, m_fetch_xor);
 
 	if (m_MF == 0)
 		if (m_v25v35_decryptiontable)
@@ -523,14 +525,14 @@ void v25_common_device::device_start()
 }
 
 
-void v25_common_device::state_string_export(const device_state_entry &entry, astring &string)
+void v25_common_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	UINT16 flags = CompressFlags();
 
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c %d %c%c%c%c%c%c%c%c%c%c%c%c",
+			strprintf(str, "%c %d %c%c%c%c%c%c%c%c%c%c%c%c",
 				flags & 0x8000 ? 'N':'S',
 				(flags & 0x7000) >> 12,
 				flags & 0x0800 ? 'O':'.',

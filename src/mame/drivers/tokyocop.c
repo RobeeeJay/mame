@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Tokyo Cop
 
 TODO:
@@ -88,4 +90,4 @@ ROM_START(tokyocop)
 ROM_END
 
 
-GAME( 2003, tokyocop,  0,   tokyocop, tokyocop, driver_device, 0, ROT0, "Gaelco", "Tokyo Cop (Italy)", GAME_IS_SKELETON )
+GAME( 2003, tokyocop,  0,   tokyocop, tokyocop, driver_device, 0, ROT0, "Gaelco", "Tokyo Cop (Italy)", MACHINE_IS_SKELETON )

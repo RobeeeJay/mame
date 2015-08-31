@@ -14,7 +14,9 @@
 #ifndef __PPC_H__
 #define __PPC_H__
 
+#ifdef PPC_H_INCLUDED_FROM_PPC_C
 #include <setjmp.h>
+#endif
 #include "cpu/vtlb.h"
 #include "cpu/drcfe.h"
 #include "cpu/drcuml.h"
@@ -207,7 +209,7 @@ protected:
 		PPC_MODEL_7457              = 0x80020101,   /* "Apollo 7", version 1.1 */
 		PPC_MODEL_MPC8240           = 0x00810101,   /* "Kahlua" */
 		PPC_MODEL_MPC8241           = 0x80811014,   /* "Kahlua Lt" */
-		PPC_MODEL_MPC8245           = 0x80811014,   /* "Kahlua II" */
+		PPC_MODEL_MPC8245           = 0x80811014    /* "Kahlua II" */
 	};
 
 public:
@@ -265,7 +267,7 @@ protected:
 	// device_state_interface overrides
 	virtual void state_export(const device_state_entry &entry);
 	virtual void state_import(const device_state_entry &entry);
-	virtual void state_string_export(const device_state_entry &entry, astring &string);
+	virtual void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 4; }
@@ -512,7 +514,9 @@ protected:
 	write32_delegate m_ext_dma_write_cb[4];
 
 	/* PowerPC function pointers for memory accesses/exceptions */
+#ifdef PPC_H_INCLUDED_FROM_PPC_C
 	jmp_buf m_exception_jmpbuf;
+#endif
 	UINT8 (*m_ppcread8)(address_space &space, offs_t address);
 	UINT16 (*m_ppcread16)(address_space &space, offs_t address);
 	UINT32 (*m_ppcread32)(address_space &space, offs_t address);

@@ -35,7 +35,8 @@ public:
 		m_005snd(*this, "005"),
 		m_gfxdecode(*this, "gfxdecode"),
 		m_screen(*this, "screen"),
-		m_palette(*this, "palette") { }
+		m_palette(*this, "palette"),
+		m_decrypted_opcodes(*this, "decrypted_opcodes") { }
 
 	required_shared_ptr<UINT8> m_mainram;
 	required_shared_ptr<UINT8> m_videoram;
@@ -51,8 +52,9 @@ public:
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<screen_device> m_screen;
 	required_device<palette_device> m_palette;
+	optional_shared_ptr<UINT8> m_decrypted_opcodes;
 
-	dynamic_array<UINT8> m_paletteram;
+	std::vector<UINT8> m_paletteram;
 
 	UINT8 m_sound_state[2];
 	UINT8 m_sound_rate;

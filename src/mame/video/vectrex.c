@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mathis Rosenhauer
 #include <math.h>
 #include "emu.h"
 #include "includes/vectrex.h"
@@ -28,7 +30,7 @@ enum {
 	A_ZR,
 	A_Z,
 	A_AUDIO,
-	A_Y,
+	A_Y
 };
 
 /*********************************************************************

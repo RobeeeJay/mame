@@ -1,9 +1,13 @@
+// license:GPL-2.0+
+// copyright-holders:Couriersud
 /*
  * nld_7483.c
  *
  */
 
 #include "nld_7483.h"
+
+NETLIB_NAMESPACE_DEVICES_START()
 
 NETLIB_START(7483)
 {
@@ -81,3 +85,5 @@ NETLIB_RESET(7483_dip)
 {
 	NETLIB_NAME(7483)::reset();
 }
+
+NETLIB_NAMESPACE_DEVICES_END()

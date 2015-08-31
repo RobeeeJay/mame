@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Guru
 /***************************************************************************
 
 X Tom 3D
@@ -429,4 +431,4 @@ ROM_START( xtom3d )
 ROM_END
 
 
-GAME(1999, xtom3d, 0, xtom3d, at_keyboard, driver_device, 0, ROT0, "Jamie System Development", "X Tom 3D", GAME_IS_SKELETON)
+GAME(1999, xtom3d, 0, xtom3d, at_keyboard, driver_device, 0, ROT0, "Jamie System Development", "X Tom 3D", MACHINE_IS_SKELETON)

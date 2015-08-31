@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Ferrie
 /* Queen */
 
 /*
@@ -151,9 +153,13 @@ static void intel82439tx_pci_w(device_t *busdevice, device_t *device, int functi
 
 static UINT8 piix4_config_r(device_t *busdevice, device_t *device, int function, int reg)
 {
+	if ((function >= 4) && (function <= 7))
+	{
+		return 0; // BIOS performs a brute-force scan for devices
+	}
+
 	queen_state *state = busdevice->machine().driver_data<queen_state>();
 //  osd_printf_debug("PIIX4: read %d, %02X\n", function, reg);
-	assert(function >= 0 && function < ARRAY_LENGTH(state->m_piix4_config_reg));
 	return state->m_piix4_config_reg[function][reg];
 }
 
@@ -302,4 +308,4 @@ ROM_START( queen )
 ROM_END
 
 
-GAME( 2002?, queen,  0,    queen, at_keyboard, driver_device,  0, ROT0, "STG", "Queen?", GAME_IS_SKELETON )
+GAME( 2002?, queen,  0,    queen, at_keyboard, driver_device,  0, ROT0, "STG", "Queen?", MACHINE_IS_SKELETON )

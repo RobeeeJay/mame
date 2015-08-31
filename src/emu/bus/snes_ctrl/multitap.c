@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /**********************************************************************
 
     Nintendo Super Famicom & SNES Multitap Adapter
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 **********************************************************************/
 
@@ -69,13 +68,13 @@ machine_config_constructor snes_multitap_device::device_mconfig_additions() cons
 //-------------------------------------------------
 
 snes_multitap_device::snes_multitap_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock) :
-					device_t(mconfig, SNES_MULTITAP, "Nintendo SNES / SFC Multitap Adapter", tag, owner, clock, "snes_joypad", __FILE__),
-					device_snes_control_port_interface(mconfig, *this),
-					m_port1(*this, "port1"),
-					m_port2(*this, "port2"),
-					m_port3(*this, "port3"),
-					m_port4(*this, "port4"),
-					m_cfg(*this, "CONFIG")
+	device_t(mconfig, SNES_MULTITAP, "Nintendo SNES / SFC Multitap Adapter", tag, owner, clock, "snes_multitap", __FILE__),
+	device_snes_control_port_interface(mconfig, *this),
+	m_port1(*this, "port1"),
+	m_port2(*this, "port2"),
+	m_port3(*this, "port3"),
+	m_port4(*this, "port4"),
+	m_cfg(*this, "CONFIG")
 {
 }
 
@@ -121,14 +120,14 @@ UINT8 snes_multitap_device::read_pin4()
 		ret |= m_select ? m_port1->read_pin4() : m_port3->read_pin4();
 	else    // 1P
 		ret |= m_select ? m_port1->read_pin4() : 0;
-	
+
 	return ret;
 }
 
 UINT8 snes_multitap_device::read_pin5()
 {
 	UINT8 ret = 0;
-	
+
 	if (m_cfg->read() == 0) // 4P
 		ret |= m_select ? m_port2->read_pin4() : m_port4->read_pin4();
 	return ret;

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /*********************************************************************
 
     formats/m20_dsk.c
@@ -10,13 +12,6 @@
 #define M20_DSK_H
 
 #include "flopimg.h"
-
-/**************************************************************************/
-
-LEGACY_FLOPPY_OPTIONS_EXTERN(m20);
-
-
-#include "wd177x_dsk.h"
 
 class m20_format : public floppy_image_format_t {
 public:

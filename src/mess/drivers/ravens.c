@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -285,7 +285,7 @@ QUICKLOAD_LOAD_MEMBER( ravens_state, ravens )
 	else
 	{
 		quick_data.resize(quick_length);
-		read_ = image.fread( quick_data, quick_length);
+		read_ = image.fread( &quick_data[0], quick_length);
 		if (read_ != quick_length)
 		{
 			image.seterror(IMAGE_ERROR_INVALIDIMAGE, "Cannot read the file");
@@ -384,5 +384,5 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME     PARENT   COMPAT   MACHINE  INPUT   CLASS        INIT     COMPANY    FULLNAME       FLAGS */
-COMP( 1984, ravens,  0,       0,       ravens,  ravens, driver_device, 0, "Joseph Glagla and Dieter Feiler", "Ravensburger Selbstbaucomputer V0.9", GAME_NO_SOUND_HW )
-COMP( 1985, ravens2, ravens,  0,       ravens2, ravens, driver_device, 0, "Joseph Glagla and Dieter Feiler", "Ravensburger Selbstbaucomputer V2.0", GAME_NO_SOUND_HW )
+COMP( 1984, ravens,  0,       0,       ravens,  ravens, driver_device, 0, "Joseph Glagla and Dieter Feiler", "Ravensburger Selbstbaucomputer V0.9", MACHINE_NO_SOUND_HW )
+COMP( 1985, ravens2, ravens,  0,       ravens2, ravens, driver_device, 0, "Joseph Glagla and Dieter Feiler", "Ravensburger Selbstbaucomputer V2.0", MACHINE_NO_SOUND_HW )

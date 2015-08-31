@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* BGT Fruit Machines
   BGT (British Gaming Technology) were a small Spanish company
 
@@ -88,7 +90,7 @@ ROM_START( bg_maxa )
 ROM_END
 
 
-GAME( 199?, bg_ddb,    0,       bgt,  bgt, driver_device,  0,  ROT0,  "BGT",    "Ding Dong Bells (BGT)",          GAME_IS_SKELETON_MECHANICAL )
-GAME( 199?, bg_barmy,  0,       bgt,  bgt, driver_device,  0,  ROT0,  "BGT",    "Barmy Army (BGT)",               GAME_IS_SKELETON_MECHANICAL )
-GAME( 199?, bg_max,    0,       bgt,  bgt, driver_device,  0,  ROT0,  "BGT",    "Max A Million (BGT) (set 1)",    GAME_IS_SKELETON_MECHANICAL )
-GAME( 199?, bg_maxa,   bg_max,  bgt,  bgt, driver_device,  0,  ROT0,  "BGT",    "Max A Million (BGT) (set 2)",    GAME_IS_SKELETON_MECHANICAL )
+GAME( 199?, bg_ddb,    0,       bgt,  bgt, driver_device,  0,  ROT0,  "BGT",    "Ding Dong Bells (BGT)",          MACHINE_IS_SKELETON_MECHANICAL )
+GAME( 199?, bg_barmy,  0,       bgt,  bgt, driver_device,  0,  ROT0,  "BGT",    "Barmy Army (BGT)",               MACHINE_IS_SKELETON_MECHANICAL )
+GAME( 199?, bg_max,    0,       bgt,  bgt, driver_device,  0,  ROT0,  "BGT",    "Max A Million (BGT) (set 1)",    MACHINE_IS_SKELETON_MECHANICAL )
+GAME( 199?, bg_maxa,   bg_max,  bgt,  bgt, driver_device,  0,  ROT0,  "BGT",    "Max A Million (BGT) (set 2)",    MACHINE_IS_SKELETON_MECHANICAL )

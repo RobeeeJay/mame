@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 /* Analog Devices ADSP-2106x SHARC emulator v2.0
 
    Written by Ville Linde
@@ -35,7 +37,7 @@ enum
 	SHARC_B0,       SHARC_B1,       SHARC_B2,       SHARC_B3,
 	SHARC_B4,       SHARC_B5,       SHARC_B6,       SHARC_B7,
 	SHARC_B8,       SHARC_B9,       SHARC_B10,      SHARC_B11,
-	SHARC_B12,      SHARC_B13,      SHARC_B14,      SHARC_B15,
+	SHARC_B12,      SHARC_B13,      SHARC_B14,      SHARC_B15
 };
 
 
@@ -355,9 +357,7 @@ void adsp21062_device::device_start()
 		m_lcstack[i] = 0;
 		m_lastack[i] = 0;
 	}
-	m_lstkp = 0;
 	m_pcstk = 0;
-	m_pcstkp = 0;
 	m_laddr.addr = m_laddr.code = m_laddr.loop_type = 0;
 	m_curlcntr = 0;
 	m_lcntr = 0;
@@ -682,6 +682,8 @@ void adsp21062_device::device_reset()
 	m_idle = 0;
 	m_stky = 0x5400000;
 
+	m_lstkp = 0;
+	m_pcstkp = 0;
 	m_interrupt_active = 0;
 }
 

@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 /***************************************
 Attack ufo / Ryoto Electric Co. 1980(?)
  driver  by Tomasz Slanina
@@ -170,4 +172,4 @@ ROM_START( attckufo )
 	ROM_LOAD( "8", 0x3c00, 0x0400, CRC(9ce93eb0) SHA1(68753e88db4e920446b9582b5cb713b1beec3b27) )
 ROM_END
 
-GAME( 1980, attckufo, 0,      attckufo, attckufo, driver_device, 0, ROT270, "Ryoto Electric Co.", "Attack Ufo", GAME_SUPPORTS_SAVE )
+GAME( 1980, attckufo, 0,      attckufo, attckufo, driver_device, 0, ROT270, "Ryoto Electric Co.", "Attack Ufo", MACHINE_SUPPORTS_SAVE )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 /********************************************************************
 
 Driver file to handle emulation of the Nintendo Pokemon Mini handheld
@@ -1793,4 +1795,4 @@ ROM_START( pokemini )
 ROM_END
 
 
-CONS( 2001, pokemini, 0, 0, pokemini, pokemini, driver_device, 0, "Nintendo", "Pokemon Mini", GAME_NO_SOUND )
+CONS( 2001, pokemini, 0, 0, pokemini, pokemini, driver_device, 0, "Nintendo", "Pokemon Mini", MACHINE_NO_SOUND )

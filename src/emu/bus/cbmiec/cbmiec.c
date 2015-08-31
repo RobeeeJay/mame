@@ -4,9 +4,6 @@
 
     Commodore IEC Serial Bus emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 /*
@@ -495,12 +492,16 @@ int cbm_iec_device::get_signal(int signal)
 #include "fd2000.h"
 #include "interpod.h"
 #include "serialbox.h"
+#include "vic1515.h"
+#include "vic1520.h"
+#include "c1526.h"
 
 SLOT_INTERFACE_START( cbm_iec_devices )
 	SLOT_INTERFACE("c1540", C1540)
 	SLOT_INTERFACE("c1541", C1541)
 	SLOT_INTERFACE("c1541c", C1541C)
 	SLOT_INTERFACE("c1541ii", C1541II)
+	SLOT_INTERFACE("fsd1", FSD1)
 	SLOT_INTERFACE("fsd2", FSD2)
 	SLOT_INTERFACE("csd1", CSD1)
 	SLOT_INTERFACE("c1541dd", C1541_DOLPHIN_DOS)
@@ -509,6 +510,7 @@ SLOT_INTERFACE_START( cbm_iec_devices )
 	SLOT_INTERFACE("c1570", C1570)
 	SLOT_INTERFACE("c1571", C1571)
 	SLOT_INTERFACE("c1581", C1581)
+	SLOT_INTERFACE("indusgt", INDUS_GT)
 	SLOT_INTERFACE("cmdhd", CMD_HD)
 	SLOT_INTERFACE("fd2000", FD2000)
 	SLOT_INTERFACE("fd4000", FD4000)
@@ -517,4 +519,8 @@ SLOT_INTERFACE_START( cbm_iec_devices )
 	SLOT_INTERFACE("serialbox", SERIAL_BOX)
 	SLOT_INTERFACE("diag264", DIAG264_SERIAL_LOOPBACK)
 	SLOT_INTERFACE("nl10", C64_NL10_INTERFACE)
+	SLOT_INTERFACE("vic1515", VIC1515)
+	SLOT_INTERFACE("vic1520", VIC1520)
+	SLOT_INTERFACE("c1526", C1526)
+	SLOT_INTERFACE("mps802", MPS802)
 SLOT_INTERFACE_END

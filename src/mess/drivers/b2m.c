@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         Bashkiria-2M driver by Miodrag Milanovic
@@ -232,7 +234,7 @@ static MACHINE_CONFIG_START( b2m, b2m_state )
 	/* uart */
 	MCFG_DEVICE_ADD("uart", I8251, 0)
 
-	MCFG_FD1793x_ADD("fd1793", XTAL_8MHz / 8)
+	MCFG_FD1793_ADD("fd1793", XTAL_8MHz / 8)
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(b2m_state, b2m_fdc_drq))
 
 	MCFG_FLOPPY_DRIVE_ADD("fd0", b2m_floppies, "525qd", b2m_state::b2m_floppy_formats)
@@ -267,5 +269,5 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT  MACHINE     INPUT               INIT     COMPANY   FULLNAME   FLAGS */
-COMP( 1989, b2m,    0,      0,      b2m,        b2m,   b2m_state,   b2m,     "BNPO",   "Bashkiria-2M",   GAME_SUPPORTS_SAVE)
-COMP( 1989, b2mrom, b2m,    0,      b2mrom,     b2m,   b2m_state,   b2m,     "BNPO",   "Bashkiria-2M ROM-disk",  GAME_SUPPORTS_SAVE)
+COMP( 1989, b2m,    0,      0,      b2m,        b2m,   b2m_state,   b2m,     "BNPO",   "Bashkiria-2M",   MACHINE_SUPPORTS_SAVE)
+COMP( 1989, b2mrom, b2m,    0,      b2mrom,     b2m,   b2m_state,   b2m,     "BNPO",   "Bashkiria-2M ROM-disk",  MACHINE_SUPPORTS_SAVE)

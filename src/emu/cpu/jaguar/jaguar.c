@@ -137,7 +137,7 @@ const jaguar_cpu_device::op_func jaguar_cpu_device::dsp_op_table[64] =
     MEMORY ACCESSORS
 ***************************************************************************/
 
-#define ROPCODE(pc)           (m_direct->read_decrypted_word(pc, WORD_XOR_BE(0)))
+#define ROPCODE(pc)           (m_direct->read_word(pc, WORD_XOR_BE(0)))
 
 
 const device_type JAGUARGPU = &device_creator<jaguargpu_cpu_device>;
@@ -403,12 +403,12 @@ void jaguar_cpu_device::device_start()
 }
 
 
-void jaguar_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void jaguar_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf( "%c%c%c%c%c%c%c%c%c%c%c",
+			strprintf(str, "%c%c%c%c%c%c%c%c%c%c%c",
 				FLAGS & 0x8000 ? 'D':'.',
 				FLAGS & 0x4000 ? 'A':'.',
 				FLAGS & 0x0100 ? '4':'.',

@@ -607,8 +607,8 @@ void tvc_state::machine_start()
 	m_ext = memregion("ext");
 	m_vram = memregion("vram");
 
-	astring region_tag;
-	m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 }
 
 void tvc_state::machine_reset()
@@ -871,6 +871,6 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME      PARENT  COMPAT MACHINE    INPUT     INIT                     COMPANY       FULLNAME       FLAGS */
-COMP( 1985, tvc64,    0,      0,     tvc,       tvc,      driver_device,  0,       "Videoton",   "TVC 64",       GAME_NOT_WORKING | GAME_NO_SOUND)
-COMP( 1985, tvc64p,   tvc64,  0,     tvc,       tvc,      driver_device,  0,       "Videoton",   "TVC 64+",      GAME_NOT_WORKING | GAME_NO_SOUND)
-COMP( 1985, tvc64pru, tvc64,  0,     tvc,       tvc64pru, driver_device,  0,       "Videoton",   "TVC 64+ (Russian)",        GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1985, tvc64,    0,      0,     tvc,       tvc,      driver_device,  0,       "Videoton",   "TVC 64",       MACHINE_NOT_WORKING | MACHINE_NO_SOUND)
+COMP( 1985, tvc64p,   tvc64,  0,     tvc,       tvc,      driver_device,  0,       "Videoton",   "TVC 64+",      MACHINE_NOT_WORKING | MACHINE_NO_SOUND)
+COMP( 1985, tvc64pru, tvc64,  0,     tvc,       tvc64pru, driver_device,  0,       "Videoton",   "TVC 64+ (Russian)",        MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

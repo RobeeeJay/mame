@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #pragma once
 
 #ifndef __MINX_H__
@@ -8,7 +10,7 @@ enum
 {
 		MINX_PC=1, MINX_SP, MINX_BA, MINX_HL, MINX_X, MINX_Y,
 		MINX_U, MINX_V, MINX_F, MINX_E, MINX_N, MINX_I,
-		MINX_XI, MINX_YI,
+		MINX_XI, MINX_YI
 };
 
 
@@ -34,7 +36,7 @@ protected:
 	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : NULL; }
 
 	// device_state_interface overrides
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 1; }

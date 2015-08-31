@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde, Ryan Holtz
 /*
     Nintendo/SGI Reality Signal Processor (RSP) emulator
 
@@ -137,7 +139,6 @@ rsp_device::rsp_device(const machine_config &mconfig, const char *tag, device_t 
 	, m_sp_reg_w_func(*this)
 	, m_sp_set_status_func(*this)
 {
-	m_isdrc = mconfig.options().drc() ? true : false;
 }
 
 offs_t rsp_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options)
@@ -360,6 +361,7 @@ void rsp_device::resolve_cb()
 
 void rsp_device::device_start()
 {
+	m_isdrc = (mconfig().options().drc() && !mconfig().m_force_no_drc) ? true : false;
 	m_rsp_state = (internal_rsp_state *)m_cache.alloc_near(sizeof(internal_rsp_state));
 
 	if (LOG_INSTRUCTION_EXECUTION)
@@ -537,16 +539,16 @@ void rsp_device::state_export(const device_state_entry &entry)
 	}
 }
 
-void rsp_device::state_string_export(const device_state_entry &entry, astring &string)
+void rsp_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	const int index = entry.index();
 	if (index >= RSP_V0 && index <= RSP_V31)
 	{
-		m_cop2->state_string_export(index, string);
+		m_cop2->state_string_export(index, str);
 	}
 	else if (index == STATE_GENFLAGS)
 	{
-		string.printf("%s","");
+		strprintf(str, "%s", "");
 	}
 }
 
@@ -798,6 +800,10 @@ void rsp_device::execute_run()
 		{
 			m_rsp_state->icount = MIN(m_rsp_state->icount, 0);
 		}
-
+		/*m_cop2->dump(op);
+		if (((op >> 26) & 0x3f) == 0x3a)
+		{
+		    m_cop2->dump_dmem();
+		}*/
 	}
 }

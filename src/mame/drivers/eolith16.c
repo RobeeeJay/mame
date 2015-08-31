@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli
 /********************************************************************
 
  Eolith 16 bits hardware
@@ -260,4 +262,4 @@ DRIVER_INIT_MEMBER(eolith16_state,eolith16)
 	init_speedup();
 }
 
-GAME( 1999, klondkp, 0, eolith16, eolith16, eolith16_state, eolith16, ROT0, "Eolith", "KlonDike+", GAME_SUPPORTS_SAVE )
+GAME( 1999, klondkp, 0, eolith16, eolith16, eolith16_state, eolith16, ROT0, "Eolith", "KlonDike+", MACHINE_SUPPORTS_SAVE )

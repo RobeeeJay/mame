@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -101,4 +101,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME   PARENT  COMPAT  MACHINE INPUT   CLASS         INIT    COMPANY           FULLNAME       FLAGS */
-COMP( 198?, pm68k, 0,      0,      pm68k,  pm68k,  driver_device, 0, "Callan Data Systems", "PM68K", GAME_NOT_WORKING | GAME_NO_SOUND_HW )
+COMP( 198?, pm68k, 0,      0,      pm68k,  pm68k,  driver_device, 0, "Callan Data Systems", "PM68K", MACHINE_NOT_WORKING | MACHINE_NO_SOUND_HW )

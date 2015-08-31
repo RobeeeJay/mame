@@ -1,3 +1,5 @@
+// license:???
+// copyright-holders:Marc Lafontaine, Couriersud
 /***************************************************************************
 
 Popeye  (c) 1982 Nintendo
@@ -49,11 +51,14 @@ NETLIST_END()
 
 static NETLIST_START(nl_popeye)
 
+	/* register hard coded netlists */
+
+	LOCAL_SOURCE(nl_popeye_imp_changer)
+
 	/* Standard stuff */
 
 	SOLVER(Solver, 48000)
 	PARAM(Solver.ACCURACY, 1e-5)
-	PARAM(Solver.LTE,     5e-2) // Default is not enough for paddle control
 	ANALOG_INPUT(V5, 5)
 
 	/* AY 8910 internal resistors */
@@ -670,7 +675,7 @@ DRIVER_INIT_MEMBER(popeye_state,skyskipr)
 		int i;
 		for (i = 0;i < len; i++)
 			buffer[i] = BITSWAP8(rom[BITSWAP16(i,15,14,13,12,11,10,8,7,0,1,2,4,5,9,3,6) ^ 0xfc],3,4,2,5,1,6,0,7);
-		memcpy(rom,buffer,len);
+		memcpy(rom,&buffer[0],len);
 	}
 
 	save_item(NAME(m_prot0));
@@ -689,7 +694,7 @@ DRIVER_INIT_MEMBER(popeye_state,popeye)
 		int i;
 		for (i = 0;i < len; i++)
 			buffer[i] = BITSWAP8(rom[BITSWAP16(i,15,14,13,12,11,10,8,7,6,3,9,5,4,2,1,0) ^ 0x3f],3,4,2,5,1,6,0,7);
-		memcpy(rom,buffer,len);
+		memcpy(rom,&buffer[0],len);
 	}
 
 	save_item(NAME(m_prot0));
@@ -698,8 +703,8 @@ DRIVER_INIT_MEMBER(popeye_state,popeye)
 }
 
 
-GAME( 1981, skyskipr, 0,      skyskipr, skyskipr, popeye_state, skyskipr, ROT0, "Nintendo", "Sky Skipper", GAME_SUPPORTS_SAVE )
-GAME( 1982, popeye,   0,      popeye,   popeye, popeye_state,   popeye,   ROT0, "Nintendo", "Popeye (revision D)", GAME_SUPPORTS_SAVE )
-GAME( 1982, popeyeu,  popeye, popeye,   popeye, popeye_state,   popeye,   ROT0, "Nintendo", "Popeye (revision D not protected)", GAME_SUPPORTS_SAVE )
-GAME( 1982, popeyef,  popeye, popeye,   popeyef, popeye_state,  popeye,   ROT0, "Nintendo", "Popeye (revision F)", GAME_SUPPORTS_SAVE )
-GAME( 1982, popeyebl, popeye, popeyebl, popeye, driver_device,  0,        ROT0, "bootleg",  "Popeye (bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1981, skyskipr, 0,      skyskipr, skyskipr, popeye_state, skyskipr, ROT0, "Nintendo", "Sky Skipper", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, popeye,   0,      popeye,   popeye, popeye_state,   popeye,   ROT0, "Nintendo", "Popeye (revision D)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, popeyeu,  popeye, popeye,   popeye, popeye_state,   popeye,   ROT0, "Nintendo", "Popeye (revision D not protected)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, popeyef,  popeye, popeye,   popeyef, popeye_state,  popeye,   ROT0, "Nintendo", "Popeye (revision F)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, popeyebl, popeye, popeyebl, popeye, driver_device,  0,        ROT0, "bootleg",  "Popeye (bootleg)", MACHINE_SUPPORTS_SAVE )

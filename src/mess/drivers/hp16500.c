@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
   Hewlett-Packard HP16500a/b/c Logic Analyzer
@@ -68,7 +70,7 @@ public:
 	UINT32 screen_update_hp16500a(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
 	required_device<cpu_device> m_maincpu;
-	dynamic_array<UINT8> m_vram;
+	std::vector<UINT8> m_vram;
 
 	UINT8 m_mask, m_val;
 
@@ -499,7 +501,7 @@ ROM_START( hp16500b )
 	ROM_LOAD32_BYTE( "16500-80017.bin", 0x000003, 0x008000, CRC(e0b1096b) SHA1(426bb9a4756d8087bded4f6b61365d733ffbb09a) )
 ROM_END
 
-COMP( 1989, hp1650b,  0, 0, hp1650,  hp16500, driver_device, 0,  "Hewlett Packard", "HP 1650b", GAME_NOT_WORKING|GAME_NO_SOUND)
-COMP( 1989, hp1651b,  0, 0, hp1651,  hp16500, driver_device, 0,  "Hewlett Packard", "HP 1651b", GAME_NOT_WORKING|GAME_NO_SOUND)
-COMP( 1991, hp165ka0, 0, 0, hp16500a, hp16500, driver_device, 0, "Hewlett Packard", "HP 16500a", GAME_NOT_WORKING|GAME_NO_SOUND)
-COMP( 1991, hp16500b, 0, 0, hp16500, hp16500, driver_device, 0,  "Hewlett Packard", "HP 16500b", GAME_NOT_WORKING|GAME_NO_SOUND)
+COMP( 1989, hp1650b,  0, 0, hp1650,  hp16500, driver_device, 0,  "Hewlett Packard", "HP 1650b", MACHINE_NOT_WORKING|MACHINE_NO_SOUND)
+COMP( 1989, hp1651b,  0, 0, hp1651,  hp16500, driver_device, 0,  "Hewlett Packard", "HP 1651b", MACHINE_NOT_WORKING|MACHINE_NO_SOUND)
+COMP( 1991, hp165ka0, 0, 0, hp16500a, hp16500, driver_device, 0, "Hewlett Packard", "HP 16500a", MACHINE_NOT_WORKING|MACHINE_NO_SOUND)
+COMP( 1991, hp16500b, 0, 0, hp16500, hp16500, driver_device, 0,  "Hewlett Packard", "HP 16500b", MACHINE_NOT_WORKING|MACHINE_NO_SOUND)

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Jason Eckhardt
 /***************************************************************************
 
     i860.h
@@ -5,11 +7,6 @@
     Interface file for the Intel i860 emulator.
 
     Copyright (C) 1995-present Jason Eckhardt (jle@rice.edu)
-    Released for general non-commercial use under the MAME license
-    with the additional requirement that you are free to use and
-    redistribute this code in modified or unmodified form, provided
-    you list me in the credits.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 ***************************************************************************/
 
@@ -42,7 +39,7 @@ enum
 	I860_F0,  I860_F1,  I860_F2,  I860_F3,  I860_F4,  I860_F5,  I860_F6,  I860_F7,  I860_F8,  I860_F9,
 	I860_F10, I860_F11, I860_F12, I860_F13, I860_F14, I860_F15, I860_F16, I860_F17, I860_F18, I860_F19,
 	I860_F20, I860_F21, I860_F22, I860_F23, I860_F24, I860_F25, I860_F26, I860_F27, I860_F28, I860_F29,
-	I860_F30, I860_F31,
+	I860_F30, I860_F31
 
 };
 

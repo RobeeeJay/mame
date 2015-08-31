@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari
 /***************************************************************************
 
 Space Force Memory Map
@@ -38,8 +40,17 @@ TODO:
 #include "cpu/mcs48/mcs48.h"
 #include "includes/spcforce.h"
 
+void spcforce_state::machine_start()
+{
+	save_item(NAME(m_sn76496_latch));
+	save_item(NAME(m_sn76496_select));
+	save_item(NAME(m_sn1_ready));
+	save_item(NAME(m_sn2_ready));
+	save_item(NAME(m_sn3_ready));
+	save_item(NAME(m_irq_mask));
+}
 
-WRITE8_MEMBER(spcforce_state::spcforce_SN76496_latch_w)
+WRITE8_MEMBER(spcforce_state::SN76496_latch_w)
 {
 	m_sn76496_latch = data;
 }
@@ -59,7 +70,7 @@ WRITE_LINE_MEMBER(spcforce_state::write_sn3_ready)
 	m_sn3_ready = state;
 }
 
-READ8_MEMBER(spcforce_state::spcforce_SN76496_select_r)
+READ8_MEMBER(spcforce_state::SN76496_select_r)
 {
 	if (~m_sn76496_select & 0x40) return m_sn1_ready;
 	if (~m_sn76496_select & 0x20) return m_sn2_ready;
@@ -68,7 +79,7 @@ READ8_MEMBER(spcforce_state::spcforce_SN76496_select_r)
 	return 0;
 }
 
-WRITE8_MEMBER(spcforce_state::spcforce_SN76496_select_w)
+WRITE8_MEMBER(spcforce_state::SN76496_select_w)
 {
 	m_sn76496_select = data;
 
@@ -77,14 +88,14 @@ WRITE8_MEMBER(spcforce_state::spcforce_SN76496_select_w)
 	if (~data & 0x10) m_sn3->write(space, 0, m_sn76496_latch);
 }
 
-READ8_MEMBER(spcforce_state::spcforce_t0_r)
+READ8_MEMBER(spcforce_state::t0_r)
 {
 	/* SN76496 status according to Al - not supported by MAME?? */
 	return machine().rand() & 1;
 }
 
 
-WRITE8_MEMBER(spcforce_state::spcforce_soundtrigger_w)
+WRITE8_MEMBER(spcforce_state::soundtrigger_w)
 {
 	m_audiocpu->set_input_line(0, (~data & 0x08) ? ASSERT_LINE : CLEAR_LINE);
 }
@@ -98,14 +109,21 @@ static ADDRESS_MAP_START( spcforce_map, AS_PROGRAM, 8, spcforce_state )
 	AM_RANGE(0x0000, 0x3fff) AM_ROM
 	AM_RANGE(0x4000, 0x43ff) AM_RAM
 	AM_RANGE(0x7000, 0x7000) AM_READ_PORT("DSW") AM_WRITE(soundlatch_byte_w)
-	AM_RANGE(0x7001, 0x7001) AM_READ_PORT("P1") AM_WRITE(spcforce_soundtrigger_w)
+	AM_RANGE(0x7001, 0x7001) AM_READ_PORT("P1") AM_WRITE(soundtrigger_w)
 	AM_RANGE(0x7002, 0x7002) AM_READ_PORT("P2")
-	AM_RANGE(0x700b, 0x700b) AM_WRITE(spcforce_flip_screen_w)
+	AM_RANGE(0x700b, 0x700b) AM_WRITE(flip_screen_w)
 	AM_RANGE(0x700e, 0x700e) AM_WRITE(irq_mask_w)
 	AM_RANGE(0x700f, 0x700f) AM_WRITENOP
 	AM_RANGE(0x8000, 0x83ff) AM_RAM AM_SHARE("videoram")
 	AM_RANGE(0x9000, 0x93ff) AM_RAM AM_SHARE("colorram")
 	AM_RANGE(0xa000, 0xa3ff) AM_RAM AM_SHARE("scrollram")
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( meteors_map, AS_PROGRAM, 8, spcforce_state )
+	AM_RANGE(0x700b, 0x700b) AM_WRITENOP
+	AM_RANGE(0x700d, 0x700d) AM_WRITE(irq_mask_w) // ??
+	AM_RANGE(0x700e, 0x700e) AM_WRITE(flip_screen_w) // irq mask isn't here, gets written too early causing the game to not boot, see startup code between sets
+	AM_IMPORT_FROM(spcforce_map)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( spcforce_sound_map, AS_PROGRAM, 8, spcforce_state )
@@ -114,9 +132,9 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( spcforce_sound_io_map, AS_IO, 8, spcforce_state )
 	AM_RANGE(MCS48_PORT_BUS, MCS48_PORT_BUS) AM_READ(soundlatch_byte_r)
-	AM_RANGE(MCS48_PORT_P1, MCS48_PORT_P1) AM_WRITE(spcforce_SN76496_latch_w)
-	AM_RANGE(MCS48_PORT_P2, MCS48_PORT_P2) AM_READWRITE(spcforce_SN76496_select_r, spcforce_SN76496_select_w)
-	AM_RANGE(MCS48_PORT_T0, MCS48_PORT_T0) AM_READ(spcforce_t0_r)
+	AM_RANGE(MCS48_PORT_P1, MCS48_PORT_P1) AM_WRITE(SN76496_latch_w)
+	AM_RANGE(MCS48_PORT_P2, MCS48_PORT_P2) AM_READWRITE(SN76496_select_r, SN76496_select_w)
+	AM_RANGE(MCS48_PORT_T0, MCS48_PORT_T0) AM_READ(t0_r)
 ADDRESS_MAP_END
 
 
@@ -276,7 +294,7 @@ static MACHINE_CONFIG_START( spcforce, spcforce_state )
 	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(2500) /* not accurate */)
 	MCFG_SCREEN_SIZE(32*8, 32*8)
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 32*8-1, 0*8, 28*8-1)
-	MCFG_SCREEN_UPDATE_DRIVER(spcforce_state, screen_update_spcforce)
+	MCFG_SCREEN_UPDATE_DRIVER(spcforce_state, screen_update)
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", spcforce)
@@ -297,6 +315,11 @@ static MACHINE_CONFIG_START( spcforce, spcforce_state )
 	MCFG_SOUND_ADD("sn3", SN76496, 2000000)
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 	MCFG_SN76496_READY_HANDLER(WRITELINE(spcforce_state, write_sn3_ready))
+MACHINE_CONFIG_END
+
+static MACHINE_CONFIG_DERIVED( meteors, spcforce )
+	MCFG_CPU_MODIFY("maincpu")
+	MCFG_CPU_PROGRAM_MAP(meteors_map)
 MACHINE_CONFIG_END
 
 
@@ -374,7 +397,31 @@ ROM_START( meteor )
 	ROM_LOAD( "bm2v",         0x2800, 0x0800, CRC(2858cf5c) SHA1(1313b4e4adda074499153e4a42bc2c6b41b0ec7e) )
 ROM_END
 
+ROM_START( meteors )
+	ROM_REGION( 0x10000, "maincpu", 0 )
+	ROM_LOAD( "1hz1_2.1ab",          0x0000, 0x0800, CRC(86de2a63) SHA1(083a0d31f29bd9d68d240b23234645eeea57556d) )
+	ROM_LOAD( "2hz1_2.1cd",          0x0800, 0x0800, CRC(7ef2c421) SHA1(f01327748e5a2144744557cd3cef16c93076466c) )
+	ROM_LOAD( "3hz1_2.2ab",          0x1000, 0x0800, CRC(6d631f33) SHA1(4c69e3761d7db5ed6c8c23cc5e255cacfac6137f) )
+	ROM_LOAD( "4hz1_2.2cd",          0x1800, 0x0800, CRC(48cb5acc) SHA1(791f9ca0225465d7af8a2a61f617112570f529e6))
+							/*0x2000 empty */
+	ROM_LOAD( "6hz1_2.3cd",          0x2800, 0x0800, CRC(39541265) SHA1(e55eb6c826fb553123991577be4daa3c2aa236f6) )
+	ROM_LOAD( "7hz1_2.4ab",          0x3000, 0x0800, CRC(e718e807) SHA1(d8f3f66aea409c296785d66937b067f4b2c76ed4) )
+	ROM_LOAD( "mbv21_2.4cd",         0x3800, 0x0800, CRC(f805c3cd) SHA1(78eb13b99aae895742b34ed56bee9313d3643de1) )
 
-GAME( 1980, spcforce, 0,        spcforce, spcforce, driver_device, 0, ROT270, "Venture Line", "Space Force (set 1)", GAME_IMPERFECT_COLORS )
-GAME( 19??, spcforc2, spcforce, spcforce, spcforc2, driver_device, 0, ROT270, "bootleg? (Elcon)", "Space Force (set 2)", GAME_IMPERFECT_COLORS )
-GAME( 1981, meteor,   spcforce, spcforce, spcforc2, driver_device, 0, ROT270, "Venture Line", "Meteoroids", GAME_IMPERFECT_COLORS )
+	ROM_REGION( 0x1000, "audiocpu", 0 )     /* sound MCU */
+	ROM_LOAD( "vms.10l",          0x0000, 0x0800, CRC(b14ccd57) SHA1(0349ec5d0ca7f98ffdd96d7bf01cf096fe547f7a))
+
+	ROM_REGION( 0x3000, "gfx1", 0 )
+	ROM_LOAD( "rm1h1_2.6st",         0x0000, 0x0800, CRC(409fef31) SHA1(7260e06fa654d54f3660712a63f8db8c28b872c9) )
+	ROM_LOAD( "rm2h1_2.7st",         0x0800, 0x0800, CRC(b3981251) SHA1(b6743d121a6b3ad8e8beebe1faff2678b89e7d16) )
+	ROM_LOAD( "gm1h1_2.6pr",         0x1000, 0x0800, CRC(0b85c282) SHA1(b264c92d4b2533c18ac7831491133170a2fd400b) )
+	ROM_LOAD( "gm2h1_2.7pr",         0x1800, 0x0800, CRC(0997d945) SHA1(16eba77b14c62b2a0ebea47a28d4d5d21d7a2234) )
+	ROM_LOAD( "bm1h1_2.6nm",         0x2000, 0x0800, CRC(f9501c8e) SHA1(483d3d4c3f9601d7fcbf263bba5bdc5529b13f70) )
+	ROM_LOAD( "bm2h1_2.7nm",         0x2800, 0x0800, CRC(2858cf5c) SHA1(1313b4e4adda074499153e4a42bc2c6b41b0ec7e) )
+ROM_END
+
+
+GAME( 1980, spcforce, 0,        spcforce, spcforce, driver_device, 0, ROT270, "Venture Line", "Space Force (set 1)", MACHINE_IMPERFECT_COLORS | MACHINE_SUPPORTS_SAVE )
+GAME( 19??, spcforc2, spcforce, spcforce, spcforc2, driver_device, 0, ROT270, "bootleg? (Elcon)", "Space Force (set 2)", MACHINE_IMPERFECT_COLORS | MACHINE_SUPPORTS_SAVE )
+GAME( 1981, meteor,   spcforce, spcforce, spcforc2, driver_device, 0, ROT270, "Venture Line", "Meteoroids", MACHINE_IMPERFECT_COLORS | MACHINE_SUPPORTS_SAVE )
+GAME( 19??, meteors,  spcforce, meteors,  spcforc2, driver_device, 0, ROT0,   "Amusement World", "Meteors", MACHINE_IMPERFECT_COLORS | MACHINE_SUPPORTS_SAVE )

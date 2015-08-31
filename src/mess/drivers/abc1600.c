@@ -123,7 +123,7 @@ READ8_MEMBER( abc1600_state::bus_r )
 			// EXP
 			data = m_bus0x->exp_r();
 
-			logerror("%s EXP %02x: %02x\n", machine().describe_context(), cs, data);
+			if (LOG) logerror("%s EXP %02x: %02x\n", machine().describe_context(), cs, data);
 		}
 		else
 		{
@@ -167,7 +167,7 @@ READ8_MEMBER( abc1600_state::bus_r )
 				data = 0xfc | (m_csb & 0x03);
 			}
 
-			logerror("%s RCSB %02x\n", machine().describe_context(), data);
+			if (LOG) logerror("%s RCSB %02x\n", machine().describe_context(), data);
 		}
 	}
 	else
@@ -188,7 +188,7 @@ READ8_MEMBER( abc1600_state::bus_r )
 				data &= m_bus2->inp_r();
 			}
 
-			logerror("%s INP %02x: %02x\n", machine().describe_context(), cs, data);
+			if (LOG) logerror("%s INP %02x: %02x\n", machine().describe_context(), cs, data);
 			break;
 
 		case STAT:
@@ -203,7 +203,7 @@ READ8_MEMBER( abc1600_state::bus_r )
 				data &= m_bus2->stat_r();
 			}
 
-			logerror("%s STAT %02x: %02x\n", machine().describe_context(), cs, data);
+			if (LOG) logerror("%s STAT %02x: %02x\n", machine().describe_context(), cs, data);
 			break;
 
 		case OPS:
@@ -218,11 +218,11 @@ READ8_MEMBER( abc1600_state::bus_r )
 				data &= m_bus2->ops_r();
 			}
 
-			logerror("%s OPS %02x: %02x\n", machine().describe_context(), cs, data);
+			if (LOG) logerror("%s OPS %02x: %02x\n", machine().describe_context(), cs, data);
 			break;
 
 		default:
-			logerror("%s Unmapped read from virtual I/O %06x\n", machine().describe_context(), offset);
+			if (LOG) logerror("%s Unmapped read from virtual I/O %06x\n", machine().describe_context(), offset);
 		}
 	}
 
@@ -246,7 +246,7 @@ WRITE8_MEMBER( abc1600_state::bus_w )
 	switch ((offset >> 1) & 0x07)
 	{
 	case OUT:
-		logerror("%s OUT %02x: %02x\n", machine().describe_context(), cs, data);
+		if (LOG) logerror("%s OUT %02x: %02x\n", machine().describe_context(), cs, data);
 
 		if (m_bus0)
 		{
@@ -261,7 +261,7 @@ WRITE8_MEMBER( abc1600_state::bus_w )
 		break;
 
 	case C1:
-		logerror("%s C1 %02x: %02x\n", machine().describe_context(), cs, data);
+		if (LOG) logerror("%s C1 %02x: %02x\n", machine().describe_context(), cs, data);
 
 		if (m_bus0)
 		{
@@ -276,7 +276,7 @@ WRITE8_MEMBER( abc1600_state::bus_w )
 		break;
 
 	case C2:
-		logerror("%s C2 %02x: %02x\n", machine().describe_context(), cs, data);
+		if (LOG) logerror("%s C2 %02x: %02x\n", machine().describe_context(), cs, data);
 
 		if (m_bus0)
 		{
@@ -291,7 +291,7 @@ WRITE8_MEMBER( abc1600_state::bus_w )
 		break;
 
 	case C3:
-		logerror("%s C3 %02x: %02x\n", machine().describe_context(), cs, data);
+		if (LOG) logerror("%s C3 %02x: %02x\n", machine().describe_context(), cs, data);
 
 		if (m_bus0)
 		{
@@ -306,7 +306,7 @@ WRITE8_MEMBER( abc1600_state::bus_w )
 		break;
 
 	case C4:
-		logerror("%s C4 %02x: %02x\n", machine().describe_context(), cs, data);
+		if (LOG) logerror("%s C4 %02x: %02x\n", machine().describe_context(), cs, data);
 
 		if (m_bus0)
 		{
@@ -321,7 +321,7 @@ WRITE8_MEMBER( abc1600_state::bus_w )
 		break;
 
 	default:
-		logerror("%s Unmapped write %02x to virtual I/O %06x\n", machine().describe_context(), data, offset);
+		if (LOG) logerror("%s Unmapped write %02x to virtual I/O %06x\n", machine().describe_context(), data, offset);
 	}
 }
 
@@ -895,7 +895,7 @@ static MACHINE_CONFIG_START( abc1600, abc1600_state )
 
 	MCFG_NMC9306_ADD(NMC9306_TAG)
 	MCFG_E0516_ADD(E050_C16PC_TAG, XTAL_32_768kHz)
-	MCFG_FD1797x_ADD(SAB1797_02P_TAG, XTAL_64MHz/64)
+	MCFG_FD1797_ADD(SAB1797_02P_TAG, XTAL_64MHz/64)
 	MCFG_WD_FDC_INTRQ_CALLBACK(DEVWRITELINE(Z8536B1_TAG, z8536_device, pb7_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(abc1600_state, fdc_drq_w))
 
@@ -964,4 +964,4 @@ ROM_END
 //**************************************************************************
 
 //    YEAR  NAME      PARENT  COMPAT  MACHINE   INPUT     INIT  COMPANY     FULLNAME     FLAGS
-COMP( 1985, abc1600, 0,      0,      abc1600, abc1600, driver_device, 0,    "Luxor", "ABC 1600", GAME_NOT_WORKING )
+COMP( 1985, abc1600, 0,      0,      abc1600, abc1600, driver_device, 0,    "Luxor", "ABC 1600", MACHINE_NOT_WORKING )

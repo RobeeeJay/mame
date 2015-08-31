@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Raphael Nabet
 #ifndef __MM58274C_H__
 #define __MM58274C_H__
 

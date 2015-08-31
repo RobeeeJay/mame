@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Jarek Parchanski, Nicola Salmoria, Mirko Buffoni
 #include "cpu/z80/z80.h"
 #include "machine/i8255.h"
 
@@ -17,7 +19,12 @@ public:
 		m_gfxdecode(*this, "gfxdecode"),
 		m_screen(*this, "screen"),
 		m_palette(*this, "palette"),
-		m_generic_paletteram_8(*this, "paletteram") { }
+		m_decrypted_opcodes(*this, "decrypted_opcodes"),
+		m_maincpu_region(*this, "maincpu"),
+		m_color_prom(*this, "palette"),
+		m_bank1(*this, "bank1"),
+		m_bank0d(*this, "bank0d"),
+		m_bank1d(*this, "bank1d") { }
 
 	optional_device<i8255_device>  m_ppi8255;
 	required_shared_ptr<UINT8> m_ram;
@@ -108,6 +115,7 @@ public:
 	DECLARE_DRIVER_INIT(seganinj);
 	DECLARE_DRIVER_INIT(gardia);
 	DECLARE_DRIVER_INIT(spatter);
+	DECLARE_DRIVER_INIT(spattera);
 	TILE_GET_INFO_MEMBER(tile_get_info);
 	virtual void machine_start();
 	virtual void machine_reset();
@@ -134,5 +142,12 @@ public:
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<screen_device> m_screen;
 	required_device<palette_device> m_palette;
-	required_shared_ptr<UINT8> m_generic_paletteram_8;
+	optional_shared_ptr<UINT8> m_decrypted_opcodes;
+	required_memory_region m_maincpu_region;
+	optional_region_ptr<UINT8> m_color_prom;
+	required_memory_bank m_bank1;
+	optional_memory_bank m_bank0d;
+	optional_memory_bank m_bank1d;
+
+	UINT8 *m_banked_decrypted_opcodes;
 };

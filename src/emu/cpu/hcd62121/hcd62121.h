@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #ifndef __HCD62121_H__
 #define __HCD62121_H__
 
@@ -14,7 +16,7 @@ enum
 	HCD62121_R40, HCD62121_R44, HCD62121_R48, HCD62121_R4C,
 	HCD62121_R50, HCD62121_R54, HCD62121_R58, HCD62121_R5C,
 	HCD62121_R60, HCD62121_R64, HCD62121_R68, HCD62121_R6C,
-	HCD62121_R70, HCD62121_R74, HCD62121_R78, HCD62121_R7C,
+	HCD62121_R70, HCD62121_R74, HCD62121_R78, HCD62121_R7C
 };
 
 
@@ -52,7 +54,7 @@ protected:
 	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : ( (spacenum == AS_IO) ? &m_io_config : NULL ); }
 
 	// device_state_interface overrides
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 1; }

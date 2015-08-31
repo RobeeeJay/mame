@@ -1,11 +1,11 @@
-// license:?
-// copyright-holders:David Haywood, Angelo Salese, Olivier Galibert, Mariusz Wojcieszek, R.Belmont
+// license:LGPL-2.1+
+// copyright-holders:David Haywood, Angelo Salese, Olivier Galibert, Mariusz Wojcieszek, R. Belmont
 /**************************************************************************************************
 
     Sega Saturn & Sega ST-V (Sega Titan Video) HW (c) 1994 Sega
 
     Driver by David Haywood, Angelo Salese, Olivier Galibert & Mariusz Wojcieszek
-    SCSP driver provided by R.Belmont, based on ElSemi's SCSP sound chip emulator
+    SCSP driver provided by R. Belmont, based on ElSemi's SCSP sound chip emulator
     Many thanks to Guru, Fabien, Runik and Charles MacDonald for the help given.
 
 ===================================================================================================
@@ -897,8 +897,8 @@ ROM_START(hisaturn)
 ROM_END
 
 /*    YEAR  NAME        PARENT  COMPAT  MACHINE INPUT   INIT        COMPANY     FULLNAME            FLAGS */
-CONS( 1994, saturn,     0,      0,      saturnus, saturn, sat_console_state, saturnus,   "Sega",     "Saturn (USA)",     GAME_NOT_WORKING )
-CONS( 1994, saturnjp,   saturn, 0,      saturnjp, saturn, sat_console_state, saturnjp,   "Sega",     "Saturn (Japan)",   GAME_NOT_WORKING )
-CONS( 1994, saturneu,   saturn, 0,      saturneu, saturn, sat_console_state, saturneu,   "Sega",     "Saturn (PAL)",     GAME_NOT_WORKING )
-CONS( 1995, vsaturn,    saturn, 0,      saturnjp, saturn, sat_console_state, saturnjp,   "JVC",      "V-Saturn",         GAME_NOT_WORKING )
-CONS( 1995, hisaturn,   saturn, 0,      saturnjp, saturn, sat_console_state, saturnjp,   "Hitachi",  "HiSaturn",         GAME_NOT_WORKING )
+CONS( 1994, saturn,     0,      0,      saturnus, saturn, sat_console_state, saturnus,   "Sega",     "Saturn (USA)",     MACHINE_NOT_WORKING )
+CONS( 1994, saturnjp,   saturn, 0,      saturnjp, saturn, sat_console_state, saturnjp,   "Sega",     "Saturn (Japan)",   MACHINE_NOT_WORKING )
+CONS( 1994, saturneu,   saturn, 0,      saturneu, saturn, sat_console_state, saturneu,   "Sega",     "Saturn (PAL)",     MACHINE_NOT_WORKING )
+CONS( 1995, vsaturn,    saturn, 0,      saturnjp, saturn, sat_console_state, saturnjp,   "JVC",      "V-Saturn",         MACHINE_NOT_WORKING )
+CONS( 1995, hisaturn,   saturn, 0,      saturnjp, saturn, sat_console_state, saturnjp,   "Hitachi",  "HiSaturn",         MACHINE_NOT_WORKING )

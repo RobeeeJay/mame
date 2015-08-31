@@ -1,9 +1,11 @@
+// license:BSD-3-Clause
+// copyright-holders:Barry Rodewald
 #include "machine/buffer.h"
 #include "bus/centronics/ctronics.h"
 #include "imagedev/cassette.h"
 #include "sound/beep.h"
 #include "sound/2203intf.h"
-#include "machine/wd17xx.h"
+#include "machine/wd_fdc.h"
 #include "machine/bankdev.h"
 
 /*
@@ -71,9 +73,6 @@ struct fm7_video_t
 	UINT16 vram_offset2;
 	UINT8 fm7_pal[8];
 	UINT16 fm77av_pal_selected;
-	UINT8 fm77av_pal_r[4096];
-	UINT8 fm77av_pal_g[4096];
-	UINT8 fm77av_pal_b[4096];
 	UINT8 subrom;  // currently active sub CPU ROM (AV only)
 	UINT8 cgrom;  // currently active CGROM (AV only)
 	UINT8 modestatus;
@@ -134,6 +133,9 @@ public:
 		m_centronics(*this, "centronics"),
 		m_cent_data_out(*this, "cent_data_out"),
 		m_fdc(*this, "fdc"),
+		m_floppy0(*this, "fdc:0"),
+		m_floppy1(*this, "fdc:1"),
+		m_floppy(NULL),
 		m_kanji(*this, "kanji1"),
 		m_key1(*this, "key1"),
 		m_key2(*this, "key2"),
@@ -143,6 +145,7 @@ public:
 		m_joy2(*this, "joy2"),
 		m_dsw(*this, "DSW"),
 		m_palette(*this, "palette"),
+		m_av_palette(*this, "av_palette"),
 		m_avbank1(*this, "av_bank1"),
 		m_avbank2(*this, "av_bank2"),
 		m_avbank3(*this, "av_bank3"),
@@ -288,12 +291,11 @@ public:
 	DECLARE_DRIVER_INIT(fm7);
 	virtual void machine_reset();
 	virtual void video_start();
-	DECLARE_PALETTE_INIT(fm7);
 	DECLARE_MACHINE_START(fm7);
 	DECLARE_MACHINE_START(fm77av);
 	DECLARE_MACHINE_START(fm11);
 	DECLARE_MACHINE_START(fm16);
-	UINT32 screen_update_fm7(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	UINT32 screen_update_fm7(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 	TIMER_CALLBACK_MEMBER(fm7_beeper_off);
 	TIMER_CALLBACK_MEMBER(fm77av_encoder_ack);
 	TIMER_CALLBACK_MEMBER(fm7_timer_irq);
@@ -317,7 +319,11 @@ public:
 	optional_device<ay8910_device> m_psg;
 	required_device<centronics_device> m_centronics;
 	required_device<output_latch_device> m_cent_data_out;
-	required_device<mb8877_device> m_fdc;
+	required_device<mb8877_t> m_fdc;
+	required_device<floppy_connector> m_floppy0;
+	required_device<floppy_connector> m_floppy1;
+
+	floppy_image_device *m_floppy;
 
 	void fm7_alu_mask_write(UINT32 offset, int bank, UINT8 dat);
 	void fm7_alu_function_compare(UINT32 offset);
@@ -358,6 +364,7 @@ public:
 	required_ioport m_joy2;
 	required_ioport m_dsw;
 	required_device<palette_device> m_palette;
+	optional_device<palette_device> m_av_palette;
 
 	optional_device<address_map_bank_device> m_avbank1;
 	optional_device<address_map_bank_device> m_avbank2;

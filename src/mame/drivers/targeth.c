@@ -1,8 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /***************************************************************************
 
 Target Hits (c) 1994 Gaelco (Designed & Developed by Zigurat. Produced by Gaelco)
 
-Driver by Manuel Abadia <manu@teleline.es>
+Driver by Manuel Abadia <emumanu+mame@gmail.com>
 
 The DS5002FP has 32KB undumped gameplay code making the game unplayable :_(
 
@@ -233,5 +235,5 @@ ROM_START( targetha )
 	ROM_LOAD( "targeth.c3",     0x0c0000, 0x080000, CRC(d4c771df) SHA1(7cc0a86ef6aa3d26ab8f19d198f62112bf012870) )
 ROM_END
 
-GAME( 1994, targeth,  0,       targeth, targeth, driver_device, 0, ROT0, "Gaelco", "Target Hits (ver 1.1)", GAME_UNEMULATED_PROTECTION )
-GAME( 1994, targetha, targeth, targeth, targeth, driver_device, 0, ROT0, "Gaelco", "Target Hits (ver 1.0)", GAME_UNEMULATED_PROTECTION )
+GAME( 1994, targeth,  0,       targeth, targeth, driver_device, 0, ROT0, "Gaelco", "Target Hits (ver 1.1)", MACHINE_UNEMULATED_PROTECTION )
+GAME( 1994, targetha, targeth, targeth, targeth, driver_device, 0, ROT0, "Gaelco", "Target Hits (ver 1.0)", MACHINE_UNEMULATED_PROTECTION )

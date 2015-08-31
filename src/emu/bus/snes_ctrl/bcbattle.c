@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /**********************************************************************
 
     Nintendo Super Famicom - Epoch Barcode Battler
@@ -5,9 +7,6 @@
     TODO: this should be actually emulated as a standalone system with
     a few 7segments LEDs, once we get a dump of its BIOS
     At the moment we only emulated the connection with a Super Famicom
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 **********************************************************************/
 
@@ -35,7 +34,7 @@ machine_config_constructor snes_bcbattle_device::device_mconfig_additions() cons
 //-------------------------------------------------
 
 // This part is the hacky replacement for the real Barcode unit [shared with NES implementation]:
-// code periodically checks whether a new code has been scanned and it moves it to the 
+// code periodically checks whether a new code has been scanned and it moves it to the
 // m_current_barcode array
 void snes_bcbattle_device::device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr)
 {
@@ -140,7 +139,7 @@ int snes_bcbattle_device::read_current_bit()
 			m_cur_bit++;
 			return bit;
 		}
-		if (m_cur_bit == 4)	// only the low nibble is transmitted (this is the main action of the BBII interface for SNES)
+		if (m_cur_bit == 4) // only the low nibble is transmitted (this is the main action of the BBII interface for SNES)
 		{
 			m_cur_bit = 0;
 			//printf("%X ", m_current_barcode[m_cur_byte]);
@@ -175,26 +174,26 @@ void snes_bcbattle_device::port_poll()
 UINT8 snes_bcbattle_device::read_pin4()
 {
 	UINT8 ret = 0;
-	
+
 	if (m_idx >= 80)
 		ret |= 0x00;
-	else if (m_idx >= 28)	// scan actual barcode
+	else if (m_idx >= 28)   // scan actual barcode
 	{
-		ret |= read_current_bit();	// if no code is pending transmission, the function returns 0
+		ret |= read_current_bit();  // if no code is pending transmission, the function returns 0
 		m_idx++;
 	}
-	else if (m_idx >= 25)	// unknown flags?
+	else if (m_idx >= 25)   // unknown flags?
 		m_idx++;
-	else if (m_idx == 24)	// barcode present
+	else if (m_idx == 24)   // barcode present
 	{
 		ret |= m_pending_code;
 		m_idx++;
 	}
-	else if (m_idx >= 12)	// controller ID
+	else if (m_idx >= 12)   // controller ID
 		ret |= BIT(0x7000, m_idx++);
-	else	// first 12 bytes are unknown and probably always 0
+	else    // first 12 bytes are unknown and probably always 0
 		m_idx++;
-	
+
 	return ret;
 }
 
@@ -207,7 +206,7 @@ void snes_bcbattle_device::write_strobe(UINT8 data)
 {
 	int old = m_strobe;
 	m_strobe = data & 0x01;
-	
-	if (m_strobe < old)	// 1 -> 0 transition
+
+	if (m_strobe < old) // 1 -> 0 transition
 		port_poll();
 }

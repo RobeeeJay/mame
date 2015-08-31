@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /***************************************************************************
 
                             -= American Speedway =-
@@ -15,11 +17,6 @@
 #include "emu.h"
 #include "includes/amspdwy.h"
 
-
-WRITE8_MEMBER(amspdwy_state::amspdwy_paletteram_w)
-{
-	m_palette->write(space, offset, UINT8(~data));
-}
 
 WRITE8_MEMBER(amspdwy_state::amspdwy_flipscreen_w)
 {

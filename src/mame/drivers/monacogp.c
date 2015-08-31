@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Charles MacDonald, David Haywood
 /***************************************************************************
 
  Sega Monaco GP
@@ -109,7 +111,6 @@
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied by Pong, not accurate for this driver!
 // start
@@ -264,5 +265,5 @@ ROM_END
 
 
 
-GAME( 1980, monacogp,  0,         monacogp, 0, driver_device,  0, ROT0, "Sega", "Monaco GP (Set 1) [TTL]", GAME_IS_SKELETON )
-GAME( 1980, monacogpa, monacogp,  monacogp, 0, driver_device,  0, ROT0, "Sega", "Monaco GP (Set 2) [TTL]", GAME_IS_SKELETON )
+GAME( 1980, monacogp,  0,         monacogp, 0, driver_device,  0, ROT0, "Sega", "Monaco GP (Set 1) [TTL]", MACHINE_IS_SKELETON )
+GAME( 1980, monacogpa, monacogp,  monacogp, 0, driver_device,  0, ROT0, "Sega", "Monaco GP (Set 2) [TTL]", MACHINE_IS_SKELETON )

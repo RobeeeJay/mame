@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert, R. Belmont
 //============================================================
 //
 //  sdlfile.c - SDL file access functions
-//
-//  Copyright (c) 1996-2014, Nicola Salmoria and the MAME Team.
-//  Visit http://mamedev.org for licensing and usage restrictions.
 //
 //  SDLMAME by Olivier Galibert and R. Belmont
 //
@@ -369,11 +368,14 @@ file_error osd_truncate(osd_file *file, UINT64 offset)
 {
 	UINT32 result;
 
+	if (!file || !file->handle)
+		return FILERR_FAILURE;
+
 	switch (file->type)
 	{
 		case SDLFILE_FILE:
 			result = ftruncate(file->handle, offset);
-			if (!result)
+			if (result)
 				return error_to_file_error(errno);
 			return FILERR_NONE;
 
@@ -471,7 +473,7 @@ int osd_get_physical_drive_geometry(const char *filename, UINT32 *cylinders, UIN
 
 static int osd_is_path_separator(char c)
 {
-	return (c == '/') || (c == '\\');
+	return (c == PATHSEPCH) || (c == INVPATHSEPCH);
 }
 
 //============================================================
@@ -507,13 +509,13 @@ osd_directory_entry *osd_stat(const char *path)
 {
 	int err;
 	osd_directory_entry *result = NULL;
-	#if defined(SDLMAME_NO64BITIO) || defined(SDLMAME_BSD) || defined(SDLMAME_DARWIN)
+	#if defined(SDLMAME_NO64BITIO) || defined(SDLMAME_BSD) || defined(SDLMAME_DARWIN) || defined(SDLMAME_OS2)
 	struct stat st;
 	#else
 	struct stat64 st;
 	#endif
 
-	#if defined(SDLMAME_NO64BITIO) || defined(SDLMAME_BSD) || defined(SDLMAME_DARWIN)
+	#if defined(SDLMAME_NO64BITIO) || defined(SDLMAME_BSD) || defined(SDLMAME_DARWIN) || defined(SDLMAME_OS2)
 	err = stat(path, &st);
 	#else
 	err = stat64(path, &st);

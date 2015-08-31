@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller, Manuel Abadia
 /**********************************************
     Philips SAA1099 Sound driver
 **********************************************/
@@ -80,11 +82,11 @@ protected:
 	virtual void sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples);
 
 public:
-	DECLARE_WRITE8_MEMBER( saa1099_control_w );
-	DECLARE_WRITE8_MEMBER( saa1099_data_w );
+	DECLARE_WRITE8_MEMBER( control_w );
+	DECLARE_WRITE8_MEMBER( data_w );
 
 private:
-	void saa1099_envelope(int ch);
+	void envelope_w(int ch);
 
 private:
 	sound_stream *m_stream;          /* our stream */
@@ -101,6 +103,7 @@ private:
 	saa1099_channel m_channels[6];    /* channels */
 	saa1099_noise m_noise[2];         /* noise generators */
 	double m_sample_rate;
+	int m_master_clock;
 };
 
 extern const device_type SAA1099;

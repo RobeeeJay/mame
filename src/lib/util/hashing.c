@@ -79,12 +79,12 @@ bool sha1_t::from_string(const char *string, int length)
 //  as_string - convert to a string
 //-------------------------------------------------
 
-const char *sha1_t::as_string(astring &buffer) const
+const char *sha1_t::as_string(std::string &buffer) const
 {
-	buffer.reset();
+	buffer.clear();
 	for (int i = 0; i < ARRAY_LENGTH(m_raw); i++)
-		buffer.catformat("%02x", m_raw[i]);
-	return buffer;
+		strcatprintf(buffer, "%02x", m_raw[i]);
+	return buffer.c_str();
 }
 
 
@@ -122,12 +122,12 @@ bool md5_t::from_string(const char *string, int length)
 //  as_string - convert to a string
 //-------------------------------------------------
 
-const char *md5_t::as_string(astring &buffer) const
+const char *md5_t::as_string(std::string &buffer) const
 {
-	buffer.reset();
+	buffer.clear();
 	for (int i = 0; i < ARRAY_LENGTH(m_raw); i++)
-		buffer.catformat("%02x", m_raw[i]);
-	return buffer;
+		strcatprintf(buffer, "%02x", m_raw[i]);
+	return buffer.c_str();
 }
 
 
@@ -166,9 +166,10 @@ bool crc32_t::from_string(const char *string, int length)
 //  as_string - convert to a string
 //-------------------------------------------------
 
-const char *crc32_t::as_string(astring &buffer) const
+const char *crc32_t::as_string(std::string &buffer) const
 {
-	return buffer.format("%08x", m_raw);
+	strprintf(buffer, "%08x", m_raw);
+	return buffer.c_str();
 }
 
 
@@ -213,21 +214,34 @@ bool crc16_t::from_string(const char *string, int length)
 	return true;
 }
 
+/**
+ * @fn  const char *crc16_t::as_string(std::string &buffer) const
+ *
+ * @brief   -------------------------------------------------
+ *            as_string - convert to a string
+ *          -------------------------------------------------.
+ *
+ * @param [in,out]  buffer  The buffer.
+ *
+ * @return  null if it fails, else a char*.
+ */
 
-//-------------------------------------------------
-//  as_string - convert to a string
-//-------------------------------------------------
-
-const char *crc16_t::as_string(astring &buffer) const
+const char *crc16_t::as_string(std::string &buffer) const
 {
-	return buffer.format("%04x", m_raw);
+	strprintf(buffer, "%04x", m_raw);
+	return buffer.c_str();
 }
 
-
-//-------------------------------------------------
-//  append - hash a block of data, appending to
-//  the currently-accumulated value
-//-------------------------------------------------
+/**
+ * @fn  void crc16_creator::append(const void *data, UINT32 length)
+ *
+ * @brief   -------------------------------------------------
+ *            append - hash a block of data, appending to the currently-accumulated value
+ *          -------------------------------------------------.
+ *
+ * @param   data    The data.
+ * @param   length  The length.
+ */
 
 void crc16_creator::append(const void *data, UINT32 length)
 {

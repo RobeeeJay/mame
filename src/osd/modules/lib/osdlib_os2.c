@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert, R. Belmont
 //============================================================
 //
 //  sdlos_*.c - OS specific low level code
-//
-//  Copyright (c) 1996-2010, Nicola Salmoria and the MAME Team.
-//  Visit http://mamedev.org for licensing and usage restrictions.
 //
 //  SDLMAME by Olivier Galibert and R. Belmont
 //
@@ -49,7 +48,10 @@ int osd_setenv(const char *name, const char *value, int overwrite)
 
 void osd_process_kill(void)
 {
-	fprintf(stderr,"osd_process_kill missing in OS/2 build\n");
+	PPIB ppib;
+
+	DosGetInfoBlocks(NULL, &ppib);
+	DosKillProcess(DKP_PROCESSTREE, ppib->pib_ulpid);
 }
 
 //============================================================

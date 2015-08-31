@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mariusz Wojcieszek, James Wallace
 /***************************************************************************
 
     Nova 'LaserMax'/Atari Games Cops
@@ -889,6 +891,12 @@ ROM_START( cops )
 
 	ROM_REGION( 0x8000, "system", 0 )
 	ROM_LOAD( "cops_sys.dat", 0x0000, 0x8000, CRC(0060e5d0) SHA1(b8c9f6fde6a315e33fa7946e5d3bb4ea2fbe76a8) )
+
+	DISK_REGION( "audiocd" )
+		DISK_IMAGE_READONLY( "copscd", 0, NO_DUMP )
+
+	DISK_REGION( "laserdisc" )
+		DISK_IMAGE_READONLY( "cops", 0, NO_DUMP )
 ROM_END
 
 ROM_START( copsuk )
@@ -897,6 +905,12 @@ ROM_START( copsuk )
 
 	ROM_REGION( 0x8000, "system", 0 )
 	ROM_LOAD( "cops_sys.dat", 0x0000, 0x8000, CRC(0060e5d0) SHA1(b8c9f6fde6a315e33fa7946e5d3bb4ea2fbe76a8) )
+
+	DISK_REGION( "audiocd" )
+		DISK_IMAGE_READONLY( "copscd", 0, NO_DUMP )
+
+	DISK_REGION( "laserdisc" )
+		DISK_IMAGE_READONLY( "cops", 0, NO_DUMP )
 ROM_END
 
 ROM_START( revlatns )
@@ -905,9 +919,12 @@ ROM_START( revlatns )
 
 	ROM_REGION( 0x8000, "system", 0 )
 	ROM_LOAD( "revelations_sys.bin", 0x0000, 0x8000, CRC(43e5e3ec) SHA1(fa44b102b5aa7ad2421c575abdc67f1c29f23bc1) )
+
+	DISK_REGION( "laserdisc" )
+		DISK_IMAGE_READONLY( "revlatns", 0, NO_DUMP )
 ROM_END
 
 
-GAMEL( 1994, cops,      0,   cops,  cops,      cops_state, cops,       ROT0, "Atari Games",                     "Cops (USA)",   GAME_NOT_WORKING | GAME_NO_SOUND, layout_cops )
-GAMEL( 1994, copsuk,    cops,cops,  cops,      cops_state, cops,       ROT0, "Nova Productions / Deith Leisure","Cops (UK)",    GAME_NOT_WORKING | GAME_NO_SOUND, layout_cops )
-GAMEL( 1994, revlatns,  0,   cops,  revlatns,  cops_state, cops,       ROT0, "Nova Productions",                "Revelations",  GAME_NOT_WORKING | GAME_NO_SOUND, layout_cops )
+GAMEL( 1994, cops,      0,   cops,  cops,      cops_state, cops,       ROT0, "Atari Games",                     "Cops (USA)",   MACHINE_NOT_WORKING | MACHINE_NO_SOUND, layout_cops )
+GAMEL( 1994, copsuk,    cops,cops,  cops,      cops_state, cops,       ROT0, "Nova Productions / Deith Leisure","Cops (UK)",    MACHINE_NOT_WORKING | MACHINE_NO_SOUND, layout_cops )
+GAMEL( 1994, revlatns,  0,   cops,  revlatns,  cops_state, cops,       ROT0, "Nova Productions",                "Revelations",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND, layout_cops )

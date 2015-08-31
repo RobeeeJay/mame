@@ -1,3 +1,5 @@
+// license:???
+// copyright-holders:Sean Young,Tomas Karlsson
 /*
 ** svi318.c : driver for Spectravideo SVI-318 and SVI-328
 **
@@ -243,12 +245,13 @@ WRITE_LINE_MEMBER(svi318_state::vdp_interrupt)
 	m_maincpu->set_input_line(0, (state ? HOLD_LINE : CLEAR_LINE));
 }
 
-static const floppy_interface svi318_floppy_interface =
-{
-	FLOPPY_STANDARD_5_25_DSHD,
-	LEGACY_FLOPPY_OPTIONS_NAME(svi318),
-	"floppy_5_25"
-};
+FLOPPY_FORMATS_MEMBER( svi318_state::floppy_formats )
+	FLOPPY_SVI_FORMAT
+FLOPPY_FORMATS_END
+
+static SLOT_INTERFACE_START( svi_floppies )
+	SLOT_INTERFACE("dd", FLOPPY_525_DD)
+SLOT_INTERFACE_END
 
 static MACHINE_CONFIG_FRAGMENT( svi318_cartslot )
 	MCFG_GENERIC_CARTSLOT_ADD("cartslot", generic_plain_slot, "svi318_cart")
@@ -305,16 +308,16 @@ static MACHINE_CONFIG_START( svi318, svi318_state )
 	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_PLAY)
 	MCFG_CASSETTE_INTERFACE("svi318_cass")
 
-	MCFG_DEVICE_ADD("wd179x", FD1793, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(svi318_state, fdc_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(svi318_state, fdc_drq_w))
+	MCFG_SOFTWARE_LIST_ADD("cass_list", "svi318_cass")
 
-	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(svi318_floppy_interface)
+	MCFG_FD1793_ADD("wd179x", XTAL_1MHz)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(svi318_state, fdc_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(svi318_state, fdc_drq_w))
 
-	/* Software lists */
-	MCFG_SOFTWARE_LIST_ADD("cass_list", "svi318_flop")
-	MCFG_SOFTWARE_LIST_ADD("disk_list", "svi318_cass")
+	MCFG_FLOPPY_DRIVE_ADD("wd179x:0", svi_floppies, "dd", svi318_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("wd179x:1", svi_floppies, "dd", svi318_state::floppy_formats)
+
+	MCFG_SOFTWARE_LIST_ADD("disk_list", "svi318_flop")
 
 	MCFG_FRAGMENT_ADD(svi318_cartslot)
 
@@ -434,16 +437,16 @@ static MACHINE_CONFIG_START( svi328_806, svi318_state )
 	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_PLAY)
 	MCFG_CASSETTE_INTERFACE("svi318_cass")
 
-	MCFG_DEVICE_ADD("wd179x", FD1793, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(svi318_state, fdc_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(svi318_state, fdc_drq_w))
+	MCFG_SOFTWARE_LIST_ADD("cass_list", "svi318_cass")
 
-	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(svi318_floppy_interface)
+	MCFG_FD1793_ADD("wd179x", XTAL_1MHz)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(svi318_state, fdc_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(svi318_state, fdc_drq_w))
 
-	/* Software lists */
-	MCFG_SOFTWARE_LIST_ADD("cass_list", "svi318_flop")
-	MCFG_SOFTWARE_LIST_ADD("disk_list", "svi318_cass")
+	MCFG_FLOPPY_DRIVE_ADD("wd179x:0", svi_floppies, "dd", svi318_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("wd179x:1", svi_floppies, "dd", svi318_state::floppy_formats)
+
+	MCFG_SOFTWARE_LIST_ADD("disk_list", "svi318_flop")
 
 	MCFG_FRAGMENT_ADD(svi318_cartslot)
 
@@ -529,9 +532,9 @@ ROM_END
 
 
 /*    YEAR  NAME        PARENT  COMPAT  MACHINE        INPUT   INIT                       COMPANY         FULLNAME                    FLAGS */
-COMP( 1983, svi318,     0,      0,      svi318,        svi318, svi318_state, svi318,      "Spectravideo", "SVI-318 (PAL)",   GAME_SUPPORTS_SAVE )
-COMP( 1983, svi318n,    svi318, 0,      svi318n,       svi318, svi318_state, svi318,      "Spectravideo", "SVI-318 (NTSC)",  GAME_SUPPORTS_SAVE )
-COMP( 1983, svi328,     svi318, 0,      svi328,        svi328, svi318_state, svi318,      "Spectravideo", "SVI-328 (PAL)",   GAME_SUPPORTS_SAVE )
-COMP( 1983, svi328n,    svi318, 0,      svi328n,       svi328, svi318_state, svi318,      "Spectravideo", "SVI-328 (NTSC)",  GAME_SUPPORTS_SAVE )
-COMP( 1983, sv328p80,   svi318, 0,      svi328_806,    svi328, svi318_state, svi328_806,  "Spectravideo", "SVI-328 (PAL) + SVI-806 80 column card",  GAME_SUPPORTS_SAVE )
-COMP( 1983, sv328n80,   svi318, 0,      svi328n_806,   svi328, svi318_state, svi328_806,  "Spectravideo", "SVI-328 (NTSC) + SVI-806 80 column card", GAME_SUPPORTS_SAVE )
+COMP( 1983, svi318,     0,      0,      svi318,        svi318, svi318_state, svi318,      "Spectravideo", "SVI-318 (PAL)",   MACHINE_SUPPORTS_SAVE )
+COMP( 1983, svi318n,    svi318, 0,      svi318n,       svi318, svi318_state, svi318,      "Spectravideo", "SVI-318 (NTSC)",  MACHINE_SUPPORTS_SAVE )
+COMP( 1983, svi328,     svi318, 0,      svi328,        svi328, svi318_state, svi318,      "Spectravideo", "SVI-328 (PAL)",   MACHINE_SUPPORTS_SAVE )
+COMP( 1983, svi328n,    svi318, 0,      svi328n,       svi328, svi318_state, svi318,      "Spectravideo", "SVI-328 (NTSC)",  MACHINE_SUPPORTS_SAVE )
+COMP( 1983, sv328p80,   svi318, 0,      svi328_806,    svi328, svi318_state, svi328_806,  "Spectravideo", "SVI-328 (PAL) + SVI-806 80 column card",  MACHINE_SUPPORTS_SAVE )
+COMP( 1983, sv328n80,   svi318, 0,      svi328n_806,   svi328, svi318_state, svi328_806,  "Spectravideo", "SVI-328 (NTSC) + SVI-806 80 column card", MACHINE_SUPPORTS_SAVE )

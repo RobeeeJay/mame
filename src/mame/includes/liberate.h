@@ -1,9 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 class liberate_state : public driver_device
 {
 public:
 	liberate_state(const machine_config &mconfig, device_type type, const char *tag)
 		: driver_device(mconfig, type, tag),
-		m_paletteram(*this, "paletteram"),
 		m_bg_vram(*this, "bg_vram"),
 		m_colorram(*this, "colorram"),
 		m_videoram(*this, "videoram"),
@@ -12,16 +13,17 @@ public:
 		m_maincpu(*this, "maincpu"),
 		m_audiocpu(*this, "audiocpu"),
 		m_gfxdecode(*this, "gfxdecode"),
-		m_palette(*this, "palette") { }
+		m_palette(*this, "palette"),
+		m_decrypted_opcodes(*this, "decrypted_opcodes") { }
 
-	optional_shared_ptr<UINT8> m_paletteram;
 	optional_shared_ptr<UINT8> m_bg_vram; /* prosport */
 	required_shared_ptr<UINT8> m_colorram;
 	required_shared_ptr<UINT8> m_videoram;
 	required_shared_ptr<UINT8> m_spriteram;
 	optional_shared_ptr<UINT8> m_scratchram;
-	UINT8 *m_charram;   /* prosoccr */
 
+	UINT8 *m_fg_gfx;   /* prosoccr */
+	UINT8 *m_charram;   /* prosoccr */
 	UINT8 m_io_ram[16];
 
 	int m_bank;
@@ -37,6 +39,7 @@ public:
 	required_device<cpu_device> m_audiocpu;
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
+	optional_shared_ptr<UINT8> m_decrypted_opcodes;
 
 	DECLARE_READ8_MEMBER(deco16_bank_r);
 	DECLARE_READ8_MEMBER(deco16_io_r);
@@ -54,7 +57,6 @@ public:
 	DECLARE_WRITE8_MEMBER(liberate_videoram_w);
 	DECLARE_WRITE8_MEMBER(liberate_colorram_w);
 	DECLARE_WRITE8_MEMBER(prosport_bg_vram_w);
-	DECLARE_WRITE8_MEMBER(prosport_paletteram_w);
 	DECLARE_DRIVER_INIT(yellowcb);
 	DECLARE_DRIVER_INIT(liberate);
 	DECLARE_DRIVER_INIT(prosport);

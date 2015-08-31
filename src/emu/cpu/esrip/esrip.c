@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /***************************************************************************
 
     esrip.c
@@ -191,7 +193,7 @@ void esrip_device::device_start()
 	m_direct = &m_program->direct();
 
 	// register our state for the debugger
-	astring tempstr;
+	std::string tempstr;
 	state_add(STATE_GENPC,     "GENPC",     m_rip_pc).noshow();
 	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_status).callimport().callexport().formatstr("%8s").noshow();
 	state_add(ESRIP_PC,        "PC:",       m_rip_pc).mask(0xffff);
@@ -349,12 +351,12 @@ const address_space_config *esrip_device::memory_space_config(address_spacenum s
 //  for the debugger
 //-------------------------------------------------
 
-void esrip_device::state_string_export(const device_state_entry &entry, astring &string)
+void esrip_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c%c%c%c%c",
+			strprintf(str, "%c%c%c%c%c%c%c%c%c",
 				(m_status & 0x80) ? '3' : '.',
 				(m_status & 0x40) ? '2' : '.',
 				(m_status & 0x20) ? '1' : '.',
@@ -512,7 +514,7 @@ enum
 	ACC,
 	Y_BUS,
 	STATUS,
-	RAM,
+	RAM
 };
 
 /*************************************
@@ -650,7 +652,7 @@ enum
 	SOI  = 0x7,
 	SOZ  = 0x8,
 	SOZE = 0x9,
-	SOSE = 0xa,
+	SOSE = 0xa
 };
 
 enum
@@ -658,7 +660,7 @@ enum
 	NRY  = 0,
 	NRA  = 1,
 	NRS  = 4,
-	NRAS = 5,
+	NRAS = 5
 };
 
 void esrip_device::sonr(UINT16 inst)
@@ -840,7 +842,7 @@ void esrip_device::tor1(UINT16 inst)
 		TODRY = 0xb,
 		TORAR = 0xc,
 		TORIR = 0xe,
-		TODRR = 0xf,
+		TODRR = 0xf
 	};
 
 	switch (SRC)
@@ -930,7 +932,7 @@ void esrip_device::tor2(UINT16 inst)
 	{
 		TODAR = 0x1,
 		TOAIR = 0x2,
-		TODIR = 0x5,
+		TODIR = 0x5
 	};
 
 	switch (SRC)
@@ -1070,7 +1072,7 @@ void esrip_device::bonr(UINT16 inst)
 		A2NDY  = 0x14,
 		S2NDY  = 0x15,
 		LD2NY  = 0x16,
-		LDC2NY = 0x17,
+		LDC2NY = 0x17
 	};
 
 	UINT16  res = 0;
@@ -1187,7 +1189,7 @@ void esrip_device::bor1(UINT16 inst)
 	{
 		SETNR  = 0xd,
 		RSTNR  = 0xe,
-		TSTNR  = 0xf,
+		TSTNR  = 0xf
 	};
 
 	UINT16  res = 0;
@@ -1232,7 +1234,7 @@ void esrip_device::bor2(UINT16 inst)
 		LD2NR  = 0xc,
 		LDC2NR = 0xd,
 		A2NR   = 0xe,
-		S2NR   = 0xf,
+		S2NR   = 0xf
 	};
 
 	UINT32 res = 0;
@@ -1298,7 +1300,7 @@ void esrip_device::rotr1(UINT16 inst)
 	{
 		RTRA = 0xc,
 		RTRY = 0xd,
-		RTRR = 0xf,
+		RTRR = 0xf
 	};
 
 	UINT16  u = 0;
@@ -1333,7 +1335,7 @@ void esrip_device::rotr2(UINT16 inst)
 	enum
 	{
 		RTAR = 0,
-		RTDR = 1,
+		RTDR = 1
 	};
 
 	UINT16  u = 0;
@@ -1362,7 +1364,7 @@ void esrip_device::rotnr(UINT16 inst)
 		RTDY = 0x18,
 		RTDA = 0x19,
 		RTAY = 0x1c,
-		RTAA = 0x1d,
+		RTAA = 0x1d
 	};
 
 	UINT16  u = 0;
@@ -1464,7 +1466,7 @@ enum
 	SHDN1  = 5,
 	SHDNL  = 6,
 	SHDNC  = 7,
-	SHDNOV = 8,
+	SHDNOV = 8
 };
 
 #define SET_LINK_flag(x)    (m_new_status &= ~L_FLAG); \
@@ -1520,7 +1522,7 @@ void esrip_device::shftr(UINT16 inst)
 	enum
 	{
 		SHRR = 6,
-		SHDR = 7,
+		SHDR = 7
 	};
 
 	UINT16  u = 0;
@@ -1545,7 +1547,7 @@ void esrip_device::shftnr(UINT16 inst)
 	enum
 	{
 		SHA = 6,
-		SHD = 7,
+		SHD = 7
 	};
 
 	UINT16  u = 0;
@@ -1589,7 +1591,7 @@ void esrip_device::rstst(UINT16 inst)
 		RL    = 0x5,
 		RF1   = 0x6,
 		RF2   = 0x9,
-		RF3   = 0xa,
+		RF3   = 0xa
 	};
 
 	switch (inst & 0x1f)
@@ -1612,7 +1614,7 @@ void esrip_device::setst(UINT16 inst)
 		SL    = 0x5,
 		SF1   = 0x6,
 		SF2   = 0x9,
-		SF3   = 0xa,
+		SF3   = 0xa
 	};
 
 	switch (inst & 0x1f)
@@ -1899,7 +1901,7 @@ void esrip_device::execute_run()
 		m_pl7 = m_l7;
 
 		/* Latch instruction */
-		inst = m_direct->read_decrypted_qword(RIP_PC << 3);
+		inst = m_direct->read_qword(RIP_PC << 3);
 
 		in_h = inst >> 32;
 		in_l = inst & 0xffffffff;

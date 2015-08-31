@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Barry Rodewald
 /*
 
     Fujitsu FM-Towns
@@ -2033,9 +2035,9 @@ WRITE8_MEMBER(towns_state::towns_volume_w)
 	case 2:
 		m_towns_volume[m_towns_volume_select] = data;
 		if(m_towns_volume_select == 4)
-			m_cdda->set_channel_volume(0,100.0 * (data / 64.0f));
+			m_cdda->set_channel_volume(0,100.0f * (data / 64.0f));
 		if(m_towns_volume_select == 5)
-			m_cdda->set_channel_volume(1,100.0 * (data / 64.0f));
+			m_cdda->set_channel_volume(1,100.0f * (data / 64.0f));
 		break;
 	case 3:  // select channel
 		if(data < 8)
@@ -2723,7 +2725,7 @@ static MACHINE_CONFIG_FRAGMENT( towns_base )
 
 	MCFG_PIC8259_ADD( "pic8259_slave", DEVWRITELINE("pic8259_master", pic8259_device, ir7_w), GND, NULL)
 
-	MCFG_MB8877x_ADD("fdc",XTAL_8MHz/4)  // clock unknown
+	MCFG_MB8877_ADD("fdc",XTAL_8MHz/4)  // clock unknown
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(towns_state,mb8877a_irq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(towns_state,mb8877a_drq_w))
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", towns_floppies, "35hd", towns_state::floppy_formats)
@@ -2968,13 +2970,13 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT      MACHINE     INPUT    INIT    COMPANY      FULLNAME            FLAGS */
-COMP( 1989, fmtowns,  0,        0,      towns,      towns, driver_device,    0,  "Fujitsu",   "FM-Towns",        GAME_NOT_WORKING)
-COMP( 1989, fmtownsa, fmtowns,  0,      towns,      towns, driver_device,    0,  "Fujitsu",   "FM-Towns (alternate)", GAME_NOT_WORKING)
-COMP( 1991, fmtownsux,fmtowns,  0,      townsux,    towns, driver_device,    0,  "Fujitsu",   "FM-Towns II UX", GAME_NOT_WORKING)
-COMP( 1992, fmtownshr,fmtowns,  0,      townshr,    towns, driver_device,    0,  "Fujitsu",   "FM-Towns II HR", GAME_NOT_WORKING)
-COMP( 1993, fmtownsmx,fmtowns,  0,      townshr,    towns, driver_device,    0,  "Fujitsu",   "FM-Towns II MX", GAME_NOT_WORKING)
-COMP( 1994, fmtownsftv,fmtowns, 0,      townsftv,   towns, driver_device,    0,  "Fujitsu",   "FM-Towns II FreshTV", GAME_NOT_WORKING)
-COMP( 19??, fmtownssj,fmtowns,  0,      townssj,    towns, driver_device,    0,  "Fujitsu",   "FM-Towns II SJ", GAME_NOT_WORKING)
-CONS( 1993, fmtmarty, 0,        0,      marty,      marty, driver_device,    0,  "Fujitsu",   "FM-Towns Marty",  GAME_NOT_WORKING)
-CONS( 1993, fmtmarty2,fmtmarty, 0,      marty,      marty, driver_device,    0,  "Fujitsu",   "FM-Towns Marty 2",  GAME_NOT_WORKING)
-CONS( 1994, carmarty, fmtmarty, 0,      marty,      marty, driver_device,    0,  "Fujitsu",   "FM-Towns Car Marty",  GAME_NOT_WORKING)
+COMP( 1989, fmtowns,  0,        0,      towns,      towns, driver_device,    0,  "Fujitsu",   "FM-Towns",        MACHINE_NOT_WORKING)
+COMP( 1989, fmtownsa, fmtowns,  0,      towns,      towns, driver_device,    0,  "Fujitsu",   "FM-Towns (alternate)", MACHINE_NOT_WORKING)
+COMP( 1991, fmtownsux,fmtowns,  0,      townsux,    towns, driver_device,    0,  "Fujitsu",   "FM-Towns II UX", MACHINE_NOT_WORKING)
+COMP( 1992, fmtownshr,fmtowns,  0,      townshr,    towns, driver_device,    0,  "Fujitsu",   "FM-Towns II HR", MACHINE_NOT_WORKING)
+COMP( 1993, fmtownsmx,fmtowns,  0,      townshr,    towns, driver_device,    0,  "Fujitsu",   "FM-Towns II MX", MACHINE_NOT_WORKING)
+COMP( 1994, fmtownsftv,fmtowns, 0,      townsftv,   towns, driver_device,    0,  "Fujitsu",   "FM-Towns II FreshTV", MACHINE_NOT_WORKING)
+COMP( 19??, fmtownssj,fmtowns,  0,      townssj,    towns, driver_device,    0,  "Fujitsu",   "FM-Towns II SJ", MACHINE_NOT_WORKING)
+CONS( 1993, fmtmarty, 0,        0,      marty,      marty, driver_device,    0,  "Fujitsu",   "FM-Towns Marty",  MACHINE_NOT_WORKING)
+CONS( 1993, fmtmarty2,fmtmarty, 0,      marty,      marty, driver_device,    0,  "Fujitsu",   "FM-Towns Marty 2",  MACHINE_NOT_WORKING)
+CONS( 1994, carmarty, fmtmarty, 0,      marty,      marty, driver_device,    0,  "Fujitsu",   "FM-Towns Car Marty",  MACHINE_NOT_WORKING)

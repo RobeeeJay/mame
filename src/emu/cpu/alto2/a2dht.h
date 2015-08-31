@@ -1,10 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 /*****************************************************************************
  *
  *   Xerox AltoII display horizontal task (DHT)
- *
- *   Copyright Juergen Buchmueller <pullmoll@t-online.de>
- *
- *   Licenses: MAME, GPLv2
  *
  *****************************************************************************/
 #ifdef  ALTO2_DEFINE_CONSTANTS
@@ -16,7 +14,7 @@
 //! F2 functions for display horizontal task
 enum {
 	f2_dht_evenfield    = f2_task_10,           //!< f2 10: load even field
-	f2_dht_setmode      = f2_task_11,           //!< f2 11: set mode
+	f2_dht_setmode      = f2_task_11            //!< f2 11: set mode
 };
 
 void f1_early_dht_block();                      //!< F1 func: disable the display word task

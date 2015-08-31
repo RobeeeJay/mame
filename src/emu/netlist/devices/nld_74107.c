@@ -1,9 +1,13 @@
+// license:GPL-2.0+
+// copyright-holders:Couriersud
 /*
  * nld_74107.c
  *
  */
 
 #include "nld_74107.h"
+
+NETLIB_NAMESPACE_DEVICES_START()
 
 NETLIB_START(74107Asub)
 {
@@ -18,7 +22,7 @@ NETLIB_START(74107Asub)
 
 NETLIB_RESET(74107Asub)
 {
-	m_clk.set_state(netlist_input_t::STATE_INP_HL);
+	m_clk.set_state(logic_t::STATE_INP_HL);
 	m_Q.initial(0);
 	m_QQ.initial(1);
 
@@ -29,7 +33,7 @@ NETLIB_RESET(74107Asub)
 
 NETLIB_START(74107A)
 {
-	register_sub(sub, "sub");
+	register_sub("sub", sub);
 
 	register_subalias("CLK", sub.m_clk);
 	register_input("J", m_J);
@@ -103,8 +107,8 @@ NETLIB_UPDATE(74107A)
 
 NETLIB_START(74107_dip)
 {
-	register_sub(m_1, "1");
-	register_sub(m_2, "2");
+	register_sub("1", m_1);
+	register_sub("2", m_2);
 
 	register_subalias("1", m_1.m_J);
 	register_subalias("2", m_1.sub.m_QQ);
@@ -139,3 +143,5 @@ NETLIB_UPDATE(74107_dip)
 	m_1.update_dev();
 	m_2.update_dev();
 }
+
+NETLIB_NAMESPACE_DEVICES_END()

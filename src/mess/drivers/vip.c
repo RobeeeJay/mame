@@ -553,7 +553,7 @@ static const discrete_555_desc vip_ca555_a =
 
 static DISCRETE_SOUND_START( vip )
 	DISCRETE_INPUT_LOGIC(NODE_01)
-	DISCRETE_555_ASTABLE_CV(NODE_02, NODE_01, 470, RES_M(1), CAP_P(470), NODE_01, &vip_ca555_a)
+	DISCRETE_555_ASTABLE_CV(NODE_02, NODE_01, 470, (int) RES_M(1), (int) CAP_P(470), NODE_01, &vip_ca555_a)
 	DISCRETE_OUTPUT(NODE_02, 5000)
 DISCRETE_SOUND_END
 
@@ -806,5 +806,5 @@ ROM_END
 //**************************************************************************
 
 //    YEAR  NAME    PARENT  COMPAT  MACHINE INPUT   INIT    COMPANY                             FULLNAME    FLAGS
-COMP( 1977, vip,    0,      0,      vip,        vip, driver_device, 0,      "RCA",  "Cosmac VIP (VP-711)",  GAME_SUPPORTS_SAVE | GAME_IMPERFECT_COLORS )
-COMP( 1977, vp111,  vip,    0,      vp111,      vip, driver_device, 0,      "RCA",  "Cosmac VIP (VP-111)",  GAME_SUPPORTS_SAVE | GAME_IMPERFECT_COLORS )
+COMP( 1977, vip,    0,      0,      vip,        vip, driver_device, 0,      "RCA",  "Cosmac VIP (VP-711)",  MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_COLORS )
+COMP( 1977, vp111,  vip,    0,      vp111,      vip, driver_device, 0,      "RCA",  "Cosmac VIP (VP-111)",  MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_COLORS )

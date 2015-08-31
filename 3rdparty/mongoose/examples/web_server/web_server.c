@@ -40,7 +40,9 @@
 #define DIRSEP '\\'
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
+#ifndef sleep
 #define sleep(x) Sleep((x) * 1000)
+#endif
 #define abs_path(rel, abs, abs_size) _fullpath((abs), (rel), (abs_size))
 #define SIGCHLD 0
 typedef struct _stat file_stat_t;
@@ -96,11 +98,8 @@ static void __cdecl signal_handler(int sig_num) {
 }
 
 static void vnotify(const char *fmt, va_list ap, int must_exit) {
-  char msg[200];
-
-  vsnprintf(msg, sizeof(msg), fmt, ap);
-  fprintf(stderr, "%s\n", msg);
-
+  vfprintf(stderr, fmt, ap);
+  fputc('\n', stderr);
   if (must_exit) {
     exit(EXIT_FAILURE);
   }

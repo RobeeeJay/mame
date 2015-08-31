@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /*************************************************************************
 
     Blades of Steel
@@ -43,7 +45,6 @@ public:
 
 	/* video-related */
 	int        m_spritebank;
-	int        m_layer_colorbase[2];
 
 	/* misc */
 	int        m_last_track[4];

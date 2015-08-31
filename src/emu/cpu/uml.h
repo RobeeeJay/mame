@@ -239,7 +239,7 @@ namespace uml
 		code_handle *next() const { return m_next; }
 		drccodeptr codeptr() const { return *m_code; }
 		drccodeptr *codeptr_addr() { return m_code; }
-		const char *string() const { return m_string; }
+		const char *string() const { return m_string.c_str(); }
 
 		// setters
 		void set_codeptr(drccodeptr code);
@@ -247,7 +247,7 @@ namespace uml
 	private:
 		// internal state
 		drccodeptr *            m_code;             // pointer in the cache to the associated code
-		astring                 m_string;           // pointer to string attached to handle
+		std::string             m_string;           // pointer to string attached to handle
 		code_handle *           m_next;             // link to next handle in the list
 		drcuml_state &          m_drcuml;           // pointer to owning object
 	};
@@ -305,7 +305,7 @@ namespace uml
 		parameter(UINT64 val) : m_type(PTYPE_IMMEDIATE), m_value(val) { }
 		parameter(operand_size size, memory_scale scale) : m_type(PTYPE_SIZE_SCALE), m_value((scale << 4) | size) { assert(size >= SIZE_BYTE && size <= SIZE_DQWORD); assert(scale >= SCALE_x1 && scale <= SCALE_x8); }
 		parameter(operand_size size, memory_space space) : m_type(PTYPE_SIZE_SPACE), m_value((space << 4) | size) { assert(size >= SIZE_BYTE && size <= SIZE_DQWORD); assert(space >= SPACE_PROGRAM && space <= SPACE_IO); }
-		parameter(code_handle &handle) : m_type(PTYPE_CODE_HANDLE), m_value(static_cast<parameter_value>(reinterpret_cast<FPTR>(&handle))) { }
+		parameter(code_handle &handle) : m_type(PTYPE_CODE_HANDLE), m_value(reinterpret_cast<parameter_value>(&handle)) { }
 		parameter(code_label &label) : m_type(PTYPE_CODE_LABEL), m_value(label) { }
 
 		// creators for types that don't safely default
@@ -313,11 +313,11 @@ namespace uml
 		static inline parameter make_freg(int regnum) { assert(regnum >= REG_F0 && regnum < REG_F_END); return parameter(PTYPE_FLOAT_REGISTER, regnum); }
 		static inline parameter make_vreg(int regnum) { assert(regnum >= REG_V0 && regnum < REG_V_END); return parameter(PTYPE_VECTOR_REGISTER, regnum); }
 		static inline parameter make_mapvar(int mvnum) { assert(mvnum >= MAPVAR_M0 && mvnum < MAPVAR_END); return parameter(PTYPE_MAPVAR, mvnum); }
-		static inline parameter make_memory(void *base) { return parameter(PTYPE_MEMORY, static_cast<parameter_value>(reinterpret_cast<FPTR>(base))); }
-		static inline parameter make_memory(const void *base) { return parameter(PTYPE_MEMORY, static_cast<parameter_value>(reinterpret_cast<FPTR>(const_cast<void *>(base)))); }
+		static inline parameter make_memory(void *base) { return parameter(PTYPE_MEMORY, reinterpret_cast<parameter_value>(base)); }
+		static inline parameter make_memory(const void *base) { return parameter(PTYPE_MEMORY, reinterpret_cast<parameter_value>(const_cast<void *>(base))); }
 		static inline parameter make_size(operand_size size) { assert(size >= SIZE_BYTE && size <= SIZE_DQWORD); return parameter(PTYPE_SIZE, size); }
-		static inline parameter make_string(const char *string) { return parameter(PTYPE_STRING, static_cast<parameter_value>(reinterpret_cast<FPTR>(const_cast<char *>(string)))); }
-		static inline parameter make_cfunc(c_function func) { return parameter(PTYPE_C_FUNCTION, static_cast<parameter_value>(reinterpret_cast<FPTR>(func))); }
+		static inline parameter make_string(const char *string) { return parameter(PTYPE_STRING, reinterpret_cast<parameter_value>(const_cast<char *>(string))); }
+		static inline parameter make_cfunc(c_function func) { return parameter(PTYPE_C_FUNCTION, reinterpret_cast<parameter_value>(func)); }
 		static inline parameter make_rounding(float_rounding_mode mode) { assert(mode >= ROUND_TRUNC && mode <= ROUND_DEFAULT); return parameter(PTYPE_ROUNDING, mode); }
 
 		// operators
@@ -409,7 +409,7 @@ namespace uml
 		void set_mapvar(int paramnum, UINT32 value) { assert(paramnum < m_numparams); assert(m_param[paramnum].is_mapvar()); m_param[paramnum] = value; }
 
 		// misc
-		const char *disasm(astring &string, drcuml_state *drcuml = NULL) const;
+		const char *disasm(std::string &str, drcuml_state *drcuml = NULL) const;
 		UINT8 input_flags() const;
 		UINT8 output_flags() const;
 		UINT8 modified_flags() const;
@@ -655,7 +655,7 @@ namespace uml
 	const parameter M7(parameter::make_mapvar(MAPVAR_M0 + 7));
 	const parameter M8(parameter::make_mapvar(MAPVAR_M0 + 8));
 	const parameter M9(parameter::make_mapvar(MAPVAR_M0 + 9));
-};
+}
 
 
 #endif /* __UML_H__ */

@@ -1,15 +1,24 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 
 #include "emu.h"
 #include "mie.h"
 #include "maple-dc.h"
 
-// MIE aka sega 315-6146, MAPLE-JVS bridge Z80-based MCU
+// MIE aka Sega 315-6146, MAPLE-JVS bridge Z80-based MCU
 //
 // Todos:
-// - In reality, there are two rs422/rs486 ports, one at 10-15 and one
-//   at 20-25.  Perhaps they're a standard design?
+// - ports 00-0f is identical to Sega 315-5338A/315-5649 I/O ICs
+//   (used in Sega H1, Model 2, etc). devicefication needed.
 //
-// - There's also a different port at 0x09-0x0d, supposedly used for cards.
+// - ports 10-15 and 20-25 is standard 8250/16xxx UARTs.
+//
+// - ports a0-af - external I/O 1, in JVS I/Os connected to NEC uPD71053 counter/timer
+//
+// - ports c0-cf - external I/O 2, not used
+//   in JVS I/Os can be connected to (unpopulated) 315-5296 I/O IC, if enabled by DIP switch
+//
+// - both memory and I/O address spaces can be directly accessed by host system (used in Hikaru)
 //
 // - Speed is all wrong
 
@@ -33,7 +42,7 @@ static ADDRESS_MAP_START( mie_port, AS_IO, 8, mie_device)
 	AM_RANGE(0x00, 0x07) AM_READWRITE(gpio_r, gpio_w)
 	AM_RANGE(0x08, 0x08) AM_READWRITE(gpiodir_r, gpiodir_w)
 	AM_RANGE(0x0f, 0x0f) AM_READWRITE(adc_r, adc_w)
-	AM_RANGE(0x10, 0x10) AM_READWRITE(jvs_r, jvs_w)		// ports 1x and 2x is standard UARTs, TODO handle it properly
+	AM_RANGE(0x10, 0x10) AM_READWRITE(jvs_r, jvs_w)     // ports 1x and 2x is standard UARTs, TODO handle it properly
 	AM_RANGE(0x12, 0x12) AM_WRITE(jvs_dest_w)
 	AM_RANGE(0x13, 0x13) AM_WRITE(jvs_lcr_w)
 	AM_RANGE(0x15, 0x15) AM_READ(jvs_status_r)
@@ -98,6 +107,11 @@ void mie_device::device_start()
 	cpu = subdevice<z80_device>("mie");
 	timer = timer_alloc(0);
 	jvs = machine().device<mie_jvs_device>(jvs_name);
+
+	for (int i = 0; i < ARRAY_LENGTH(gpio_name); i++)
+	{
+		gpio_port[i] = gpio_name[i] ? ioport(gpio_name[i]) : NULL;
+	}
 
 	save_item(NAME(gpiodir));
 	save_item(NAME(gpio_val));
@@ -206,7 +220,7 @@ READ8_MEMBER(mie_device::read_78xx)
 READ8_MEMBER(mie_device::gpio_r)
 {
 	if(gpiodir & (1 << offset))
-		return gpio_name[offset] ? ioport(gpio_name[offset])->read() : 0xff;
+		return gpio_port[offset] ? gpio_port[offset]->read() : 0xff;
 	else
 		return gpio_val[offset];
 }
@@ -214,8 +228,8 @@ READ8_MEMBER(mie_device::gpio_r)
 WRITE8_MEMBER(mie_device::gpio_w)
 {
 	gpio_val[offset] = data;
-	if(!(gpiodir & (1 << offset)) && gpio_name[offset])
-		ioport(gpio_name[offset])->write(data, 0xff);
+	if(!(gpiodir & (1 << offset)) && gpio_port[offset])
+		gpio_port[offset]->write(data, 0xff);
 }
 
 READ8_MEMBER(mie_device::gpiodir_r)

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
     drivers/mirage.c
@@ -227,7 +229,7 @@ static MACHINE_CONFIG_START( mirage, mirage_state )
 	MCFG_DEVICE_ADD("acia6850", ACIA6850, 0)
 	MCFG_ACIA6850_IRQ_HANDLER(DEVWRITELINE("maincpu", m6809e_device, firq_line))
 
-	MCFG_WD1772x_ADD("wd1772", 8000000)
+	MCFG_WD1772_ADD("wd1772", 8000000)
 	MCFG_WD_FDC_INTRQ_CALLBACK(INPUTLINE("maincpu", INPUT_LINE_NMI))
 	MCFG_WD_FDC_DRQ_CALLBACK(INPUTLINE("maincpu", M6809_IRQ_LINE))
 
@@ -281,4 +283,4 @@ DRIVER_INIT_MEMBER(mirage_state,mirage)
 	m_via->write_pb7(0);
 }
 
-CONS( 1984, enmirage, 0, 0, mirage, mirage, mirage_state, mirage, "Ensoniq", "Ensoniq Mirage", GAME_NOT_WORKING )
+CONS( 1984, enmirage, 0, 0, mirage, mirage, mirage_state, mirage, "Ensoniq", "Ensoniq Mirage", MACHINE_NOT_WORKING )

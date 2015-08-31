@@ -1,16 +1,21 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /***************************************************************************
 
 Exidy discrete hardware games
 
- Alley Rally (1975)
+ Alley Rally (1975) (AR-1A)
  Attack (1977)
  Death Race (1976)
  Destruction Derby (1975)
- Spiders From Space (1976)
+ Hockey / Tennis (Thumper Bumper?) (1974)
  Score (1977)
+ Spiders From Space (1976)
+ Sting (1974)
  Super Death Chase (1977)
- Table Football (1975)
- TV Pinball (1974)
+ Table Foosballer / Table Football (1975)
+ Table Pinball (1974)
+ TV Pinball (1974) (PB-4)
 
 ***************************************************************************/
 
@@ -20,7 +25,6 @@ Exidy discrete hardware games
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied by Pong, not accurate for this driver!
 // start
@@ -141,7 +145,7 @@ ROM_START( attckexd )
 	ROM_LOAD( "attack.k6",     0x0000, 0x0100, CRC(e120839f) SHA1(74dc19a732238d35e467d814ead581a60463aaa2) )
 ROM_END
 
-ROM_START( attckexd2 )	//  These are likely an overdump, but we are waiting for confirmation before removing the files
+ROM_START( attckexd2 )  //  These are likely an overdump, but we are waiting for confirmation before removing the files
 	ROM_REGION( 0x10000, "maincpu", ROMREGION_ERASE00 )
 
 	ROM_REGION( 0x0400, "roms", ROMREGION_ERASE00 )
@@ -209,6 +213,6 @@ ROM_END
 
 
 
-GAME( 1977, attckexd,  0,        attack,   0, driver_device,  0, ROT0, "Exidy", "Attack (Set 1) [TTL]", GAME_IS_SKELETON )
-GAME( 1977, attckexd2, attckexd, attack,   0, driver_device,  0, ROT0, "Exidy", "Attack (Set 2) [TTL]", GAME_IS_SKELETON )
-GAME( 1976, deathrac,  0,        deathrac, 0, driver_device,  0, ROT0, "Exidy", "Death Race [TTL]", GAME_IS_SKELETON )
+GAME( 1977, attckexd,  0,        attack,   0, driver_device,  0, ROT0, "Exidy", "Attack (Set 1) [TTL]", MACHINE_IS_SKELETON )
+GAME( 1977, attckexd2, attckexd, attack,   0, driver_device,  0, ROT0, "Exidy", "Attack (Set 2) [TTL]", MACHINE_IS_SKELETON )
+GAME( 1976, deathrac,  0,        deathrac, 0, driver_device,  0, ROT0, "Exidy", "Death Race [TTL]", MACHINE_IS_SKELETON )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:James Wallace
 /***************************************************************************
 
     Motorola 6840 (PTM)
@@ -103,7 +105,7 @@ private:
 		PTM_6840_MSBBUF2 = 4,
 		PTM_6840_LSB2    = 5,
 		PTM_6840_MSBBUF3 = 6,
-		PTM_6840_LSB3    = 7,
+		PTM_6840_LSB3    = 7
 	};
 
 	double m_internal_clock;

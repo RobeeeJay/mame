@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Fresca
 /******************************************************************************
 
     Unknown TMS9980 Poker Game  <--- We need the real name & manufacturer! :)
@@ -640,4 +642,4 @@ DRIVER_INIT_MEMBER(tmspoker_state,bus)
 *************************/
 
 /*    YEAR  NAME      PARENT  MACHINE   INPUT     INIT  ROT    COMPANY      FULLNAME                     FLAGS */
-GAME( 198?, tmspoker, 0,      tmspoker, tmspoker, tmspoker_state, bus,  ROT0, "<unknown>", "unknown TMS9980 Poker Game", GAME_NO_SOUND | GAME_NOT_WORKING )
+GAME( 198?, tmspoker, 0,      tmspoker, tmspoker, tmspoker_state, bus,  ROT0, "<unknown>", "unknown TMS9980 Poker Game", MACHINE_NO_SOUND | MACHINE_NOT_WORKING )

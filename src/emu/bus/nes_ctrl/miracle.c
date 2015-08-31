@@ -1,19 +1,18 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /**********************************************************************
 
     Nintendo Entertainment System - Miracle Piano Keyboard
 
     TODO: MIDI input, output is now working.
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 #include "miracle.h"
 
 #define MIRACLE_MIDI_WAITING 0
-#define MIRACLE_MIDI_RECEIVE 1		// receive byte from piano
-#define MIRACLE_MIDI_SEND 2			// send byte to piano
+#define MIRACLE_MIDI_RECEIVE 1      // receive byte from piano
+#define MIRACLE_MIDI_SEND 2         // send byte to piano
 
 //**************************************************************************
 //  DEVICE DEFINITIONS
@@ -141,7 +140,7 @@ UINT8 nes_miracle_device::read_bit0()
 
 void nes_miracle_device::write(UINT8 data)
 {
-//	printf("write: %d (%d %02x %d)\n", data & 1, m_sent_bits, m_data_sent, m_midi_mode);
+//  printf("write: %d (%d %02x %d)\n", data & 1, m_sent_bits, m_data_sent, m_midi_mode);
 
 	if (m_midi_mode == MIRACLE_MIDI_SEND)
 	{
@@ -154,7 +153,7 @@ void nes_miracle_device::write(UINT8 data)
 		// then we go back to waiting
 		if (m_sent_bits == 8)
 		{
-//			printf("xmit MIDI byte %02x\n", m_data_sent);
+//          printf("xmit MIDI byte %02x\n", m_data_sent);
 			xmit_char(m_data_sent);
 			m_midi_mode = MIRACLE_MIDI_WAITING;
 			m_sent_bits = 0;
@@ -175,11 +174,11 @@ void nes_miracle_device::write(UINT8 data)
 		// was timer running?
 		if (m_strobe_clock > 0)
 		{
-//			printf("got strobe at %d clocks\n", m_strobe_clock);
+//          printf("got strobe at %d clocks\n", m_strobe_clock);
 
 			if (m_strobe_clock < 66 && data == 0)
 			{
-				// short delay is recieve mode
+				// short delay is receive mode
 				m_midi_mode = MIRACLE_MIDI_RECEIVE;
 				strobe_timer->reset();
 				m_strobe_on = 0;
@@ -188,7 +187,7 @@ void nes_miracle_device::write(UINT8 data)
 				m_status_bit = true;
 				if (m_recv_read != m_recv_write)
 				{
-//					printf("Getting %02x from Miracle[%d]\n", m_recvring[m_recv_read], m_recv_read);
+//                  printf("Getting %02x from Miracle[%d]\n", m_recvring[m_recv_read], m_recv_read);
 					m_data_sent = m_recvring[m_recv_read++];
 					if (m_recv_read >= RECV_RING_SIZE)
 					{
@@ -199,7 +198,7 @@ void nes_miracle_device::write(UINT8 data)
 				else
 				{
 					m_read_status = false;
-//					printf("Miracle has no data\n");
+//                  printf("Miracle has no data\n");
 				}
 				return;
 			}
@@ -230,7 +229,7 @@ void nes_miracle_device::rcv_complete()    // Rx completed receiving byte
 	receive_register_extract();
 	UINT8 rcv = get_received_char();
 
-//	printf("Got %02x -> [%d]\n", rcv, m_recv_write);
+//  printf("Got %02x -> [%d]\n", rcv, m_recv_write);
 	m_recvring[m_recv_write++] = rcv;
 	if (m_recv_write >= RECV_RING_SIZE)
 	{
@@ -282,4 +281,3 @@ void nes_miracle_device::xmit_char(UINT8 data)
 		}
 	}
 }
-

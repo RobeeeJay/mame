@@ -1,4 +1,4 @@
-// license:MAME|GPL2+
+// license:GPL-2.0+
 // copyright-holders:Felipe Sanches
 /***************************************************************************
   This driver covers only the Operator Panel of the BancTec 91690 Document Processor equipment
@@ -130,4 +130,4 @@ ROM_END
 ***************************************************************************/
 
 /*    YEAR  NAME      PARENT    COMPAT  MACHINE   INPUT     INIT    MONITOR COMPANY   FULLNAME */
-CONS( 1989, banctec, 0,        0,      banctec, 0, driver_device, 0,       "DALE Electronics",  "BancTec ESeries Panel", GAME_NOT_WORKING | GAME_NO_SOUND)
+CONS( 1989, banctec, 0,        0,      banctec, 0, driver_device, 0,       "DALE Electronics",  "BancTec ESeries Panel", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

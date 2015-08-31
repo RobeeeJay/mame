@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Sergey Svishchev
 #include "emu.h"
 #include "debugger.h"
 #include "ie15.h"
@@ -35,7 +37,7 @@ ie15_device::ie15_device(const machine_config &mconfig, const char *tag, device_
 {
 	// set our instruction counter
 	m_icountptr = &m_icount;
-};
+}
 
 //-------------------------------------------------
 //  device_start - start up the device
@@ -62,9 +64,9 @@ void ie15_device::device_start()
 	state_add(STATE_GENFLAGS,"GENFLAGS", m_flags).mask(0x0f).callimport().callexport().noshow().formatstr("%4s");
 	state_add(IE15_A,        "A",        m_A);
 
-	astring tempstring;
+	std::string tempstring;
 	for (int ireg = 0; ireg < 32; ireg++)
-		state_add(IE15_R0 + ireg, tempstring.format("R%d", ireg), m_REGS[ireg]);
+		state_add(IE15_R0 + ireg, strformat(tempstring, "R%d", ireg).c_str(), m_REGS[ireg]);
 }
 
 //-------------------------------------------------
@@ -131,12 +133,12 @@ void ie15_device::state_export(const device_state_entry &entry)
 //  for the debugger
 //-------------------------------------------------
 
-void ie15_device::state_string_export(const device_state_entry &entry, astring &string)
+void ie15_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c",
+			strprintf(str, "%c%c%c",
 				m_CF ? 'C':'.',
 				m_ZF ? 'Z':'.',
 				m_RF ? 'R':'.');
@@ -412,14 +414,14 @@ inline void ie15_device::execute_one(int opcode)
 
 inline UINT8 ie15_device::rop()
 {
-	UINT8 retVal = m_direct->read_decrypted_byte(m_PC.w.l);
+	UINT8 retVal = m_direct->read_byte(m_PC.w.l);
 	m_PC.w.l = (m_PC.w.l + 1) & 0x0fff;
 	return retVal;
 }
 
 inline UINT8 ie15_device::arg()
 {
-	UINT8 retVal = m_direct->read_raw_byte(m_PC.w.l);
+	UINT8 retVal = m_direct->read_byte(m_PC.w.l);
 	return retVal;
 }
 

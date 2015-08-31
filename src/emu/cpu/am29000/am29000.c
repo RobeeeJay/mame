@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /***************************************************************************
 
     am29000.c
@@ -402,12 +404,12 @@ void am29000_cpu_device::device_start()
 }
 
 
-void am29000_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void am29000_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c%c%c%c%c|%3d", m_alu & ALU_V ? 'V' : '.',
+			strprintf(str, "%c%c%c%c%c%c%c%c%c|%3d", m_alu & ALU_V ? 'V' : '.',
 													m_alu & ALU_Z ? 'Z' : '.',
 													m_alu & ALU_N ? 'N' : '.',
 													m_alu & ALU_C ? 'C' : '.',
@@ -477,7 +479,7 @@ UINT32 am29000_cpu_device::read_program_word(UINT32 address)
 {
 	/* TODO: ROM enable? */
 	if (m_cps & CPS_PI || m_cps & CPS_RE)
-		return m_direct->read_decrypted_dword(address);
+		return m_direct->read_dword(address);
 	else
 	{
 		fatalerror("Am29000 instruction MMU translation enabled!\n");
@@ -624,7 +626,7 @@ void am29000_cpu_device::execute_run()
 			if (m_cfg & CFG_VF)
 			{
 				UINT32 vaddr = m_vab | m_exception_queue[0] * 4;
-				UINT32 vect = m_datadirect->read_decrypted_dword(vaddr);
+				UINT32 vect = m_datadirect->read_dword(vaddr);
 
 				m_pc = vect & ~3;
 				m_next_pc = m_pc;

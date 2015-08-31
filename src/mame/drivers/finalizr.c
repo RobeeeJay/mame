@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /***************************************************************************
 
     Finalizer (GX523) (c) 1985 Konami
@@ -258,7 +260,7 @@ void finalizr_state::machine_reset()
 static MACHINE_CONFIG_START( finalizr, finalizr_state )
 
 	/* basic machine hardware */
-	MCFG_CPU_ADD("maincpu", M6809,XTAL_18_432MHz/6) /* ??? */
+	MCFG_CPU_ADD("maincpu", KONAMI1, XTAL_18_432MHz/6) /* ??? */
 	MCFG_CPU_PROGRAM_MAP(main_map)
 	MCFG_TIMER_DRIVER_ADD_SCANLINE("scantimer", finalizr_state, finalizr_scanline, "screen", 0, 1)
 
@@ -350,9 +352,8 @@ ROM_END
 
 DRIVER_INIT_MEMBER(finalizr_state,finalizr)
 {
-	konami1_decode(machine(), "maincpu");
 }
 
 
-GAME( 1985, finalizr,  0,        finalizr, finalizr, finalizr_state,  finalizr, ROT90, "Konami",  "Finalizer - Super Transformation", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1985, finalizrb, finalizr, finalizr, finalizrb, finalizr_state, finalizr, ROT90, "bootleg", "Finalizer - Super Transformation (bootleg)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1985, finalizr,  0,        finalizr, finalizr, finalizr_state,  finalizr, ROT90, "Konami",  "Finalizer - Super Transformation", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1985, finalizrb, finalizr, finalizr, finalizrb, finalizr_state, finalizr, ROT90, "bootleg", "Finalizer - Super Transformation (bootleg)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )

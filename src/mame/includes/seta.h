@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /***************************************************************************
 
                             -= Seta Hardware =-
@@ -170,6 +172,7 @@ public:
 	DECLARE_WRITE16_MEMBER(magspeed_lights_w);
 	DECLARE_READ8_MEMBER(dsw1_r);
 	DECLARE_READ8_MEMBER(dsw2_r);
+	DECLARE_READ16_MEMBER(extra_r);
 	DECLARE_DRIVER_INIT(downtown);
 	DECLARE_DRIVER_INIT(rezon);
 	DECLARE_DRIVER_INIT(twineagl);
@@ -190,6 +193,7 @@ public:
 	TILE_GET_INFO_MEMBER(get_tile_info_2);
 	TILE_GET_INFO_MEMBER(get_tile_info_3);
 	DECLARE_VIDEO_START(seta_no_layers);
+	DECLARE_VIDEO_START(kyustrkr_no_layers);
 	DECLARE_VIDEO_START(twineagl_1_layer);
 	DECLARE_VIDEO_START(setaroul_1_layer);
 	DECLARE_VIDEO_START(seta_1_layer);
@@ -234,4 +238,5 @@ public:
 	void uPD71054_timer_init(  );
 	DECLARE_WRITE_LINE_MEMBER(pit_out0);
 	DECLARE_WRITE_LINE_MEMBER(utoukond_ym3438_interrupt);
+	SETA001_SPRITE_GFXBANK_CB_MEMBER(setac_gfxbank_callback);
 };

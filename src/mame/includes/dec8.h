@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 #include "sound/msm5205.h"
 #include "video/bufsprite.h"
 #include "video/decbac06.h"
@@ -50,8 +52,6 @@ public:
 
 	UINT8 *  m_pf1_data;
 	UINT8 *  m_row;
-//  UINT8 *  m_paletteram;    // currently this uses generic palette handling
-//  UINT8 *  m_paletteram_2;  // currently this uses generic palette handling
 	UINT16   m_buffered_spriteram16[0x800/2]; // for the mxc06 sprite chip emulation (oscar, cobra)
 
 	/* video-related */

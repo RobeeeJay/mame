@@ -1,7 +1,9 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Olivier Galibert
 /*************************************************************************************
 
     Yamaha MU-100 : 32-voice polyphonic/multitimbral General MIDI/GS/XG tone module
-    Preliminary driver by R. Belmont
+    Preliminary driver by R. Belmont and O. Galibert
 
     CPU: Hitachi H8S/2655 (HD6432655F), strapped for mode 4 (24-bit address, 16-bit data, no internal ROM)
     Sound ASIC: Yamaha XS725A0
@@ -223,7 +225,7 @@ float mu100_state::lightlevel(const UINT8 *src, const UINT8 *render)
 	int bit = slot & 7;
 	int adr = (slot >> 3);
 	if(render[adr] & (1 << bit))
-		return 1-(1-(255-l)/255.0)*contrast;
+		return 1-(1-(255-l)/255.0f)*contrast;
 	return 0.95f;
 }
 
@@ -493,5 +495,5 @@ ROM_START( mu100r )
 	ROM_LOAD( "mu100-font.bin", 0x0000, 0x1000, BAD_DUMP CRC(a7d6c1d6) SHA1(9f0398d678bdf607cb34d83ee535f3b7fcc97c41) )
 ROM_END
 
-CONS( 1997, mu100,  0,     0, mu100,  mu100, driver_device, 0, "Yamaha", "MU100",                  GAME_NOT_WORKING )
-CONS( 1997, mu100r, mu100, 0, mu100r, mu100, driver_device, 0, "Yamaha", "MU100 Rackable version", GAME_NOT_WORKING )
+CONS( 1997, mu100,  0,     0, mu100,  mu100, driver_device, 0, "Yamaha", "MU100",                  MACHINE_NOT_WORKING )
+CONS( 1997, mu100r, mu100, 0, mu100r, mu100, driver_device, 0, "Yamaha", "MU100 Rackable version", MACHINE_NOT_WORKING )

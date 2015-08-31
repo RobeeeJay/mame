@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 /*
 BMC Bowling (c) 1994.05 BMC, Ltd
 
@@ -512,4 +514,4 @@ DRIVER_INIT_MEMBER(bmcbowl_state,bmcbowl)
 	save_item(NAME(m_bmc_input));
 }
 
-GAME( 1994, bmcbowl,    0, bmcbowl,    bmcbowl, bmcbowl_state,    bmcbowl, ROT0,  "BMC", "Konkyuu no Hoshi", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE)
+GAME( 1994, bmcbowl,    0, bmcbowl,    bmcbowl, bmcbowl_state,    bmcbowl, ROT0,  "BMC", "Konkyuu no Hoshi", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE)

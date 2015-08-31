@@ -1,39 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /***************************************************************************
 
     m6502.h
 
     Mostek 6502, original NMOS variant
-
-****************************************************************************
-
-    Copyright Olivier Galibert
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are
-    met:
-
-        * Redistributions of source code must retain the above copyright
-          notice, this list of conditions and the following disclaimer.
-        * Redistributions in binary form must reproduce the above copyright
-          notice, this list of conditions and the following disclaimer in
-          the documentation and/or other materials provided with the
-          distribution.
-        * Neither the name 'MAME' nor the names of its contributors may be
-          used to endorse or promote products derived from this software
-          without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY OLIVIER GALIBERT ''AS IS'' AND ANY EXPRESS OR
-    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL AARON GILES BE LIABLE FOR ANY DIRECT,
-    INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-    STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
-    IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-    POSSIBILITY OF SUCH DAMAGE.
 
 ***************************************************************************/
 
@@ -71,14 +42,14 @@ public:
 protected:
 	class memory_interface {
 	public:
-		address_space *program;
-		direct_read_data *direct;
+		address_space *program, *sprogram;
+		direct_read_data *direct, *sdirect;
 
 		virtual ~memory_interface() {}
 		virtual UINT8 read(UINT16 adr) = 0;
 		virtual UINT8 read_9(UINT16 adr);
-		virtual UINT8 read_direct(UINT16 adr) = 0;
-		virtual UINT8 read_decrypted(UINT16 adr) = 0;
+		virtual UINT8 read_sync(UINT16 adr) = 0;
+		virtual UINT8 read_arg(UINT16 adr) = 0;
 		virtual void write(UINT16 adr, UINT8 val) = 0;
 		virtual void write_9(UINT16 adr, UINT8 val);
 	};
@@ -87,16 +58,16 @@ protected:
 	public:
 		virtual ~mi_default_normal() {}
 		virtual UINT8 read(UINT16 adr);
-		virtual UINT8 read_direct(UINT16 adr);
-		virtual UINT8 read_decrypted(UINT16 adr);
+		virtual UINT8 read_sync(UINT16 adr);
+		virtual UINT8 read_arg(UINT16 adr);
 		virtual void write(UINT16 adr, UINT8 val);
 	};
 
 	class mi_default_nd : public mi_default_normal {
 	public:
 		virtual ~mi_default_nd() {}
-		virtual UINT8 read_direct(UINT16 adr);
-		virtual UINT8 read_decrypted(UINT16 adr);
+		virtual UINT8 read_sync(UINT16 adr);
+		virtual UINT8 read_arg(UINT16 adr);
 	};
 
 	struct disasm_entry {
@@ -106,7 +77,7 @@ protected:
 	};
 
 	enum {
-		STATE_RESET = 0xff00,
+		STATE_RESET = 0xff00
 	};
 
 	enum {
@@ -173,14 +144,14 @@ protected:
 	// device_state_interface overrides
 	virtual void state_import(const device_state_entry &entry);
 	virtual void state_export(const device_state_entry &entry);
-	virtual void state_string_export(const device_state_entry &entry, astring &string);
+	virtual void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const;
 	virtual UINT32 disasm_max_opcode_bytes() const;
 	virtual offs_t disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options);
 
-	address_space_config program_config;
+	address_space_config program_config, sprogram_config;
 
 	UINT16  PPC;                    /* previous program counter */
 	UINT16  NPC;                    /* next start-of-instruction program counter */
@@ -208,9 +179,9 @@ protected:
 	UINT8 read_9(UINT16 adr) { return mintf->read_9(adr); }
 	void write(UINT16 adr, UINT8 val) { mintf->write(adr, val); }
 	void write_9(UINT16 adr, UINT8 val) { mintf->write_9(adr, val); }
-	UINT8 read_direct(UINT16 adr) { return mintf->read_direct(adr); }
-	UINT8 read_pc() { return mintf->read_direct(PC++); }
-	UINT8 read_pc_noinc() { return mintf->read_direct(PC); }
+	UINT8 read_arg(UINT16 adr) { return mintf->read_arg(adr); }
+	UINT8 read_pc() { return mintf->read_arg(PC++); }
+	UINT8 read_pc_noinc() { return mintf->read_arg(PC); }
 	void prefetch();
 	void prefetch_noirq();
 	void set_nz(UINT8 v);
@@ -220,8 +191,8 @@ protected:
 
 	// inline helpers
 	static inline bool page_changing(UINT16 base, int delta) { return ((base + delta) ^ base) & 0xff00; }
-	static inline UINT16 set_l(UINT16 base, UINT16 val) { return (base & 0xff00) | val; }
-	static inline UINT16 set_h(UINT16 base, UINT16 val) { return (base & 0x00ff) | (val << 8); }
+	static inline UINT16 set_l(UINT16 base, UINT8 val) { return (base & 0xff00) | val; }
+	static inline UINT16 set_h(UINT16 base, UINT8 val) { return (base & 0x00ff) | (val << 8); }
 
 	inline void dec_SP() { SP = set_l(SP, SP-1); }
 	inline void inc_SP() { SP = set_l(SP, SP+1); }
@@ -356,7 +327,7 @@ enum {
 enum {
 	M6502_IRQ_LINE = m6502_device::IRQ_LINE,
 	M6502_NMI_LINE = m6502_device::NMI_LINE,
-	M6502_SET_OVERFLOW = m6502_device::V_LINE,
+	M6502_SET_OVERFLOW = m6502_device::V_LINE
 };
 
 extern const device_type M6502;

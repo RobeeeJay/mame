@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Olivier Galibert
 /***************************************************************************
 
     drivers/esq1.c
@@ -535,7 +537,7 @@ ADDRESS_MAP_END
 WRITE_LINE_MEMBER(esq1_state::duart_irq_handler)
 {
 	m_maincpu->set_input_line(M6809_IRQ_LINE, state);
-};
+}
 
 WRITE8_MEMBER(esq1_state::duart_output)
 {
@@ -623,7 +625,7 @@ static MACHINE_CONFIG_DERIVED(sq80, esq1)
 	MCFG_CPU_MODIFY("maincpu")
 	MCFG_CPU_PROGRAM_MAP(sq80_map)
 
-	MCFG_WD1772x_ADD(WD1772_TAG, 4000000)
+	MCFG_WD1772_ADD(WD1772_TAG, 4000000)
 MACHINE_CONFIG_END
 
 static INPUT_PORTS_START( esq1 )
@@ -691,6 +693,6 @@ ROM_START( esqm )
 ROM_END
 
 
-CONS( 1986, esq1, 0   , 0, esq1, esq1, driver_device, 0, "Ensoniq", "ESQ-1", GAME_NOT_WORKING )
-CONS( 1986, esqm, esq1, 0, esq1, esq1, driver_device, 0, "Ensoniq", "ESQ-M", GAME_NOT_WORKING )
-CONS( 1988, sq80, 0,    0, sq80, esq1, driver_device, 0, "Ensoniq", "SQ-80", GAME_NOT_WORKING )
+CONS( 1986, esq1, 0   , 0, esq1, esq1, driver_device, 0, "Ensoniq", "ESQ-1", MACHINE_NOT_WORKING )
+CONS( 1986, esqm, esq1, 0, esq1, esq1, driver_device, 0, "Ensoniq", "ESQ-M", MACHINE_NOT_WORKING )
+CONS( 1988, sq80, 0,    0, sq80, esq1, driver_device, 0, "Ensoniq", "SQ-80", MACHINE_NOT_WORKING )

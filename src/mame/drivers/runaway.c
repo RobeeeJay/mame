@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mike Balfour
 /***************************************************************************
 
     Atari Runaway hardware
@@ -410,5 +412,5 @@ ROM_START( qwak )
 ROM_END
 
 
-GAME( 1982, qwak,    0, qwak,    qwak, driver_device,    0, ROT270, "Atari", "Qwak (prototype)", GAME_SUPPORTS_SAVE )
-GAME( 1982, runaway, 0, runaway, runaway, driver_device, 0, ROT0,   "Atari", "Runaway (prototype)", GAME_SUPPORTS_SAVE )
+GAME( 1982, qwak,    0, qwak,    qwak, driver_device,    0, ROT270, "Atari", "Qwak (prototype)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, runaway, 0, runaway, runaway, driver_device, 0, ROT0,   "Atari", "Runaway (prototype)", MACHINE_SUPPORTS_SAVE )

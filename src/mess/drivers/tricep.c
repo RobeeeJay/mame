@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         Morrow Tricep
@@ -89,4 +91,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY       FULLNAME       FLAGS */
-COMP( 1985, tricep, 0,      0,       tricep,    tricep, driver_device,  0,  "Morrow Designs", "Tricep", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1985, tricep, 0,      0,       tricep,    tricep, driver_device,  0,  "Morrow Designs", "Tricep", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

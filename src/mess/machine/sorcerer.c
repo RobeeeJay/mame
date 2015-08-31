@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker, Robbbert
 /******************************************************************************
 
   Exidy Sorcerer machine functions
@@ -282,15 +284,12 @@ READ8_MEMBER(sorcerer_state::sorcerer_fe_r)
 	 - tied high, allowing PARIN and PAROUT bios routines to run */
 
 	UINT8 data = 0xc0;
-	char kbdrow[6];
-
-	sprintf(kbdrow,"X%X",m_keyboard_line);
 
 	/* bit 5 - vsync */
 	data |= m_iop_vs->read();
 
 	/* bits 4..0 - keyboard data */
-	data |= ioport(kbdrow)->read();
+	data |= m_iop_x[m_keyboard_line]->read();
 
 	return data;
 }
@@ -402,6 +401,9 @@ MACHINE_START_MEMBER(sorcerer_state,sorcererd)
 		space.unmap_readwrite(0x8000, endmem);
 		break;
 	}
+
+	if (m_cart->exists())
+		space.install_read_handler(0xc000, 0xdfff, read8_delegate(FUNC(generic_slot_device::read_rom),(generic_slot_device*)m_cart));
 }
 
 void sorcerer_state::machine_reset()
@@ -430,17 +432,17 @@ QUICKLOAD_LOAD_MEMBER( sorcerer_state, sorcerer )
 {
 	UINT16 execute_address, start_address, end_address;
 	int autorun;
+	address_space &space = m_maincpu->space(AS_PROGRAM);
+
 	/* load the binary into memory */
-	if (z80bin_load_file(&image, file_type, &execute_address, &start_address, &end_address) == IMAGE_INIT_FAIL)
+	if (z80bin_load_file(&image, space, file_type, &execute_address, &start_address, &end_address) == IMAGE_INIT_FAIL)
 		return IMAGE_INIT_FAIL;
 
 	/* is this file executable? */
 	if (execute_address != 0xffff)
 	{
 		/* check to see if autorun is on (I hate how this works) */
-		autorun = ioport("CONFIG")->read_safe(0xFF) & 1;
-
-		address_space &space = m_maincpu->space(AS_PROGRAM);
+		autorun = m_iop_config->read() & 1;
 
 		if ((execute_address >= 0xc000) && (execute_address <= 0xdfff) && (space.read_byte(0xdffa) != 0xc3))
 			return IMAGE_INIT_FAIL;     /* can't run a program if the cartridge isn't in */

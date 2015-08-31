@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Robbbert
 /************************************************************************************************************
 
 Intertec SuperBrain
@@ -355,7 +357,7 @@ static MACHINE_CONFIG_START( sbrain, sbrain_state )
 	MCFG_COM8116_FR_HANDLER(WRITELINE(sbrain_state, fr_w))
 	MCFG_COM8116_FT_HANDLER(WRITELINE(sbrain_state, ft_w))
 
-	MCFG_FD1791x_ADD("fdc", XTAL_16MHz / 16)
+	MCFG_FD1791_ADD("fdc", XTAL_16MHz / 16)
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", sbrain_floppies, "525dd", floppy_image_device::default_floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD("fdc:1", sbrain_floppies, "525dd", floppy_image_device::default_floppy_formats)
 MACHINE_CONFIG_END
@@ -371,4 +373,4 @@ ROM_START( sbrain )
 	ROM_LOAD( "c10_char.bin", 0x0000, 0x2000, BAD_DUMP CRC(cb530b6f) SHA1(95590bbb433db9c4317f535723b29516b9b9fcbf))
 ROM_END
 
-COMP( 1981, sbrain, 0, 0, sbrain, sbrain, sbrain_state, sbrain, "Intertec", "Superbrain", GAME_NOT_WORKING )
+COMP( 1981, sbrain, 0, 0, sbrain, sbrain, sbrain_state, sbrain, "Intertec", "Superbrain", MACHINE_NOT_WORKING )

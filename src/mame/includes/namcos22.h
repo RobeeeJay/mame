@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino, hap, R. Belmont
 /***************************************************************************
 
     Namco System 22 / Super System 22 hardware
@@ -91,9 +93,9 @@ struct namcos22_scenenode
 struct namcos22_object_data
 {
 	/* poly / sprites */
-	rgbint fogcolor;
-	rgbint fadecolor;
-	rgbint polycolor;
+	rgbaint_t fogcolor;
+	rgbaint_t fadecolor;
+	rgbaint_t polycolor;
 	const pen_t *pens;
 	bitmap_rgb32 *destbase;
 	bitmap_ind8 *primap;

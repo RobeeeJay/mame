@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, David Haywood
 /*************************************************************************
 
     Goal! '92
@@ -26,7 +28,6 @@ public:
 	required_shared_ptr<UINT16> m_tx_data;
 	required_shared_ptr<UINT16> m_spriteram;
 	required_shared_ptr<UINT16> m_scrollram;
-//  UINT16 *    m_paletteram; // this currently use generic palette handling
 	UINT16 *    m_buffered_spriteram;
 
 	/* video-related */

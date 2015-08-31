@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /*
 C140.c
 
@@ -38,8 +40,8 @@ Unmapped registers:
 */
 /*
     2000.06.26  CAB     fixed compressed pcm playback
-    2002.07.20  R.Belmont   added support for multiple banking types
-    2006.01.08  R.Belmont   added support for NA-1/2 "219" derivative
+    2002.07.20  R. Belmont   added support for multiple banking types
+    2006.01.08  R. Belmont   added support for NA-1/2 "219" derivative
 */
 
 
@@ -132,6 +134,26 @@ void c140_device::device_start()
 	/* allocate a pair of buffers to mix into - 1 second's worth should be more than enough */
 	m_mixer_buffer_left = auto_alloc_array(machine(), INT16, 2 * m_sample_rate);
 	m_mixer_buffer_right = m_mixer_buffer_left + m_sample_rate;
+
+	save_item(NAME(m_REG));
+
+	for (int i = 0; i < C140_MAX_VOICE; i++)
+	{
+		save_item(NAME(m_voi[i].ptoffset), i);
+		save_item(NAME(m_voi[i].pos), i);
+		save_item(NAME(m_voi[i].key), i);
+		save_item(NAME(m_voi[i].lastdt), i);
+		save_item(NAME(m_voi[i].prevdt), i);
+		save_item(NAME(m_voi[i].dltdt), i);
+		save_item(NAME(m_voi[i].rvol), i);
+		save_item(NAME(m_voi[i].lvol), i);
+		save_item(NAME(m_voi[i].frequency), i);
+		save_item(NAME(m_voi[i].bank), i);
+		save_item(NAME(m_voi[i].mode), i);
+		save_item(NAME(m_voi[i].sample_start), i);
+		save_item(NAME(m_voi[i].sample_end), i);
+		save_item(NAME(m_voi[i].sample_loop), i);
+	}
 }
 
 
@@ -152,7 +174,7 @@ void c140_device::sound_stream_update(sound_stream &stream, stream_sample_t **in
 	INT32   frequency,delta,offset,pos;
 	INT32   cnt, voicecnt;
 	INT32   lastdt,prevdt,dltdt;
-	float   pbase=(float)m_baserate*2.0 / (float)m_sample_rate;
+	float   pbase=(float)m_baserate*2.0f / (float)m_sample_rate;
 
 	INT16   *lmix, *rmix;
 

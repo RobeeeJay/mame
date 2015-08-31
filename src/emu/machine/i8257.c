@@ -1,11 +1,8 @@
 // license:BSD-3-Clause
-// copyright-holders:Curt Coder
+// copyright-holders:Curt Coder,Carl
 /***************************************************************************
 
     Intel 8257 DMA Controller emulation
-
-    Copyright the MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 ***************************************************************************/
 
@@ -56,7 +53,7 @@ enum
 	STATE_S2,
 	STATE_S3,
 	STATE_SW,
-	STATE_S4,
+	STATE_S4
 };
 
 
@@ -79,7 +76,7 @@ inline void i8257_device::dma_request(int channel, int state)
 	}
 	else
 	{
-		m_request &= ~1 << channel;
+			m_request &= ~(1 << channel);
 	}
 	trigger(1);
 }

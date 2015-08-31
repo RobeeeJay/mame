@@ -632,7 +632,7 @@ static MACHINE_CONFIG_START( bw2, bw2_state )
 	MCFG_RS232_RXD_HANDLER(DEVWRITELINE(I8251_TAG, i8251_device, write_rxd))
 	MCFG_RS232_DSR_HANDLER(DEVWRITELINE(I8251_TAG, i8251_device, write_dsr))
 
-	MCFG_WD2797x_ADD(WD2797_TAG, XTAL_16MHz/16)
+	MCFG_WD2797_ADD(WD2797_TAG, XTAL_16MHz/16)
 	MCFG_WD_FDC_INTRQ_CALLBACK(INPUTLINE(Z80_TAG, INPUT_LINE_IRQ0))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(bw2_state, fdc_drq_w))
 
@@ -675,4 +675,4 @@ ROM_END
 //**************************************************************************
 
 //    YEAR  NAME    PARENT  COMPAT  MACHINE     INPUT   INIT                        COMPANY             FULLNAME            FLAGS
-COMP( 1985, bw2,    0,      0,      bw2,        bw2,    driver_device,      0,      "Bondwell Holding", "Bondwell Model 2", GAME_NO_SOUND_HW )
+COMP( 1985, bw2,    0,      0,      bw2,        bw2,    driver_device,      0,      "Bondwell Holding", "Bondwell Model 2", MACHINE_NO_SOUND_HW )

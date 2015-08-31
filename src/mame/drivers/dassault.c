@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /***************************************************************************
 
   Thunder Zone / Desert Assault (c) 1991 Data East Corporation
@@ -979,8 +981,8 @@ DRIVER_INIT_MEMBER(dassault_state,dassault)
 	/* Playfield 4 also has access to the char graphics, make things easier
 	by just copying the chars to both banks (if I just used a different gfx
 	bank then the colours would be wrong). */
-	memcpy(tmp + 0x000000, dst + 0x80000, 0x80000);
-	memcpy(dst + 0x090000, tmp + 0x00000, 0x80000);
+	memcpy(&tmp[0x000000], dst + 0x80000, 0x80000);
+	memcpy(dst + 0x090000, &tmp[0x00000], 0x80000);
 	memcpy(dst + 0x080000, src + 0x00000, 0x10000);
 	memcpy(dst + 0x110000, src + 0x10000, 0x10000);
 }
@@ -994,17 +996,17 @@ DRIVER_INIT_MEMBER(dassault_state,thndzone)
 	/* Playfield 4 also has access to the char graphics, make things easier
 	by just copying the chars to both banks (if I just used a different gfx
 	bank then the colours would be wrong). */
-	memcpy(tmp + 0x000000, dst + 0x80000, 0x80000);
-	memcpy(dst + 0x090000, tmp + 0x00000, 0x80000);
+	memcpy(&tmp[0x000000], dst + 0x80000, 0x80000);
+	memcpy(dst + 0x090000, &tmp[0x00000], 0x80000);
 	memcpy(dst + 0x080000, src + 0x00000, 0x10000);
 	memcpy(dst + 0x110000, src + 0x10000, 0x10000);
 }
 
 /**********************************************************************************/
 
-GAME( 1991, thndzone,  0,        dassault, thndzone,  dassault_state, thndzone, ROT0, "Data East Corporation", "Thunder Zone (World, Rev 1)", GAME_SUPPORTS_SAVE )
-GAME( 1991, thndzonea, thndzone, dassault, thndzone,  dassault_state, thndzone, ROT0, "Data East Corporation", "Thunder Zone (World)", GAME_SUPPORTS_SAVE )
-GAME( 1991, thndzone4, thndzone, dassault, thndzone4, dassault_state, thndzone, ROT0, "Data East Corporation", "Thunder Zone (World 4 Players)", GAME_SUPPORTS_SAVE )
-GAME( 1991, thndzonej, thndzone, dassault, thndzone,  dassault_state, thndzone, ROT0, "Data East Corporation", "Thunder Zone (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1991, dassault,  thndzone, dassault, dassault,  dassault_state, dassault, ROT0, "Data East Corporation", "Desert Assault (US)", GAME_SUPPORTS_SAVE )
-GAME( 1991, dassault4, thndzone, dassault, dassault4, dassault_state, dassault, ROT0, "Data East Corporation", "Desert Assault (US 4 Players)", GAME_SUPPORTS_SAVE )
+GAME( 1991, thndzone,  0,        dassault, thndzone,  dassault_state, thndzone, ROT0, "Data East Corporation", "Thunder Zone (World, Rev 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, thndzonea, thndzone, dassault, thndzone,  dassault_state, thndzone, ROT0, "Data East Corporation", "Thunder Zone (World)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, thndzone4, thndzone, dassault, thndzone4, dassault_state, thndzone, ROT0, "Data East Corporation", "Thunder Zone (World 4 Players)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, thndzonej, thndzone, dassault, thndzone,  dassault_state, thndzone, ROT0, "Data East Corporation", "Thunder Zone (Japan)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, dassault,  thndzone, dassault, dassault,  dassault_state, dassault, ROT0, "Data East Corporation", "Desert Assault (US)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, dassault4, thndzone, dassault, dassault4, dassault_state, dassault, ROT0, "Data East Corporation", "Desert Assault (US 4 Players)", MACHINE_SUPPORTS_SAVE )

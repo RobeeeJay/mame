@@ -513,7 +513,7 @@ DRIVER_INIT_MEMBER(exerion_state,exerion)
 	dynamic_buffer temp(0x10000);
 
 	/* make a temporary copy of the character data */
-	src = temp;
+	src = &temp[0];
 	dst = memregion("gfx1")->base();
 	length = memregion("gfx1")->bytes();
 	memcpy(src, dst, length);
@@ -531,7 +531,7 @@ DRIVER_INIT_MEMBER(exerion_state,exerion)
 	}
 
 	/* make a temporary copy of the sprite data */
-	src = temp;
+	src = &temp[0];
 	dst = memregion("gfx2")->base();
 	length = memregion("gfx2")->bytes();
 	memcpy(src, dst, length);
@@ -572,6 +572,6 @@ DRIVER_INIT_MEMBER(exerion_state,exerionb)
  *
  *************************************/
 
-GAME( 1983, exerion,  0,       exerion, exerion, exerion_state, exerion,  ROT90, "Jaleco", "Exerion", GAME_SUPPORTS_SAVE )
-GAME( 1983, exeriont, exerion, exerion, exerion, exerion_state, exerion,  ROT90, "Jaleco (Taito America license)", "Exerion (Taito)", GAME_SUPPORTS_SAVE )
-GAME( 1983, exerionb, exerion, exerion, exerion, exerion_state, exerionb, ROT90, "bootleg", "Exerion (bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1983, exerion,  0,       exerion, exerion, exerion_state, exerion,  ROT90, "Jaleco", "Exerion", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, exeriont, exerion, exerion, exerion, exerion_state, exerion,  ROT90, "Jaleco (Taito America license)", "Exerion (Taito)", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, exerionb, exerion, exerion, exerion, exerion_state, exerionb, ROT90, "bootleg", "Exerion (bootleg)", MACHINE_SUPPORTS_SAVE )

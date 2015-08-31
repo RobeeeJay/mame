@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /*************************************************************************
 
     Konami Battlantis Hardware
@@ -21,7 +23,6 @@ public:
 
 	/* video-related */
 	int m_spritebank;
-	int m_layer_colorbase[2];
 
 	/* devices */
 	required_device<cpu_device> m_maincpu;

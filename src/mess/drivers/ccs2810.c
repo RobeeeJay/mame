@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -354,8 +354,9 @@ static MACHINE_CONFIG_START( ccs2422, ccs_state )
 	MCFG_GENERIC_TERMINAL_KEYBOARD_CB(WRITE8(ccs_state, kbd_put))
 
 	/* Devices */
-	MCFG_MB8877x_ADD("fdc", XTAL_16MHz / 8) // UB1793 or MB8877
+	MCFG_MB8877_ADD("fdc", XTAL_16MHz / 8) // UB1793 or MB8877
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", ccs_floppies, "8sssd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_SOUND(true)
 MACHINE_CONFIG_END
 
 /* ROM definition */
@@ -377,5 +378,5 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME      PARENT   COMPAT   MACHINE    INPUT    CLASS       INIT          COMPANY                        FULLNAME       FLAGS */
-COMP( 1980, ccs2810,  0,       0,       ccs2810,   ccs2810, ccs_state,  ccs2810,   "California Computer Systems", "CCS Model 2810 CPU card", GAME_NO_SOUND_HW)
-COMP( 1980, ccs2422,  ccs2810, 0,       ccs2422,   ccs2810, ccs_state,  ccs2422,   "California Computer Systems", "CCS Model 2422B FDC card", GAME_NOT_WORKING | GAME_NO_SOUND_HW)
+COMP( 1980, ccs2810,  0,       0,       ccs2810,   ccs2810, ccs_state,  ccs2810,   "California Computer Systems", "CCS Model 2810 CPU card", MACHINE_NO_SOUND_HW)
+COMP( 1980, ccs2422,  ccs2810, 0,       ccs2422,   ccs2810, ccs_state,  ccs2422,   "California Computer Systems", "CCS Model 2422B FDC card", MACHINE_NOT_WORKING | MACHINE_NO_SOUND_HW)

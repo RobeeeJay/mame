@@ -4,9 +4,6 @@
 
     Intel 8275 Programmable CRT Controller emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 /*
@@ -309,15 +306,16 @@ void i8275_device::device_timer(emu_timer &timer, device_timer_id id, int param,
 			m_vsp = (m_stored_attr & FAC_B) ? 1 : 0;
 			m_gpa = (m_stored_attr & FAC_GG) >> 2;
 			m_rvv = (m_stored_attr & FAC_R) ? 1 : 0;
-			m_lten = (m_stored_attr & FAC_U) ? 1 : 0;
+			m_lten = ((m_stored_attr & FAC_U) != 0) && (lc == UNDERLINE) ? 1 : 0;
 
 			for (int sx = 0; sx < CHARACTERS_PER_ROW; sx++)
 			{
 				int m_lineattr = 0;
 				int lten = 0;
 				int vsp = 0;
+				int rvv = 0;
 
-				UINT8 data = m_buffer[!m_buffer_dma][sx];
+				UINT8 data = (end_of_row || m_end_of_screen) ? 0 : m_buffer[!m_buffer_dma][sx];
 
 				if (data & 0x80)
 				{
@@ -328,7 +326,7 @@ void i8275_device::device_timer(emu_timer &timer, device_timer_id id, int param,
 						m_vsp = (data & FAC_B) ? 1 : 0;
 						m_gpa = (data & FAC_GG) >> 2;
 						m_rvv = (data & FAC_R) ? 1 : 0;
-						m_lten = (data & FAC_U) ? 1 : 0;
+						m_lten = ((data & FAC_U) != 0) && (lc == UNDERLINE) ? 1 : 0;
 						if ((SCANLINES_PER_ROW - lc)==1)
 							m_stored_attr = data;
 
@@ -361,7 +359,7 @@ void i8275_device::device_timer(emu_timer &timer, device_timer_id id, int param,
 								m_end_of_screen = true;
 								break;
 							}
-							vsp = 1;
+							//vsp = 1;
 						}
 						else
 						{
@@ -412,7 +410,7 @@ void i8275_device::device_timer(emu_timer &timer, device_timer_id id, int param,
 					}
 					else
 					{
-						lten = vis;
+						rvv = vis;
 					}
 				}
 
@@ -429,7 +427,7 @@ void i8275_device::device_timer(emu_timer &timer, device_timer_id id, int param,
 					(data & 0x7f),  // char code to be displayed
 					m_lineattr,  // line attribute code
 					lten | m_lten,  // light enable signal
-					m_rvv,  // reverse video signal
+					rvv ^ m_rvv,  // reverse video signal
 					vsp, // video suppression
 					m_gpa,  // general purpose attribute code
 					m_hlgt  // highlight
@@ -668,7 +666,7 @@ void i8275_device::recompute_parameters()
 
 	int horiz_pix_total = (CHARACTERS_PER_ROW + HRTC_COUNT) * m_hpixels_per_column;
 	int vert_pix_total = (CHARACTER_ROWS_PER_FRAME + VRTC_ROW_COUNT) * SCANLINES_PER_ROW;
-	attoseconds_t refresh = m_screen->frame_period().attoseconds;
+	attoseconds_t refresh = m_screen->frame_period().attoseconds();
 	int max_visible_x = (CHARACTERS_PER_ROW * m_hpixels_per_column) - 1;
 	int max_visible_y = (CHARACTER_ROWS_PER_FRAME * SCANLINES_PER_ROW) - 1;
 

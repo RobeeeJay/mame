@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*
 
   High Seas Havoc
@@ -220,4 +222,4 @@ DRIVER_INIT_MEMBER(md_boot_state,hshavoc)
 }
 
 
-GAME( 1993, hshavoc,   0,        md_bootleg, hshavoc, md_boot_state, hshavoc, ROT0, "Data East",                  "High Seas Havoc",GAME_NOT_WORKING )
+GAME( 1993, hshavoc,   0,        md_bootleg, hshavoc, md_boot_state, hshavoc, ROT0, "Data East",                  "High Seas Havoc",MACHINE_NOT_WORKING )

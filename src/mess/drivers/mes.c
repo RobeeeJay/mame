@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -138,4 +138,4 @@ ROM_END
 /* Driver */
 
 /*   YEAR   NAME    PARENT  COMPAT   MACHINE  INPUT  INIT        COMPANY     FULLNAME       FLAGS */
-COMP( 198?, mes,    0,      0,       mes,     mes, driver_device,   0,       "Schleicher",   "MES", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 198?, mes,    0,      0,       mes,     mes, driver_device,   0,       "Schleicher",   "MES", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

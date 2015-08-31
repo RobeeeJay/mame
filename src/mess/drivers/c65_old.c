@@ -1,6 +1,8 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner
 /***************************************************************************
 
-    commodore c65 home computer
+    Commodore C65 home computer
     PeT mess@utanet.at
 
     documention
@@ -256,7 +258,7 @@ static INPUT_PORTS_START( c65 )
 	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(1) PORT_NAME("Mouse 1350 Button 2") PORT_CONDITION("CTRLSEL", 0x0f, EQUALS, 0x03)
 	PORT_BIT( 0xc0, IP_ACTIVE_HIGH, IPT_UNUSED )
 
-	/* Still to verify how many mices you were able to plug into a c64 */
+	/* Still to verify how many mice you were able to plug into a C64 */
 	/* Only one, for now */
 	PORT_START("JOY2_2B")
 	PORT_BIT( 0xff, IP_ACTIVE_HIGH, IPT_UNUSED )
@@ -642,7 +644,5 @@ ROM_END
 
 /*    YEAR  NAME    PARENT  COMPAT  MACHINE INPUT   INIT    COMPANY                         FULLNAME                                              FLAGS */
 
-COMP( 1991, c65,    0,      0,      c65,    c65, c65_state,    c65,    "Commodore Business Machines",  "Commodore 65 Development System (Prototype, NTSC)", GAME_NOT_WORKING )
-COMP( 1991, c64dx,  c65,    0,      c65pal, c65ger, c65_state, c65pal, "Commodore Business Machines",  "Commodore 64DX Development System (Prototype, PAL, German)", GAME_NOT_WORKING )
-
-
+COMP( 1991, c65,    0,      0,      c65,    c65, c65_state,    c65,    "Commodore Business Machines",  "Commodore 65 Development System (Prototype, NTSC)", MACHINE_NOT_WORKING )
+COMP( 1991, c64dx,  c65,    0,      c65pal, c65ger, c65_state, c65pal, "Commodore Business Machines",  "Commodore 64DX Development System (Prototype, PAL, German)", MACHINE_NOT_WORKING )

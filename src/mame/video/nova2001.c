@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Howie Cohen, Frank Palazzolo, Alex Pasadyn, David Haywood, Steph, Phil Stroffolino, Uki
 #include "emu.h"
 #include "includes/nova2001.h"
 
@@ -46,6 +48,16 @@ PALETTE_INIT_MEMBER(nova2001_state,nova2001)
 
 		palette.set_pen_color(i,rgb_t(r,g,b));
 	}
+}
+
+PALETTE_DECODER_MEMBER( nova2001_state, BBGGRRII )
+{
+	UINT8 i = raw & 3;
+	UINT8 r = (raw >> 0) & 0x0c;
+	UINT8 g = (raw >> 2) & 0x0c;
+	UINT8 b = (raw >> 4) & 0x0c;
+
+	return rgb_t(pal4bit(r | i), pal4bit(g | i), pal4bit(b | i));
 }
 
 WRITE8_MEMBER(nova2001_state::ninjakun_paletteram_w)

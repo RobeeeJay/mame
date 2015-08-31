@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Couriersud
 #pragma once
 
 #ifndef __TMS6100_H__
@@ -23,6 +25,7 @@ protected:
 	virtual void device_config_complete();
 	virtual void device_start();
 	virtual void device_reset();
+	void set_variant(int variant);
 private:
 	// internal state
 	required_region_ptr<UINT8> m_rom;
@@ -35,6 +38,7 @@ private:
 	UINT8  m_tms_clock;
 	UINT8  m_data;
 	UINT8  m_state;
+	UINT8  m_variant;
 
 };
 

@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders: Robbbert
 /***************************************************************************
 
@@ -371,8 +371,9 @@ static MACHINE_CONFIG_DERIVED( ivg09, cpu09 )
 	MCFG_PIA_WRITEPA_HANDLER(WRITE8(tavernie_state, pa_ivg_w))
 	MCFG_PIA_CB2_HANDLER(DEVWRITELINE("beeper", beep_device, set_state))
 
-	MCFG_FD1795x_ADD("fdc", XTAL_8MHz / 8)
+	MCFG_FD1795_ADD("fdc", XTAL_8MHz / 8)
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", ifd09_floppies, "525dd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_SOUND(true)
 MACHINE_CONFIG_END
 
 /* ROM definition */
@@ -396,5 +397,5 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE  INPUT    CLASS          INIT    COMPANY        FULLNAME   FLAGS */
-COMP( 1982, cpu09,  0,      0,       cpu09,   cpu09,   driver_device,   0,   "C. Tavernier",  "CPU09", GAME_NOT_WORKING )
-COMP( 1983, ivg09,  cpu09,  0,       ivg09,   ivg09,   driver_device,   0,   "C. Tavernier",  "CPU09 with IVG09 and IFD09", GAME_NOT_WORKING )
+COMP( 1982, cpu09,  0,      0,       cpu09,   cpu09,   driver_device,   0,   "C. Tavernier",  "CPU09", MACHINE_NOT_WORKING )
+COMP( 1983, ivg09,  cpu09,  0,       ivg09,   ivg09,   driver_device,   0,   "C. Tavernier",  "CPU09 with IVG09 and IFD09", MACHINE_NOT_WORKING )

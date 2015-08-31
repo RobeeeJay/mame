@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #ifndef __MIE_H__
 #define __MIE_H__
 
@@ -101,6 +103,7 @@ private:
 	z80_device *cpu;
 	emu_timer *timer;
 	mie_jvs_device *jvs;
+	ioport_port *gpio_port[8];
 
 	UINT32 tbuf[TBUF_SIZE];
 	UINT32 control, lreg, jvs_rpos;

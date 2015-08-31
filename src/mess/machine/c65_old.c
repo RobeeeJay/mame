@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner
 /***************************************************************************
     commodore c65 home computer
     peter.trauner@jk.uni-linz.ac.at
@@ -1335,4 +1337,3 @@ INTERRUPT_GEN_MEMBER(c65_state::c65_frame_interrupt)
 	value &= ~ioport("FUNCT")->read();
 	m_keyline = value;
 }
-

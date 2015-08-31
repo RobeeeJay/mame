@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 #include "sound/samples.h"
 
 #define TILEMAPS 0
@@ -17,8 +19,11 @@ public:
 		m_gfxdecode(*this, "gfxdecode"),
 		m_screen(*this, "screen"),
 		m_palette(*this, "palette"),
-
-		m_prot_opcode_toggle(0)
+		m_bank0d(*this, "bank0d"),
+		m_bank1(*this, "bank1"),
+		m_bank1d(*this, "bank1d"),
+		m_prot_opcode_toggle(0),
+		m_remap_sound(0)
 		{ }
 
 	required_device<cpu_device> m_maincpu;
@@ -31,6 +36,9 @@ public:
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<screen_device> m_screen;
 	required_device<palette_device> m_palette;
+	optional_memory_bank m_bank0d;
+	required_memory_bank m_bank1;
+	optional_memory_bank m_bank1d;
 
 	UINT8 m_rombank;
 	UINT8 m_rombank_latch;
@@ -45,6 +53,7 @@ public:
 	UINT8 m_spritebank_latch;
 	UINT8 m_write_disable;
 	UINT8 m_prot_opcode_toggle;
+	UINT8 m_remap_sound;
 	UINT8* m_decrypt;
 
 	enum GFXBANK_TYPE_T
@@ -59,7 +68,7 @@ public:
 
 	// samples
 	INT16 *m_samplebuf;
-	int m_sample;
+	int m_sample, m_play;
 	int m_numsamples;
 
 #if TILEMAPS
@@ -82,14 +91,17 @@ public:
 
 	// brickzn
 	DECLARE_READ8_MEMBER(brickzn_cheats_r);
-	DECLARE_WRITE8_MEMBER(brickzn_multi_w);
-	DECLARE_WRITE8_MEMBER(brickzn_prot_w);
-	DECLARE_WRITE8_MEMBER(brickzn_prot2_w);
+	DECLARE_WRITE8_MEMBER(brickzn_leds_w);
+	DECLARE_WRITE8_MEMBER(brickzn_palbank_w);
+	DECLARE_WRITE8_MEMBER(brickzn_sprbank_w);
 	DECLARE_WRITE8_MEMBER(brickzn_rombank_w);
-	DECLARE_WRITE8_MEMBER(brickzn_enab_palram_w);
-	DECLARE_WRITE8_MEMBER(brickzn_disab_palram_w);
 	DECLARE_WRITE8_MEMBER(brickzn_pcm_w);
 	DECLARE_WRITE8_MEMBER(brickzn_banked_paletteram_w);
+	// brickzn (newer sets)
+	DECLARE_WRITE8_MEMBER(brickzn_prot2_w);
+	DECLARE_WRITE8_MEMBER(brickzn_multi_w);
+	DECLARE_WRITE8_MEMBER(brickzn_enab_palram_w);
+	DECLARE_WRITE8_MEMBER(brickzn_disab_palram_w);
 
 	// hardhea2
 	DECLARE_WRITE8_MEMBER(hardhea2_nmi_w);
@@ -124,6 +136,8 @@ public:
 	DECLARE_READ8_MEMBER(suna8_banked_spriteram_r);
 	DECLARE_WRITE8_MEMBER(suna8_spriteram_w);
 	DECLARE_WRITE8_MEMBER(suna8_banked_spriteram_w);
+	DECLARE_DRIVER_INIT(brickzn_common);
+	DECLARE_DRIVER_INIT(brickznv5);
 	DECLARE_DRIVER_INIT(brickznv4);
 	DECLARE_DRIVER_INIT(starfigh);
 	DECLARE_DRIVER_INIT(hardhea2);

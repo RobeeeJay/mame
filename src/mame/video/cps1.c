@@ -1,3 +1,5 @@
+// license:???
+// copyright-holders:Paul Leaman
 /***************************************************************************
 
 The CPS1 system is made of 3 boards: A, B and C. The first two games also exist
@@ -43,7 +45,8 @@ Dynasty Wars (USA, B-Board 89624B-?)                               89624B-?   TK
 Tenchi wo Kurau (Japan)                                            88622B-3   TK22B            LWIO  88622-C-2    CPS-B-02  DL-0411-10002  None
 Tenchi wo Kurau (Japan Resale Ver.)                                91634B-2   TK163B   BPRG1   IOB1  92631C-6     CPS-B-21  DL-0921-10014  C632    IOC1
 
-Willow (USA Old Ver.)                                        1989  89624B-3   WL24B            LWIO  88622-C-2    CPS-B-03  DL-0411-10003  None
+Willow (World)                                               1989  89624B-3   WL24B            LWIO  88622-C-4    CPS-B-03  DL-0411-10003  None
+Willow (USA Old Ver.)                                              89624B-3   WL24B            LWIO  88622-C-2    CPS-B-03  DL-0411-10003  None
 Willow (USA)                                                       89624B-3   WL24B            LWIO  88622-C-2/4  CPS-B-03  DL-0411-10003  None
 Willow (Japan)                                                     88622B-3   WL22B            LWIO  88622-C-2    CPS-B-03  DL-0411-10003  None
 
@@ -141,11 +144,14 @@ Street Fighter II': Champion Edition (Japan 920513)                91634B-2   S9
 Street Fighter II': Champion Edition (Japan 920803)                91634B-2   S9263B   BPRG1   IOB1  92631C-6     CPS-B-21  DL-0921-10014  C632    IOC1
 
 Adventure Quiz Capcom World 2* (Japan 920611)                1992  89625B-1   Q522B            LWIO  92641C-1     CPS-B-21  DL-0921-10014          IOC1
+Adventure Quiz Capcom World 2* (Japan 920611)                      91634B-2   Q563B    BPRG1   IOB1  92641C-1     CPS-B-21  DL-0921-10014          IOC1
+Adventure Quiz Capcom World 2 (Japan 920611)                       90629B-3   Q529B            IOB1  92641C-1     CPS-B-21  DL-0921-10014          IOC1
 
 Varth: Operation Thunderstorm (World 920612)                 1992  89624B-?   VA24B            IOB1  ?            CPS-B-04  DL-0411-10005
 Varth: Operation Thunderstorm (World 920714)                       89624B-3   VA24B            IOB1  88622-C-5    CPS-B-04  DL-0411-10005  None
 Varth: Operation Thunderstorm (USA 920612)                         91635B-2   VA63B    BPRG1   IOB1  88622-C-5    CPS-B-04  DL-0411-10005  None
 Varth: Operation Thunderstorm* (Japan 920714)                      88622B-3   VA22B            LWIO  92641C-1     CPS-B-21  DL-0921-10014          IOC1
+Varth: Operation Thunderstorm* (Japan Resale Ver. 920714)          91634B-2   VA63B    BPRG1   IOB1  92641C-1     CPS-B-21  DL-0921-10014          IOC1
 
 Quiz & Dragons: Capcom Quiz Game* (USA 920701)               1992  89625B-1   QD22B            IOB1  92641C-1     CPS-B-21  DL-0921-10014          IOC1
 Quiz & Dragons: Capcom Quiz Game (Japan Resale Ver. 940921)  1994  91634B-2   QAD63B   BPRG1   IOB1  92631C-6     CPS-B-21  DL-0921-10014  C632    IOC1
@@ -471,6 +477,7 @@ The games seem to use them to mark platforms, kill zones and no-go areas.
 #define CPS_B_21_QS4 0x2e,0x0c01,  -1,  -1,  -1,  -1,  0x1c,0x1e,0x08,  0x16,{0x00,0x02,0x28,0x2a},0x2c, {0x04,0x08,0x10,0x00,0x00}
 #define CPS_B_21_QS5 0x1e,0x0c02,  -1,  -1,  -1,  -1,  0x0c, -1,  -1,   0x2a,{0x2c,0x2e,0x30,0x32},0x1c, {0x04,0x08,0x10,0x00,0x00}
 #define HACK_B_1      -1,   -1,    -1,  -1,  -1,  -1,   -1,  -1,  -1,   0x14,{0x12,0x10,0x0e,0x0c},0x0a, {0x0e,0x0e,0x0e,0x30,0x30}
+#define HACK_B_2      -1,   -1,   0x0e,0x0c,0x0a,0x08, 0x06,0x04,0x02,  0x28,{0x26,0x24,0x22,0x20},0x22, {0x20,0x04,0x08,0x12,0x12}
 
 /*
 CPS_B_21_DEF is CPS-B-21 at default settings (no battery)
@@ -1399,7 +1406,8 @@ static const struct CPS1config cps1_config_table[]=
 	{"dynwarj",     CPS_B_02,     mapper_TK22B },
 	{"dynwarjr",    CPS_B_21_DEF, mapper_TK22B },   // wrong, this set uses TK163B, still not dumped
 	{"willow",      CPS_B_03,     mapper_WL24B },
-	{"willowo",     CPS_B_03,     mapper_WL24B },
+	{"willowu",     CPS_B_03,     mapper_WL24B },
+	{"willowuo",    CPS_B_03,     mapper_WL24B },
 	{"willowj",     CPS_B_03,     mapper_WL24B },   // wrong, this set uses WL22B, still not dumped
 	{"ffight",      CPS_B_04,     mapper_S224B },
 	{"ffighta",     CPS_B_04,     mapper_S224B },
@@ -1470,8 +1478,8 @@ static const struct CPS1config cps1_config_table[]=
 	{"3wondersr1",  CPS_B_21_BT1, mapper_RT24B },
 	{"3wondersu",   CPS_B_21_BT1, mapper_RT24B },
 	{"wonder3",     CPS_B_21_BT1, mapper_RT22B },   // equivalent to RT24B
-	{"3wondersb",   CPS_B_21_BT1, mapper_RT24B },
-	{"3wondersh",   CPS_B_02    , mapper_RT24B },   /* Not 100% sure of the CPS B-ID */
+	{"3wondersb",   CPS_B_21_BT1, mapper_RT24B,  0x36, 0, 0, 0x88 }, // same as 3wonders except some registers are hard wired rather than written to
+	{"3wondersh",   HACK_B_2,     mapper_RT24B },  // one port is changed from 3wonders, and no protection
 	{"kod",         CPS_B_21_BT2, mapper_KD29B,  0x36, 0, 0x34 },
 	{"kodr1",       CPS_B_21_BT2, mapper_KD29B,  0x36, 0, 0x34 },
 	{"kodu",        CPS_B_21_BT2, mapper_KD29B,  0x36, 0, 0x34 },
@@ -1530,8 +1538,10 @@ static const struct CPS1config cps1_config_table[]=
 	{"varthr1",     CPS_B_04,     mapper_VA63B },   /* CPSB test has been patched out (60=0008) register is also written to, possibly leftover from development */  // wrong, this set uses VA24B, dumped but equations still not added
 	{"varthu",      CPS_B_04,     mapper_VA63B },   /* CPSB test has been patched out (60=0008) register is also written to, possibly leftover from development */
 	{"varthj",      CPS_B_21_BT5, mapper_VA22B },   /* CPSB test has been patched out (72=0001) register is also written to, possibly leftover from development */
+	{"varthjr",     CPS_B_21_BT5, mapper_VA63B },   /* CPSB test has been patched out (72=0001) register is also written to, possibly leftover from development */
 	{"cworld2j",    CPS_B_21_BT6, mapper_Q522B,  0x36, 0, 0x34 },   /* (ports 36, 34 probably leftover input code from another game) */
-	{"cworld2ja",   CPS_B_21_DEF, mapper_Q522B }, // patched set, no battery, could be desuicided
+	{"cworld2ja",   CPS_B_21_DEF, mapper_Q522B }, // patched set, no battery, could be desuicided // wrong, this set uses Q529B, still not dumped
+	{"cworld2jb",   CPS_B_21_BT6, mapper_Q522B,  0x36, 0, 0x34 }, // wrong, this set uses Q563B, still not dumped
 	{"wof",         CPS_B_21_QS1, mapper_TK263B },
 	{"wofr1",       CPS_B_21_DEF, mapper_TK263B },  // patched set coming from a desuicided board?
 	{"wofa",        CPS_B_21_DEF, mapper_TK263B },  // patched set coming from a desuicided board?
@@ -1758,7 +1768,7 @@ READ16_MEMBER(cps_state::cps1_cps_b_r)
 	{
 		if (offset == 0x10/2)
 		{
-			// UNKNOWN--only mmatrix appears to read this, and I'm not sure if the result is actuallyused
+			// UNKNOWN--only mmatrix appears to read this, and I'm not sure if the result is actually used
 			return m_cps_b_regs[0x10 / 2];
 		}
 		if (offset == 0x12/2)
@@ -1940,6 +1950,18 @@ void cps_state::cps1_get_video_base()
 		scroll1xoff = -0x08;
 		scroll2xoff = -0x0b;
 		scroll3xoff = -0x0c;
+	}
+	else
+	if (m_game_config->bootleg_kludge == 0x88) // 3wondersb
+	{
+		scroll1xoff = 0x4;
+		scroll2xoff = 0x6;
+		scroll3xoff = 0xa;
+		m_cps_b_regs[0x30/2] = 0x3f;
+		m_cps_a_regs[CPS1_VIDEOCONTROL] = 0x3e;
+		m_cps_a_regs[CPS1_SCROLL2_BASE] = 0x90c0;
+		m_cps_a_regs[CPS1_SCROLL3_BASE] = 0x9100;
+		m_cps_a_regs[CPS1_PALETTE_BASE] = 0x9140;
 	}
 
 	m_obj = cps1_base(CPS1_OBJ_BASE, m_obj_size);
@@ -2949,6 +2971,9 @@ UINT32 cps_state::screen_update_cps1(screen_device &screen, bitmap_ind16 &bitmap
 
 	if (m_cps_version == 1)
 	{
+		if BIT(m_game_config->bootleg_kludge, 7)
+			cps1_build_palette(cps1_base(CPS1_PALETTE_BASE, m_palette_align));
+
 		cps1_render_layer(screen, bitmap, cliprect, l0, 0);
 
 		if (l1 == 0)

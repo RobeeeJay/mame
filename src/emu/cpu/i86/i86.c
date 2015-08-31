@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Carl
 /****************************************************************************
 
     NEC V20/V30/V33 emulator modified back to a 8086/80186 emulator
@@ -114,7 +116,7 @@ i8086_cpu_device::i8086_cpu_device(const machine_config &mconfig, device_type ty
 UINT8 i8086_cpu_device::fetch_op()
 {
 	UINT8 data;
-	data = m_direct->read_decrypted_byte(pc(), m_fetch_xor);
+	data = m_direct->read_byte(pc(), m_fetch_xor);
 	m_ip++;
 	return data;
 }
@@ -122,7 +124,7 @@ UINT8 i8086_cpu_device::fetch_op()
 UINT8 i8086_cpu_device::fetch()
 {
 	UINT8 data;
-	data = m_direct->read_raw_byte(pc(), m_fetch_xor);
+	data = m_direct->read_byte(pc(), m_fetch_xor);
 	m_ip++;
 	return data;
 }
@@ -280,6 +282,8 @@ i8086_common_cpu_device::i8086_common_cpu_device(const machine_config &mconfig, 
 	, m_irq_state(0)
 	, m_test_state(1)
 	, m_pc(0)
+	, m_lock(false)
+	, m_lock_handler(*this)
 {
 	static const BREGS reg_name[8]={ AL, CL, DL, BL, AH, CH, DH, BH };
 
@@ -310,18 +314,18 @@ i8086_common_cpu_device::i8086_common_cpu_device(const machine_config &mconfig, 
 	memset(m_sregs, 0x00, sizeof(m_sregs));
 }
 
-void i8086_common_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void i8086_common_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENPC:
-			string.printf("%08X", pc() );
+			strprintf(str, "%08X", pc());
 			break;
 
 		case STATE_GENFLAGS:
 			{
 				UINT16 flags = CompressFlags();
-				string.printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+				strprintf(str, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
 					flags & 0x8000 ? '1':'.',
 					flags & 0x4000 ? '1':'.',
 					flags & 0x2000 ? '1':'.',
@@ -389,6 +393,8 @@ void i8086_common_cpu_device::device_start()
 	state_add(STATE_GENFLAGS, "GENFLAGS", m_TF).callimport().callexport().formatstr("%16s").noshow();
 
 	m_icountptr = &m_icount;
+
+	m_lock_handler.resolve_safe();
 }
 
 
@@ -436,6 +442,7 @@ void i8086_common_cpu_device::device_reset()
 	m_dst = 0;
 	m_src = 0;
 	m_halt = false;
+	m_lock = false;
 }
 
 
@@ -1908,7 +1915,9 @@ bool i8086_common_cpu_device::common_op(UINT8 op)
 			break;
 
 		case 0xe4: // i_inal
+			if (m_lock) m_lock_handler(1);
 			m_regs.b[AL] = read_port_byte( fetch() );
+			if (m_lock) { m_lock_handler(0); m_lock = false; }
 			CLK(IN_IMM8);
 			break;
 
@@ -2009,6 +2018,7 @@ bool i8086_common_cpu_device::common_op(UINT8 op)
 
 		case 0xf0: // i_lock
 			logerror("%s: %06x: Warning - BUSLOCK\n", tag(), pc());
+			m_lock = true;
 			m_no_interrupt = 1;
 			CLK(NOP);
 			break;

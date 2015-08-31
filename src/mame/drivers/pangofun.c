@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* It's a standard 486 PC motherboard, gfx card etc. with expansion ROM board
 
  probably impossible to emulate right now due to the bad / missing (blank when read) rom
@@ -220,4 +222,4 @@ DRIVER_INIT_MEMBER(pangofun_state,pangofun)
 {
 }
 
-GAME( 1995, pangofun,  0,   pangofun, pangofun, pangofun_state, pangofun, ROT0, "InfoCube", "Pango Fun (Italy)", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1995, pangofun,  0,   pangofun, pangofun, pangofun_state, pangofun, ROT0, "InfoCube", "Pango Fun (Italy)", MACHINE_NOT_WORKING|MACHINE_NO_SOUND )

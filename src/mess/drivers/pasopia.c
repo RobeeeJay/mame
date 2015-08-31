@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese
 /***************************************************************************
 
     Toshiba Pasopia
@@ -354,4 +356,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME     PARENT  COMPAT   MACHINE    INPUT    INIT      COMPANY      FULLNAME       FLAGS */
-COMP( 1986, pasopia, 0,      0,       pasopia,   pasopia, pasopia_state, pasopia, "Toshiba",   "Pasopia", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1986, pasopia, 0,      0,       pasopia,   pasopia, pasopia_state, pasopia, "Toshiba",   "Pasopia", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

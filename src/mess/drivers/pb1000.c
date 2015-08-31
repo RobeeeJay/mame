@@ -458,12 +458,12 @@ TIMER_CALLBACK_MEMBER(pb1000_state::keyboard_timer)
 
 void pb1000_state::machine_start()
 {
-	astring region_tag;
+	std::string region_tag;
 	m_rom_reg = memregion("rom");
 	if (m_card1)
-		m_card1_reg = memregion(region_tag.cpy(m_card1->tag()).cat(GENERIC_ROM_REGION_TAG));
+		m_card1_reg = memregion(region_tag.assign(m_card1->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 	if (m_card2)
-		m_card2_reg = memregion(region_tag.cpy(m_card2->tag()).cat(GENERIC_ROM_REGION_TAG));
+		m_card2_reg = memregion(region_tag.assign(m_card2->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 
 	membank("bank1")->set_base(m_rom_reg->base());
 
@@ -566,6 +566,6 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY   FULLNAME       FLAGS */
-COMP( 1987, pb1000 ,  0,       0,   pb1000 ,    pb1000 , driver_device,  0, "Casio",   "PB-1000",   GAME_NOT_WORKING)
-COMP( 1989, pb2000c,  0,       0,   pb2000c,    pb2000c, driver_device,  0, "Casio",   "PB-2000c",  GAME_NOT_WORKING)
-COMP( 1989, ai1000,  pb2000c,  0,   pb2000c,    pb2000c, driver_device,  0, "Casio",   "AI-1000",   GAME_NOT_WORKING)
+COMP( 1987, pb1000 ,  0,       0,   pb1000 ,    pb1000 , driver_device,  0, "Casio",   "PB-1000",   MACHINE_NOT_WORKING)
+COMP( 1989, pb2000c,  0,       0,   pb2000c,    pb2000c, driver_device,  0, "Casio",   "PB-2000c",  MACHINE_NOT_WORKING)
+COMP( 1989, ai1000,  pb2000c,  0,   pb2000c,    pb2000c, driver_device,  0, "Casio",   "AI-1000",   MACHINE_NOT_WORKING)

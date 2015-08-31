@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*
     (Some) Data East 32 bit 156 CPU ARM based games:
 
@@ -653,7 +655,7 @@ void deco156_state::descramble_sound( const char *tag )
 		buf1[addr] = rom[x];
 	}
 
-	memcpy(rom,buf1,length);
+	memcpy(rom,&buf1[0],length);
 }
 
 DRIVER_INIT_MEMBER(deco156_state,hvysmsh)
@@ -673,7 +675,7 @@ DRIVER_INIT_MEMBER(deco156_state,wcvol95)
 
 /**********************************************************************************/
 
-GAME( 1993, hvysmsh,  0,       hvysmsh, hvysmsh, deco156_state, hvysmsh,  ROT0, "Data East Corporation", "Heavy Smash (Europe version -2)", GAME_SUPPORTS_SAVE )
-GAME( 1993, hvysmsha, hvysmsh, hvysmsh, hvysmsh, deco156_state, hvysmsh,  ROT0, "Data East Corporation", "Heavy Smash (Asia version -4)", GAME_SUPPORTS_SAVE )
-GAME( 1993, hvysmshj, hvysmsh, hvysmsh, hvysmsh, deco156_state, hvysmsh,  ROT0, "Data East Corporation", "Heavy Smash (Japan version -2)", GAME_SUPPORTS_SAVE )
-GAME( 1995, wcvol95,  0,       wcvol95, wcvol95, deco156_state, wcvol95,  ROT0, "Data East Corporation", "World Cup Volley '95 (Japan v1.0)", GAME_SUPPORTS_SAVE )
+GAME( 1993, hvysmsh,  0,       hvysmsh, hvysmsh, deco156_state, hvysmsh,  ROT0, "Data East Corporation", "Heavy Smash (Europe version -2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1993, hvysmsha, hvysmsh, hvysmsh, hvysmsh, deco156_state, hvysmsh,  ROT0, "Data East Corporation", "Heavy Smash (Asia version -4)", MACHINE_SUPPORTS_SAVE )
+GAME( 1993, hvysmshj, hvysmsh, hvysmsh, hvysmsh, deco156_state, hvysmsh,  ROT0, "Data East Corporation", "Heavy Smash (Japan version -2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1995, wcvol95,  0,       wcvol95, wcvol95, deco156_state, wcvol95,  ROT0, "Data East Corporation", "World Cup Volley '95 (Japan v1.0)", MACHINE_SUPPORTS_SAVE )

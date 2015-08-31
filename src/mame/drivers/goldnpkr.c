@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Fresca
 /***********************************************************************************
 
   GOLDEN POKER DOUBLE UP (BONANZA ENTERPRISES, LTD)
@@ -20,7 +22,7 @@
   * Jack Potten's Poker (set 6),                      198?, Bootleg.
   * Jack Potten's Poker (set 7, Royale GFX),          198?, Bootleg.
   * Good Luck,                                        198?, Unknown.
-  * Super Double (french),                            198?, Karateco.
+  * Super Double (French),                            198?, Karateco.
   * Jack Potten's Poker (NGold, set 1),               198?, Unknown.
   * Jack Potten's Poker (NGold, set 2),               198?, Unknown.
   * Jack Potten's Poker (NGold, set 3),               198?, Unknown.
@@ -104,7 +106,7 @@
   * Falcons Wild - World Wide Poker (VK set 1),       1990, Video Klein.
   * Falcons Wild - World Wide Poker (VK set 2),       1990, Video Klein.
   * Falcons Wild - Wild Card 1991,                    1991, TVG.
-  * PlayMan Poker (german),                           1981, PM / Beck Elektronik.
+  * PlayMan Poker (German),                           1981, PM / Beck Elektronik.
   * Super Loco 93 (Spanish, set 1),                   1993, Unknown.
   * Super Loco 93 (Spanish, set 2),                   1993, Unknown.
   * Royale (set 1),                                   198?, Unknown.
@@ -119,7 +121,7 @@
   * Genie,                                            198?, Video Fun Games Ltd.
   * Silver Game,                                      1983, Unknown.
   * Casino Poker (Ver PM86LO-35-5, German),           1987, PM / Beck Elektronik.
-  * "Unknown french poker game",                      198?, Unknown.
+  * "Unknown French poker game",                      198?, Unknown.
   * "Unknown encrypted poker game",                   198?, Unknown.
   * Bonne Chance! (Golden Poker prequel hardware),    198?, Unknown.
   * Mundial/Mondial (Italian/French),                 1987, Unknown.
@@ -215,7 +217,7 @@
   Maybe some settings can enable the use of them...
 
 
-  * Witch Card (spanish sets)
+  * Witch Card (Spanish sets)
 
   This game is derivated from Golden Poker.
 
@@ -336,7 +338,7 @@
   The game has 2 service switches/buttons:
   One for settings, and other just for bookkeeping.
 
-  Here the original Service Card (in german), and the english translation:
+  Here the original Service Card (in German), and the English translation:
    _____________________________________     _____________________________________
   |                                     |   |                                     |
   |          SERVICE ANLEITUNG          |   |           SERVICE MANUAL            |
@@ -715,8 +717,8 @@
   - Simulated colors for all sets till color PROMs appear.
   - Fixed bit corruption in goldnpkr rom u40_4a.bin.
   - Completed inputs in all sets (except DIP switches).
-  - Removed flags GAME_WRONG_COLORS and GAME_IMPERFECT_GRAPHICS in all sets.
-  - Removed flag GAME_NOT_WORKING. All sets are now playable. :)
+  - Removed flags MACHINE_WRONG_COLORS and MACHINE_IMPERFECT_GRAPHICS in all sets.
+  - Removed flag MACHINE_NOT_WORKING. All sets are now playable. :)
 
 
   [2006-10-09]
@@ -772,10 +774,10 @@
   - Fixed the visible area based on M6845 registers.
   - Improved the lamps layouts to be more realistic.
   - Added Good Luck (potten's poker hybrid running in goldnpkr hardware).
-  - Added Buena Suerte (spanish) x 2 sets.
+  - Added Buena Suerte (Spanish) x 2 sets.
   - Added set Royale.
-  - Added Witch Card and spanish variants.
-  - Added Super Loco 93 (spanish) x 2 sets.
+  - Added Witch Card and Spanish variants.
+  - Added Super Loco 93 (Spanish) x 2 sets.
   - Renamed set goldnpkc to pottnpkr (parent Jack Potten's Poker set).
   - Renamed set jokerpkr to potnpkra, since is another Jack Potten's Poker set.
   - Added other 2 clones of Jack Potten's Poker.
@@ -817,11 +819,11 @@
   [2009-09-05]
 
   - Added 2 new Witch Card sets.
-  - Reworked inputs for Witch Card (german set 1).
-  - Created new inputs for Witch Card (english, witch game, lamps).
+  - Reworked inputs for Witch Card (German set 1).
+  - Created new inputs for Witch Card (English, witch game, lamps).
   - Added and connected lamps for both sets.
   - Added minimal bet and 50/60 Hz. switches to both sets.
-  - Added DIP switches info for Witch Card (german, set 2).
+  - Added DIP switches info for Witch Card (German, set 2).
 
   - Added Genius, running in a modified Golden Poker board.
 
@@ -844,7 +846,7 @@
 
   [2010-11-18]
 
-  - Added Karateco Super Double (french)
+  - Added Karateco Super Double (French)
   - Extended ROM space for goldnpkr game to include the 0x2000..0x3fff range
 
 
@@ -4362,7 +4364,7 @@ ROM_END
 	ROM_LOAD( "epoxy_82s129.bin",   0x0100, 0x0100, CRC(f0c012b1) SHA1(5502977404172e8c5b9fbf305581a406668ad1d9) ) /* original epoxy block PROM */
 ROM_END
 
-/*  Witch Card (spanish, set 1)
+/*  Witch Card (Spanish, set 1)
     Unknown argentine manufacturer.
 */
 ROM_START( witchcda )
@@ -4382,7 +4384,7 @@ ROM_START( witchcda )
 	ROM_LOAD( "82s129.9c",      0x0000, 0x0100, CRC(7f31066b) SHA1(15420780ec6b2870fc4539ec3afe4f0c58eedf12) ) /* PROM dump needed */
 ROM_END
 
-/*  Witch Card (spanish, set 2)
+/*  Witch Card (Spanish, set 2)
     Unknown argentine manufacturer.
 */
 ROM_START( witchcdb )
@@ -4402,7 +4404,7 @@ ROM_START( witchcdb )
 	ROM_LOAD( "82s129.9c",      0x0000, 0x0100, CRC(7f31066b) SHA1(15420780ec6b2870fc4539ec3afe4f0c58eedf12) ) /* PROM dump needed */
 ROM_END
 
-/*  Witch Card (english, no witch game)
+/*  Witch Card (English, no witch game)
     Hack?
 */
 ROM_START( witchcdc )
@@ -4424,7 +4426,7 @@ ROM_END
 
 /***************************************
 
-  Witch Card (german, WC3050, set 1 )
+  Witch Card (German, WC3050, set 1 )
 
   TV GAME ELEKTRONIK 1994
          PROMA
@@ -4477,7 +4479,7 @@ ROM_END
 	ROM_LOAD( "24s10_epoxy.bin",    0x0100, 0x0100, CRC(ddfd7034) SHA1(78dee69ab4ba759485ee7f00446c2d86f08cc50f) ) /* original epoxy block PROM */
 ROM_END
 
-/*  Witch Card (english, witch game, lights)
+/*  Witch Card (English, witch game, lights)
     PCB by PM. Hybrid hardware.
 
     Copyright 1983/84/85
@@ -4539,7 +4541,7 @@ ROM_END
 
 /***************************************
 
-  Witch Card (german, WC3050, set 2 )
+  Witch Card (German, WC3050, set 2 )
 
   TV GAME ELEKTRONIK 1994
          PROMA
@@ -4882,7 +4884,7 @@ ROM_START( bsuertek )
 ROM_END
 
 ROM_START( bsuertel )
-	ROM_REGION( 0x10000, "maincpu", 0 ) /* bslacer128: Buena Suerte! (portugues), english settings */
+	ROM_REGION( 0x10000, "maincpu", 0 ) /* bslacer128: Buena Suerte! (portugues), English settings */
 	ROM_LOAD( "bslacer.128",    0x4000, 0x4000, CRC(edc254f4) SHA1(20e5543e59bfd67a0afec7cbeeb7000f6bba6c69) )
 
 	ROM_REGION( 0x3000, "gfx1", 0 )
@@ -4899,7 +4901,7 @@ ROM_START( bsuertel )
 ROM_END
 
 ROM_START( bsuertem )
-	ROM_REGION( 0x10000, "maincpu", 0 ) /* bslacer128: Buena Suerte! (portugues), english settings, set 2*/
+	ROM_REGION( 0x10000, "maincpu", 0 ) /* bslacer128: Buena Suerte! (portugues), English settings, set 2*/
 	ROM_LOAD( "bslacer.256",    0x0000, 0x8000, CRC(9f8a899a) SHA1(a1f3d0635b309d4734289b7ff48eceda69dfd3d0) )
 
 	ROM_REGION( 0x3000, "gfx1", 0 )
@@ -5464,7 +5466,7 @@ ROM_END
   mc6845 video chip
   10mhz (?) xtal
 
-  There are french strings related to the game, so maybe is
+  There are French strings related to the game, so maybe is
   a leftover, or maybe there is a unknown way to switch the
   language.
 
@@ -5544,7 +5546,7 @@ ROM_END
   Unknown poker game, set 1.
   198?.
 
-  There are french strings related to the game into
+  There are French strings related to the game into
   the program ROM.
 
   The dump lacks of 1 program ROM located at 17a.
@@ -5606,7 +5608,7 @@ ROM_END
 
 /************************************
 
-  Jolli Witch (german)
+  Jolli Witch (German)
   Epoxy CPU box.
 
   Using the whole addressing
@@ -10185,7 +10187,7 @@ GAMEL( 198?, potnpkrf,  pottnpkr, goldnpkr, goldnpkr, driver_device,  0,        
 GAMEL( 198?, superdbl,  pottnpkr, goldnpkr, goldnpkr, driver_device,  0,        ROT0,   "Karateco",                 "Super Double (French)",                   0,                layout_goldnpkr )
 GAMEL( 198?, ngold,     pottnpkr, pottnpkr, ngold,    driver_device,  0,        ROT0,   "<unknown>",                "Jack Potten's Poker (NGold, set 1)",      0,                layout_goldnpkr )
 GAMEL( 198?, ngolda,    pottnpkr, pottnpkr, ngold,    driver_device,  0,        ROT0,   "<unknown>",                "Jack Potten's Poker (NGold, set 2)",      0,                layout_goldnpkr )
-GAMEL( 198?, ngoldb,    pottnpkr, pottnpkr, ngold,    driver_device,  0,        ROT0,   "<unknown>",                "Jack Potten's Poker (NGold, set 3)",      GAME_IMPERFECT_GRAPHICS, layout_goldnpkr )
+GAMEL( 198?, ngoldb,    pottnpkr, pottnpkr, ngold,    driver_device,  0,        ROT0,   "<unknown>",                "Jack Potten's Poker (NGold, set 3)",      MACHINE_IMPERFECT_GRAPHICS, layout_goldnpkr )
 
 GAMEL( 1991, witchcrd,  0,        witchcrd, witchcrd, goldnpkr_state, vkdlsc,   ROT0,   "Video Klein?",             "Witch Card (Video Klein CPU box, set 1)", 0,                layout_goldnpkr )
 GAME(  1991, witchcda,  witchcrd, witchcrd, witchcda, driver_device,  0,        ROT0,   "<unknown>",                "Witch Card (Spanish, witch game, set 1)", 0 )
@@ -10199,16 +10201,16 @@ GAMEL( 1994, witchcdh,  witchcrd, witchcrd, witchcdd, driver_device,  0,        
 GAMEL( 1994, witchcdi,  witchcrd, witchcrd, witchcdd, driver_device,  0,        ROT0,   "Proma",                    "Witch Card (German, WC3050, 27-4-94)",    0,                layout_goldnpkr )
 
 GAMEL( 1991, witchgme,  0,        witchcrd, witchcrd, driver_device,  0,        ROT0,   "Video Klein",              "Witch Game (Video Klein, set 1)",         0,                layout_goldnpkr )
-GAMEL( 1997, witchcdk,  witchgme, witchcrd, witchcrd, driver_device,  0,        ROT0,   "Video Klein",              "Witch Game (Video Klein, set 2)",         GAME_NOT_WORKING, layout_goldnpkr )
+GAMEL( 1997, witchcdk,  witchgme, witchcrd, witchcrd, driver_device,  0,        ROT0,   "Video Klein",              "Witch Game (Video Klein, set 2)",         MACHINE_NOT_WORKING, layout_goldnpkr )
 
 GAMEL( 1994, witchjol,  0,        wcrdxtnd, witchjol, goldnpkr_state, vkdlsa,   ROT0,   "Video Klein",              "Jolli Witch (Export, 6T/12T ver 1.57D)",  0,                layout_goldnpkr )
 
 GAMEL( 2001, wldwitch,  0,        wcrdxtnd, wldwitch, goldnpkr_state, vkdlsww,  ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.84A)",       0,                layout_goldnpkr )  /* Ver 184A, 2001-09-12 */
 GAMEL( 1992, wldwitcha, wldwitch, wcrdxtnd, wldwitch, goldnpkr_state, vkdlswwa, ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.57-SP)",     0,                layout_goldnpkr )  /* Ver 157-SP, 1992-12-25 */
-GAMEL( 1992, wldwitchb, wldwitch, wcrdxtnd, wldwitch, driver_device,  0,        ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.57-TE)",     GAME_NOT_WORKING, layout_goldnpkr )   /* Ver 157-TE, 1992-12-25 */
+GAMEL( 1992, wldwitchb, wldwitch, wcrdxtnd, wldwitch, driver_device,  0,        ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.57-TE)",     MACHINE_NOT_WORKING, layout_goldnpkr )   /* Ver 157-TE, 1992-12-25 */
 GAMEL( 1994, wldwitchc, wldwitch, wcrdxtnd, wldwitch, goldnpkr_state, vkdlswwc, ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.62A)",       0,                layout_goldnpkr )  /* Ver 162A, 1994-04-26 */
 GAMEL( 1994, wldwitchd, wldwitch, wcrdxtnd, wldwitch, goldnpkr_state, vkdlswwd, ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.62B)",       0,                layout_goldnpkr )  /* Ver 162B, 1994-04-26 */
-GAMEL( 1994, wldwitche, wldwitch, wcrdxtnd, wldwitch, driver_device,  0,        ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.62A-F)",     GAME_NOT_WORKING, layout_goldnpkr )   /* Ver 162A-F, 1994-04-26 */
+GAMEL( 1994, wldwitche, wldwitch, wcrdxtnd, wldwitch, driver_device,  0,        ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.62A-F)",     MACHINE_NOT_WORKING, layout_goldnpkr )   /* Ver 162A-F, 1994-04-26 */
 GAMEL( 1994, wldwitchf, wldwitch, wcrdxtnd, wldwitch, goldnpkr_state, vkdlswwc, ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.62A alt)",   0,                layout_goldnpkr )  /* Ver 162A alt, 1994-11-03 */
 GAMEL( 1994, wldwitchg, wldwitch, wcrdxtnd, wldwitch, goldnpkr_state, vkdlswwd, ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.62B alt)",   0,                layout_goldnpkr )  /* Ver 162B alt, 1994-11-03 */
 GAMEL( 1995, wldwitchh, wldwitch, wcrdxtnd, wldwitch, goldnpkr_state, vkdlswwh, ROT0,   "Video Klein",              "Wild Witch (Export, 6T/12T ver 1.65A)",       0,                layout_goldnpkr )  /* Ver 165A, 1995-11-16 */
@@ -10237,14 +10239,14 @@ GAMEL( 1992, wstrike,   0,        wcrdxtnd, wstrike,  goldnpkr_state, wstrike,  
 GAMEL( 1992, wstrikea,  wstrike,  wcrdxtnd, wstrike,  goldnpkr_state, wstrike,  ROT0,   "Video Klein",              "Witch Strike (Export, 6T/12T ver 1.01B)",     0,                layout_goldnpkr )
 
 GAMEL( 1996, wtchjack,  0,        wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.87-89)", 0,                       layout_goldnpkr )    /* Ver 0.87-89 / 1996-10-08 GFX OK */
-GAMEL( 1994, wtchjacka, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jackpot (Export, 6T/12T ver 0.25)", GAME_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.25 / 1994-11-24 */
-GAMEL( 1995, wtchjackb, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.40)",    GAME_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.40 / 1995-02-27 */
-GAMEL( 1995, wtchjackc, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.40T)",   GAME_NOT_WORKING,        layout_goldnpkr )    /* Ver 0.40T / 1995-02-27 */
-GAMEL( 1995, wtchjackd, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.62)",    GAME_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.62 / 1995-08-02 */
-GAMEL( 1995, wtchjacke, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.64)",    GAME_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.64 / 1995-09-13 */
-GAMEL( 1995, wtchjackf, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.65)",    GAME_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.65 / 1995-10-19 */
-GAMEL( 1996, wtchjackg, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.70S)",   GAME_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.70S / 1996-03-26 */
-GAMEL( 1996, wtchjackh, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.70P)",   GAME_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.70P / 1996-03-26 */
+GAMEL( 1994, wtchjacka, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jackpot (Export, 6T/12T ver 0.25)", MACHINE_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.25 / 1994-11-24 */
+GAMEL( 1995, wtchjackb, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.40)",    MACHINE_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.40 / 1995-02-27 */
+GAMEL( 1995, wtchjackc, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.40T)",   MACHINE_NOT_WORKING,        layout_goldnpkr )    /* Ver 0.40T / 1995-02-27 */
+GAMEL( 1995, wtchjackd, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.62)",    MACHINE_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.62 / 1995-08-02 */
+GAMEL( 1995, wtchjacke, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.64)",    MACHINE_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.64 / 1995-09-13 */
+GAMEL( 1995, wtchjackf, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.65)",    MACHINE_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.65 / 1995-10-19 */
+GAMEL( 1996, wtchjackg, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.70S)",   MACHINE_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.70S / 1996-03-26 */
+GAMEL( 1996, wtchjackh, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.70P)",   MACHINE_IMPERFECT_GRAPHICS, layout_goldnpkr )    /* Ver 0.70P / 1996-03-26 */
 GAMEL( 1996, wtchjacki, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.87)",    0,                       layout_goldnpkr )    /* Ver 0.87 / 1996-07-16, GFX OK */
 GAMEL( 1996, wtchjackj, wtchjack, wcrdxtnd, wtchjack, driver_device,  0,        ROT0,   "Video Klein",              "Witch Jack (Export, 6T/12T ver 0.87-88)", 0,                       layout_goldnpkr )    /* Ver 0.87-88 / 1996-10-02, GFX OK */
 
@@ -10275,7 +10277,7 @@ GAMEL( 1991, goodluck,  bsuerte,  witchcrd, goodluck, driver_device,  0,        
 GAMEL( 1991, falcnwld,  0,        wildcard, wildcard, driver_device,  0,        ROT0,   "TVG",                      "Falcons Wild - Wild Card 1991 (TVG)",     0,                layout_goldnpkr )
 GAMEL( 1990, falcnwlda, falcnwld, wildcard, wildcard, driver_device,  0,        ROT0,   "Video Klein",              "Falcons Wild - World Wide Poker (Video Klein, set 1)", 0,   layout_goldnpkr )
 GAMEL( 1990, falcnwldb, falcnwld, wildcard, wildcard, driver_device,  0,        ROT0,   "Video Klein",              "Falcons Wild - World Wide Poker (Video Klein, set 2)", 0,   layout_goldnpkr )
-GAME(  1983, falcnwldc, falcnwld, wildcrdb, wildcard, goldnpkr_state, flcnw,    ROT0,   "Falcon",                   "Falcons Wild - World Wide Poker (Falcon original)",    GAME_NOT_WORKING )
+GAME(  1983, falcnwldc, falcnwld, wildcrdb, wildcard, goldnpkr_state, flcnw,    ROT0,   "Falcon",                   "Falcons Wild - World Wide Poker (Falcon original)",    MACHINE_NOT_WORKING )
 
 /*************************************** OTHER SETS ***************************************/
 
@@ -10294,11 +10296,11 @@ GAME(  1993, brasil93,  0,        witchcrd, bsuerte,  driver_device,  0,        
 GAME(  1991, poker91,   0,        witchcrd, poker91,  driver_device,  0,        ROT0,   "<unknown>",                "Poker 91",                                0 )
 GAME(  198?, genie,     0,        genie,    genie,    driver_device,  0,        ROT0,   "Video Fun Games Ltd.",     "Genie",                                   0 )
 GAMEL( 1983, silverga,  0,        goldnpkr, goldnpkr, driver_device,  0,        ROT0,   "<unknown>",                "Silver Game",                             0,                layout_goldnpkr )
-GAME(  1987, caspoker,  0,        goldnpkr, caspoker, driver_device,  0,        ROT0,   "PM / Beck Elektronik",     "Casino Poker (Ver PM86LO-35-5, German)",  GAME_IMPERFECT_COLORS )
+GAME(  1987, caspoker,  0,        goldnpkr, caspoker, driver_device,  0,        ROT0,   "PM / Beck Elektronik",     "Casino Poker (Ver PM86LO-35-5, German)",  MACHINE_IMPERFECT_COLORS )
 
-GAME(  198?, pokerdub,  0,        pottnpkr, goldnpkr, driver_device,  0,        ROT0,   "<unknown>",                "unknown French poker game",               GAME_NOT_WORKING )   // lacks of 2nd program ROM.
-GAME(  198?, pokerduc,  0,        goldnpkr, goldnpkr, goldnpkr_state, icp1db,   ROT0,   "<unknown>",                "unknown encrypted poker game",            GAME_NOT_WORKING )   // encrypted.
+GAME(  198?, pokerdub,  0,        pottnpkr, goldnpkr, driver_device,  0,        ROT0,   "<unknown>",                "unknown French poker game",               MACHINE_NOT_WORKING )   // lacks of 2nd program ROM.
+GAME(  198?, pokerduc,  0,        goldnpkr, goldnpkr, goldnpkr_state, icp1db,   ROT0,   "<unknown>",                "unknown encrypted poker game",            MACHINE_NOT_WORKING )   // encrypted.
 
-GAMEL( 198?, bchancep,  0,        bchancep, goldnpkr, goldnpkr_state, bchancep, ROT0,   "<unknown>",                "Bonne Chance! (Golden Poker prequel HW)", GAME_NOT_WORKING, layout_goldnpkr )
+GAMEL( 198?, bchancep,  0,        bchancep, goldnpkr, goldnpkr_state, bchancep, ROT0,   "<unknown>",                "Bonne Chance! (Golden Poker prequel HW)", MACHINE_NOT_WORKING, layout_goldnpkr )
 GAME(  1987, pokermon,  0,        mondial,  mondial,  driver_device,  0,        ROT0,   "<unknown>",                "Mundial/Mondial (Italian/French)",        0 )                  // banked selectable program
-GAME(  198?, pokersis,  0,        bchancep, goldnpkr, driver_device,  0,        ROT0,   "Sisteme France",           "unknown Sisteme France Poker",            GAME_NOT_WORKING )   // fix banking (4 prgs?)...
+GAME(  198?, pokersis,  0,        bchancep, goldnpkr, driver_device,  0,        ROT0,   "Sisteme France",           "unknown Sisteme France Poker",            MACHINE_NOT_WORKING )   // fix banking (4 prgs?)...

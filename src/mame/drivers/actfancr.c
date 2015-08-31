@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*******************************************************************************
 
     Act Fancer (Japan)              FD (c) 1989 Data East Corporation
@@ -564,8 +566,8 @@ ROM_END
 
 /******************************************************************************/
 
-GAME( 1989, actfancr, 0,        actfancr, actfancr, driver_device, 0, ROT0, "Data East Corporation", "Act-Fancer Cybernetick Hyper Weapon (World revision 2)", GAME_SUPPORTS_SAVE )
-GAME( 1989, actfancr1,actfancr, actfancr, actfancr, driver_device, 0, ROT0, "Data East Corporation", "Act-Fancer Cybernetick Hyper Weapon (World revision 1)", GAME_SUPPORTS_SAVE )
-GAME( 1989, actfancrj,actfancr, actfancr, actfancr, driver_device, 0, ROT0, "Data East Corporation", "Act-Fancer Cybernetick Hyper Weapon (Japan revision 1)", GAME_SUPPORTS_SAVE )
-GAME( 1989, triothep, 0,        triothep, triothep, driver_device, 0, ROT0, "Data East Corporation", "Trio The Punch - Never Forget Me... (World)", GAME_SUPPORTS_SAVE )
-GAME( 1989, triothepj,triothep, triothep, triothep, driver_device, 0, ROT0, "Data East Corporation", "Trio The Punch - Never Forget Me... (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1989, actfancr, 0,        actfancr, actfancr, driver_device, 0, ROT0, "Data East Corporation", "Act-Fancer Cybernetick Hyper Weapon (World revision 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, actfancr1,actfancr, actfancr, actfancr, driver_device, 0, ROT0, "Data East Corporation", "Act-Fancer Cybernetick Hyper Weapon (World revision 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, actfancrj,actfancr, actfancr, actfancr, driver_device, 0, ROT0, "Data East Corporation", "Act-Fancer Cybernetick Hyper Weapon (Japan revision 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, triothep, 0,        triothep, triothep, driver_device, 0, ROT0, "Data East Corporation", "Trio The Punch - Never Forget Me... (World)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, triothepj,triothep, triothep, triothep, driver_device, 0, ROT0, "Data East Corporation", "Trio The Punch - Never Forget Me... (Japan)", MACHINE_SUPPORTS_SAVE )

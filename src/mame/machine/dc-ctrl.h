@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #ifndef _DC_CTRL_H_
 #define _DC_CTRL_H_
 
@@ -36,6 +38,10 @@ public:
 
 	void maple_w(const UINT32 *data, UINT32 in_size);
 
+protected:
+	// device-level overrides
+	virtual void device_start();
+
 private:
 	void fixed_status(UINT32 *dest);
 	void free_status(UINT32 *dest);
@@ -43,6 +49,8 @@ private:
 
 	const char *port_tag[8];
 	const char *id, *license, *versions;
+
+	ioport_port *port[8];
 };
 
 extern const device_type DC_CONTROLLER;

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mirko Buffoni
 #include "sound/dac.h"
 #include "cpu/z80/z80daisy.h"
 #include "machine/z80pio.h"
@@ -13,6 +15,7 @@ public:
 		m_dac(*this, "dac"),
 		m_gfxdecode(*this, "gfxdecode"),
 		m_palette(*this, "palette"),
+		m_radar_palette(*this, "radar_palette"),
 		m_spriteram(*this, "spriteram"),
 		m_fgscroll(*this, "fgscroll"),
 		m_scrollx1(*this, "scrollx1"),
@@ -28,7 +31,7 @@ public:
 		m_bg3videoram(*this, "bg3videoram"),
 		m_radarram(*this, "radarram"),
 		m_bgstripesram(*this, "bgstripesram"),
-		m_generic_paletteram_8(*this, "paletteram") { }
+		m_decrypted_opcodes(*this, "decrypted_opcodes") { }
 
 	/* devices */
 	required_device<cpu_device> m_maincpu;
@@ -36,6 +39,7 @@ public:
 	required_device<dac_device> m_dac;
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
+	required_device<palette_device> m_radar_palette;
 
 	/* memory pointers */
 	required_shared_ptr<UINT8> m_spriteram;
@@ -53,7 +57,7 @@ public:
 	required_shared_ptr<UINT8> m_bg3videoram;
 	required_shared_ptr<UINT8> m_radarram;
 	required_shared_ptr<UINT8> m_bgstripesram;
-	required_shared_ptr<UINT8> m_generic_paletteram_8;
+	optional_shared_ptr<UINT8> m_decrypted_opcodes;
 
 	// game specific initialization
 	int m_is_senjyo;
@@ -69,7 +73,6 @@ public:
 	tilemap_t *m_bg3_tilemap;
 
 	DECLARE_WRITE8_MEMBER(flip_screen_w);
-	DECLARE_WRITE8_MEMBER(paletteram_w);
 	DECLARE_WRITE8_MEMBER(starforb_scrolly2);
 	DECLARE_WRITE8_MEMBER(starforb_scrollx2);
 	DECLARE_WRITE8_MEMBER(fgvideoram_w);
@@ -82,6 +85,9 @@ public:
 	DECLARE_WRITE8_MEMBER(sound_cmd_w);
 	DECLARE_WRITE8_MEMBER(irq_ctrl_w);
 	DECLARE_READ8_MEMBER(pio_pa_r);
+
+	DECLARE_PALETTE_DECODER(IIBBGGRR);
+	DECLARE_PALETTE_INIT(radar);
 
 	DECLARE_DRIVER_INIT(starfora);
 	DECLARE_DRIVER_INIT(senjyo);
@@ -97,10 +103,10 @@ public:
 	virtual void machine_start();
 	virtual void machine_reset();
 	virtual void video_start();
-	UINT32 screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
-	void draw_bgbitmap(bitmap_ind16 &bitmap,const rectangle &cliprect);
-	void draw_radar(bitmap_ind16 &bitmap,const rectangle &cliprect);
-	void draw_sprites(bitmap_ind16 &bitmap,const rectangle &cliprect,int priority);
+	UINT32 screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	void draw_bgbitmap(bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	void draw_radar(bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	void draw_sprites(bitmap_rgb32 &bitmap, const rectangle &cliprect,int priority);
 };
 
 /*----------- defined in audio/senjyo.c -----------*/

@@ -1,21 +1,9 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 /*****************************************************************************
  *
  *   z80.c
  *   Portable Z80 emulator V3.9
- *
- *   Copyright Juergen Buchmueller, all rights reserved.
- *
- *   - This source code is released as freeware for non-commercial purposes.
- *   - You are free to use and redistribute this code in modified or
- *     unmodified form, provided you list me in the credits.
- *   - If you modify this source code, you must add a notice to each modified
- *     source file that it has been changed.  If you're a nice person, you
- *     will clearly mark each change too.  :)
- *   - If you wish to use this for commercial purposes, please contact me at
- *     pullmoll@t-online.de
- *   - The author of this copywritten work reserves the right to change the
- *     terms of its usage and license at any time, including retroactively
- *   - This entire notice must remain in the source code.
  *
  *   TODO:
  *    - Interrupt mode 0 should be able to execute arbitrary opcodes
@@ -485,7 +473,7 @@ inline UINT8 z80_device::rop()
 {
 	unsigned pc = PCD;
 	PC++;
-	return m_direct->read_decrypted_byte(pc);
+	return m_decrypted_opcodes_direct->read_byte(pc);
 }
 
 /****************************************************************
@@ -498,14 +486,14 @@ inline UINT8 z80_device::arg()
 {
 	unsigned pc = PCD;
 	PC++;
-	return m_direct->read_raw_byte(pc);
+	return m_direct->read_byte(pc);
 }
 
 inline UINT16 z80_device::arg16()
 {
 	unsigned pc = PCD;
 	PC += 2;
-	return m_direct->read_raw_byte(pc) | (m_direct->read_raw_byte((pc+1)&0xffff) << 8);
+	return m_direct->read_byte(pc) | (m_direct->read_byte((pc+1)&0xffff) << 8);
 }
 
 /***************************************************************
@@ -1957,7 +1945,7 @@ OP(xycb,ff) { A = set(7, rm(m_ea)); wm(m_ea, A); } /* SET  7,A=(XY+o)  */
 
 OP(illegal,1) {
 	logerror("Z80 '%s' ill. opcode $%02x $%02x\n",
-			tag(), m_direct->read_decrypted_byte((PCD-1)&0xffff), m_direct->read_decrypted_byte(PCD));
+			tag(), m_decrypted_opcodes_direct->read_byte((PCD-1)&0xffff), m_decrypted_opcodes_direct->read_byte(PCD));
 }
 
 /**********************************************************
@@ -2545,7 +2533,7 @@ OP(fd,ff) { illegal_1(); op_ff();                            } /* DB   FD       
 OP(illegal,2)
 {
 	logerror("Z80 '%s' ill. opcode $ed $%02x\n",
-			tag(), m_direct->read_decrypted_byte((PCD-1)&0xffff));
+			tag(), m_decrypted_opcodes_direct->read_byte((PCD-1)&0xffff));
 }
 
 /**********************************************************
@@ -3387,7 +3375,9 @@ void z80_device::device_start()
 	m_ea = 0;
 
 	m_program = &space(AS_PROGRAM);
+	m_decrypted_opcodes = has_space(AS_DECRYPTED_OPCODES) ? &space(AS_DECRYPTED_OPCODES) : m_program;
 	m_direct = &m_program->direct();
+	m_decrypted_opcodes_direct = &m_decrypted_opcodes->direct();
 	m_io = &space(AS_IO);
 
 	if (static_config() != NULL)
@@ -3666,12 +3656,12 @@ void z80_device::state_export( const device_state_entry &entry )
 	}
 }
 
-void z80_device::state_string_export(const device_state_entry &entry, astring &string)
+void z80_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c%c%c%c",
+			strprintf(str, "%c%c%c%c%c%c%c%c",
 				F & 0x80 ? 'S':'.',
 				F & 0x40 ? 'Z':'.',
 				F & 0x20 ? 'Y':'.',
@@ -3714,6 +3704,7 @@ void z80_device::z80_set_cycle_tables(const UINT8 *op, const UINT8 *cb, const UI
 z80_device::z80_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock) :
 	cpu_device(mconfig, Z80, "Z80", tag, owner, clock, "z80", __FILE__),
 	m_program_config("program", ENDIANNESS_LITTLE, 8, 16, 0),
+	m_decrypted_opcodes_config("decrypted_opcodes", ENDIANNESS_LITTLE, 8, 16, 0),
 	m_io_config("io", ENDIANNESS_LITTLE, 8, 16, 0)
 {
 }
@@ -3721,8 +3712,20 @@ z80_device::z80_device(const machine_config &mconfig, const char *tag, device_t 
 z80_device::z80_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source) :
 	cpu_device(mconfig, type, name, tag, owner, clock, shortname, source),
 	m_program_config("program", ENDIANNESS_LITTLE, 8, 16, 0),
+	m_decrypted_opcodes_config("decrypted_opcodes", ENDIANNESS_LITTLE, 8, 16, 0),
 	m_io_config("io", ENDIANNESS_LITTLE, 8, 16, 0)
 {
+}
+
+const address_space_config *z80_device::memory_space_config(address_spacenum spacenum) const
+{
+	switch(spacenum)
+	{
+	case AS_PROGRAM:           return &m_program_config;
+	case AS_IO:                return &m_io_config;
+	case AS_DECRYPTED_OPCODES: return has_configured_map(AS_DECRYPTED_OPCODES) ? &m_decrypted_opcodes_config : NULL;
+	default:                   return NULL;
+	}
 }
 
 const device_type Z80 = &device_creator<z80_device>;

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf, Carl
 /**********************************************************************
 
     8250 UART interface and emulation
@@ -54,7 +56,7 @@ protected:
 			TYPE_INS8250A,
 			TYPE_NS16450,
 			TYPE_NS16550,
-			TYPE_NS16550A,
+			TYPE_NS16550A
 	};
 	int m_device_type;
 	struct {

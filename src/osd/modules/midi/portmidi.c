@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
     portmap.c
@@ -8,7 +10,11 @@
 
 #ifndef NO_USE_MIDI
 
+#ifndef USE_SYSTEM_PORTMIDI
 #include "portmidi/pm_common/portmidi.h"
+#else
+#include <portmidi.h>
+#endif
 #include "osdcore.h"
 #include "corealloc.h"
 #include "modules/osdmodule.h"
@@ -24,7 +30,7 @@ public:
 	}
 	virtual ~pm_module() { }
 
-	virtual int init();
+	virtual int init(const osd_options &options);
 	virtual void exit();
 
 	osd_midi_device *create_midi_device();
@@ -63,7 +69,7 @@ osd_midi_device *pm_module::create_midi_device()
 }
 
 
-int pm_module::init()
+int pm_module::init(const osd_options &options)
 {
 	Pm_Initialize();
 	return 0;

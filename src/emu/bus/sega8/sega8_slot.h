@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 #ifndef __SEGA8_SLOT_H
 #define __SEGA8_SLOT_H
 
@@ -45,6 +47,7 @@ public:
 	virtual DECLARE_READ8_MEMBER(read_cart) { return 0xff; }
 	virtual DECLARE_WRITE8_MEMBER(write_cart) {}
 	virtual DECLARE_WRITE8_MEMBER(write_mapper) {}
+	virtual int get_lphaser_xoffs() { return m_lphaser_xoffs; }
 	// a few carts (for SG1000) acts as a RAM expansion, taking control of the system RAM in 0xc000-0xffff
 	virtual DECLARE_READ8_MEMBER(read_ram) { return 0xff; }
 	virtual DECLARE_WRITE8_MEMBER(write_ram) {}
@@ -59,15 +62,14 @@ public:
 	void set_late_battery(bool val) { m_late_battery_enable = val; }
 	bool get_late_battery() { return m_late_battery_enable; }
 	void set_lphaser_xoffs(int val) { m_lphaser_xoffs = val; }
-	int get_lphaser_xoffs() { return m_lphaser_xoffs; }
 	void set_sms_mode(int val) { m_sms_mode = val; }
 	int get_sms_mode() { return m_sms_mode; }
 
 //protected:
 	UINT8* get_rom_base() { return m_rom; }
-	UINT8* get_ram_base() { return m_ram; }
+	UINT8* get_ram_base() { return &m_ram[0]; }
 	UINT32 get_rom_size() { return m_rom_size; }
-	UINT32 get_ram_size() { return m_ram.count(); }
+	UINT32 get_ram_size() { return m_ram.size(); }
 
 	void rom_map_setup(UINT32 size);
 	void ram_map_setup(UINT8 banks);
@@ -138,7 +140,7 @@ public:
 	virtual const char *file_extensions() const { return m_extensions; }
 
 	// slot interface overrides
-	virtual void get_default_card_software(astring &result);
+	virtual void get_default_card_software(std::string &result);
 
 	// reading and writing
 	virtual DECLARE_READ8_MEMBER(read_cart);

@@ -1,8 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /***************************************************************************
 
 Glass (c) 1993 Gaelco (Developed by OMK. Produced by Gaelco)
 
-Driver by Manuel Abadia <manu@teleline.es>
+Driver by Manuel Abadia <emumanu+mame@gmail.com>
 
 The DS5002FP has up to 128KB undumped gameplay code making the game unplayable :_(
 
@@ -415,6 +417,6 @@ DRIVER_INIT_MEMBER(glass_state,glass)
 
 }
 
-GAME( 1993, glass,    0,     glass, glass, glass_state, glass, ROT0, "OMK / Gaelco", "Glass (Ver 1.1)",                GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
-GAME( 1993, glass10,  glass, glass, glass, glass_state, glass, ROT0, "OMK / Gaelco", "Glass (Ver 1.0)",                GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
-GAME( 1993, glassbrk, glass, glass, glass, glass_state, glass, ROT0, "OMK / Gaelco", "Glass (Ver 1.0, Break Edition)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
+GAME( 1993, glass,    0,     glass, glass, glass_state, glass, ROT0, "OMK / Gaelco", "Glass (Ver 1.1)",                MACHINE_UNEMULATED_PROTECTION | MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1993, glass10,  glass, glass, glass, glass_state, glass, ROT0, "OMK / Gaelco", "Glass (Ver 1.0)",                MACHINE_UNEMULATED_PROTECTION | MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1993, glassbrk, glass, glass, glass, glass_state, glass, ROT0, "OMK / Gaelco", "Glass (Ver 1.0, Break Edition)", MACHINE_UNEMULATED_PROTECTION | MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Fresca, Peter Ferrie
 /**********************************************************************************
 
   Fun World / TAB / Impera
@@ -791,7 +793,7 @@
   - Added specific button-lamps layout for royalcrd & jolycdit,
      but there is a bug in the d-up select code that lights the
      wrong lamp. This is a leftover from jollycrd routines.
-  - Flagged vegasfte as GAME_NOT_WORKING, since is not receiving
+  - Flagged vegasfte as MACHINE_NOT_WORKING, since is not receiving
      any coins or remote credits anymore.
 
   [2010/03/21]
@@ -5883,7 +5885,7 @@ DRIVER_INIT_MEMBER(funworld_state, saloon)
 
 	{
 		dynamic_buffer buffer(size);
-		memcpy(buffer, rom, size);
+		memcpy(&buffer[0], rom, size);
 
 
 		/* address lines swap: fedcba9876543210 -> fedcba9820134567 */
@@ -5902,7 +5904,7 @@ DRIVER_INIT_MEMBER(funworld_state, saloon)
 
 	{
 		dynamic_buffer buffer(sizeg);
-		memcpy(buffer, gfxrom, sizeg);
+		memcpy(&buffer[0], gfxrom, sizeg);
 
 		/* address lines swap: fedcba9876543210 -> fedcb67584a39012 */
 
@@ -5927,7 +5929,7 @@ DRIVER_INIT_MEMBER(funworld_state, saloon)
 
 	{
 		dynamic_buffer buffer(sizep);
-		memcpy(buffer, prom, sizep);
+		memcpy(&buffer[0], prom, sizep);
 
 
 		/* address lines swap: fedcba9876543210 -> fedcba9487652013 */
@@ -5952,7 +5954,6 @@ DRIVER_INIT_MEMBER(funworld_state, multiwin)
 ******************************************************/
 {
 	UINT8 *ROM = memregion("maincpu")->base();
-	address_space &space = m_maincpu->space(AS_PROGRAM);
 
 	int x;
 
@@ -5969,8 +5970,6 @@ DRIVER_INIT_MEMBER(funworld_state, multiwin)
 
 		ROM[x+0x10000] = code;
 	}
-
-	space.set_decrypted_region(0x8000, 0xffff, memregion("maincpu")->base() + 0x18000);
 }
 
 
@@ -5986,7 +5985,6 @@ DRIVER_INIT_MEMBER(funworld_state, royalcdc)
 ******************************************************/
 
 	UINT8 *ROM = memregion("maincpu")->base();
-	address_space &space = m_maincpu->space(AS_PROGRAM);
 
 	int x;
 
@@ -6023,8 +6021,6 @@ DRIVER_INIT_MEMBER(funworld_state, royalcdc)
 
 		ROM[x+0x10000] = code;
 	}
-
-	space.set_decrypted_region(0x6000, 0xffff, memregion("maincpu")->base() + 0x16000);
 }
 
 
@@ -6068,7 +6064,7 @@ DRIVER_INIT_MEMBER(funworld_state, dino4)
 
 	{
 		dynamic_buffer buffer(size);
-		memcpy(buffer, rom, size);
+		memcpy(&buffer[0], rom, size);
 
 
 		/* address lines swap: fedcba9876543210 -> fedcba9867543210 */
@@ -6087,7 +6083,7 @@ DRIVER_INIT_MEMBER(funworld_state, dino4)
 
 	{
 		dynamic_buffer buffer(sizeg);
-		memcpy(buffer, gfxrom, sizeg);
+		memcpy(&buffer[0], gfxrom, sizeg);
 
 		/* address lines swap: fedcba9876543210 -> fedcb67584a39012 */
 
@@ -6172,7 +6168,7 @@ static void decrypt_rcdino4(UINT8 *rom, int size, UINT8 *gfxrom, int sizeg, UINT
 
 	{
 		dynamic_buffer buffer(size);
-		memcpy(buffer, rom, size);
+		memcpy(&buffer[0], rom, size);
 
 
 		/* address lines swap: fedcba9876543210 -> fedcba9867543210 */
@@ -6191,7 +6187,7 @@ static void decrypt_rcdino4(UINT8 *rom, int size, UINT8 *gfxrom, int sizeg, UINT
 
 	{
 		dynamic_buffer buffer(sizeg);
-		memcpy(buffer, gfxrom, sizeg);
+		memcpy(&buffer[0], gfxrom, sizeg);
 
 		/* address lines swap: fedcba9876543210 -> fedcb67584a39012 */
 
@@ -6466,17 +6462,17 @@ GAMEL( 1998, jolycdev,  jollycrd, fw1stpal, funworld,  driver_device,  0,       
 GAMEL( 1985, jolyccra,  jollycrd, cuoreuno, jolycdcr,  driver_device,  0,        ROT0, "TAB Austria",     "Jolly Card (Croatian, set 1)",                    0,                       layout_jollycrd )
 GAMEL( 1993, jolyccrb,  jollycrd, cuoreuno, jolycdcr,  driver_device,  0,        ROT0, "Soft Design",     "Jolly Card (Croatian, set 2)",                    0,                       layout_jollycrd )
 GAMEL( 1985, sjcd2kx3,  jollycrd, fw1stpal, funworld,  driver_device,  0,        ROT0, "M.P.",            "Super Joly 2000 - 3x",                            0,                       layout_jollycrd )
-GAME(  1986, jolycdab,  jollycrd, fw1stpal, funworld,  driver_device,  0,        ROT0, "Inter Games",     "Jolly Card (Austrian, Fun World, bootleg)",       GAME_NOT_WORKING )
+GAME(  1986, jolycdab,  jollycrd, fw1stpal, funworld,  driver_device,  0,        ROT0, "Inter Games",     "Jolly Card (Austrian, Fun World, bootleg)",       MACHINE_NOT_WORKING )
 GAMEL( 1992, jolycdsp,  jollycrd, cuoreuno, jolycdit,  funworld_state, ctunk,    ROT0, "TAB Austria",     "Jolly Card (Spanish, blue TAB board, encrypted)", 0,                       layout_royalcrd )
 GAMEL( 1990, jolycdid,  jollycrd, cuoreuno, jolycdcr,  driver_device,  0,        ROT0, "bootleg",         "Jolly Card (Italian, different colors, set 1)",   0,                       layout_jollycrd ) // italian, CPLD, different colors.
 GAMEL( 1990, jolycdie,  jollycrd, cuoreuno, jolycdib,  driver_device,  0,        ROT0, "bootleg",         "Jolly Card (Italian, different colors, set 2)",   0,                       layout_jollycrd ) // not from TAB blue PCB
 
 // Bonus Card based...
-GAMEL( 1986, bonuscrd,  0,        fw2ndpal, bonuscrd,  driver_device,  0,        ROT0, "Fun World",       "Bonus Card (Austrian)",                           GAME_IMPERFECT_COLORS,   layout_bonuscrd ) // use fw1stpal machine for green background
-GAMEL( 1986, bonuscrda, bonuscrd, fw2ndpal, bonuscrd,  driver_device,  0,        ROT0, "Fun World",       "Bonus Card (Austrian, ATG Electronic hack)",      GAME_IMPERFECT_COLORS,   layout_bonuscrd ) // use fw1stpal machine for green background
-GAMEL( 1986, bigdeal,   bonuscrd, fw2ndpal, bigdeal,   driver_device,  0,        ROT0, "Fun World",       "Big Deal (Hungarian, set 1)",                     GAME_IMPERFECT_COLORS,   layout_bonuscrd )
-GAMEL( 1986, bigdealb,  bonuscrd, fw2ndpal, bigdeal,   driver_device,  0,        ROT0, "Fun World",       "Big Deal (Hungarian, set 2)",                     GAME_IMPERFECT_COLORS,   layout_bonuscrd )
-GAME(  1993, powercrd,  0,        fw2ndpal, funworld,  driver_device,  0,        ROT0, "Fun World",       "Power Card (Ver 0263, encrypted)",                GAME_NOT_WORKING )                         // clone of Bonus Card.
+GAMEL( 1986, bonuscrd,  0,        fw2ndpal, bonuscrd,  driver_device,  0,        ROT0, "Fun World",       "Bonus Card (Austrian)",                           MACHINE_IMPERFECT_COLORS,   layout_bonuscrd ) // use fw1stpal machine for green background
+GAMEL( 1986, bonuscrda, bonuscrd, fw2ndpal, bonuscrd,  driver_device,  0,        ROT0, "Fun World",       "Bonus Card (Austrian, ATG Electronic hack)",      MACHINE_IMPERFECT_COLORS,   layout_bonuscrd ) // use fw1stpal machine for green background
+GAMEL( 1986, bigdeal,   bonuscrd, fw2ndpal, bigdeal,   driver_device,  0,        ROT0, "Fun World",       "Big Deal (Hungarian, set 1)",                     MACHINE_IMPERFECT_COLORS,   layout_bonuscrd )
+GAMEL( 1986, bigdealb,  bonuscrd, fw2ndpal, bigdeal,   driver_device,  0,        ROT0, "Fun World",       "Big Deal (Hungarian, set 2)",                     MACHINE_IMPERFECT_COLORS,   layout_bonuscrd )
+GAME(  1993, powercrd,  0,        fw2ndpal, funworld,  driver_device,  0,        ROT0, "Fun World",       "Power Card (Ver 0263, encrypted)",                MACHINE_NOT_WORKING )                         // clone of Bonus Card.
 
 // CMC Italian jamma PCB's...
 GAMEL( 1996, cuoreuno,  0,        cuoreuno, cuoreuno,  driver_device,  0,        ROT0, "C.M.C.",          "Cuore 1 (Italian)",                               0,                       layout_jollycrd )
@@ -6504,11 +6500,11 @@ GAMEL( 1998, crystal,   0,        cuoreuno, cuoreuno,  driver_device,  0,       
 GAMEL( 1991, royalcrd,  0,        royalcd2, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (Austrian, set 1)",                    0,                       layout_jollycrd )
 GAMEL( 1991, royalcrda, royalcrd, royalcd2, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (Austrian, set 2)",                    0,                       layout_jollycrd )
 GAMEL( 1991, royalcrdb, royalcrd, royalcd1, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (Austrian/Polish, set 3)",             0,                       layout_jollycrd )
-GAMEL( 1991, royalcrdc, royalcrd, royalcd2, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (Austrian, set 4)",                    GAME_IMPERFECT_GRAPHICS, layout_jollycrd )
+GAMEL( 1991, royalcrdc, royalcrd, royalcd2, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (Austrian, set 4)",                    MACHINE_IMPERFECT_GRAPHICS, layout_jollycrd )
 GAMEL( 1991, royalcrdd, royalcrd, royalcd1, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (Austrian, set 5)",                    0,                       layout_royalcrd )
 GAMEL( 1991, royalcrde, royalcrd, royalcd1, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (Austrian, set 6)",                    0,                       layout_jollycrd )
 GAMEL( 1991, royalcrdt, royalcrd, royalcd1, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (TAB original)",                       0,                       layout_jollycrd )
-GAME(  1991, royalcrdf, royalcrd, royalcd1, royalcrd,  funworld_state, royalcdc, ROT0, "Evona Electronic","Royal Card (Slovak, encrypted)",                  GAME_NOT_WORKING )
+GAME(  1991, royalcrdf, royalcrd, royalcd1, royalcrd,  funworld_state, royalcdc, ROT0, "Evona Electronic","Royal Card (Slovak, encrypted)",                  MACHINE_NOT_WORKING )
 GAMEL( 1990, royalcrdg, royalcrd, royalcd1, royalcrd,  driver_device,  0,        ROT0, "bootleg",         "Royal Card (Austrian, set 7, CMC C1030 HW)",      0,                       layout_jollycrd ) // big CPLD
 GAMEL( 1991, royalcdfr, royalcrd, royalcd1, royalcrd,  driver_device,  0,        ROT0, "TAB Austria",     "Royal Card (French)",                             0,                       layout_jollycrd ) // big CPLD
 GAME(  1993, royalcrdp, royalcrd, cuoreuno, royalcrd,  driver_device,  0,        ROT0, "Digital Dreams",  "Royal Card v2.0 Professional",                    0 )
@@ -6536,9 +6532,9 @@ GAMEL( 198?, jolyjokra, jolyjokr, fw1stpal, jolyjokra, driver_device,  0,       
 GAMEL( 198?, jolyjokrb, jolyjokr, fw1stpal, funworld,  driver_device,  0,        ROT0, "Impera",          "Jolly Joker (40bet, Croatian hack)",              0,                       layout_jollycrd )
 
 // Encrypted games...
-GAME(  1992, multiwin,  0,        fw1stpal, funworld,  funworld_state, multiwin, ROT0, "Fun World",       "Multi Win (Ver.0167, encrypted)",                 GAME_NOT_WORKING )
-GAME(  1993, jokercrd,  0,        fw2ndpal, funworld,  driver_device,  0,        ROT0, "Vesely Svet",     "Joker Card (Ver.A267BC, encrypted)",              GAME_NOT_WORKING )
-GAME(  198?, saloon,    0,        saloon,   saloon,    funworld_state, saloon,   ROT0, "<unknown>",       "Saloon (French, encrypted)",                      GAME_NOT_WORKING )
+GAME(  1992, multiwin,  0,        fw1stpal, funworld,  funworld_state, multiwin, ROT0, "Fun World",       "Multi Win (Ver.0167, encrypted)",                 MACHINE_NOT_WORKING )
+GAME(  1993, jokercrd,  0,        fw2ndpal, funworld,  driver_device,  0,        ROT0, "Vesely Svet",     "Joker Card (Ver.A267BC, encrypted)",              MACHINE_NOT_WORKING )
+GAME(  198?, saloon,    0,        saloon,   saloon,    funworld_state, saloon,   ROT0, "<unknown>",       "Saloon (French, encrypted)",                      MACHINE_NOT_WORKING )
 
 // Encrypted TAB blue PCB...
 GAMEL( 199?, jolycdit,  jollycrd, cuoreuno, jolycdit,  funworld_state, tabblue,  ROT0, "bootleg",         "Jolly Card (Italian, blue TAB board, encrypted)", 0,                       layout_royalcrd )
@@ -6551,8 +6547,8 @@ GAME ( 1998, rcdino4,   0,        rcdino4,  rcdino4,   funworld_state, rcdino4, 
 GAMEL( 1998, chinatow,  0,        chinatow, chinatow,  funworld_state, rcdinch,  ROT0, "<unknown>",       "China Town (Ver 1B, Dino4 HW)",                   0,                       layout_jollycrd )
 
 // MCU based games...
-GAME(  199?, mongolnw,  0,        royalcd1, royalcrd,  funworld_state, mongolnw, ROT0, "<unknown>",       "Mongolfier New (Italian)",                        GAME_UNEMULATED_PROTECTION )
-GAME(  199?, soccernw,  0,        royalcd1, royalcrd,  funworld_state, soccernw, ROT0, "<unknown>",       "Soccer New (Italian)",                            GAME_UNEMULATED_PROTECTION )
+GAME(  199?, mongolnw,  0,        royalcd1, royalcrd,  funworld_state, mongolnw, ROT0, "<unknown>",       "Mongolfier New (Italian)",                        MACHINE_UNEMULATED_PROTECTION )
+GAME(  199?, soccernw,  0,        royalcd1, royalcrd,  funworld_state, soccernw, ROT0, "<unknown>",       "Soccer New (Italian)",                            MACHINE_UNEMULATED_PROTECTION )
 
 // Other games...
 GAME(  198?, funquiz,   0,        funquiz,  funquiz,   driver_device,  0,        ROT0, "Fun World / Oehlinger", "Fun World Quiz (Austrian)",                 0 )

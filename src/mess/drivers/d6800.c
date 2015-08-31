@@ -1,9 +1,9 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
-/*
+/********************************************************************************
 
     The Dream 6800 is a CHIP-8 computer roughly modelled on the Cosmac VIP.
-    It was decribed in Electronics Australia magazine in 4 articles starting
+    It was described in Electronics Australia magazine in 4 articles starting
     in May 1979. It has 1k of ROM and 1k of RAM. The video consists of 64x32
     pixels. The keyboard is a hexcode 4x4 matrix, plus a Function key.
 
@@ -35,7 +35,7 @@
     Information and programs can be found at http://chip8.com/?page=78
 
 
-*/
+**********************************************************************************/
 
 
 #include "emu.h"
@@ -350,7 +350,7 @@ QUICKLOAD_LOAD_MEMBER( d6800_state, d6800 )
 
 	quick_length = image.length();
 	quick_data.resize(quick_length);
-	read_ = image.fread( quick_data, quick_length);
+	read_ = image.fread( &quick_data[0], quick_length);
 	if (read_ != quick_length)
 	{
 		image.seterror(IMAGE_ERROR_INVALIDIMAGE, "Cannot read the file");

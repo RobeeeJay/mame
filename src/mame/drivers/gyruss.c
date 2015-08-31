@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Couriersud
 /***************************************************************************
 
 Gyruss memory map (preliminary)
@@ -464,7 +466,7 @@ static MACHINE_CONFIG_START( gyruss, gyruss_state )
 	MCFG_CPU_PROGRAM_MAP(main_cpu1_map)
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", gyruss_state,  master_vblank_irq)
 
-	MCFG_CPU_ADD("sub", M6809, MASTER_CLOCK/12)     /* 1.536 MHz */
+	MCFG_CPU_ADD("sub", KONAMI1, MASTER_CLOCK/12)     /* 1.536 MHz */
 	MCFG_CPU_PROGRAM_MAP(main_cpu2_map)
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", gyruss_state,  slave_vblank_irq)
 
@@ -679,11 +681,10 @@ ROM_END
 
 DRIVER_INIT_MEMBER(gyruss_state,gyruss)
 {
-	konami1_decode(machine(), "sub");
 }
 
 
-GAME( 1983, gyruss,   0,        gyruss,   gyruss, gyruss_state,   gyruss, ROT90, "Konami", "Gyruss", GAME_SUPPORTS_SAVE )
-GAME( 1983, gyrussce, gyruss,   gyruss,   gyrussce, gyruss_state, gyruss, ROT90, "Konami (Centuri license)", "Gyruss (Centuri)", GAME_SUPPORTS_SAVE )
-GAME( 1983, gyrussb,  gyruss,   gyruss,   gyruss, gyruss_state,   gyruss, ROT90, "bootleg?", "Gyruss (bootleg?)", GAME_SUPPORTS_SAVE ) /* Supposed Taito NZ license, but (c) Konami */
-GAME( 1983, venus,    gyruss,   gyruss,   gyruss, gyruss_state,   gyruss, ROT90, "bootleg", "Venus (bootleg of Gyruss)", GAME_SUPPORTS_SAVE )
+GAME( 1983, gyruss,   0,        gyruss,   gyruss, gyruss_state,   gyruss, ROT90, "Konami", "Gyruss", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, gyrussce, gyruss,   gyruss,   gyrussce, gyruss_state, gyruss, ROT90, "Konami (Centuri license)", "Gyruss (Centuri)", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, gyrussb,  gyruss,   gyruss,   gyruss, gyruss_state,   gyruss, ROT90, "bootleg?", "Gyruss (bootleg?)", MACHINE_SUPPORTS_SAVE ) /* Supposed Taito NZ license, but (c) Konami */
+GAME( 1983, venus,    gyruss,   gyruss,   gyruss, gyruss_state,   gyruss, ROT90, "bootleg", "Venus (bootleg of Gyruss)", MACHINE_SUPPORTS_SAVE )

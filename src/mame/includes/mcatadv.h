@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Paul Priest, David Haywood
 
 class mcatadv_state : public driver_device
 {
@@ -24,7 +26,6 @@ public:
 	UINT16 *     m_spriteram_old;
 	required_shared_ptr<UINT16> m_vidregs;
 	UINT16 *     m_vidregs_old;
-//  UINT16 *     m_paletteram;    // this currently uses generic palette handlers
 
 	/* video-related */
 	tilemap_t    *m_tilemap1;

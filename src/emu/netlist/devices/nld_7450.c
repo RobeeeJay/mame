@@ -1,9 +1,13 @@
+// license:GPL-2.0+
+// copyright-holders:Couriersud
 /*
  * nld_7450.c
  *
  */
 
 #include "nld_7450.h"
+
+NETLIB_NAMESPACE_DEVICES_START()
 
 NETLIB_START(7450)
 {
@@ -54,8 +58,8 @@ NETLIB_UPDATE(7450)
 
 NETLIB_START(7450_dip)
 {
-	register_sub(m_1, "1");
-	register_sub(m_2, "2");
+	register_sub("1", m_1);
+	register_sub("2", m_2);
 
 	register_subalias("1", m_1.m_A);
 	register_subalias("2", m_2.m_A);
@@ -86,3 +90,5 @@ NETLIB_RESET(7450_dip)
 	m_1.do_reset();
 	m_2.do_reset();
 }
+
+NETLIB_NAMESPACE_DEVICES_END()

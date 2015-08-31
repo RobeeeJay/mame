@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*************************************************************************************************************
 
                                                 -= IGS Lord Of Gun =-
@@ -1049,9 +1051,9 @@ DRIVER_INIT_MEMBER(lordgun_state, lordgun)
 
 		rom[i] = x;
 	}
-	
+
 	save_item(NAME(m_old));
-	
+
 	for (int i = 0; i < 2; i++)
 	{
 		save_item(NAME(m_gun[i].scr_x), i);
@@ -1072,6 +1074,6 @@ DRIVER_INIT_MEMBER(lordgun_state, aliencha)
 
 ***************************************************************************/
 
-GAME( 1994, lordgun,   0,        lordgun,  lordgun,  lordgun_state, lordgun,  ROT0, "IGS", "Lord of Gun (USA)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME( 1994, aliencha,  0,        aliencha, aliencha, driver_device, 0,        ROT0, "IGS", "Alien Challenge (World)", GAME_SUPPORTS_SAVE )
-GAME( 1994, alienchac, aliencha, aliencha, aliencha, driver_device, 0,        ROT0, "IGS", "Alien Challenge (China)", GAME_SUPPORTS_SAVE )
+GAME( 1994, lordgun,   0,        lordgun,  lordgun,  lordgun_state, lordgun,  ROT0, "IGS", "Lord of Gun (USA)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1994, aliencha,  0,        aliencha, aliencha, driver_device, 0,        ROT0, "IGS", "Alien Challenge (World)", MACHINE_SUPPORTS_SAVE )
+GAME( 1994, alienchac, aliencha, aliencha, aliencha, driver_device, 0,        ROT0, "IGS", "Alien Challenge (China)", MACHINE_SUPPORTS_SAVE )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods, Olivier Galibert, Miodrag Milanovic
 /*********************************************************************
 
 
@@ -17,6 +19,8 @@
 
 // Show step operation
 #define TRACE_STEP 1
+
+#define FLOPSND_TAG "floppysound"
 
 // device type definition
 const device_type FLOPPY_CONNECTOR = &device_creator<floppy_connector>;
@@ -48,7 +52,7 @@ const device_type FLOPPY_8_DSSD = &device_creator<floppy_8_dssd>;
 const device_type FLOPPY_8_SSDD = &device_creator<floppy_8_ssdd>;
 const device_type FLOPPY_8_DSDD = &device_creator<floppy_8_dsdd>;
 
-// epson 3.5" drives
+// Epson 3.5" drives
 #if 0
 const device_type EPSON_SMD_110 = &device_creator<epson_smd_110>;
 const device_type EPSON_SMD_120 = &device_creator<epson_smd_120>;
@@ -70,7 +74,7 @@ const device_type EPSON_SMD_480LM = &device_creator<epson_smd_480lm>;
 const device_type EPSON_SMD_489M = &device_creator<epson_smd_489m>;
 #endif
 
-// epson 5.25" drives
+// Epson 5.25" drives
 #if 0
 const device_type EPSON_SD_311 = &device_creator<epson_sd_311>;
 #endif
@@ -88,17 +92,17 @@ const device_type EPSON_SD_621L = &device_creator<epson_sd_621l>;
 const device_type EPSON_SD_680L = &device_creator<epson_sd_680l>;
 #endif
 
-// sony 3.5" drives
+// Sony 3.5" drives
 const device_type SONY_OA_D31V = &device_creator<sony_oa_d31v>;
 const device_type SONY_OA_D32W = &device_creator<sony_oa_d32w>;
 const device_type SONY_OA_D32V = &device_creator<sony_oa_d32v>;
 
-// teac 5.25" drives
+// TEAC 5.25" drives
 #if 0
 const device_type TEAC_FD_55A = &device_creator<teac_fd_55a>;
 const device_type TEAC_FD_55B = &device_creator<teac_fd_55b>;
-const device_type TEAC_FD_55E = &device_creator<teac_fd_55e>;
 #endif
+const device_type TEAC_FD_55E = &device_creator<teac_fd_55e>;
 const device_type TEAC_FD_55F = &device_creator<teac_fd_55f>;
 const device_type TEAC_FD_55G = &device_creator<teac_fd_55g>;
 
@@ -121,7 +125,8 @@ const floppy_format_type floppy_image_device::default_floppy_formats[] = {
 
 floppy_connector::floppy_connector(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock) :
 	device_t(mconfig, FLOPPY_CONNECTOR, "Floppy drive connector abstraction", tag, owner, clock, "floppy_connector", __FILE__),
-	device_slot_interface(mconfig, *this)
+	device_slot_interface(mconfig, *this),
+	m_enable_sound(false)
 {
 }
 
@@ -142,7 +147,10 @@ void floppy_connector::device_config_complete()
 {
 	floppy_image_device *dev = dynamic_cast<floppy_image_device *>(get_card_device());
 	if(dev)
+	{
 		dev->set_formats(formats);
+		dev->enable_sound(m_enable_sound);
+	}
 }
 
 floppy_image_device *floppy_connector::get_device()
@@ -159,7 +167,8 @@ floppy_image_device::floppy_image_device(const machine_config &mconfig, device_t
 		device_image_interface(mconfig, *this),
 		device_slot_card_interface(mconfig, *this),
 		image(NULL),
-		fif_list(NULL)
+		fif_list(NULL),
+		m_make_sound(false)
 {
 	extension_list[0] = '\0';
 	m_err = IMAGE_ERROR_INVALIDIMAGE;
@@ -248,7 +257,7 @@ void floppy_image_device::set_rpm(float _rpm)
 
 	rpm = _rpm;
 	rev_time = attotime::from_double(60/rpm);
-	floppy_ratio_1 = int(1000*rpm/300+0.5);
+	floppy_ratio_1 = int(1000.0f*rpm/300.0f+0.5f);
 }
 
 void floppy_image_device::setup_write(floppy_image_format_t *_output_format)
@@ -260,13 +269,18 @@ void floppy_image_device::setup_write(floppy_image_format_t *_output_format)
 void floppy_image_device::commit_image()
 {
 	image_dirty = false;
-	if(!output_format)
+	if(!output_format || !output_format->supports_save())
 		return;
 	io_generic io;
 	// Do _not_ remove this cast otherwise the pointer will be incorrect when used by the ioprocs.
 	io.file = (device_image_interface *)this;
 	io.procs = &image_ioprocs;
 	io.filler = 0xff;
+
+	file_error err = core_truncate(image_core_file(), 0);
+	if (err != 0)
+		popmessage("Error, unable to truncate image: %d", err);
+
 	output_format->save(&io, image);
 }
 
@@ -297,12 +311,20 @@ void floppy_image_device::device_start()
 
 	setup_characteristics();
 
+	if (m_make_sound) m_sound_out = subdevice<floppy_sound_device>(FLOPSND_TAG);
+
 	save_item(NAME(cyl));
 	save_item(NAME(subcyl));
 }
 
 void floppy_image_device::device_reset()
 {
+	if (m_make_sound)
+	{
+		// Have we loaded all samples? Otherwise mute the floppy.
+		m_make_sound = m_sound_out->samples_loaded();
+	}
+
 	revolution_start_time = attotime::never;
 	revolution_count = 0;
 	mon = 1;
@@ -320,12 +342,12 @@ void floppy_image_device::device_timer(emu_timer &timer, device_timer_id id, int
 	index_resync();
 }
 
-floppy_image_format_t *floppy_image_device::identify(astring filename)
+floppy_image_format_t *floppy_image_device::identify(std::string filename)
 {
 	core_file *fd;
-	astring revised_path;
+	std::string revised_path;
 
-	file_error err = zippath_fopen(filename, OPEN_FLAG_READ, fd, revised_path);
+	file_error err = zippath_fopen(filename.c_str(), OPEN_FLAG_READ, fd, revised_path);
 	if(err) {
 		seterror(IMAGE_ERROR_INVALIDIMAGE, "Unable to open the image file");
 		return 0;
@@ -351,6 +373,7 @@ floppy_image_format_t *floppy_image_device::identify(astring filename)
 bool floppy_image_device::call_load()
 {
 	io_generic io;
+
 	// Do _not_ remove this cast otherwise the pointer will be incorrect when used by the ioprocs.
 	io.file = (device_image_interface *)this;
 	io.procs = &image_ioprocs;
@@ -430,6 +453,28 @@ bool floppy_image_device::call_create(int format_type, option_resolution *format
 {
 	image = global_alloc(floppy_image(tracks, sides, form_factor));
 	output_format = 0;
+
+	// search for a suitable format based on the extension
+	for(floppy_image_format_t *i = fif_list; i; i = i->next)
+	{
+		// only consider formats that actually support saving
+		if(!i->supports_save())
+			continue;
+
+		if (i->extension_matches(basename()))
+		{
+			output_format = i;
+			break;
+		}
+	}
+
+	// did we find a suitable format?
+	if (output_format == 0)
+	{
+		seterror(IMAGE_ERROR_INVALIDIMAGE, "Unable to identify the image format");
+		return IMAGE_INIT_FAIL;
+	}
+
 	return IMAGE_INIT_PASS;
 }
 
@@ -461,6 +506,8 @@ void floppy_image_device::mon_w(int state)
 				cur_ready_cb(this, ready);
 		}
 	}
+
+	if (m_make_sound) m_sound_out->motor(state==0);
 }
 
 attotime floppy_image_device::time_next_index()
@@ -544,7 +591,11 @@ void floppy_image_device::stp_w(int state)
 				if ( cyl < tracks-1 ) cyl++;
 			}
 			if(ocyl != cyl)
+			{
 				if (TRACE_STEP) logerror("%s: track %d\n", tag(), cyl);
+				// Do we want a stepper sound?
+				if (m_make_sound) m_sound_out->step();
+			}
 			/* Update disk detection if applicable */
 			if (exists())
 			{
@@ -596,18 +647,18 @@ void floppy_image_device::seek_phase_w(int phases)
 			dskchg = 1;
 }
 
-int floppy_image_device::find_index(UINT32 position, const UINT32 *buf, int buf_size)
+int floppy_image_device::find_index(UINT32 position, const std::vector<UINT32> &buf)
 {
-	int spos = (buf_size >> 1)-1;
+	int spos = (buf.size() >> 1)-1;
 	int step;
-	for(step=1; step<buf_size+1; step<<=1);
+	for(step=1; step<buf.size()+1; step<<=1);
 	step >>= 1;
 
 	for(;;) {
-		if(spos >= buf_size || (spos > 0 && (buf[spos] & floppy_image::TIME_MASK) > position)) {
+		if(spos >= int(buf.size()) || (spos > 0 && (buf[spos] & floppy_image::TIME_MASK) > position)) {
 			spos -= step;
 			step >>= 1;
-		} else if(spos < 0 || (spos < buf_size-1 && (buf[spos+1] & floppy_image::TIME_MASK) <= position)) {
+		} else if(spos < 0 || (spos < int(buf.size())-1 && (buf[spos+1] & floppy_image::TIME_MASK) <= position)) {
 			spos += step;
 			step >>= 1;
 		} else
@@ -632,33 +683,44 @@ UINT32 floppy_image_device::find_position(attotime &base, const attotime &when)
 	return (delta*floppy_ratio_1).as_ticks(1000000000/1000);
 }
 
+attotime floppy_image_device::get_next_index_time(std::vector<UINT32> &buf, int index, int delta, attotime base)
+{
+	UINT32 next_position;
+	int cells = buf.size();
+	if(index+delta < cells)
+		next_position = buf[index+delta] & floppy_image::TIME_MASK;
+	else {
+		if((buf[cells-1]^buf[0]) & floppy_image::MG_MASK)
+			delta--;
+		index = index + delta - cells + 1;
+		next_position = 200000000 + (buf[index] & floppy_image::TIME_MASK);
+	}
+
+	return base + attotime::from_nsec((UINT64(next_position)*2000/floppy_ratio_1+1)/2);
+}
+
 attotime floppy_image_device::get_next_transition(const attotime &from_when)
 {
 	if(!image || mon)
 		return attotime::never;
 
-	int cells = image->get_track_size(cyl, ss, subcyl);
+	std::vector<UINT32> &buf = image->get_buffer(cyl, ss, subcyl);
+	UINT32 cells = buf.size();
 	if(cells <= 1)
 		return attotime::never;
 
 	attotime base;
 	UINT32 position = find_position(base, from_when);
 
-	const UINT32 *buf = image->get_buffer(cyl, ss, subcyl);
-	int index = find_index(position, buf, cells);
+	int index = find_index(position, buf);
 
 	if(index == -1)
 		return attotime::never;
 
-	UINT32 next_position;
-	if(index < cells-1)
-		next_position = buf[index+1] & floppy_image::TIME_MASK;
-	else if((buf[index]^buf[0]) & floppy_image::MG_MASK)
-		next_position = 200000000;
-	else
-		next_position = 200000000 + (buf[1] & floppy_image::TIME_MASK);
-
-	return base + attotime::from_nsec((UINT64(next_position)*2000/floppy_ratio_1+1)/2);
+	attotime result = get_next_index_time(buf, index, 1,  base);
+	if(result > from_when)
+		return result;
+	return get_next_index_time(buf, index, 2,  base);
 }
 
 void floppy_image_device::write_flux(const attotime &start, const attotime &end, int transition_count, const attotime *transitions)
@@ -671,21 +733,18 @@ void floppy_image_device::write_flux(const attotime &start, const attotime &end,
 	int start_pos = find_position(base, start);
 	int end_pos   = find_position(base, end);
 
-	dynamic_array<int> trans_pos(transition_count);
+	std::vector<int> trans_pos(transition_count);
 	for(int i=0; i != transition_count; i++)
 		trans_pos[i] = find_position(base, transitions[i]);
 
-	int cells = image->get_track_size(cyl, ss, subcyl);
-	UINT32 *buf = image->get_buffer(cyl, ss, subcyl);
+	std::vector<UINT32> &buf = image->get_buffer(cyl, ss, subcyl);
 
 	int index;
-	if(cells)
-		index = find_index(start_pos, buf, cells);
+	if(!buf.empty())
+		index = find_index(start_pos, buf);
 	else {
 		index = 0;
-		image->set_track_size(cyl, ss, 1, subcyl);
-		buf = image->get_buffer(cyl, ss, subcyl);
-		buf[cells++] = floppy_image::MG_N;
+		buf.push_back(floppy_image::MG_N);
 	}
 
 	if(index && (buf[index] & floppy_image::TIME_MASK) == start_pos)
@@ -697,28 +756,27 @@ void floppy_image_device::write_flux(const attotime &start, const attotime &end,
 
 	UINT32 pos = start_pos;
 	int ti = 0;
+	int cells = buf.size();
 	while(pos != end_pos) {
-		if(image->get_track_size(cyl, ss, subcyl) < cells+10) {
-			image->set_track_size(cyl, ss, cells+200, subcyl);
-			buf = image->get_buffer(cyl, ss, subcyl);
-		}
+		if(buf.size() < cells+10)
+			buf.resize(cells+200);
 		UINT32 next_pos;
 		if(ti != transition_count)
 			next_pos = trans_pos[ti++];
 		else
 			next_pos = end_pos;
 		if(next_pos > pos)
-			write_zone(buf, cells, index, pos, next_pos, cur_mg);
+			write_zone(&buf[0], cells, index, pos, next_pos, cur_mg);
 		else {
-			write_zone(buf, cells, index, pos, 200000000, cur_mg);
+			write_zone(&buf[0], cells, index, pos, 200000000, cur_mg);
 			index = 0;
-			write_zone(buf, cells, index, 0, next_pos, cur_mg);
+			write_zone(&buf[0], cells, index, 0, next_pos, cur_mg);
 		}
 		pos = next_pos;
 		cur_mg = cur_mg == floppy_image::MG_A ? floppy_image::MG_B : floppy_image::MG_A;
 	}
 
-	image->set_track_size(cyl, ss, cells, subcyl);
+	buf.resize(cells);
 }
 
 void floppy_image_device::write_zone(UINT32 *buf, int &cells, int &index, UINT32 spos, UINT32 epos, UINT32 mg)
@@ -866,17 +924,17 @@ ui_menu_control_floppy_image::~ui_menu_control_floppy_image()
 void ui_menu_control_floppy_image::do_load_create()
 {
 	floppy_image_device *fd = static_cast<floppy_image_device *>(image);
-	if(input_filename == "") {
-		int err = fd->create(output_filename, 0, NULL);
+	if(input_filename.compare("")==0) {
+		int err = fd->create(output_filename.c_str(), 0, NULL);
 		if (err != 0) {
 			popmessage("Error: %s", fd->error());
 			return;
 		}
 		fd->setup_write(output_format);
 	} else {
-		int err = fd->load(input_filename);
-		if(!err && output_filename != "")
-			err = fd->reopen_for_write(output_filename);
+		int err = fd->load(input_filename.c_str());
+		if (!err && output_filename.compare("") != 0)
+			err = fd->reopen_for_write(output_filename.c_str());
 		if(err != 0) {
 			popmessage("Error: %s", fd->error());
 			return;
@@ -886,12 +944,12 @@ void ui_menu_control_floppy_image::do_load_create()
 	}
 }
 
-void ui_menu_control_floppy_image::hook_load(astring filename, bool softlist)
+void ui_menu_control_floppy_image::hook_load(std::string filename, bool softlist)
 {
 	if (softlist)
 	{
 		popmessage("When loaded from software list, the disk is Read-only.\n");
-		image->load(filename);
+		image->load(filename.c_str());
 		ui_menu::stack_pop(machine());
 		return;
 	}
@@ -909,10 +967,10 @@ void ui_menu_control_floppy_image::hook_load(astring filename, bool softlist)
 	bool can_in_place = input_format->supports_save();
 	if(can_in_place) {
 		file_error filerr = FILERR_NOT_FOUND;
-		astring tmp_path;
+		std::string tmp_path;
 		core_file *tmp_file;
 		/* attempt to open the file for writing but *without* create */
-		filerr = zippath_fopen(filename, OPEN_FLAG_READ|OPEN_FLAG_WRITE, tmp_file, tmp_path);
+		filerr = zippath_fopen(filename.c_str(), OPEN_FLAG_READ | OPEN_FLAG_WRITE, tmp_file, tmp_path);
 		if(!filerr)
 			core_fclose(tmp_file);
 		else
@@ -933,14 +991,14 @@ void ui_menu_control_floppy_image::handle()
 		for(floppy_image_format_t *i = fif_list; i; i = i->next) {
 			if(!i->supports_save())
 				continue;
-			if(i->extension_matches(current_file))
+			if (i->extension_matches(current_file.c_str()))
 				format_array[total_usable++] = i;
 		}
 		ext_match = total_usable;
 		for(floppy_image_format_t *i = fif_list; i; i = i->next) {
 			if(!i->supports_save())
 				continue;
-			if(!i->extension_matches(current_file))
+			if (!i->extension_matches(current_file.c_str()))
 				format_array[total_usable++] = i;
 		}
 		submenu_result = -1;
@@ -955,7 +1013,7 @@ void ui_menu_control_floppy_image::handle()
 			state = START_FILE;
 			handle();
 		} else {
-			zippath_combine(output_filename, current_directory, current_file);
+			zippath_combine(output_filename, current_directory.c_str(), current_file.c_str());
 			output_format = format_array[submenu_result];
 			do_load_create();
 			ui_menu::stack_pop(machine());
@@ -995,6 +1053,162 @@ void ui_menu_control_floppy_image::handle()
 		ui_menu_control_device_image::handle();
 	}
 }
+
+//===================================================================
+//   Floppy sound
+//
+//   In order to enable floppy sound you must add the line
+//      MCFG_FLOPPY_DRIVE_SOUND(true)
+//   after MCFG_FLOPPY_DRIVE_ADD
+//   and you must put audio samples (44100Hz, mono) with names as
+//   shown in floppy_sample_names into the directory samples/floppy
+//   Sound will be disabled when these samples are missing.
+//
+//   MZ, Aug 2015
+//===================================================================
+
+floppy_sound_device::floppy_sound_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock)
+	: samples_device(mconfig, FLOPPYSOUND, "Floppy sound", tag, owner, clock, "flopsnd", __FILE__)
+{
+	m_motor = false;
+	m_loaded = false;
+}
+
+void floppy_sound_device::register_for_save_states()
+{
+	save_item(NAME(m_sampleend_motor));
+	save_item(NAME(m_samplepos_motor));
+	save_item(NAME(m_motor_mintime));
+	save_item(NAME(m_motor_time));
+	save_item(NAME(m_motor));
+	save_item(NAME(m_sampleend_step));
+	save_item(NAME(m_samplestart_step));
+	save_item(NAME(m_samplepos_step));
+	save_item(NAME(m_step_mintime));
+	save_item(NAME(m_step_time));
+}
+
+void floppy_sound_device::device_start()
+{
+	// Read audio samples. The samples are stored in the list m_samples.
+	m_loaded = load_samples();
+
+	// The per-floppy stream. If we don't have all samples, don't allocate a stream.
+	if (m_loaded) m_sound = machine().sound().stream_alloc(*this, 0, 1, clock());
+
+	// Of course, we can read the length from the sample_t, but we want to
+	// be able to fine-tune it, for instance, choose different start and end points
+	m_samplestart_motor = 0;
+	m_sampleend_motor = 8820;       // 200ms
+	m_samplestart_step = 0;
+	m_sampleend_step = 2205;        // 50ms
+
+	// Mintime says how long the sound persists after the initiating signal
+	// is cleared (important for short step pulses)
+	m_motor_mintime = 8820;
+	m_step_mintime = 1500;
+
+	// Number of updates until the sample stops
+	m_motor_time = 0;
+	m_step_time = 0;
+
+	// Initialize position
+	m_samplepos_step = m_samplestart_step;
+	m_samplepos_motor = m_samplestart_motor;
+	register_for_save_states();
+}
+
+void floppy_sound_device::motor(bool state)
+{
+	m_sound->update();
+	// We do not reset the motor sample on state==true because we don't want
+	// the sound to "jump"
+	if (state==true) m_motor_time = m_motor_mintime;
+	m_motor = state;
+}
+
+/*
+    Activate the step sound.
+*/
+void floppy_sound_device::step()
+{
+	m_sound->update();  // required
+	m_step_time = m_step_mintime;
+	m_samplepos_step = m_samplestart_step;
+}
+
+//-------------------------------------------------
+//  sound_stream_update - update the sound stream
+//-------------------------------------------------
+
+void floppy_sound_device::sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples)
+{
+	// We are using only one stream, unlike the parent class
+	// Also, there is no need for interpolation, as we only expect
+	// one sample rate of 44100 for all samples
+
+	INT16 out = 0;
+
+	stream_sample_t *samplebuffer = outputs[0];
+	sample_t&   motor_sample = m_sample[0];
+	sample_t&   step_sample = m_sample[1];
+
+	while (samples-- > 0)
+	{
+		out = 0;
+		// Motor sound
+		if (m_motor_time > 0)
+		{
+			if (m_samplepos_motor < m_sampleend_motor)
+				// Stream value
+				out = motor_sample.data[m_samplepos_motor++];
+			else
+				m_samplepos_motor = m_samplestart_motor;
+
+			// When the motor is turned off, count down the samples
+			if (!m_motor) m_motor_time--;
+		}
+
+		// Stepper sound
+		if (m_step_time > 0)
+		{
+			if (m_samplepos_step < m_sampleend_step)
+				// Mix it into the stream value
+				out = out + step_sample.data[m_samplepos_step++];
+			else
+				m_samplepos_step = m_samplestart_step;
+
+			// Count down the samples
+			m_step_time--;
+		}
+		// Write to the stream buffer
+		*(samplebuffer++) = out;
+	}
+}
+
+static const char *const floppy_sample_names[] =
+{
+	"*floppy",
+	"floppy_35_motor",
+	"floppy_35_step",
+	0
+};
+
+#define FLOPSPK "flopsndout"
+
+MACHINE_CONFIG_FRAGMENT( floppy_img )
+	MCFG_SPEAKER_STANDARD_MONO(FLOPSPK)
+	MCFG_SOUND_ADD(FLOPSND_TAG, FLOPPYSOUND, 44100)
+	MCFG_SAMPLES_NAMES(floppy_sample_names)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, FLOPSPK, 0.75)
+MACHINE_CONFIG_END
+
+machine_config_constructor floppy_image_device::device_mconfig_additions() const
+{
+	return MACHINE_CONFIG_NAME( floppy_img );
+}
+
+const device_type FLOPPYSOUND = &device_creator<floppy_sound_device>;
 
 
 //**************************************************************************
@@ -1672,7 +1886,7 @@ void epson_sd_321::handled_variants(UINT32 *variants, int &var_count) const
 }
 
 //-------------------------------------------------
-//  sony oa-d31v
+//  Sony OA-D31V
 //
 //  track to track: 15 ms
 //  average: 365 ms
@@ -1706,7 +1920,7 @@ void sony_oa_d31v::handled_variants(UINT32 *variants, int &var_count) const
 }
 
 //-------------------------------------------------
-//  sony oa-d32w
+//  Sony OA-D32W
 //
 //  track to track: 12 ms
 //  average: 350 ms
@@ -1742,7 +1956,7 @@ void sony_oa_d32w::handled_variants(UINT32 *variants, int &var_count) const
 }
 
 //-------------------------------------------------
-//  sony oa-d32v
+//  Sony OA-D32V
 //
 //  track to track: 12 ms
 //  average: 350 ms
@@ -1777,7 +1991,42 @@ void sony_oa_d32v::handled_variants(UINT32 *variants, int &var_count) const
 }
 
 //-------------------------------------------------
-//  teac fd-55f
+//  TEAC FD-55E
+//
+//  track to track: 3 ms
+//  average: 94 ms
+//  setting time: 15 ms
+//  motor start time: 400 ms
+//
+//-------------------------------------------------
+
+teac_fd_55e::teac_fd_55e(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock) :
+	floppy_image_device(mconfig, TEAC_FD_55F, "TEAC FD-55E FDD", tag, owner, clock, "teac_fd_55e", __FILE__)
+{
+}
+
+teac_fd_55e::~teac_fd_55e()
+{
+}
+
+void teac_fd_55e::setup_characteristics()
+{
+	form_factor = floppy_image::FF_525;
+	tracks = 80;
+	sides = 1;
+	set_rpm(300);
+}
+
+void teac_fd_55e::handled_variants(UINT32 *variants, int &var_count) const
+{
+	var_count = 0;
+	variants[var_count++] = floppy_image::SSSD;
+	variants[var_count++] = floppy_image::SSDD;
+	variants[var_count++] = floppy_image::SSQD;
+}
+
+//-------------------------------------------------
+//  TEAC FD-55F
 //
 //  track to track: 3 ms
 //  average: 94 ms
@@ -1815,7 +2064,7 @@ void teac_fd_55f::handled_variants(UINT32 *variants, int &var_count) const
 }
 
 //-------------------------------------------------
-//  teac fd-55g
+//  TEAC FD-55G
 //
 //  track to track: 3 ms
 //  average: 91 ms

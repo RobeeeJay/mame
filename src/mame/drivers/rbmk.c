@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina, David Haywood
 /*
 Real Battle Mahjong King by 'Game Men System Co. Ltd.'
 
@@ -603,4 +605,4 @@ ROM_START( rbmk )
 ROM_END
 
 
-GAME( 1998, rbmk, 0, rbmk, rbmk, driver_device,0, ROT0,  "GMS", "Real Battle Mahjong King", GAME_NOT_WORKING )
+GAME( 1998, rbmk, 0, rbmk, rbmk, driver_device,0, ROT0,  "GMS", "Real Battle Mahjong King", MACHINE_NOT_WORKING )

@@ -1,9 +1,13 @@
+// license:GPL-2.0+
+// copyright-holders:Couriersud
 /*
  * nld_74153.c
  *
  */
 
 #include "nld_74153.h"
+
+NETLIB_NAMESPACE_DEVICES_START()
 
 /* FIXME: timing is not 100% accurate, Strobe and Select inputs have a
  *        slightly longer timing.
@@ -47,7 +51,7 @@ NETLIB_UPDATE(74153sub)
 
 NETLIB_START(74153)
 {
-	register_sub(m_sub, "SUB");
+	register_sub("sub", m_sub);
 
 	register_subalias("C0", m_sub.m_C[0]);
 	register_subalias("C1",  m_sub.m_C[1]);
@@ -75,8 +79,8 @@ NETLIB_UPDATE(74153)
 
 NETLIB_START(74153_dip)
 {
-	register_sub(m_1, "1");
-	register_sub(m_2, "2");
+	register_sub("1", m_1);
+	register_sub("2", m_2);
 
 	register_subalias("1", m_1.m_G);
 	register_input("2", m_B);    // m_2.m_B
@@ -108,3 +112,5 @@ NETLIB_RESET(74153_dip)
 	m_1.do_reset();
 	m_2.do_reset();
 }
+
+NETLIB_NAMESPACE_DEVICES_END()

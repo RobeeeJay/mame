@@ -1,4 +1,4 @@
-// license:MAME
+// license:LGPL-2.1+
 // copyright-holders:Angelo Salese, Tomasz Slanina, David Haywood, Luca Elia
 /********************************************************************************************
 
@@ -1494,4 +1494,4 @@ DRIVER_INIT_MEMBER(gunpey_state,gunpey)
 	// ...
 }
 
-GAME( 2000, gunpey, 0, gunpey, gunpey, gunpey_state, gunpey,    ROT0, "Banpresto", "Gunpey (Japan)",GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS)
+GAME( 2000, gunpey, 0, gunpey, gunpey, gunpey_state, gunpey,    ROT0, "Banpresto", "Gunpey (Japan)",MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS)

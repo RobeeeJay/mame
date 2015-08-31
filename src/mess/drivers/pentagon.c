@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic, MetalliC
 #include "emu.h"
 #include "includes/spectrum.h"
 #include "imagedev/snapquik.h"
@@ -27,6 +29,8 @@ public:
 
 	DECLARE_DIRECT_UPDATE_MEMBER(pentagon_direct);
 	DECLARE_WRITE8_MEMBER(pentagon_port_7ffd_w);
+	DECLARE_WRITE8_MEMBER(pentagon_scr_w);
+	DECLARE_WRITE8_MEMBER(pentagon_scr2_w);
 	DECLARE_MACHINE_RESET(pentagon);
 	INTERRUPT_GEN_MEMBER(pentagon_interrupt);
 	TIMER_CALLBACK_MEMBER(irq_on);
@@ -120,11 +124,29 @@ WRITE8_MEMBER(pentagon_state::pentagon_port_7ffd_w)
 	if (m_port_7ffd_data & 0x20)
 		return;
 
+	if ((m_port_7ffd_data ^ data) & 0x08)
+		spectrum_UpdateScreenBitmap();
+
 	/* store new state */
 	m_port_7ffd_data = data;
 
 	/* update memory */
 	pentagon_update_memory();
+}
+
+WRITE8_MEMBER(pentagon_state::pentagon_scr_w)
+{
+	spectrum_UpdateScreenBitmap();
+
+	*((UINT8*)m_bank2->base() + offset) = data;
+}
+
+WRITE8_MEMBER(pentagon_state::pentagon_scr2_w)
+{
+	if ((m_port_7ffd_data & 0x0f) == 0x0f || (m_port_7ffd_data & 0x0f) == 5)
+		spectrum_UpdateScreenBitmap();
+
+	*((UINT8*)m_bank4->base() + offset) = data;
 }
 
 void pentagon_state::device_timer(emu_timer &timer, device_timer_id id, int param, void *ptr)
@@ -179,11 +201,13 @@ MACHINE_RESET_MEMBER(pentagon_state,pentagon)
 	space.install_read_bank(0x0000, 0x3fff, "bank1");
 	space.unmap_write(0x0000, 0x3fff);
 
+	space.install_write_handler(0x4000, 0x5aff, write8_delegate(FUNC(pentagon_state::pentagon_scr_w), this));
+	space.install_write_handler(0xc000, 0xdaff, write8_delegate(FUNC(pentagon_state::pentagon_scr2_w), this));
+
 	if (m_beta->started())
 	{
 		if (strcmp(machine().system().name, "pent1024")==0)
 			m_beta->enable();
-		m_beta->clear_status();
 	}
 	space.set_direct_update_handler(direct_update_delegate(FUNC(pentagon_state::pentagon_direct), this));
 

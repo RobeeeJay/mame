@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 #include "sound/okim6295.h"
 #include "video/excellent_spr.h"
 
@@ -22,7 +24,6 @@ public:
 	required_shared_ptr<UINT16> m_bak_videoram;
 	required_shared_ptr<UINT16> m_txt_videoram;
 	required_shared_ptr<UINT16> m_scroll;
-//  UINT16 *  m_paletteram;   // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t  *m_txt_tilemap;

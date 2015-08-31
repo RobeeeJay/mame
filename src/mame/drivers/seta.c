@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /***************************************************************************
 
                             -= Seta Hardware =-
@@ -52,6 +54,8 @@ P0-080A  (BP923)        92 SD Gundam Neo Battling (3)           Banpresto
 P0-081A  (BP933KA)      93 Mobile Suit Gundam                   Banpresto
 P0-083A  (BP931)        93 Ultra Toukon Densetsu                Banpresto / Tsuburaya Prod.
 P0-092A                 93 Daioh                                Athena
+P0-072-2 (prototype)    93 Daioh(prototype)                     Athena
+?        (93111A)       93 Daioh(conversion)                    Athena
 P0-096A  (BP934KA)      93 Kamen Rider                          Banpresto
 P0-097A                 93 Oishii Puzzle ..                     Sunsoft + Atlus
 bootleg                 9? Triple Fun (4)                       bootleg (Comad?)
@@ -90,6 +94,7 @@ Notes:
 DIP Locations verified from manuals for:
 - Zing Zing Zip
 - Extreme Downhill
+- Kero Kero Keroppi's Let's Play Together
 
 TODO:
 - I think the best way to correctly align tilemaps and sprites and account for
@@ -1955,6 +1960,11 @@ WRITE16_MEMBER(seta_state::zombraid_gun_w)
 	m_gun_old_clock = data & 1;
 }
 
+READ16_MEMBER(seta_state::extra_r)
+{
+	return ioport("EXTRA")->read_safe(0xff);
+}
+
 static ADDRESS_MAP_START( wrofaero_map, AS_PROGRAM, 16, seta_state )
 	AM_RANGE(0x000000, 0x1fffff) AM_ROM                             // ROM (up to 2MB)
 	AM_RANGE(0x200000, 0x20ffff) AM_RAM AM_SHARE("workram")     // RAM (pointer for zombraid crosshair hack)
@@ -1963,7 +1973,9 @@ static ADDRESS_MAP_START( wrofaero_map, AS_PROGRAM, 16, seta_state )
 	AM_RANGE(0x400000, 0x400001) AM_READ_PORT("P1")                 // P1
 	AM_RANGE(0x400002, 0x400003) AM_READ_PORT("P2")                 // P2
 	AM_RANGE(0x400004, 0x400005) AM_READ_PORT("COINS")              // Coins
+
 	AM_RANGE(0x500000, 0x500005) AM_RAM_WRITE(seta_vregs_w) AM_SHARE("vregs")   // (gundhara) Coin Lockout + Video Registers
+	AM_RANGE(0x500006, 0x500007) AM_READ(extra_r)                   // Buttons 4,5,6 (Daioh only)
 
 	AM_RANGE(0x600000, 0x600003) AM_READ(seta_dsw_r)                // DSW
 	AM_RANGE(0x700000, 0x7003ff) AM_RAM                             // (rezon,jjsquawk)
@@ -1985,7 +1997,7 @@ static ADDRESS_MAP_START( wrofaero_map, AS_PROGRAM, 16, seta_state )
 #else
 	AM_RANGE(0xd00000, 0xd00007) AM_WRITENOP                        // ?
 #endif
-	AM_RANGE(0xe00000, 0xe00001) AM_WRITENOP                        // ? VBlank IRQ Ack
+	AM_RANGE(0xe00000, 0xe00001) AM_WRITE(watchdog_reset16_w)
 	AM_RANGE(0xf00000, 0xf00001) AM_WRITENOP                        // ? Sound  IRQ Ack
 ADDRESS_MAP_END
 
@@ -2252,6 +2264,41 @@ static ADDRESS_MAP_START( daioh_map, AS_PROGRAM, 16, seta_state )
 	AM_RANGE(0xb04000, 0xb13fff) AM_RAM
 	AM_RANGE(0xc00000, 0xc03fff) AM_DEVREADWRITE("x1snd", x1_010_device, word_r, word_w)   // Sound
 	AM_RANGE(0xe00000, 0xe00001) AM_WRITENOP    //
+ADDRESS_MAP_END
+
+
+/***************************************************************************
+                       Daioh (location test version)
+***************************************************************************/
+
+static ADDRESS_MAP_START( daiohp_map, AS_PROGRAM, 16, seta_state )
+	AM_RANGE(0x000000, 0x1fffff) AM_ROM AM_MIRROR(0x080000)         // ROM
+	AM_RANGE(0x200000, 0x20ffff) AM_RAM                             // RAM
+	AM_RANGE(0x400000, 0x400001) AM_READ_PORT("P1")                 // P1
+	AM_RANGE(0x400002, 0x400003) AM_READ_PORT("P2")                 // P2
+	AM_RANGE(0x400004, 0x400005) AM_READ_PORT("COINS")              // Coins
+	AM_RANGE(0x500000, 0x500005) AM_RAM_WRITE(seta_vregs_w) AM_SHARE("vregs")   // Coin Lockout + Video Registers
+	AM_RANGE(0x500006, 0x500007) AM_READ_PORT("EXTRA")              // Buttons 4,5,6
+	AM_RANGE(0x600000, 0x600003) AM_READ(seta_dsw_r             )   // DSW
+	AM_RANGE(0x700000, 0x7003ff) AM_RAM
+	AM_RANGE(0x700400, 0x700fff) AM_RAM AM_SHARE("paletteram")  // Palette
+	AM_RANGE(0x701000, 0x70ffff) AM_RAM                             //
+	AM_RANGE(0x800000, 0x803fff) AM_RAM_WRITE(seta_vram_0_w) AM_SHARE("vram_0") // VRAM 0&1
+	AM_RANGE(0x804000, 0x80ffff) AM_RAM                             //
+	AM_RANGE(0x880000, 0x883fff) AM_RAM_WRITE(seta_vram_2_w) AM_SHARE("vram_2") // VRAM 2&3
+	AM_RANGE(0x884000, 0x88ffff) AM_RAM                             //
+	AM_RANGE(0x900000, 0x900005) AM_RAM AM_SHARE("vctrl_0")     // VRAM 0&1 Ctrl
+	AM_RANGE(0x980000, 0x980005) AM_RAM AM_SHARE("vctrl_2")     // VRAM 2&3 Ctrl
+	AM_RANGE(0xa00000, 0xa005ff) AM_RAM AM_DEVREADWRITE("spritegen", seta001_device, spriteylow_r16, spriteylow_w16) // Sprites Y
+	AM_RANGE(0xa00600, 0xa00607) AM_RAM AM_DEVREADWRITE("spritegen", seta001_device, spritectrl_r16, spritectrl_w16)
+
+	AM_RANGE(0xa80000, 0xa80001) AM_RAM // ? 0x4000
+	AM_RANGE(0xb00000, 0xb03fff) AM_RAM AM_DEVREADWRITE("spritegen", seta001_device, spritecode_r16, spritecode_w16) // Sprites Code + X + Attr
+	AM_RANGE(0xb04000, 0xb13fff) AM_RAM
+	AM_RANGE(0xc00000, 0xc03fff) AM_DEVREADWRITE("x1snd", x1_010_device, word_r, word_w)   // Sound
+	AM_RANGE(0xd00000, 0xd00007) AM_WRITENOP                        // ?
+	AM_RANGE(0xe00000, 0xe00001) AM_WRITENOP                        // ? VBlank IRQ Ack
+	AM_RANGE(0xf00000, 0xf00001) AM_WRITENOP                        // ? Sound  IRQ Ack
 ADDRESS_MAP_END
 
 
@@ -3778,6 +3825,85 @@ static INPUT_PORTS_START( daioh )
 	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
 INPUT_PORTS_END
+
+/***************************************************************************
+                       Daioh (prototype)
+***************************************************************************/
+
+static INPUT_PORTS_START( daiohp )
+	PORT_START("P1")
+	JOY_TYPE1_3BUTTONS(1)
+
+	PORT_START("P2")
+	JOY_TYPE1_3BUTTONS(2)
+
+	PORT_START("DSW")
+	PORT_DIPNAME( 0x0007, 0x0007, DEF_STR( Coin_A ) ) PORT_DIPLOCATION("SW2:1,2,3")
+	PORT_DIPSETTING(      0x0001, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0007, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0003, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(      0x0006, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0005, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x0038, 0x0038, DEF_STR( Coin_B ) ) PORT_DIPLOCATION("SW2:4,5,6")
+	PORT_DIPSETTING(      0x0008, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0038, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0018, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(      0x0030, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0028, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SW2:7")
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0000, "Auto Shot" ) PORT_DIPLOCATION("SW2:8")
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+
+	PORT_DIPNAME( 0x0100, 0x0100, DEF_STR( Flip_Screen ) ) PORT_DIPLOCATION("SW1:1")
+	PORT_DIPSETTING(      0x0100, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_SERVICE_DIPLOC(  0x0200, IP_ACTIVE_LOW, "SW1:2" )
+	PORT_DIPNAME( 0x0c00, 0x0c00, DEF_STR( Difficulty ) ) PORT_DIPLOCATION("SW1:3,4")
+	PORT_DIPSETTING(      0x0800, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x0c00, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0400, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x3000, 0x3000, DEF_STR( Lives ) ) PORT_DIPLOCATION("SW1:5,6")
+	PORT_DIPSETTING(      0x0000, "1" )
+	PORT_DIPSETTING(      0x1000, "2" )
+	PORT_DIPSETTING(      0x3000, "3" )
+	PORT_DIPSETTING(      0x2000, "5" )
+	PORT_DIPNAME( 0xc000, 0xc000, DEF_STR( Bonus_Life ) ) PORT_DIPLOCATION("SW1:7,8")
+	PORT_DIPSETTING(      0x8000, "100k and every 600k" )
+	PORT_DIPSETTING(      0xc000, "200k and every 800k" )
+	PORT_DIPSETTING(      0x4000, "300k and 1000k only" )
+	PORT_DIPSETTING(      0x0000, "500k Only" )
+
+	PORT_START("COINS")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(5)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(5)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_DIPNAME( 0x00F0, 0x0000, "Country" ) PORT_DIPLOCATION("SW3:1,2,3,4")
+	PORT_DIPSETTING(      0x0080, "USA (6 buttons)" ) // any setting other than 0 is USA
+	PORT_DIPSETTING(      0x0000, "Japan (2 buttons)" )
+
+	PORT_START("EXTRA")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
+
 
 /***************************************************************************
                                 Dragon Unit
@@ -6640,55 +6766,49 @@ static INPUT_PORTS_START( keroppi )
 	PORT_BIT( 0x0080, IP_ACTIVE_LOW,  IPT_UNKNOWN )
 
 	PORT_START("DSW") //2 DSWs - $600001 & 3.b
-	PORT_DIPNAME( 0x0001, 0x0001, "Unknown 2-1" ) PORT_DIPLOCATION("SW2:1")
-	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0002, 0x0002, "Unknown 2-2" ) PORT_DIPLOCATION("SW2:2")
-	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0004, 0x0004, "Unknown 2-3" ) PORT_DIPLOCATION("SW2:3")
-	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0008, 0x0008, "Unknown 2-4" ) PORT_DIPLOCATION("SW2:4")
-	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0010, 0x0010, "Unknown 2-5" ) PORT_DIPLOCATION("SW2:5")
-	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0020, 0x0020, "Unknown 2-6" ) PORT_DIPLOCATION("SW2:6")
-	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0040, 0x0040, "Unknown 2-7" ) PORT_DIPLOCATION("SW2:7")
-	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0080, 0x0080, "Unknown 2-8" ) PORT_DIPLOCATION("SW2:8")
-	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0003, 0x0003, "Obstacle Course Payout Setting" ) PORT_DIPLOCATION("SW2:1,2")
+	PORT_DIPSETTING(      0x0000, "Highest (0, 3, 5, 7, 15 Tickets)" )
+	PORT_DIPSETTING(      0x0001, "High (0, 3, 4, 5, 10 Tickets)" )
+	PORT_DIPSETTING(      0x0002, "Low (0, 1, 2, 3, 6 Tickets)" )
+	PORT_DIPSETTING(      0x0003, "Medium (0, 2, 3, 4, 8 Tickets)" )
+	PORT_DIPNAME( 0x000c, 0x000c, "Treasure Hunt Payout Setting" ) PORT_DIPLOCATION("SW2:3,4")
+	PORT_DIPSETTING(      0x0000, "Highest (5, 10, 15 Tickets)" )
+	PORT_DIPSETTING(      0x0004, "High (5, 7, 10 Tickets)" )
+	PORT_DIPSETTING(      0x0008, "Low (1, 3, 5 Tickets)" )
+	PORT_DIPSETTING(      0x000c, "Medium (3, 5, 7 Tickets)" )
+	PORT_DIPNAME( 0x0030, 0x0030, "New Jersey Payout Setting" ) PORT_DIPLOCATION("SW2:5,6")
+	PORT_DIPSETTING(      0x0000, "Always Payout 5 Tickets" )
+	PORT_DIPSETTING(      0x0010, "Always Payout 3 Tickets" )
+	PORT_DIPSETTING(      0x0020, "Always Payout 1 Ticket" )
+	PORT_DIPSETTING(      0x0030, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x00c0, 0x00c0, "Mercy Ticket Payout Setting (Treasure Hunt Only" ) PORT_DIPLOCATION("SW2:7,8")
+	PORT_DIPSETTING(      0x0000, "No Payout" )
+	PORT_DIPSETTING(      0x0040, "3 Tickets" )
+	PORT_DIPSETTING(      0x0080, "2 Tickets" )
+	PORT_DIPSETTING(      0x00c0, "1 Ticket" )
 
-	PORT_DIPNAME( 0x0100, 0x0100, "Unknown 1-1" ) PORT_DIPLOCATION("SW1:1")
-	PORT_DIPSETTING(      0x0100, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0200, 0x0200, "Unknown 1-2" ) PORT_DIPLOCATION("SW1:2")
-	PORT_DIPSETTING(      0x0200, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0400, 0x0400, "Unknown 1-3" ) PORT_DIPLOCATION("SW1:3")
-	PORT_DIPSETTING(      0x0400, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0800, 0x0800, "Unknown 1-4" ) PORT_DIPLOCATION("SW1:4")
-	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0300, 0x0300, DEF_STR( Coinage ) ) PORT_DIPLOCATION("SW1:1,2")
+	PORT_DIPSETTING(      0x0000, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(      0x0100, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0200, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0300, DEF_STR( 1C_1C ) )
+	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SW1:3")
+	PORT_DIPSETTING(      0x0400, DEF_STR( On ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x0800, 0x0800, "Vending Style" ) PORT_DIPLOCATION("SW1:4")
+	PORT_DIPSETTING(      0x0800, "Ticket" )
+	PORT_DIPSETTING(      0x0000, "No Vending" )
 	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Free_Play ) ) PORT_DIPLOCATION("SW1:5")
 	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x2000, 0x2000, "Unknown 1-6" ) PORT_DIPLOCATION("SW1:6")
-	PORT_DIPSETTING(      0x2000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x4000, 0x4000, "Unknown 1-7" ) PORT_DIPLOCATION("SW1:7")
-	PORT_DIPSETTING(      0x4000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x8000, 0x8000, "Unknown 1-8" ) PORT_DIPLOCATION("SW1:8")
-	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x6000, 0x6000, DEF_STR( Difficulty ) ) PORT_DIPLOCATION("SW1:6,7")
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x4000, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x6000, DEF_STR( Normal ) )
+	PORT_DIPNAME( 0x8000, 0x8000, "Payout Setting" ) PORT_DIPLOCATION("SW1:8")
+	PORT_DIPSETTING(      0x8000, "Normal Payout" )
+	PORT_DIPSETTING(      0x0000, "No Payout" )
 
 INPUT_PORTS_END
 
@@ -7348,6 +7468,16 @@ static GFXDECODE_START( msgundam )
 GFXDECODE_END
 
 /***************************************************************************
+                       Daioh (prototype)
+***************************************************************************/
+
+static GFXDECODE_START( daiohp )
+	GFXDECODE_ENTRY( "gfx1", 0, layout_planes,             512*0, 32 ) // [0] Sprites
+	GFXDECODE_ENTRY( "gfx2", 0, layout_planes_2roms_split, 512*2, 32 ) // [1] Layer 1
+	GFXDECODE_ENTRY( "gfx3", 0, layout_planes_2roms_split, 512*1, 32 ) // [2] Layer 2
+GFXDECODE_END
+
+/***************************************************************************
                                 Quiz Kokology 2
 ***************************************************************************/
 
@@ -7570,6 +7700,7 @@ static MACHINE_CONFIG_START( tndrcade, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -7624,6 +7755,7 @@ static MACHINE_CONFIG_START( twineagl, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -7640,11 +7772,10 @@ static MACHINE_CONFIG_START( twineagl, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,twineagl_1_layer)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -7668,6 +7799,7 @@ static MACHINE_CONFIG_START( downtown, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -7728,12 +7860,13 @@ static MACHINE_CONFIG_START( usclssic, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
 	MCFG_SCREEN_REFRESH_RATE(60)
 	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(0))
-	MCFG_SCREEN_SIZE(64*8, 33*8)
+	MCFG_SCREEN_SIZE(64*8, 32*8)
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 48*8-1, 1*8, 31*8-1)
 	MCFG_SCREEN_UPDATE_DRIVER(seta_state, screen_update_usclssic)
 	MCFG_SCREEN_PALETTE("palette")
@@ -7747,12 +7880,11 @@ static MACHINE_CONFIG_START( usclssic, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_1_layer)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
 	MCFG_X1_010_ADDRESS(0x1000)
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -7782,6 +7914,7 @@ static MACHINE_CONFIG_START( calibr50, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -7825,6 +7958,7 @@ static MACHINE_CONFIG_START( metafox, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -7841,11 +7975,10 @@ static MACHINE_CONFIG_START( metafox, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_1_layer)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -7863,6 +7996,7 @@ static MACHINE_CONFIG_START( atehate, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -7879,11 +8013,10 @@ static MACHINE_CONFIG_START( atehate, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_no_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -7907,6 +8040,7 @@ static MACHINE_CONFIG_START( blandia, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -7927,11 +8061,10 @@ static MACHINE_CONFIG_START( blandia, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_START( blandiap, seta_state )
@@ -7944,6 +8077,7 @@ static MACHINE_CONFIG_START( blandiap, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -7964,11 +8098,10 @@ static MACHINE_CONFIG_START( blandiap, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -7986,6 +8119,7 @@ static MACHINE_CONFIG_START( blockcar, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8002,11 +8136,10 @@ static MACHINE_CONFIG_START( blockcar, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_no_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8040,8 +8173,7 @@ static MACHINE_CONFIG_DERIVED( blockcarb, blockcar )
 	MCFG_DEVICE_REMOVE("x1snd")
 
 	MCFG_OKIM6295_ADD("oki", 1000000, OKIM6295_PIN7_HIGH) // clock frequency & pin 7 not verified
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8060,6 +8192,7 @@ static MACHINE_CONFIG_START( daioh, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8076,11 +8209,48 @@ static MACHINE_CONFIG_START( daioh, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, XTAL_16MHz)   /* 16 MHz, Verified from PCB audio */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_CONFIG_END
+
+
+/***************************************************************************
+                       Daioh (prototype)
+***************************************************************************/
+
+static MACHINE_CONFIG_START( daiohp, seta_state )
+
+	/* basic machine hardware */
+	MCFG_CPU_ADD("maincpu", M68000, XTAL_16MHz)   /* 16 MHz, MC68000-16, Verified from PCB */
+	MCFG_CPU_PROGRAM_MAP(daiohp_map)
+	MCFG_TIMER_DRIVER_ADD_SCANLINE("scantimer", seta_state, seta_interrupt_1_and_2, "screen", 0, 1)
+
+	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
+	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
+	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
+
+	/* video hardware */
+	MCFG_SCREEN_ADD("screen", RASTER)
+	MCFG_SCREEN_REFRESH_RATE(57.42)   /* verified on PCB */
+	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(0))
+	MCFG_SCREEN_SIZE(64*8, 32*8)
+	MCFG_SCREEN_VISIBLE_AREA(0*8, 48*8-1, 1*8, 31*8-1)
+	MCFG_SCREEN_UPDATE_DRIVER(seta_state, screen_update_seta)
+	MCFG_SCREEN_PALETTE("palette")
+
+	MCFG_GFXDECODE_ADD("gfxdecode", "palette", daiohp)
+	MCFG_PALETTE_ADD("palette", 512 * 3)    /* sprites, layer1, layer2 */
+
+	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
+
+	/* sound hardware */
+	MCFG_SPEAKER_STANDARD_MONO("mono")
+
+	MCFG_SOUND_ADD("x1snd", X1_010, XTAL_16MHz)   /* 16 MHz, Verified from PCB audio */
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 /***************************************************************************
@@ -8103,6 +8273,7 @@ static MACHINE_CONFIG_START( drgnunit, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8120,11 +8291,10 @@ static MACHINE_CONFIG_START( drgnunit, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_1_layer)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 /*  Same as qzkklogy, but with a 16MHz CPU and different
@@ -8140,6 +8310,7 @@ static MACHINE_CONFIG_START( qzkklgy2, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8190,6 +8361,7 @@ static MACHINE_CONFIG_START( setaroul, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	MCFG_NVRAM_ADD_RANDOM_FILL("nvram")
 
@@ -8233,6 +8405,7 @@ static MACHINE_CONFIG_START( eightfrc, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8249,11 +8422,10 @@ static MACHINE_CONFIG_START( eightfrc, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8276,6 +8448,7 @@ static MACHINE_CONFIG_START( extdwnhl, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8341,6 +8514,7 @@ static MACHINE_CONFIG_START( gundhara, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8360,11 +8534,10 @@ static MACHINE_CONFIG_START( gundhara, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8386,6 +8559,7 @@ static MACHINE_CONFIG_START( jjsquawk, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8405,11 +8579,10 @@ static MACHINE_CONFIG_START( jjsquawk, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_START( jjsquawb, seta_state )
@@ -8422,6 +8595,7 @@ static MACHINE_CONFIG_START( jjsquawb, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8441,11 +8615,10 @@ static MACHINE_CONFIG_START( jjsquawb, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 /***************************************************************************
@@ -8467,6 +8640,7 @@ static MACHINE_CONFIG_START( kamenrid, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8483,11 +8657,10 @@ static MACHINE_CONFIG_START( kamenrid, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 /***************************************************************************
@@ -8506,6 +8679,7 @@ static MACHINE_CONFIG_START( orbs, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8548,6 +8722,7 @@ static MACHINE_CONFIG_START( keroppij, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8589,6 +8764,7 @@ static MACHINE_CONFIG_START( krzybowl, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8605,11 +8781,10 @@ static MACHINE_CONFIG_START( krzybowl, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_no_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8632,6 +8807,7 @@ static MACHINE_CONFIG_START( madshark, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8651,11 +8827,10 @@ static MACHINE_CONFIG_START( madshark, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 /***************************************************************************
@@ -8677,6 +8852,7 @@ static MACHINE_CONFIG_START( magspeed, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8693,11 +8869,10 @@ static MACHINE_CONFIG_START( magspeed, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8725,6 +8900,7 @@ static MACHINE_CONFIG_START( msgundam, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8742,11 +8918,10 @@ static MACHINE_CONFIG_START( msgundam, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8765,6 +8940,7 @@ static MACHINE_CONFIG_START( oisipuzl, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8804,6 +8980,7 @@ static MACHINE_CONFIG_START( triplfun, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8842,6 +9019,7 @@ static MACHINE_CONFIG_START( kiwame, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8883,6 +9061,7 @@ static MACHINE_CONFIG_START( rezon, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8899,11 +9078,10 @@ static MACHINE_CONFIG_START( rezon, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8924,6 +9102,7 @@ static MACHINE_CONFIG_START( thunderl, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -8940,11 +9119,10 @@ static MACHINE_CONFIG_START( thunderl, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_no_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8979,8 +9157,7 @@ static MACHINE_CONFIG_DERIVED( thunderlbl, thunderl )
 	MCFG_DEVICE_REMOVE("x1snd")
 
 	MCFG_YM2151_ADD("ymsnd", 10000000/2)
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -8997,6 +9174,7 @@ static MACHINE_CONFIG_START( wiggie, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9034,6 +9212,7 @@ static MACHINE_CONFIG_START( wits, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9050,11 +9229,10 @@ static MACHINE_CONFIG_START( wits, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_no_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -9072,6 +9250,7 @@ static MACHINE_CONFIG_START( umanclub, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9088,11 +9267,10 @@ static MACHINE_CONFIG_START( umanclub, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_no_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -9114,6 +9292,7 @@ static MACHINE_CONFIG_START( utoukond, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9165,6 +9344,7 @@ static MACHINE_CONFIG_START( wrofaero, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9181,11 +9361,10 @@ static MACHINE_CONFIG_START( wrofaero, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -9210,6 +9389,7 @@ static MACHINE_CONFIG_START( zingzip, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9229,11 +9409,10 @@ static MACHINE_CONFIG_START( zingzip, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_2_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -9249,8 +9428,7 @@ static MACHINE_CONFIG_DERIVED( zingzipbl, zingzip )
 	MCFG_DEVICE_REMOVE("x1snd")
 
 	MCFG_OKIM6295_ADD("oki", 1000000, OKIM6295_PIN7_HIGH)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 /***************************************************************************
@@ -9267,6 +9445,7 @@ static MACHINE_CONFIG_START( pairlove, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9283,11 +9462,10 @@ static MACHINE_CONFIG_START( pairlove, seta_state )
 	MCFG_VIDEO_START_OVERRIDE(seta_state,seta_no_layers)
 
 	/* sound hardware */
-	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
+	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("x1snd", X1_010, 16000000)   /* 16 MHz */
-	MCFG_SOUND_ROUTE(0, "lspeaker", 1.0)
-	MCFG_SOUND_ROUTE(1, "rspeaker", 1.0)
+	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_CONFIG_END
 
 
@@ -9316,6 +9494,7 @@ static MACHINE_CONFIG_START( crazyfgt, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9381,6 +9560,7 @@ static MACHINE_CONFIG_START( inttoote, seta_state )
 	MCFG_DEVICE_ADD("spritegen", SETA001_SPRITE, 0)
 	MCFG_SETA001_SPRITE_GFXDECODE("gfxdecode")
 	MCFG_SETA001_SPRITE_PALETTE("palette")
+	MCFG_SETA001_SPRITE_GFXBANK_CB(seta_state, setac_gfxbank_callback)
 
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
@@ -9720,7 +9900,6 @@ ROM_START( metafox )
 	ROM_LOAD( "up001014", 0x080000, 0x080000, CRC(fca6315e) SHA1(cef2385ec43f8b7a2d655b42c18ef44e46ff7364) )
 ROM_END
 
-
 ROM_START( drgnunit )
 	ROM_REGION( 0x0c0000, "maincpu", 0 )        /* 68000 Code */
 	ROM_LOAD16_BYTE( "prg-e.bin", 0x000000, 0x020000, CRC(728447df) SHA1(8bdc52a4cc5f36794a47f963545bdaa26c9acd6b) )
@@ -9804,8 +9983,6 @@ ROM_START( thunderlbl )
 	ROM_LOAD16_BYTE( "23.a5", 0x040000, 0x020000, CRC(b97a7b56) SHA1(c08d3586d489947af21f3493356e3a88d79746e8) )
 	ROM_LOAD16_BYTE( "22.a3", 0x040001, 0x020000, CRC(79c707be) SHA1(f67fa40c8f6ab0fbce44997fdfbf699fea1f0df6) )
 ROM_END
-
-
 
 /*
 
@@ -10065,8 +10242,6 @@ ROM_START( blockcarb )
 	ROM_LOAD( "tl8.bin",  0x000000, 0x010000, CRC(d09d7c7a) SHA1(8e8532be08818c855d9c3ce45716eb07cfab5767) )    //cpu prg
 ROM_END
 
-
-
 ROM_START( qzkklogy )
 	ROM_REGION( 0x0c0000, "maincpu", 0 )        /* 68000 Code */
 	ROM_LOAD16_BYTE( "3.u27", 0x000000, 0x020000, CRC(b8c27cde) SHA1(4c36076801b6c915888b925c1e37d772bab1bb02) )
@@ -10164,42 +10339,136 @@ ROM_START( atehate )
 	ROM_LOAD( "fs001004.pcm", 0x000000, 0x100000, CRC(f9344ce5) SHA1(cffbc235f3a8e9a5004e671d924affd321ec9eed) )
 ROM_END
 
+/*
+The changes between the set daioh and daioha are very minimal, the main game effects are:
+
+ - Fixes the crashing bug in the US version caused by pressing Shot1 and Shot2 in weird orders and timings.
+ - 1UP, and 2UPs no longer spawn "randomly". (Only the fixed extend items exist, and the 1UPs from score)
+ - After picking up a max powerup, a 1UP or a 2UP, daoiha sets the "item timer" to a random value.
+   daioh always sets it to 0x7F.
+ - The powerups spawned from picking up an additional max powerup are no longer random, but feeds from the
+   original "spawn item" function (thus, it advances the "item timer")
+
+So it's a bug fix version which also makes the game a little harder by limiting the spawning of 1ups
+*/
+
 ROM_START( daioh )
 	ROM_REGION( 0x100000, "maincpu", 0 )        /* 68000 Code */
 	ROM_LOAD16_BYTE( "fg001001.u3",  0x000000, 0x080000, CRC(e1ef3007) SHA1(864349efac3e3dc3ccdeb892fed285c73aea3997) )
 	ROM_LOAD16_BYTE( "fg001002.u4",  0x000001, 0x080000, CRC(5e3481f9) SHA1(7585a7e56392fc2b13d466cf262383dd68d6d995) )
 
 	ROM_REGION( 0x200000, "gfx1", 0 )   /* Sprites */
-	ROM_LOAD( "fg1-004", 0x000000, 0x100000, CRC(9ab0533e) SHA1(b260ceb2b3e140971419329bee07a020171794f7) )
-	ROM_LOAD( "fg1-003", 0x100000, 0x100000, CRC(1c9d51e2) SHA1(1d6236ab28d11676386834fd6e405fd40198e924) )
+	ROM_LOAD( "fg-001-004", 0x000000, 0x100000, CRC(9ab0533e) SHA1(b260ceb2b3e140971419329bee07a020171794f7) )
+	ROM_LOAD( "fg-001-003", 0x100000, 0x100000, CRC(1c9d51e2) SHA1(1d6236ab28d11676386834fd6e405fd40198e924) )
 
 	ROM_REGION( 0x200000, "gfx2", 0 ) /* Layer 1 */
-	ROM_LOAD( "fg1-005",  0x000000, 0x200000, CRC(c25159b9) SHA1(4c9da3233223508389c3c0f277a00aedfc860da4) )
+	ROM_LOAD( "fg-001-005",  0x000000, 0x200000, CRC(c25159b9) SHA1(4c9da3233223508389c3c0f277a00aedfc860da4) )
 
 	ROM_REGION( 0x200000, "gfx3", 0 ) /* Layer 2 */
-	ROM_LOAD( "fg1-006",  0x000000, 0x200000, CRC(2052c39a) SHA1(83a444a76e68aa711b0e25a5aa963ca876a6357e) )
+	ROM_LOAD( "fg-001-006",  0x000000, 0x200000, CRC(2052c39a) SHA1(83a444a76e68aa711b0e25a5aa963ca876a6357e) )
 
 	ROM_REGION( 0x100000, "x1snd", 0 )  /* Samples */
-	ROM_LOAD( "fg1-007",  0x000000, 0x100000, CRC(4a2fe9e0) SHA1(e55b6f301f842ff5d3c7a0041856695ac1d8a78f) )
+	ROM_LOAD( "fg-001-007",  0x000000, 0x100000, CRC(4a2fe9e0) SHA1(e55b6f301f842ff5d3c7a0041856695ac1d8a78f) )
 ROM_END
 
 ROM_START( daioha )
 	ROM_REGION( 0x100000, "maincpu", 0 )        /* 68000 Code */
-	ROM_LOAD16_BYTE( "fg1-001.u3",  0x000000, 0x080000, CRC(104ae74a) SHA1(928c467e3ff98285a4828a927d851fcdf296849b) )
-	ROM_LOAD16_BYTE( "fg1-002.u4",  0x000001, 0x080000, CRC(e39a4e67) SHA1(c3f47e9d407f32dbfaf209d29b4446e4de8829a2) )
+	ROM_LOAD16_BYTE( "fg-001-001.u3",  0x000000, 0x080000, CRC(104ae74a) SHA1(928c467e3ff98285a4828a927d851fcdf296849b) )
+	ROM_LOAD16_BYTE( "fg-001-002.u4",  0x000001, 0x080000, CRC(e39a4e67) SHA1(c3f47e9d407f32dbfaf209d29b4446e4de8829a2) )
 
 	ROM_REGION( 0x200000, "gfx1", 0 )   /* Sprites */
-	ROM_LOAD( "fg1-004", 0x000000, 0x100000, CRC(9ab0533e) SHA1(b260ceb2b3e140971419329bee07a020171794f7) )
-	ROM_LOAD( "fg1-003", 0x100000, 0x100000, CRC(1c9d51e2) SHA1(1d6236ab28d11676386834fd6e405fd40198e924) )
+	ROM_LOAD( "fg-001-004", 0x000000, 0x100000, CRC(9ab0533e) SHA1(b260ceb2b3e140971419329bee07a020171794f7) )
+	ROM_LOAD( "fg-001-003", 0x100000, 0x100000, CRC(1c9d51e2) SHA1(1d6236ab28d11676386834fd6e405fd40198e924) )
 
 	ROM_REGION( 0x200000, "gfx2", 0 ) /* Layer 1 */
-	ROM_LOAD( "fg1-005",  0x000000, 0x200000, CRC(c25159b9) SHA1(4c9da3233223508389c3c0f277a00aedfc860da4) )
+	ROM_LOAD( "fg-001-005",  0x000000, 0x200000, CRC(c25159b9) SHA1(4c9da3233223508389c3c0f277a00aedfc860da4) )
 
 	ROM_REGION( 0x200000, "gfx3", 0 ) /* Layer 2 */
-	ROM_LOAD( "fg1-006",  0x000000, 0x200000, CRC(2052c39a) SHA1(83a444a76e68aa711b0e25a5aa963ca876a6357e) )
+	ROM_LOAD( "fg-001-006",  0x000000, 0x200000, CRC(2052c39a) SHA1(83a444a76e68aa711b0e25a5aa963ca876a6357e) )
 
 	ROM_REGION( 0x100000, "x1snd", 0 )  /* Samples */
-	ROM_LOAD( "fg1-007",  0x000000, 0x100000, CRC(4a2fe9e0) SHA1(e55b6f301f842ff5d3c7a0041856695ac1d8a78f) )
+	ROM_LOAD( "fg-001-007",  0x000000, 0x100000, CRC(4a2fe9e0) SHA1(e55b6f301f842ff5d3c7a0041856695ac1d8a78f) )
+ROM_END
+
+ROM_START( daiohp ) /* Found on the same P0-072-2 PCB as the Blandia prototype */
+	ROM_REGION( 0x200000, "maincpu", 0 )        /* 68000 Code */
+	ROM_LOAD16_BYTE( "prg_even.u3",    0x000000, 0x040000, CRC(3c97b976) SHA1(5850bf71b594a25f3e2de16f2933078c4a0dc518) )
+	ROM_LOAD16_BYTE( "prg_odd.u4",     0x000001, 0x040000, CRC(aed2b87e) SHA1(d5b81614fbbda8a75418e69eb481e5adf38b4ebf) )
+	ROM_LOAD16_BYTE( "data_even.u103", 0x100000, 0x040000, CRC(e07776ef) SHA1(5e75dd35fd8eae98182a9798a8b3eceb3e33b780) )
+	ROM_LOAD16_BYTE( "data_odd.u102",  0x100001, 0x040000, CRC(b75b9a5c) SHA1(4c187105fe5253cc86862df1f3970fa45d4f7317) )
+
+	ROM_REGION( 0x200000, "gfx1", 0 )   /* Sprites */
+	ROM_LOAD( "obj_2.u146",  0x000000, 0x040000, CRC(77560a03) SHA1(f766b56a88d49e4b41c9ed3c68e5478991033b5b) )
+	ROM_LOAD( "obj_6.u147",  0x040000, 0x040000, CRC(081f5fb1) SHA1(2fc6816704f7c42627ec47edd0e2ea88e7088101) )
+	ROM_LOAD( "obj_3.u144",  0x080000, 0x040000, CRC(d33ca640) SHA1(3d278cb46f2eabd03851ee470adfae5313988a27) )
+	ROM_LOAD( "obj_7.u145",  0x0C0000, 0x040000, CRC(e878ac92) SHA1(fc67cbefb050bfbc96f3350bb3d76bf0206e6553) )
+	ROM_LOAD( "obj_0.u142",  0x100000, 0x040000, CRC(78f45582) SHA1(021e635ba365558d9bf37a3b33b4c42b63119f0c) )
+	ROM_LOAD( "obj_4.u143",  0x140000, 0x040000, CRC(d387de72) SHA1(22f40a2daa98e52d6990aa52f9fde2cd66ad40d8) )
+	ROM_LOAD( "obj_1.u140",  0x180000, 0x040000, CRC(8ff6c5a9) SHA1(a2d188d44c8671282bf53f7927e099a212c0ed51) )
+	ROM_LOAD( "obj_5.u141",  0x1C0000, 0x040000, CRC(6a671757) SHA1(aa6c2f916f1ca70514f1bb5754545171d8991456) )
+
+	ROM_REGION( 0x200000, "gfx2", 0 )   /* Layer 1 */
+	ROM_LOAD( "bg1_1.u150",  0x000000, 0x080000, CRC(d5793a2f) SHA1(0623d51d405fde69622f1e15512fd8fc41209a59) )
+	ROM_LOAD( "bg1_3.u151",  0x080000, 0x080000, CRC(6456fae1) SHA1(ce839e68342b62be61e29255ebdd8ddbd2b67a71) )
+	ROM_LOAD( "bg1_0.u148",  0x100000, 0x080000, CRC(bec48d7a) SHA1(9fdcc8f461e48cb4244827bead980ad48acdfbd8) )
+	ROM_LOAD( "bg1_2.u149",  0x180000, 0x080000, CRC(5e674c30) SHA1(8f2e264df7d0b4f2a5a54d86dd0b3106d0ff7c15) )
+
+	ROM_REGION( 0x200000, "gfx3", 0 )   /* Layer 2 */
+	ROM_LOAD( "bg2_1.u166",  0x000000, 0x080000, CRC(9274123b) SHA1(b58e107a5bd222e454fd435d515e57cab52e6593) )
+	ROM_LOAD( "bg2_3.u167",  0x080000, 0x080000, CRC(d3d68aa1) SHA1(14b0e4fd9bbdc2b6a99147dd6f6143d609d9110b) )
+	ROM_LOAD( "bg2_0.u164",  0x100000, 0x080000, CRC(7e46a10e) SHA1(a8576f7a140b065b88a0dab648f7b31c75fec006) )
+	ROM_LOAD( "bg2_2.u165",  0x180000, 0x080000, CRC(3119189b) SHA1(3a45ec8db30659d7fd47090cb137df05bbdc1c86) )
+
+	ROM_REGION( 0x100000, "x1snd", 0 )  /* Samples */
+	ROM_LOAD( "snd0.u156",  0x000000, 0x020000, CRC(4d253547) SHA1(87cda11dc86bc121cb8fb0e574006c3627158f51) )
+	ROM_LOAD( "snd1.u157",  0x020000, 0x020000, CRC(79b56e22) SHA1(4b6c62e96dc1e8fb6dc0a76c505f9d805ef4684f) )
+	ROM_LOAD( "snd2.u158",  0x040000, 0x020000, CRC(bc8de02a) SHA1(503c2c9f9ce029701e6a5b134d9407ab06e28913) )
+	ROM_LOAD( "snd3.u159",  0x060000, 0x020000, CRC(939777fd) SHA1(3dd1b89a4f81f745c68037c568c885fe1403ed31) )
+	ROM_LOAD( "snd4.u160",  0x080000, 0x020000, CRC(7b97716d) SHA1(6693e81dc008317c6a985558624f5d5cf00785e9) )
+	ROM_LOAD( "snd5.u161",  0x0A0000, 0x020000, CRC(294e1cc9) SHA1(5faef5eb9f15c23686c2f66646c6f6724e7c611f) )
+	ROM_LOAD( "snd6.u162",  0x0C0000, 0x020000, CRC(ecab073b) SHA1(f991fb9d9d4ffe24b67b233850ef0727dc6329b6) )
+	ROM_LOAD( "snd7.u163",  0x0E0000, 0x020000, CRC(1b7ea768) SHA1(7dfa8cbcb839c76f3f9eefd6abbc2b424c3d970a) )
+
+	ROM_REGION( 0xC00, "pals", 0 )
+	ROM_LOAD( "con1x.u35",  0x000000, 0x104, CRC(ce8b57d9) SHA1(e433a8cee4f964123595f904170793e152290be1) )
+	ROM_LOAD( "con2x.u36",  0x000200, 0x104, CRC(0b18db9e) SHA1(80e6aacb1455e15c6e665feaec8711070c14a901) )
+	ROM_LOAD( "dec1x.u14",  0x000400, 0x104, CRC(d197abfe) SHA1(93f08d879c339ec00598383723912d7d0eab306c) )
+	ROM_LOAD( "dec2x.u206", 0x000600, 0x104, CRC(35afbba8) SHA1(ce1cc0f75467a1ce6444250d741e70c2ed8d4c14) )
+	ROM_LOAD( "pcon2.u110", 0x000800, 0x104, CRC(082882c2) SHA1(78385047ed8b1e2c11926c5ce8dea40450b0d0b0) )
+	ROM_LOAD( "sc.u116",    0x000A00, 0x104, CRC(e57bfde9) SHA1(33632d007c8e48d756fc920985f82ae32dcd63e6) )
+ROM_END
+
+ROM_START( daiohc ) /* Found on a 93111A PCB - same PCB as War of Areo & J. J. Squawkers */
+	ROM_REGION( 0x200000, "maincpu", 0 )        /* 68000 Code */
+	ROM_LOAD16_BYTE( "15.u3", 0x000000, 0x040000, CRC(14616abb) SHA1(1ff5331b0de60230baa4ced58bec6a954cb599d5) )
+	ROM_CONTINUE   (          0x100000, 0x040000  )
+	ROM_LOAD16_BYTE( "14.u4", 0x000001, 0x040000, CRC(a029f991) SHA1(5d341fe5b3ac3bdda1d8e7cc8e6a260f04d00aa1) )
+	ROM_CONTINUE   (          0x100001, 0x040000  )
+
+	ROM_REGION( 0x200000, "gfx1", 0 )   /* Sprites */
+	ROM_LOAD(  "9.u9",  0x000000, 0x080000, CRC(4444cbd4) SHA1(e039cd7e7093d399bc39aa4d355a03250e087fb3) ) /* connects to U63 & U64 through a riser card */
+	ROM_LOAD( "10.u10", 0x080000, 0x080000, CRC(1d88d20b) SHA1(3cf95041d0876a4ef378651783e53cee1994ed3d) )
+	ROM_LOAD( "11.u11", 0x100000, 0x080000, CRC(3e41de61) SHA1(7d3ddf3780bbe99b13937d75cbdbfb58449301a6) )
+	ROM_LOAD( "12.u12", 0x180000, 0x080000, CRC(f35e3341) SHA1(9260460e1823d157201de02557c7136ef898cfb3) )
+
+	ROM_REGION( 0x200000, "gfx2", 0 ) /* Layer 1 */
+	ROM_LOAD( "5.u5", 0x000000, 0x080000, CRC(aaa5e41e) SHA1(fe362ec083cb13732ea07003a4a1a9c63d382f4b) ) /* connects to U66 through a riser card */
+	ROM_LOAD( "6.u6", 0x080000, 0x080000, CRC(9ad8b4b4) SHA1(b6e4cff160ae0efe6f3fd0df9a8a618957c3ce61) )
+	ROM_LOAD( "7.u7", 0x100000, 0x080000, CRC(babf194a) SHA1(ef838aab2d651c10553fb87552c67f289a8ac83d) )
+	ROM_LOAD( "8.u8", 0x180000, 0x080000, CRC(2db65290) SHA1(4f4d65e984fad7bb1d886de67bc50645798282bb) )
+
+	ROM_REGION( 0x200000, "gfx3", 0 ) /* Layer 2 */
+	ROM_LOAD( "1.u1", 0x000000, 0x080000, CRC(30f81f99) SHA1(9c164c798c7e869e92505d9d85f06f4a1c9a9528) ) /* connects to U68 through a riser card */
+	ROM_LOAD( "2.u2", 0x080000, 0x080000, CRC(3b3e0f4e) SHA1(740afe4eefea480f941dd80a03392592d8d4b084) )
+	ROM_LOAD( "3.u3", 0x100000, 0x080000, CRC(c5eef1c1) SHA1(d4b3188b39bad5c7a2c7b7dbc91a79c7ee80a3a1) )
+	ROM_LOAD( "4.u4", 0x180000, 0x080000, CRC(851115b6) SHA1(b8e1e22231d131085c90afcf30ff35a2866edff5) )
+
+	ROM_REGION( 0x100000, "x1snd", 0 )  /* Samples */
+	ROM_LOAD( "data.u69", 0x000000, 0x080000, CRC(21e4f093) SHA1(f0420d158dc5d182e41b6fb2ea3af6baf88bacb8) )
+	ROM_LOAD( "data.u70", 0x080000, 0x080000, CRC(593c3c58) SHA1(475fb530a6d23269cb0aea6e294291c7463b57a2) )
+
+	ROM_REGION( 0x200, "gals", 0 )
+	ROM_LOAD( "gal.u14",  0x000000, 0x117, CRC(b972b479) SHA1(50da73b4cc7b9c0ff8fb19b2c34d05a4dbc8f0cb) )
 ROM_END
 
 ROM_START( msgundam )
@@ -10563,6 +10832,52 @@ ROM_START( gundhara )
 	ROM_REGION( 0x100000, "x1snd", 0 )  /* Samples */
 	ROM_LOAD( "bpgh-013.u70",  0x080000, 0x080000, CRC(0fa5d503) SHA1(fd7a80cd25c23e737cc2c3d11de2291e22313b58) )   // swapped halves
 	ROM_CONTINUE(              0x000000, 0x080000  )
+ROM_END
+
+/* Chinese factory board, possibly bootleg but appears to come from the
+   same factory as normal boards same as daiohc.  Modified layout allowing
+   split ROMs */
+ROM_START( gundharac )
+		ROM_REGION( 0x200000, "maincpu", 0 )        /* 68000 Code */
+		ROM_LOAD16_BYTE( "4.U3",  0x000000, 0x080000, CRC(14e9970a) SHA1(31964bd290cc94c40684adf3a5d129b1c3addc3b) )
+		ROM_LOAD16_BYTE( "2.U4",  0x000001, 0x080000, CRC(96dfc658) SHA1(f570bc49758535eb00d93ecce9f75832f97a0d8d) )
+		ROM_LOAD16_BYTE( "3.U103", 0x100000, 0x080000, CRC(312f58e2) SHA1(a74819d2f84a00c233489893f12c9ab1a98459cf) )
+		ROM_LOAD16_BYTE( "1.U102", 0x100001, 0x080000, CRC(8d23a23c) SHA1(9e9a6488db424c81a97edcb7115cc070fe35c077) )
+
+		ROM_REGION( 0x800000, "gfx1", 0 )   /* Sprites */
+	ROM_LOAD16_BYTE( "19.U140", 0x000000, 0x080000, CRC(32d92c28) SHA1(7ba67f715f094aacf2dc2399809e4dfc7e4ca241) )
+		ROM_LOAD16_BYTE( "23.U142", 0x000001, 0x080000, CRC(ff44db9b) SHA1(76ecd3ce3b6b33f3ae0b0454d58cf37d545dd72c) )
+		ROM_LOAD16_BYTE( "21.U141", 0x100000, 0x080000, CRC(1901dc08) SHA1(b19428a7510d6e28a39bdf6ecc9732e3c2d19214) )
+		ROM_LOAD16_BYTE( "25.U143", 0x100001, 0x080000, CRC(877289a2) SHA1(7482320e319d7b641fabba5aeeaa1237b693a219) )
+	ROM_LOAD16_BYTE( "18.U140-B", 0x200000, 0x080000, CRC(4f023fb0) SHA1(815765c9783e44762bf57a3fbfad4385c316343a) )
+	ROM_LOAD16_BYTE( "22.U142-B", 0x200001, 0x080000, CRC(6f3fe7e7) SHA1(71bc347c06678f4ae7850799da6346c6447bf3c0) )
+	ROM_LOAD16_BYTE( "20.U141-B", 0x300000, 0x080000, CRC(7f1932e0) SHA1(13262a7322ad29cf7c85461204a3518e900c6145) )
+	ROM_LOAD16_BYTE( "24.U143-B", 0x300001, 0x080000, CRC(066a2e2b) SHA1(186729918a89535484ab86dd58caf20ccce81501) )
+		ROM_LOAD16_BYTE( "9.U144", 0x400000, 0x080000, CRC(6b4a531f) SHA1(701d6b2d87a742c8a2ab36331bd843dcd3309eae) )
+		ROM_LOAD16_BYTE( "13.U146", 0x400001, 0x080000, CRC(45be3df4) SHA1(36667bf5e4b80d17a9d7b6ce4df7498f94681c46) )
+		ROM_LOAD16_BYTE( "11.U145", 0x500000, 0x080000, CRC(f5210aa5) SHA1(4834d905f699dbec1cdacea6b320271c291aa2a7) )
+		ROM_LOAD16_BYTE( "15.U147", 0x500001, 0x080000, CRC(17003119) SHA1(a2edd65c98bc654b541dad3e3783d90931c97597) )
+		ROM_LOAD16_BYTE( "8.U144-B", 0x600000, 0x080000, CRC(ad9d9338) SHA1(33d6c881a20e2150017cc26f929473291e561718) )
+		ROM_LOAD16_BYTE( "12.U146-B", 0x600001, 0x080000, CRC(0fd4c062) SHA1(7f418d43d9ba884c504f6fe3c04b11724412ac6b) )
+		ROM_LOAD16_BYTE( "10.U145-B", 0x700000, 0x080000, CRC(7c5d12b9) SHA1(6ee45c4da6994540852153752e2818a8ea8ecf1a) )
+		ROM_LOAD16_BYTE( "14.U147-B", 0x700001, 0x080000, CRC(5a8af50f) SHA1(3b7937ba720fcbbc5e29c1b95a97c29e8ff5490a) )
+
+		ROM_REGION( 0x200000, "gfx2", 0 )   /* Layer 1 */
+		ROM_LOAD16_BYTE( "5.U148", 0x000000, 0x080000, CRC(0c740f9b) SHA1(f6d135c3318ff0d50d40921aa108b1b332c1a086) )
+		ROM_LOAD16_BYTE( "6.U150", 0x000001, 0x080000, CRC(ba60eb98) SHA1(7204269816332bbb3401d9f20a513372ffe78500) )
+		ROM_LOAD16_BYTE( "7.U154", 0x100000, 0x080000, CRC(b768e666) SHA1(473fa52c16c0a9f321e6429947a3e0fc1ef22f7e) )
+
+		ROM_REGION( 0x400000, "gfx3", 0 )   /* Layer 2 */
+		ROM_LOAD16_BYTE( "26.U164", 0x000000, 0x080000, CRC(be3ccaba) SHA1(98f8b83cbed00932866375d21f86ee5c9bddb2a6) )
+		ROM_LOAD16_BYTE( "28.U166", 0x000001, 0x080000, CRC(8a650a4e) SHA1(1f6eda27b39ad052e3d9a8a72cb0a072e7be4487) )
+		ROM_LOAD16_BYTE( "27.U165", 0x100000, 0x080000, CRC(47994ff0) SHA1(25211a9af01f77788578bb524619d95b5b86e241) )
+		ROM_LOAD16_BYTE( "29.U167", 0x100001, 0x080000, CRC(453c3d3f) SHA1(151528b6b1e7f8c059d67dbaca61e7c382e9ce04) )
+	ROM_LOAD16_BYTE( "16.U152", 0x200000, 0x080000, CRC(5ccc500b) SHA1(d3a2a5658cac8d788e0a1189c184309b8394b10a) )
+	ROM_LOAD16_BYTE( "17.U153", 0x300000, 0x080000, CRC(5586d086) SHA1(e43d5e8834701f40389400f68a99353e67598f6d) )
+
+		ROM_REGION( 0x100000, "x1snd", 0 )  /* Samples */
+	ROM_LOAD( "30.U69", 0x000000, 0x080000, CRC(3111a98a) SHA1(75e17a0113060a10551b2b8c17b19890eb7aa0a6) )
+	ROM_LOAD( "31.U70", 0x080000, 0x080000, CRC(30cb2524) SHA1(85deb83262bbe481404705e163e5eb9362985b01) )
 ROM_END
 
 ROM_START( sokonuke )
@@ -11133,7 +11448,7 @@ DRIVER_INIT_MEMBER(seta_state,blandia)
 		buf[rpos] = rom[rpos*2+1];
 	}
 
-	memcpy( rom, buf, rom_size );
+	memcpy( rom, &buf[0], rom_size );
 
 	rom = memregion("gfx3")->base() + 0x40000;
 
@@ -11142,7 +11457,7 @@ DRIVER_INIT_MEMBER(seta_state,blandia)
 		buf[rpos] = rom[rpos*2+1];
 	}
 
-	memcpy( rom, buf, rom_size );
+	memcpy( rom, &buf[0], rom_size );
 }
 
 
@@ -11284,21 +11599,21 @@ GAME( 1989, metafox,  0,        metafox,  metafox, seta_state,   metafox,  ROT27
 
 /* 68000 */
 
-GAME( 198?, setaroul, 0,        setaroul, setaroul, driver_device, 0,        ROT270, "Visco",                  "Visco Roulette", GAME_NOT_WORKING ) // I can't see a title in the GFX roms.  Press F2 twice to boot..
+GAME( 198?, setaroul, 0,        setaroul, setaroul, driver_device, 0,        ROT270, "Visco",                  "Visco Roulette", MACHINE_NOT_WORKING ) // I can't see a title in the GFX roms.  Press F2 twice to boot..
 
 GAME( 1989, drgnunit, 0,        drgnunit, drgnunit, driver_device, 0,        ROT0,   "Seta",                   "Dragon Unit / Castle of Dragon", 0 )
 
 GAME( 1989, wits,     0,        wits,     wits, driver_device,     0,        ROT0,   "Athena (Visco license)", "Wit's (Japan)" , 0) // Country/License: DSW
 
 GAME( 1990, thunderl, 0,        thunderl, thunderl,   driver_device,0,       ROT270, "Seta",                   "Thunder & Lightning" , 0) // Country/License: DSW
-GAME( 1990, thunderlbl,thunderl,thunderlbl,thunderlbl,driver_device,0,       ROT90,  "bootleg",                "Thunder & Lightning (bootleg with Tetris sound)", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL ) // Country/License: DSW
+GAME( 1990, thunderlbl,thunderl,thunderlbl,thunderlbl,driver_device,0,       ROT90,  "bootleg",                "Thunder & Lightning (bootleg with Tetris sound)", MACHINE_IMPERFECT_SOUND | MACHINE_NO_COCKTAIL ) // Country/License: DSW
 
-GAME( 1994, wiggie,   0,        wiggie,   thunderl, seta_state,    wiggie,   ROT270, "Promat",                 "Wiggie Waggie", GAME_IMPERFECT_GRAPHICS ) // hack of Thunder & Lightning
-GAME( 1994, superbar, wiggie,   superbar, thunderl, seta_state,    wiggie,   ROT270, "Promat",                 "Super Bar", GAME_IMPERFECT_GRAPHICS ) // hack of Thunder & Lightning
+GAME( 1994, wiggie,   0,        wiggie,   thunderl, seta_state,    wiggie,   ROT270, "Promat",                 "Wiggie Waggie", MACHINE_IMPERFECT_GRAPHICS ) // hack of Thunder & Lightning
+GAME( 1994, superbar, wiggie,   superbar, thunderl, seta_state,    wiggie,   ROT270, "Promat",                 "Super Bar", MACHINE_IMPERFECT_GRAPHICS ) // hack of Thunder & Lightning
 
 GAME( 1990, jockeyc,  0,        jockeyc,  jockeyc,  driver_device, 0,        ROT0,   "Seta (Visco license)",   "Jockey Club", 0 )
-GAME( 1998, inttoote, jockeyc,  inttoote, inttoote, seta_state,    inttoote, ROT0,   "Coinmaster",             "International Toote (Germany)", GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION )
-GAME( 1993, inttootea,jockeyc,  inttoote, inttoote, seta_state,    inttootea,ROT0,   "Coinmaster",             "International Toote II (World?)", GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION )
+GAME( 1998, inttoote, jockeyc,  inttoote, inttoote, seta_state,    inttoote, ROT0,   "Coinmaster",             "International Toote (Germany)", MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION )
+GAME( 1993, inttootea,jockeyc,  inttoote, inttoote, seta_state,    inttootea,ROT0,   "Coinmaster",             "International Toote II (World?)", MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION )
 
 GAME( 1991, rezon,    0,        rezon,    rezon,    seta_state,    rezon,    ROT0,   "Allumer",                "Rezon", 0 )
 GAME( 1992, rezont,   rezon,    rezon,    rezont,   seta_state,    rezon,    ROT0,   "Allumer (Taito license)","Rezon (Taito)", 0 )
@@ -11307,11 +11622,11 @@ GAME( 1991, stg,      0,        drgnunit, stg,      driver_device, 0,        ROT
 
 GAME( 1991, pairlove, 0,        pairlove, pairlove, driver_device, 0,        ROT270, "Athena",                 "Pairs Love", 0 )
 
-GAME( 1992, blandia,  0,        blandia,  blandia, seta_state,     blandia,  ROT0,   "Allumer",                "Blandia", GAME_IMPERFECT_GRAPHICS )
-GAME( 1992, blandiap, blandia,  blandiap, blandia, driver_device,  0,        ROT0,   "Allumer",                "Blandia (prototype)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1992, blandia,  0,        blandia,  blandia, seta_state,     blandia,  ROT0,   "Allumer",                "Blandia", MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1992, blandiap, blandia,  blandiap, blandia, driver_device,  0,        ROT0,   "Allumer",                "Blandia (prototype)", MACHINE_IMPERFECT_GRAPHICS )
 
 GAME( 1992, blockcar, 0,        blockcar, blockcar, driver_device, 0,        ROT90,  "Visco",                  "Block Carnival / Thunder & Lightning 2" , 0) // Title: DSW
-GAME( 1992, blockcarb,blockcar, blockcarb,blockcar, driver_device, 0,        ROT90,  "bootleg",                "Block Carnival / Thunder & Lightning 2 (bootleg)", GAME_NO_SOUND)
+GAME( 1992, blockcarb,blockcar, blockcarb,blockcar, driver_device, 0,        ROT90,  "bootleg",                "Block Carnival / Thunder & Lightning 2 (bootleg)", MACHINE_NO_SOUND)
 
 GAME( 1992, qzkklogy, 0,        drgnunit, qzkklogy, driver_device, 0,        ROT0,   "Tecmo",                  "Quiz Kokology", 0 )
 
@@ -11320,16 +11635,18 @@ GAME( 1992, neobattl, 0,        umanclub, neobattl, driver_device, 0,        ROT
 GAME( 1992, umanclub, 0,        umanclub, umanclub, driver_device, 0,        ROT0,   "Banpresto / Tsuburaya Productions", "Ultraman Club - Tatakae! Ultraman Kyoudai!!", 0 )
 
 GAME( 1992, zingzip,  0,        zingzip,  zingzip, driver_device,  0,        ROT270, "Allumer / Tecmo",        "Zing Zing Zip", 0 )
-GAME( 1992, zingzipbl,zingzip,  zingzipbl,zingzip, driver_device,  0,        ROT270, "bootleg",                "Zing Zing Zip (bootleg)", GAME_NOT_WORKING )
+GAME( 1992, zingzipbl,zingzip,  zingzipbl,zingzip, driver_device,  0,        ROT270, "bootleg",                "Zing Zing Zip (bootleg)", MACHINE_NOT_WORKING )
 
 GAME( 1993, atehate,  0,        atehate,  atehate, driver_device,  0,        ROT0,   "Athena",                 "Athena no Hatena ?", 0 )
 
-GAME( 1993, daioh,    0,        daioh,    daioh,    driver_device, 0,        ROT270, "Athena",                 "Daioh (set 1)", 0 )
-GAME( 1993, daioha,   daioh,    daioh,    daioh,    driver_device, 0,        ROT270, "Athena",                 "Daioh (set 2)", 0 )
+GAME( 1993, daioh,    0,        daioh,    daioh,    driver_device, 0,        ROT270, "Athena",                 "Daioh", 0 )
+GAME( 1993, daioha,   daioh,    daioh,    daioh,    driver_device, 0,        ROT270, "Athena",                 "Daioh (earlier)", 0 )
+GAME( 1993, daiohp,   daioh,    daiohp,   daiohp,   driver_device, 0,        ROT270, "Athena",                 "Daioh (prototype)", 0 )
+GAME( 1993, daiohc,   daioh,    wrofaero, daioh,    driver_device, 0,        ROT270, "Athena",                 "Daioh (93111A PCB conversion)", 0 )
 
-GAME( 1993, jjsquawk, 0,        jjsquawk, jjsquawk, driver_device, 0,        ROT0,   "Athena / Able",          "J. J. Squawkers", GAME_IMPERFECT_SOUND )
-GAME( 1993, jjsquawkb,jjsquawk, jjsquawb, jjsquawk, driver_device, 0,        ROT0,   "bootleg",                "J. J. Squawkers (bootleg)", GAME_IMPERFECT_SOUND )
-GAME( 1993, jjsquawkb2,jjsquawk,jjsquawk, jjsquawk, driver_device, 0,        ROT0,   "bootleg",                "J. J. Squawkers (bootleg, Blandia Conversion)", GAME_IMPERFECT_SOUND )
+GAME( 1993, jjsquawk, 0,        jjsquawk, jjsquawk, driver_device, 0,        ROT0,   "Athena / Able",          "J. J. Squawkers", MACHINE_IMPERFECT_SOUND )
+GAME( 1993, jjsquawkb,jjsquawk, jjsquawb, jjsquawk, driver_device, 0,        ROT0,   "bootleg",                "J. J. Squawkers (bootleg)", MACHINE_IMPERFECT_SOUND )
+GAME( 1993, jjsquawkb2,jjsquawk,jjsquawk, jjsquawk, driver_device, 0,        ROT0,   "bootleg",                "J. J. Squawkers (bootleg, Blandia Conversion)", MACHINE_IMPERFECT_SOUND )
 
 GAME( 1993, kamenrid, 0,        kamenrid, kamenrid, driver_device, 0,        ROT0,   "Banpresto / Toei",       "Masked Riders Club Battle Race", 0 )
 
@@ -11360,14 +11677,15 @@ GAME( 1994, orbs,     0,        orbs,     orbs, driver_device,     0,        ROT
 GAME( 1995, keroppi,  0,        keroppi,  keroppi, driver_device,  0,        ROT0,   "American Sammy",         "Kero Kero Keroppi's Let's Play Together (USA, Version 2.0)", 0 ) // ROM labels are all v1.0 tho.
 GAME( 1993, keroppij, keroppi,  keroppij, keroppij,driver_device,  0,        ROT0,   "Sammy Industries",       "Kero Kero Keroppi no Issyoni Asobou (Japan)", 0 )
 
-GAME( 1995, extdwnhl, 0,        extdwnhl, extdwnhl, driver_device, 0,        ROT0,   "Sammy Industries Japan", "Extreme Downhill (v1.5)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1995, extdwnhl, 0,        extdwnhl, extdwnhl, driver_device, 0,        ROT0,   "Sammy Industries Japan", "Extreme Downhill (v1.5)", MACHINE_IMPERFECT_GRAPHICS )
 
 GAME( 1995, gundhara, 0,        gundhara, gundhara, driver_device, 0,        ROT270, "Banpresto",              "Gundhara", 0 )
+GAME( 1995, gundharac, gundhara,gundhara, gundhara, driver_device, 0,        ROT270, "Banpresto",              "Gundhara (Chinese, bootleg?)", 0 )
 
-GAME( 1995, sokonuke, 0,        extdwnhl, sokonuke, driver_device, 0,        ROT0,   "Sammy Industries",       "Sokonuke Taisen Game (Japan)", GAME_IMPERFECT_SOUND )
+GAME( 1995, sokonuke, 0,        extdwnhl, sokonuke, driver_device, 0,        ROT0,   "Sammy Industries",       "Sokonuke Taisen Game (Japan)", MACHINE_IMPERFECT_SOUND )
 
-GAME( 1995, zombraid, 0,        gundhara, zombraid, seta_state, zombraid, ROT0,   "American Sammy",            "Zombie Raid (9/28/95, US)", GAME_NO_COCKTAIL )
-GAME( 1995, zombraidp,zombraid, gundhara, zombraid, seta_state, zombraid, ROT0,   "American Sammy",            "Zombie Raid (9/28/95, US, prototype PCB)", GAME_NO_COCKTAIL ) // actual code is same as the released version
-GAME( 1995, zombraidpj,zombraid,gundhara, zombraid, seta_state, zombraid, ROT0,   "Sammy Industries Co.,Ltd.", "Zombie Raid (9/28/95, Japan, prototype PCB)", GAME_NO_COCKTAIL ) // just 3 bytes different from above
+GAME( 1995, zombraid, 0,        gundhara, zombraid, seta_state, zombraid, ROT0,   "American Sammy",            "Zombie Raid (9/28/95, US)", MACHINE_NO_COCKTAIL )
+GAME( 1995, zombraidp,zombraid, gundhara, zombraid, seta_state, zombraid, ROT0,   "American Sammy",            "Zombie Raid (9/28/95, US, prototype PCB)", MACHINE_NO_COCKTAIL ) // actual code is same as the released version
+GAME( 1995, zombraidpj,zombraid,gundhara, zombraid, seta_state, zombraid, ROT0,   "Sammy Industries Co.,Ltd.", "Zombie Raid (9/28/95, Japan, prototype PCB)", MACHINE_NO_COCKTAIL ) // just 3 bytes different from above
 
-GAME( 1996, crazyfgt, 0,        crazyfgt, crazyfgt, seta_state, crazyfgt, ROT0,   "Subsino",                   "Crazy Fight", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1996, crazyfgt, 0,        crazyfgt, crazyfgt, seta_state, crazyfgt, ROT0,   "Subsino",                   "Crazy Fight", MACHINE_UNEMULATED_PROTECTION | MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )

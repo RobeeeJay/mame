@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*************************************************************************
 
     Metal Clash
@@ -24,8 +26,6 @@ public:
 	required_shared_ptr<UINT8> m_bgram;
 	required_shared_ptr<UINT8> m_scrollx;
 	UINT8 *        m_otherram;
-//      UINT8 *        m_paletteram;    // currently this uses generic palette handling
-//      UINT8 *        m_paletteram2;    // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t      *m_bg_tilemap;

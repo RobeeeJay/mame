@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:smf, David Haywood
 /***************************************************************************
 
 Video Hardware for Irem Games:
@@ -90,14 +92,14 @@ static const res_net_info m62_sprite_net_info =
 };
 
 
-/* this is a complete guess */
 static const res_net_info battroad_char_net_info =
 {
 	RES_NET_VCC_5V | RES_NET_VIN_TTL_OUT,
 	{
+		{ RES_NET_AMP_NONE, 0, 0, 2, {       470, 220 } },
 		{ RES_NET_AMP_NONE, 0, 0, 3, { 1000, 470, 220 } },
-		{ RES_NET_AMP_NONE, 0, 0, 3, { 1000, 470, 220 } },
-		{ RES_NET_AMP_NONE, 0, 0, 2, {       470, 220 } }
+		{ RES_NET_AMP_NONE, 0, 0, 3, { 1000, 470, 220 } }
+
 	}
 };
 
@@ -153,8 +155,8 @@ static const res_net_decode_info battroad_char_decode_info =
 	0x000, 0x01f,       /* start/end */
 	/*  R      G      B */
 	{ 0x600, 0x600, 0x600 }, /* offsets */
-	{     0,     3,     6 }, /* shifts */
-	{  0x07,  0x07,  0x03 }  /* masks */
+	{     6,     3,     0 }, /* shifts */
+	{  0x03,  0x07,  0x07 }  /* masks */
 };
 
 
@@ -200,13 +202,13 @@ void m62_state::m62_amplify_contrast(palette_t *palette, UINT32 numcolors)
 PALETTE_INIT_MEMBER(m62_state, m62)
 {
 	const UINT8 *color_prom = memregion("proms")->base();
-	dynamic_array<rgb_t> rgb;
+	std::vector<rgb_t> rgb;
 
 	compute_res_net_all(rgb, color_prom, m62_tile_decode_info, m62_tile_net_info);
-	palette.set_pen_colors(0x000, rgb, 0x100);
+	palette.set_pen_colors(0x000, rgb);
 
 	compute_res_net_all(rgb, color_prom, m62_sprite_decode_info, m62_sprite_net_info);
-	palette.set_pen_colors(0x100, rgb, 0x100);
+	palette.set_pen_colors(0x100, rgb);
 
 	m62_amplify_contrast(palette.palette(),0);
 
@@ -218,13 +220,13 @@ PALETTE_INIT_MEMBER(m62_state, m62)
 PALETTE_INIT_MEMBER(m62_state,lotlot)
 {
 	const UINT8 *color_prom = memregion("proms")->base();
-	dynamic_array<rgb_t> rgb;
+	std::vector<rgb_t> rgb;
 
 	compute_res_net_all(rgb, color_prom, lotlot_tile_decode_info, m62_tile_net_info);
-	palette.set_pen_colors(0x000, rgb, 0x180);
+	palette.set_pen_colors(0x000, rgb);
 
 	compute_res_net_all(rgb, color_prom, lotlot_sprite_decode_info, m62_sprite_net_info);
-	palette.set_pen_colors(0x180, rgb, 0x180);
+	palette.set_pen_colors(0x180, rgb);
 
 	m62_amplify_contrast(palette.palette(),0);
 
@@ -236,20 +238,20 @@ PALETTE_INIT_MEMBER(m62_state,lotlot)
 PALETTE_INIT_MEMBER(m62_state,battroad)
 {
 	const UINT8 *color_prom = memregion("proms")->base();
-	dynamic_array<rgb_t> rgb;
+	std::vector<rgb_t> rgb;
 
 	// m62 palette
 	compute_res_net_all(rgb, color_prom, m62_tile_decode_info, m62_tile_net_info);
-	palette.set_pen_colors(0x000, rgb, 0x100);
+	palette.set_pen_colors(0x000, rgb);
 
 	compute_res_net_all(rgb, color_prom, m62_sprite_decode_info, m62_sprite_net_info);
-	palette.set_pen_colors(0x100, rgb, 0x100);
+	palette.set_pen_colors(0x100, rgb);
 
 	m62_amplify_contrast(palette.palette(),0x200);
 
 	// custom palette for foreground
 	compute_res_net_all(rgb, color_prom, battroad_char_decode_info, battroad_char_net_info);
-	palette.set_pen_colors(0x200, rgb, 0x020);
+	palette.set_pen_colors(0x200, rgb);
 
 	/* we'll need this at run time */
 	m_sprite_height_prom = color_prom + 0x620;
@@ -259,13 +261,13 @@ PALETTE_INIT_MEMBER(m62_state,battroad)
 PALETTE_INIT_MEMBER(m62_state,spelunk2)
 {
 	const UINT8 *color_prom = memregion("proms")->base();
-	dynamic_array<rgb_t> rgb;
+	std::vector<rgb_t> rgb;
 
 	compute_res_net_all(rgb, color_prom, spelunk2_tile_decode_info, m62_tile_net_info);
-	palette.set_pen_colors(0x000, rgb, 0x200);
+	palette.set_pen_colors(0x000, rgb);
 
 	compute_res_net_all(rgb, color_prom, spelunk2_sprite_decode_info, m62_sprite_net_info);
-	palette.set_pen_colors(0x200, rgb, 0x100);
+	palette.set_pen_colors(0x200, rgb);
 
 	m62_amplify_contrast(palette.palette(),0);
 
@@ -290,7 +292,7 @@ void m62_state::register_savestate(  )
 WRITE8_MEMBER(m62_state::m62_flipscreen_w)
 {
 	/* screen flip is handled both by software and hardware */
-	data ^= ~ioport("DSW2")->read() & 1;
+	data ^= ((~ioport("DSW2")->read()) & 1);
 
 	m_flipscreen = data & 0x01;
 	if (m_flipscreen)
@@ -300,6 +302,10 @@ WRITE8_MEMBER(m62_state::m62_flipscreen_w)
 
 	coin_counter_w(machine(), 0, data & 2);
 	coin_counter_w(machine(), 1, data & 4);
+
+	/* Sound inhibit ... connected to D6 which is not present on any board */
+	if (m_audio->m_audio_SINH != NULL)
+		m_audio->m_audio_SINH->write((data >> 3) & 1);
 }
 
 WRITE8_MEMBER(m62_state::m62_hscroll_low_w)

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /*
     c352.c - Namco C352 custom PCM chip emulation
     v1.2
@@ -11,6 +13,14 @@
     Supports 8-bit linear and 8-bit muLaw samples
     Output: digital, 16 bit, 4 channels
     Output sample rate is the input clock / (288 * 2).
+	
+    superctr: The clock divider appears to be configurable for each system.
+    Below is a list of the divider values followed by the systems that use it.
+	
+    * 228: System 11.
+    * 288: System 22, Super 22, NB-1/2, ND-1, FL.
+    * 296: System 23, Super 23.
+    * 332: System 12.
  */
 
 #include "emu.h"
@@ -41,6 +51,17 @@ c352_device::c352_device(const machine_config &mconfig, const char *tag, device_
 		device_memory_interface(mconfig, *this),
 		m_space_config("samples", ENDIANNESS_LITTLE, 8, 24, 0, NULL, *ADDRESS_MAP_NAME(c352))
 {
+}
+
+//-------------------------------------------------
+//  static_set_dividder - configuration helper to
+//  set the divider setting
+//-------------------------------------------------
+
+void c352_device::static_set_divider(device_t &device, int setting)
+{
+	c352_device &c352 = downcast<c352_device &>(device);
+	c352.m_divider = setting;
 }
 
 //-------------------------------------------------
@@ -111,8 +132,8 @@ void c352_device::mix_one_channel(unsigned long ch, long sample_count)
 			return;
 		}
 
-		sample = (char)m_direct->read_raw_byte(pos);
-		nextsample = (char)m_direct->read_raw_byte(pos+cnt);
+		sample = (char)m_direct->read_byte(pos);
+		nextsample = (char)m_direct->read_byte(pos+cnt);
 
 		// sample is muLaw, not 8-bit linear (Fighting Layer uses this extensively)
 		if (flag & C352_FLG_MULAW)
@@ -463,7 +484,7 @@ void c352_device::device_start()
 	// find our direct access
 	m_direct = &space().direct();
 
-	m_sample_rate_base = clock() / 288;
+	m_sample_rate_base = clock() / m_divider;
 
 	m_stream = machine().sound().stream_alloc(*this, 0, 4, m_sample_rate_base);
 

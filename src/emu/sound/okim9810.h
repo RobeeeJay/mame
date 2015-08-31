@@ -1,8 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Andrew Gardner
 /***************************************************************************
 
     okim9810.h
 
-    OKI MSM9810 ADCPM(2) sound chip.
+    OKI MSM9810 ADPCM(2) sound chip.
 
     Notes:
     The master clock frequency for this chip can range from 3.5MHz to 4.5Mhz.
@@ -133,7 +135,6 @@ protected:
 
 		static const UINT8 s_volume_table[16];
 	};
-
 
 	// internal state
 	const address_space_config  m_space_config;

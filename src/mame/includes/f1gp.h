@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #include "video/vsystem_spr.h"
 #include "video/vsystem_spr2.h"
 #include "video/k053936.h"
@@ -52,7 +54,6 @@ public:
 
 
 	UINT16 *  m_zoomdata;
-//      UINT16 *  m_paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t   *m_fg_tilemap;

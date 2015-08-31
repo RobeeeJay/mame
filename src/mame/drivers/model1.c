@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /*
 
 Sega Model 1 Hardware Overview
@@ -740,6 +742,9 @@ TIMER_DEVICE_CALLBACK_MEMBER(model1_state::model1_interrupt)
 		irq_raise(m_sound_irq);
 
 		m_m1audio->check_fifo_irq();
+
+		if (m_m1comm != NULL)
+			m_m1comm->check_vint_irq();
 	}
 }
 
@@ -900,6 +905,10 @@ static ADDRESS_MAP_START( model1_mem, AS_PROGRAM, 16, model1_state )
 	AM_RANGE(0x900000, 0x903fff) AM_RAM_WRITE(p_w) AM_SHARE("palette")
 	AM_RANGE(0x910000, 0x91bfff) AM_RAM  AM_SHARE("color_xlat")
 
+	AM_RANGE(0xb00000, 0xb00fff) AM_DEVREADWRITE8("m1comm", m1comm_device, share_r, share_w, 0xffff)
+	AM_RANGE(0xb01000, 0xb01001) AM_DEVREADWRITE8("m1comm", m1comm_device, cn_r, cn_w, 0x00ff)
+	AM_RANGE(0xb01002, 0xb01003) AM_DEVREADWRITE8("m1comm", m1comm_device, fg_r, fg_w, 0x00ff)
+
 	AM_RANGE(0xc00000, 0xc0003f) AM_READWRITE(io_r, io_w)
 
 	AM_RANGE(0xc00040, 0xc00043) AM_READWRITE(network_ctl_r, network_ctl_w)
@@ -947,6 +956,10 @@ static ADDRESS_MAP_START( model1_vr_mem, AS_PROGRAM, 16, model1_state )
 
 	AM_RANGE(0x900000, 0x903fff) AM_RAM_WRITE(p_w) AM_SHARE("palette")
 	AM_RANGE(0x910000, 0x91bfff) AM_RAM  AM_SHARE("color_xlat")
+
+	AM_RANGE(0xb00000, 0xb00fff) AM_DEVREADWRITE8("m1comm", m1comm_device, share_r, share_w, 0xffff)
+	AM_RANGE(0xb01000, 0xb01001) AM_DEVREADWRITE8("m1comm", m1comm_device, cn_r, cn_w, 0x00ff)
+	AM_RANGE(0xb01002, 0xb01003) AM_DEVREADWRITE8("m1comm", m1comm_device, fg_r, fg_w, 0x00ff)
 
 	AM_RANGE(0xc00000, 0xc0003f) AM_READWRITE(io_r, io_w)
 
@@ -1539,6 +1552,8 @@ static MACHINE_CONFIG_START( model1, model1_state )
 	MCFG_VIDEO_START_OVERRIDE(model1_state,model1)
 
 	MCFG_SEGAM1AUDIO_ADD("m1audio")
+
+	MCFG_M1COMM_ADD("m1comm")
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_DERIVED(swa, model1)
@@ -1584,13 +1599,15 @@ static MACHINE_CONFIG_START( model1_vr, model1_state )
 	MCFG_VIDEO_START_OVERRIDE(model1_state,model1)
 
 	MCFG_SEGAM1AUDIO_ADD("m1audio")
+
+	MCFG_M1COMM_ADD("m1comm")
 MACHINE_CONFIG_END
 
-GAME( 1993, vf,       0,       model1,    vf, driver_device,       0, ROT0, "Sega", "Virtua Fighter", GAME_IMPERFECT_GRAPHICS )
-GAMEL(1992, vr,       0,       model1_vr, vr, driver_device,       0, ROT0, "Sega", "Virtua Racing", GAME_IMPERFECT_GRAPHICS, layout_vr )
-GAME( 1993, vformula, vr,      model1_vr, vr, driver_device,       0, ROT0, "Sega", "Virtua Formula", GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, swa,      0,       swa,       swa, driver_device,      0, ROT0, "Sega", "Star Wars Arcade", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND )
-GAME( 1994, wingwar,  0,       model1,    wingwar, driver_device,  0, ROT0, "Sega", "Wing War (World)", GAME_NOT_WORKING )
-GAME( 1994, wingwaru, wingwar, model1,    wingwar, driver_device,  0, ROT0, "Sega", "Wing War (US)", GAME_NOT_WORKING )
-GAME( 1994, wingwarj, wingwar, model1,    wingwar, driver_device,  0, ROT0, "Sega", "Wing War (Japan)", GAME_NOT_WORKING )
-GAME( 1993, netmerc,  0,       model1,    vf, driver_device,       0, ROT0, "Sega", "NetMerc?", GAME_NOT_WORKING )
+GAME( 1993, vf,       0,       model1,    vf, driver_device,       0, ROT0, "Sega", "Virtua Fighter", MACHINE_IMPERFECT_GRAPHICS )
+GAMEL(1992, vr,       0,       model1_vr, vr, driver_device,       0, ROT0, "Sega", "Virtua Racing", MACHINE_IMPERFECT_GRAPHICS, layout_vr )
+GAME( 1993, vformula, vr,      model1_vr, vr, driver_device,       0, ROT0, "Sega", "Virtua Formula", MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1993, swa,      0,       swa,       swa, driver_device,      0, ROT0, "Sega", "Star Wars Arcade", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_SOUND )
+GAME( 1994, wingwar,  0,       model1,    wingwar, driver_device,  0, ROT0, "Sega", "Wing War (World)", MACHINE_NOT_WORKING )
+GAME( 1994, wingwaru, wingwar, model1,    wingwar, driver_device,  0, ROT0, "Sega", "Wing War (US)", MACHINE_NOT_WORKING )
+GAME( 1994, wingwarj, wingwar, model1,    wingwar, driver_device,  0, ROT0, "Sega", "Wing War (Japan)", MACHINE_NOT_WORKING )
+GAME( 1993, netmerc,  0,       model1,    vf, driver_device,       0, ROT0, "Sega", "NetMerc?", MACHINE_NOT_WORKING )

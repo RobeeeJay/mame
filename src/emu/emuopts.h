@@ -73,6 +73,9 @@ enum
 #define OPTION_RECORD               "record"
 #define OPTION_MNGWRITE             "mngwrite"
 #define OPTION_AVIWRITE             "aviwrite"
+#ifdef MAME_DEBUG
+#define OPTION_DUMMYWRITE           "dummywrite"
+#endif
 #define OPTION_WAVWRITE             "wavwrite"
 #define OPTION_SNAPNAME             "snapname"
 #define OPTION_SNAPSIZE             "snapsize"
@@ -171,6 +174,12 @@ enum
 #define OPTION_UI_FONT              "uifont"
 #define OPTION_RAMSIZE              "ramsize"
 
+// core comm options
+#define OPTION_COMM_LOCAL_HOST      "comm_localhost"
+#define OPTION_COMM_LOCAL_PORT      "comm_localport"
+#define OPTION_COMM_REMOTE_HOST     "comm_remotehost"
+#define OPTION_COMM_REMOTE_PORT     "comm_remoteport"
+
 #define OPTION_CONFIRM_QUIT         "confirm_quit"
 #define OPTION_UI_MOUSE             "ui_mouse"
 
@@ -200,9 +209,9 @@ public:
 	emu_options();
 
 	// parsing wrappers
-	bool parse_command_line(int argc, char *argv[], astring &error_string);
-	void parse_standard_inis(astring &error_string);
-	bool parse_slot_devices(int argc, char *argv[], astring &error_string, const char *name, const char *value);
+	bool parse_command_line(int argc, char *argv[], std::string &error_string);
+	void parse_standard_inis(std::string &error_string);
+	bool parse_slot_devices(int argc, char *argv[], std::string &error_string, const char *name, const char *value);
 
 	// core options
 	const char *system_name() const { return value(OPTION_SYSTEMNAME); }
@@ -241,6 +250,9 @@ public:
 	const char *record() const { return value(OPTION_RECORD); }
 	const char *mng_write() const { return value(OPTION_MNGWRITE); }
 	const char *avi_write() const { return value(OPTION_AVIWRITE); }
+#ifdef MAME_DEBUG
+	bool dummy_write() const { return bool_value(OPTION_DUMMYWRITE); }
+#endif
 	const char *wav_write() const { return value(OPTION_WAVWRITE); }
 	const char *snap_name() const { return value(OPTION_SNAPNAME); }
 	const char *snap_size() const { return value(OPTION_SNAPSIZE); }
@@ -254,9 +266,9 @@ public:
 	int frameskip() const { return int_value(OPTION_FRAMESKIP); }
 	int seconds_to_run() const { return int_value(OPTION_SECONDS_TO_RUN); }
 	bool throttle() const { return bool_value(OPTION_THROTTLE); }
-	bool sleep() const { return bool_value(OPTION_SLEEP); }
+	bool sleep() const { return m_sleep; }
 	float speed() const { return float_value(OPTION_SPEED); }
-	bool refresh_speed() const { return bool_value(OPTION_REFRESHSPEED); }
+	bool refresh_speed() const { return m_refresh_speed; }
 
 	// core rotation options
 	bool rotate() const { return bool_value(OPTION_ROTATE); }
@@ -315,8 +327,8 @@ public:
 	bool ui_active() const { return bool_value(OPTION_UI_ACTIVE); }
 	bool offscreen_reload() const { return bool_value(OPTION_OFFSCREEN_RELOAD); }
 	bool natural_keyboard() const { return bool_value(OPTION_NATURAL_KEYBOARD); }
-	bool joystick_contradictory() const { return bool_value(OPTION_JOYSTICK_CONTRADICTORY); }
-	int coin_impulse() const { return int_value(OPTION_COIN_IMPULSE); }
+	bool joystick_contradictory() const { return m_joystick_contradictory; }
+	int coin_impulse() const { return m_coin_impulse; }
 
 	// core debugging options
 	bool log() const { return bool_value(OPTION_LOG); }
@@ -337,6 +349,12 @@ public:
 	const char *ui_font() const { return value(OPTION_UI_FONT); }
 	const char *ram_size() const { return value(OPTION_RAMSIZE); }
 
+	// core comm options
+	const char *comm_localhost() const { return value(OPTION_COMM_LOCAL_HOST); }
+	const char *comm_localport() const { return value(OPTION_COMM_LOCAL_PORT); }
+	const char *comm_remotehost() const { return value(OPTION_COMM_REMOTE_HOST); }
+	const char *comm_remoteport() const { return value(OPTION_COMM_REMOTE_PORT); }
+
 	bool confirm_quit() const { return bool_value(OPTION_CONFIRM_QUIT); }
 	bool ui_mouse() const { return bool_value(OPTION_UI_MOUSE); }
 
@@ -352,8 +370,8 @@ public:
 	// FIXME: Couriersud: This should be in image_device_exit
 	void remove_device_options();
 
-	const char *main_value(astring &buffer, const char *option) const;
-	const char *sub_value(astring &buffer, const char *name, const char *subname) const;
+	const char *main_value(std::string &buffer, const char *option) const;
+	const char *sub_value(std::string &buffer, const char *name, const char *subname) const;
 	bool add_slot_options(bool isfirst);
 
 private:
@@ -362,9 +380,18 @@ private:
 	void update_slot_options();
 
 	// INI parsing helper
-	bool parse_one_ini(const char *basename, int priority, astring *error_string = NULL);
+	bool parse_one_ini(const char *basename, int priority, std::string *error_string = NULL);
+
+	// cache frequently used options in members
+	void update_cached_options();
 
 	static const options_entry s_option_entries[];
+
+	// cached options
+	int m_coin_impulse;
+	bool m_joystick_contradictory;
+	bool m_sleep;
+	bool m_refresh_speed;
 };
 
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*************************************************************************************************************
 
                                             -= Astro Corp. CGA Hardware =-
@@ -19,6 +21,7 @@ Year + Game          PCB ID         CPU                Video        Chips       
 02  Skill Drop GA    None           JX-1689F1028N      ASTRO V02    pLSI1016-60LJ
 02? Keno 21          ?              ASTRO V102?        ASTRO V05    ASTRO F02?                              not dumped
 03  Speed Drop       None           JX-1689HP          ASTRO V05    pLSI1016-60LJ
+03? Dino Dino        T-3802A        ASTRO V102PX-010?  ASTRO V05    ASTRO F02 2003-03-12                    Encrypted
 04? Stone Age        L1             ASTRO V102PX-012?  ASTRO V05x2  ASTRO F02 2004-09-04                    Encrypted
 05? Zoo              M1.1           ASTRO V102PX-005?  ASTRO V06    ASTRO F02 2005-02-18                    Encrypted
 05? Win Win Bingo    M1.2           ASTRO V102PX-006?  ASTRO V06    ASTRO F02 2005-09-17                    Encrypted
@@ -45,17 +48,25 @@ class astrocorp_state : public driver_device
 public:
 	astrocorp_state(const machine_config &mconfig, device_type type, const char *tag)
 		: driver_device(mconfig, type, tag),
-		m_spriteram(*this, "spriteram"),
 		m_maincpu(*this, "maincpu"),
 		m_oki(*this, "oki"),
 		m_gfxdecode(*this, "gfxdecode"),
 		m_screen(*this, "screen"),
-		m_palette(*this, "palette") { }
+		m_palette(*this, "palette"),
+		m_spriteram(*this, "spriteram")
+	{ }
 
-	/* memory pointers */
+	// devices
+	required_device<cpu_device> m_maincpu;
+	required_device<okim6295_device> m_oki;
+	required_device<gfxdecode_device> m_gfxdecode;
+	required_device<screen_device> m_screen;
+	required_device<palette_device> m_palette;
+
+	// memory pointers
 	required_shared_ptr<UINT16> m_spriteram;
 
-	/* video-related */
+	// video-related
 	bitmap_ind16 m_bitmap;
 	UINT16     m_screen_enable;
 	UINT16     m_draw_sprites;
@@ -67,17 +78,13 @@ public:
 	DECLARE_READ16_MEMBER(astrocorp_unk_r);
 	DECLARE_WRITE16_MEMBER(astrocorp_sound_bank_w);
 	DECLARE_WRITE16_MEMBER(skilldrp_sound_bank_w);
+	DECLARE_DRIVER_INIT(astoneag);
 	DECLARE_DRIVER_INIT(showhanc);
 	DECLARE_DRIVER_INIT(showhand);
 	DECLARE_VIDEO_START(astrocorp);
 	UINT32 screen_update_astrocorp(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	TIMER_DEVICE_CALLBACK_MEMBER(skilldrp_scanline);
 	void draw_sprites(bitmap_ind16 &bitmap, const rectangle &cliprect);
-	required_device<cpu_device> m_maincpu;
-	required_device<okim6295_device> m_oki;
-	required_device<gfxdecode_device> m_gfxdecode;
-	required_device<screen_device> m_screen;
-	required_device<palette_device> m_palette;
 };
 
 /***************************************************************************
@@ -89,8 +96,8 @@ VIDEO_START_MEMBER(astrocorp_state,astrocorp)
 	m_screen->register_screen_bitmap(m_bitmap);
 
 	save_item(NAME(m_bitmap));
-	save_item       (NAME(m_screen_enable));
-	save_item       (NAME(m_draw_sprites));
+	save_item(NAME(m_screen_enable));
+	save_item(NAME(m_draw_sprites));
 }
 
 /***************************************************************************
@@ -1118,6 +1125,53 @@ ROM_START( astoneag )
 	ROM_LOAD( "93c46.ic99", 0x0000, 0x0080, CRC(2fd85a9b) SHA1(3240e40debf5af15f08072b76d6910808d3d282f) )
 ROM_END
 
+/***************************************************************************
+
+Dino Dino
+Astro Corp.
+
+PCB Layout
+----------
+
+ASTRO T-3802A PCB with ASTRO F02 2003-03-12
+|--------------------------------------------|
+|        |------|                    TDA2003 |
+|ULN2003 |ASTRO |   V62C51864            VOL |
+|        |F02   |            ROM4            |
+|        |------|   ROM2                     |
+|ULN2003                     ROM3      M6295 |
+|        |-------|                           |
+|8       |ASTRO  |                           |
+|L       |V102PX |                       ROM5|
+|I       |-010   |                           |
+|N       |-------|            |------|       |
+|E                            |ASTRO |       |
+|R                  ROM1      |V05   |       |
+|                             |------|       |
+|                   V62C51864                |
+|                                       24MHz|
+|        93C46      6116 6116    HM628128    |
+|        SW1        6116 6116    HM628128    |
+|--------------------------------------------|
+
+***************************************************************************/
+
+ROM_START( dinodino )
+	ROM_REGION( 0x40000, "maincpu", 0 )
+	ROM_LOAD16_BYTE( "dd_rom1.u20", 0x00000, 0x20000, CRC(056613dd) SHA1(e8481177b1dacda222fe4fae2b50841ddb0c87ba) )
+	ROM_LOAD16_BYTE( "dd_rom2.u19", 0x00001, 0x20000, CRC(575519c5) SHA1(249fe33b6ea0bc154125a988315f571a30b9375c) )
+
+	ROM_REGION( 0x400000, "sprites", 0 )
+	ROM_LOAD( "dd_rom3.u26", 0x000000, 0x200000, CRC(47c95b43) SHA1(43e9a13c38f2f7d13dd4dcb105c65e43b18ccdbf) )
+	ROM_LOAD( "dd_rom4.u24", 0x200000, 0x200000, CRC(2cf4be21) SHA1(831d7d125c4161b42b017a69fc05e30a51172620) )
+
+	ROM_REGION( 0x80000, "oki", 0 )
+	ROM_LOAD( "dd_rom5.u33", 0x00000, 0x80000, CRC(482e456a) SHA1(c7111522383c4e1fd98b0f759153be98dcbe06c1) )
+
+	ROM_REGION16_BE( 0x80, "eeprom", 0 )
+	ROM_LOAD( "93c46.u10", 0x0000, 0x0080, CRC(6769bfb8) SHA1(bf6b905805c2c61a89fbc4c046b23069431e4709) )
+ROM_END
+
 
 DRIVER_INIT_MEMBER(astrocorp_state,showhand)
 {
@@ -1148,15 +1202,167 @@ DRIVER_INIT_MEMBER(astrocorp_state,showhanc)
 #endif
 }
 
-GAME( 2000,  showhand,  0,        showhand, showhand, astrocorp_state, showhand, ROT0, "Astro Corp.",        "Show Hand (Italy)",                GAME_SUPPORTS_SAVE )
-GAME( 2000,  showhanc,  showhand, showhanc, showhanc, astrocorp_state, showhanc, ROT0, "Astro Corp.",        "Wang Pai Dui Jue (China)",         GAME_SUPPORTS_SAVE )
-GAME( 2002,  skilldrp,  0,        skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Skill Drop Georgia (Ver. G1.0S)",  GAME_SUPPORTS_SAVE )
-GAME( 2003,  speeddrp,  0,        speeddrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Speed Drop (Ver. 1.06)",           GAME_SUPPORTS_SAVE )
+DRIVER_INIT_MEMBER(astrocorp_state,astoneag)
+{
+#if 0
+	UINT16 *rom = (UINT16*)memregion("maincpu")->base();
+	UINT16 x;
+	int i;
+
+	for (i = 0x25100/2; i < 0x25200/2; i++)
+	{
+		x = 0x0000;
+		if (  (i & 0x0001) )                    x |= 0x0200;
+		if (  (i & 0x0004) && !(i & 0x0001) )   x |= 0x0080;
+		if (  (i & 0x0040) ||  (i & 0x0001) )   x |= 0x0040;
+		if (  (i & 0x0010) && !(i & 0x0001) )   x |= 0x0020;
+		if ( !(i & 0x0020) ||  (i & 0x0001) )   x |= 0x0010;
+		if (  (i & 0x0002) ||  (i & 0x0001) )   x |= 0x0008;
+		if (  (i & 0x0008) && !(i & 0x0001) )   x |= 0x0004;
+		if ( !(i & 0x0040) && !(i & 0x0001) )   x |= 0x0002;
+		if (  (i & 0x0040) && !(i & 0x0001) )   x |= 0x0001;
+		rom[i] ^= x;
+	}
+
+/*
+    for (i = 0x25300/2; i < 0x25400/2; i++)
+    {
+        x = 0x1300;
+        rom[i] ^= x;
+    }
+*/
+
+	for (i = 0x25400/2; i < 0x25500/2; i++)
+	{
+		x = 0x4200;
+		if (  (i & 0x0001) )                    x |= 0x0400;
+		if (  (i & 0x0020) && !(i & 0x0001) )   x |= 0x0080;
+		if ( !(i & 0x0010) ||  (i & 0x0001) )   x |= 0x0040;
+		if (  (i & 0x0040) && !(i & 0x0001) )   x |= 0x0020;
+		if ( !(i & 0x0004) ||  (i & 0x0001) )   x |= 0x0010;
+		if ( !(i & 0x0040) && !(i & 0x0001) )   x |= 0x0004;
+		if (  (i & 0x0008) && !(i & 0x0001) )   x |= 0x0002;
+		if (  (i & 0x0002) ||  (i & 0x0001) )   x |= 0x0001;
+		rom[i] ^= x;
+	}
+
+	for (i = 0x25500/2; i < 0x25600/2; i++)
+	{
+		x = 0x4200;
+		if (  (i & 0x0001) )                    x |= 0x0400;
+		if (  (i & 0x0010) && !(i & 0x0001) )   x |= 0x0080;
+		if (  (i & 0x0040) && !(i & 0x0001) )   x |= 0x0040;
+		if ( !(i & 0x0002) && !(i & 0x0001) )   x |= 0x0020;
+		if ( !(i & 0x0040) && !(i & 0x0001) )   x |= 0x0010;
+		if (  (i & 0x0008) && !(i & 0x0001) )   x |= 0x0008;
+		if (  (i & 0x0020) && !(i & 0x0001) )   x |= 0x0004;
+		if (  (i & 0x0004) && !(i & 0x0001) )   x |= 0x0002;
+		if (  (i & 0x0001) )                    x |= 0x0001;
+		rom[i] ^= x;
+	}
+
+/*
+    for (i = 0x25700/2; i < 0x25800/2; i++)
+    {
+        x = 0x6800;
+        if ( !(i & 0x0001) )                    x |= 0x8000;
+
+        if ( !(i & 0x0040) || ((i & 0x0001) || !(i & 0x0001)) )                 x |= 0x0100;
+
+        rom[i] ^= x;
+    }
+*/
+
+	for (i = 0x25800/2; i < 0x25900/2; i++)
+	{
+		x = 0x8300;
+		if (  (i & 0x0040) ||  (i & 0x0001) )   x |= 0x2000;
+		if (  (i & 0x0002) ||  (i & 0x0001) )   x |= 0x0080;
+		if ( !(i & 0x0040) && !(i & 0x0001) )   x |= 0x0040;
+		if (  (i & 0x0020) && !(i & 0x0001) )   x |= 0x0020;
+		if ( !(i & 0x0004) ||  (i & 0x0001) )   x |= 0x0010;
+		if ( !(i & 0x0040) && !(i & 0x0001) )   x |= 0x0008;
+		if (  (i & 0x0010) && !(i & 0x0001) )   x |= 0x0004;
+		if (  (i & 0x0008) && !(i & 0x0001) )   x |= 0x0002;
+		if ( !(i & 0x0040) && !(i & 0x0001) )   x |= 0x0001;
+		rom[i] ^= x;
+	}
+
+//  for (i = 0x25900/2; i < 0x25a00/2; i++)
+
+	for (i = 0x25c00/2; i < 0x25d00/2; i++)
+	{
+		// changed from 25400
+//      x = 0x4200;
+		x = 0x4000;
+//      if (  (i & 0x0001) )                    x |= 0x0400;
+		if (  (i & 0x0020) && !(i & 0x0001) )   x |= 0x0080;
+		if ( !(i & 0x0010) ||  (i & 0x0001) )   x |= 0x0040;
+		if (  (i & 0x0040) && !(i & 0x0001) )   x |= 0x0020;
+		if ( !(i & 0x0004) ||  (i & 0x0001) )   x |= 0x0010;
+		if ( !(i & 0x0040) && !(i & 0x0001) )   x |= 0x0004;
+		if (  (i & 0x0008) && !(i & 0x0001) )   x |= 0x0002;
+		if (  (i & 0x0002) ||  (i & 0x0001) )   x |= 0x0001;
+		rom[i] ^= x;
+	}
+
+/*
+    for (i = 0x25d00/2; i < 0x25e00/2; i++)
+    {
+        x = 0x4000;
+        if ( !(i & 0x0040) )                                    x |= 0x0800;
+
+        if ( !(i & 0x0040) && !(i & 0x0001) )   x |= 0x0100;    // almost!!
+
+        if ( ((i & 0x0040)&&((i & 0x0020)||(i & 0x0010))) || !(i & 0x0001) )    x |= 0x0200;    // almost!!
+        if ( (!(i & 0x0040) || !(i & 0x0008)) && !(i & 0x0001) )    x |= 0x0008;
+        if (  (i & 0x0040) || !(i & 0x0020) ||  (i & 0x0001) )  x |= 0x0001;    // almost!!
+        rom[i] ^= x;
+    }
+*/
+
+/*
+    for (i = 0x25e00/2; i < 0x25f00/2; i++)
+    {
+        x = 0xa600;
+
+        if (  (i & 0x0040) &&  (i & 0x0001) )   x |= 0x4000;
+        if (  (i & 0x0040) &&  (i & 0x0001) )   x |= 0x0800;
+        if ( !(i & 0x0001) )                    x |= 0x0100;
+
+        if ( (  (i & 0x0040) &&  (i & 0x0008) && !(i & 0x0001)) ||
+             ( !(i & 0x0040) && ((i & 0x0004) ^ (i & 0x0002)) && !(i & 0x0001) ) )  x |= 0x0002;    // almost!!
+
+        if ( !(i & 0x0040) || !(i & 0x0002) ||  (i & 0x0001) )  x |= 0x0001;
+        rom[i] ^= x;
+    }
+*/
+
+	for (i = 0x26f00/2; i < 0x27000/2; i++)
+	{
+		x = 0xb94c;
+		rom[i] ^= x;
+	}
+
+	for (i = 0x27000/2; i < 0x27100/2; i++)
+	{
+		x = 0x5f10;
+		rom[i] ^= x;
+	}
+
+#endif
+}
+
+GAME( 2000,  showhand,  0,        showhand, showhand, astrocorp_state, showhand, ROT0, "Astro Corp.",        "Show Hand (Italy)",                MACHINE_SUPPORTS_SAVE )
+GAME( 2000,  showhanc,  showhand, showhanc, showhanc, astrocorp_state, showhanc, ROT0, "Astro Corp.",        "Wang Pai Dui Jue (China)",         MACHINE_SUPPORTS_SAVE )
+GAME( 2002,  skilldrp,  0,        skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Skill Drop Georgia (Ver. G1.0S)",  MACHINE_SUPPORTS_SAVE )
+GAME( 2003,  speeddrp,  0,        speeddrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Speed Drop (Ver. 1.06)",           MACHINE_SUPPORTS_SAVE )
 
 // Encrypted games (not working):
-GAME( 2004?, astoneag,  0,        skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Stone Age (Astro, Ver. ENG.03.A)", GAME_NOT_WORKING )
-GAME( 2005?, winbingo,  0,        skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Win Win Bingo (set 1)",            GAME_NOT_WORKING )
-GAME( 2005?, winbingoa, winbingo, skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Win Win Bingo (set 2)",            GAME_NOT_WORKING )
-GAME( 2005?, hacher,    winbingo, skilldrp, skilldrp, driver_device,   0,        ROT0, "bootleg (Gametron)", "Hacher (hack of Win Win Bingo)",   GAME_NOT_WORKING )
-GAME( 2005?, zoo,       0,        showhand, showhand, driver_device,   0,        ROT0, "Astro Corp.",        "Zoo (Ver. ZO.02.D)",               GAME_NOT_WORKING )
-GAME( 2007?, westvent,  0,        skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Western Venture (Ver. AA.02.D)",   GAME_NOT_WORKING )
+GAME( 2003?, dinodino,  0,        skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Dino Dino",                        MACHINE_NOT_WORKING )
+GAME( 2004?, astoneag,  0,        skilldrp, skilldrp, astrocorp_state, astoneag, ROT0, "Astro Corp.",        "Stone Age (Astro, Ver. ENG.03.A)", MACHINE_NOT_WORKING )
+GAME( 2005?, winbingo,  0,        skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Win Win Bingo (set 1)",            MACHINE_NOT_WORKING )
+GAME( 2005?, winbingoa, winbingo, skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Win Win Bingo (set 2)",            MACHINE_NOT_WORKING )
+GAME( 2005?, hacher,    winbingo, skilldrp, skilldrp, driver_device,   0,        ROT0, "bootleg (Gametron)", "Hacher (hack of Win Win Bingo)",   MACHINE_NOT_WORKING )
+GAME( 2005?, zoo,       0,        showhand, showhand, driver_device,   0,        ROT0, "Astro Corp.",        "Zoo (Ver. ZO.02.D)",               MACHINE_NOT_WORKING )
+GAME( 2007?, westvent,  0,        skilldrp, skilldrp, driver_device,   0,        ROT0, "Astro Corp.",        "Western Venture (Ver. AA.02.D)",   MACHINE_NOT_WORKING )

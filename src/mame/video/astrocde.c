@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria, Mike Coates, Frank Palazzolo, Aaron Giles
 /***************************************************************************
 
     Bally Astrocade-based hardware
@@ -22,7 +24,6 @@ void astrocde_state::machine_start()
 	save_item(NAME(m_port_2_last));
 	save_item(NAME(m_ram_write_enable));
 	save_item(NAME(m_input_select));
-	save_item(NAME(m_profpac_bank));
 
 	m_port_1_last = m_port_2_last = 0xff;
 }
@@ -94,7 +95,7 @@ PALETTE_INIT_MEMBER(astrocde_state, astrocde)
 
 			/* transform to RGB */
 			r = (ry + y) * 255;
-			g = ((y - 0.299 * (ry + y) - 0.114 * (by + y)) / 0.587) * 255;
+			g = ((y - 0.299f * (ry + y) - 0.114f * (by + y)) / 0.587f) * 255;
 			b = (by + y) * 255;
 
 			/* clamp and store */
@@ -489,51 +490,51 @@ READ8_MEMBER(astrocde_state::astrocade_data_chip_register_r)
 			break;
 
 		case 0x10:  /* player 1 handle */
-			result = ioport("P1HANDLE")->read_safe(0xff);
+			result = m_p1handle? m_p1handle->read() : 0xff;
 			break;
 
 		case 0x11:  /* player 2 handle */
-			result = ioport("P2HANDLE")->read_safe(0xff);
+			result = m_p2handle? m_p2handle->read() : 0xff;
 			break;
 
 		case 0x12:  /* player 3 handle */
-			result = ioport("P3HANDLE")->read_safe(0xff);
+			result = m_p3handle? m_p3handle->read() : 0xff;
 			break;
 
 		case 0x13:  /* player 4 handle */
-			result = ioport("P4HANDLE")->read_safe(0xff);
+			result = m_p4handle? m_p4handle->read() : 0xff;
 			break;
 
 		case 0x14:  /* keypad column 0 */
-			result = ioport("KEYPAD0")->read_safe(0xff);
+			result = m_keypad0 ? m_keypad0->read() : 0xff;
 			break;
 
 		case 0x15:  /* keypad column 1 */
-			result = ioport("KEYPAD1")->read_safe(0xff);
+			result = m_keypad1 ? m_keypad1->read() : 0xff;
 			break;
 
 		case 0x16:  /* keypad column 2 */
-			result = ioport("KEYPAD2")->read_safe(0xff);
+			result = m_keypad2 ? m_keypad2->read() : 0xff;
 			break;
 
 		case 0x17:  /* keypad column 3 */
-			result = ioport("KEYPAD3")->read_safe(0xff);
+			result = m_keypad3 ? m_keypad3->read() : 0xff;
 			break;
 
 		case 0x1c:  /* player 1 knob */
-			result = ioport("P1_KNOB")->read_safe(0xff);
+			result = m_p1_knob ? m_p1_knob->read() : 0xff;
 			break;
 
 		case 0x1d:  /* player 2 knob */
-			result = ioport("P2_KNOB")->read_safe(0xff);
+			result = m_p2_knob ? m_p2_knob->read() : 0xff;
 			break;
 
 		case 0x1e:  /* player 3 knob */
-			result = ioport("P3_KNOB")->read_safe(0xff);
+			result = m_p3_knob ? m_p3_knob->read() : 0xff;
 			break;
 
 		case 0x1f:  /* player 4 knob */
-			result = ioport("P4_KNOB")->read_safe(0xff);
+			result = m_p4_knob ? m_p4_knob->read() : 0xff;
 			break;
 	}
 
@@ -603,7 +604,7 @@ WRITE8_MEMBER(astrocde_state::astrocade_data_chip_register_w)
 		case 0x17:  /* noise volume register */
 		case 0x18:  /* sound block transfer */
 			if (m_video_config & AC_SOUND_PRESENT)
-				machine().device<astrocade_device>("astrocade1")->astrocade_sound_w(space, offset, data);
+				m_astrocade_sound1->astrocade_sound_w(space, offset, data);
 			break;
 
 		case 0x19:  /* expand register */

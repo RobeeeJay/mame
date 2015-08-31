@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 /****************************************************************************************
  Reality Tennis - (c) 1993 TCH
 
@@ -81,7 +83,7 @@ enum
 	BLT_FLAGS,
 	BLT_UNK,
 	BLT_START,
-	BLT_UNK2,
+	BLT_UNK2
 };
 
 enum
@@ -89,7 +91,7 @@ enum
 	BITMAP_BG=0,
 	BITMAP_FG_1,
 	BITMAP_FG_2,
-	BITMAP_FG_DISPLAY,
+	BITMAP_FG_DISPLAY
 };
 
 #define BLTFLAG_DST_X_DIR   (1<<0)
@@ -110,7 +112,7 @@ enum
 
 #define SRC_SHIFT           8
 
-WRITE16_MEMBER(rltennis_state::rlt_blitter_w)
+WRITE16_MEMBER(rltennis_state::blitter_w)
 {
 	int old_data=m_blitter[offset];
 	COMBINE_DATA(&m_blitter[offset]);
@@ -224,9 +226,11 @@ void rltennis_state::video_start()
 	m_tmp_bitmap[BITMAP_FG_1] = auto_bitmap_ind16_alloc(machine(), 512, 256);
 	m_tmp_bitmap[BITMAP_FG_2] = auto_bitmap_ind16_alloc(machine(), 512, 256);
 	m_tmp_bitmap[BITMAP_FG_DISPLAY] = auto_bitmap_ind16_alloc(machine(), 512, 256);
+
+	save_item(NAME(m_blitter));
 }
 
-UINT32 rltennis_state::screen_update_rltennis(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)
+UINT32 rltennis_state::screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)
 {
 	copybitmap(bitmap, *m_tmp_bitmap[BITMAP_BG], 0, 0, 0, 0, cliprect);
 	copybitmap_trans(bitmap, *m_tmp_bitmap[BITMAP_FG_DISPLAY], 0, 0, 0, 0, cliprect, 0);

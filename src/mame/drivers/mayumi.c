@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Uki
 /*****************************************************************************
 
     Kikiippatsu Mayumi-chan (c) 1988 Victory L.L.C.
@@ -432,4 +434,4 @@ ROM_END
  *
  *************************************/
 
-GAME( 1988, mayumi, 0, mayumi, mayumi, driver_device, 0, ROT0, "Sanritsu / Victory L.L.C.",  "Kikiippatsu Mayumi-chan (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1988, mayumi, 0, mayumi, mayumi, driver_device, 0, ROT0, "Sanritsu / Victory L.L.C.",  "Kikiippatsu Mayumi-chan (Japan)", MACHINE_SUPPORTS_SAVE )

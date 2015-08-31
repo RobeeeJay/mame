@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*****************************************************************************
 
     h6280.h Portable Hu6280 emulator interface
@@ -96,7 +98,7 @@ protected:
 	virtual offs_t disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options);
 
 	// device_state_interface overrides
-	virtual void state_string_export(const device_state_entry &entry, astring &string);
+	virtual void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// opcode accessors
 	UINT8 program_read8(offs_t addr);
@@ -177,7 +179,7 @@ protected:
 	void prefix##_f8(); void prefix##_f9(); void prefix##_fa(); void prefix##_fb(); \
 	void prefix##_fc(); void prefix##_fd(); void prefix##_fe(); void prefix##_ff();
 
-	PROTOTYPES(op);
+	PROTOTYPES(op)
 
 	UINT32 translated(UINT16 addr);
 	void h6280_cycles(int cyc);

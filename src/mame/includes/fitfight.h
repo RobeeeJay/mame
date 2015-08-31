@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 
 class fitfight_state : public driver_device
 {
@@ -29,7 +31,6 @@ public:
 	required_shared_ptr<UINT16> m_fof_mid_tileram;
 	required_shared_ptr<UINT16> m_fof_txt_tileram;
 	required_shared_ptr<UINT16> m_spriteram;
-//  UINT16 *  m_paletteram;   // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t  *m_fof_bak_tilemap;

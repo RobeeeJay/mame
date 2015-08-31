@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #ifndef __POWERVR2_H__
 #define __POWERVR2_H__
 
@@ -283,6 +285,7 @@ protected:
 
 private:
 	devcb_write8 irq_cb;
+	required_ioport m_mamedebug;
 
 	// Core registers
 	UINT32 softreset;

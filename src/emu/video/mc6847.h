@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 /*********************************************************************
 
     mc6847.h
@@ -170,7 +172,7 @@ protected:
 					}
 				}
 			}
-		};
+		}
 
 	private:
 		struct entry
@@ -368,7 +370,7 @@ protected:
 			result = true;
 		}
 		return result;
-	};
+	}
 
 	// template function for emitting graphics bytes
 	template<int bits_per_pixel, int xscale>

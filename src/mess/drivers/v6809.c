@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -358,8 +358,9 @@ static MACHINE_CONFIG_START( v6809, v6809_state )
 	MCFG_MM58274C_MODE24(0) // 12 hour
 	MCFG_MM58274C_DAY1(1)   // monday
 
-	MCFG_MB8876x_ADD("fdc", XTAL_16MHz / 16)
+	MCFG_MB8876_ADD("fdc", XTAL_16MHz / 16)
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", v6809_floppies, "525dd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_SOUND(true)
 MACHINE_CONFIG_END
 
 /* ROM definition */
@@ -378,4 +379,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT  CLASS           INIT     COMPANY      FULLNAME       FLAGS */
-COMP( 1982, v6809,  0,      0,       v6809,     v6809, driver_device,   0,     "Microkit", "Vegas 6809", GAME_NOT_WORKING )
+COMP( 1982, v6809,  0,      0,       v6809,     v6809, driver_device,   0,     "Microkit", "Vegas 6809", MACHINE_NOT_WORKING )

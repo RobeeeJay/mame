@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods, Raphael Nabet, R. Belmont
 /***************************************************************************
 
     video/mac.c
@@ -244,7 +246,7 @@ VIDEO_RESET_MEMBER(mac_state,macrbv)
 	view = 0;
 	if (m_montype)
 	{
-		m_rbv_montype = m_montype->read_safe(2);
+		m_rbv_montype = m_montype->read();
 	}
 	else
 	{
@@ -306,7 +308,7 @@ VIDEO_RESET_MEMBER(mac_state,macsonora)
 	visarea.min_x = 0;
 	visarea.min_y = 0;
 
-	m_rbv_montype = m_montype->read_safe(2);
+	m_rbv_montype = m_montype ? m_montype->read() : 2;
 	switch (m_rbv_montype)
 	{
 		case 1: // 15" portrait display

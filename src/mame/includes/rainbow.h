@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mike Coates
 /*************************************************************************
 
     Rainbow Islands
@@ -22,7 +24,6 @@ public:
 
 	/* memory pointers */
 	optional_shared_ptr<UINT16> m_spriteram;
-//  UINT16 *    paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	UINT16      m_sprite_ctrl;

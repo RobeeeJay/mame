@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /**********************************************************************
 
     Nintendo Super Famicom - Epoch Barcode Battler
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 **********************************************************************/
 
@@ -45,7 +44,7 @@ protected:
 	int read_current_bit();
 
 private:
-	
+
 	static const device_timer_id TIMER_BATTLER = 1;
 	required_device<barcode_reader_device> m_reader;
 	UINT8 m_current_barcode[20];

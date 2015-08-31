@@ -45,10 +45,10 @@
 #ifndef NLD_74153_H_
 #define NLD_74153_H_
 
-#include "../nl_base.h"
+#include "nl_base.h"
 
 #define TTL_74153(_name, _C0, _C1, _C2, _C3, _A, _B, _G)                            \
-		NET_REGISTER_DEV(74153, _name)                                              \
+		NET_REGISTER_DEV(TTL_74153, _name)                                              \
 		NET_CONNECT(_name, C0, _C0)                                                 \
 		NET_CONNECT(_name, C1, _C1)                                                 \
 		NET_CONNECT(_name, C2, _C2)                                                 \
@@ -58,30 +58,34 @@
 		NET_CONNECT(_name, G, _G)
 
 #define TTL_74153_DIP(_name)                                                         \
-		NET_REGISTER_DEV(74153_dip, _name)
+		NET_REGISTER_DEV(TTL_74153_DIP, _name)
+
+NETLIB_NAMESPACE_DEVICES_START()
 
 NETLIB_SUBDEVICE(74153sub,
-	netlist_ttl_input_t m_C[4];
-	netlist_ttl_input_t m_G;
+	logic_input_t m_C[4];
+	logic_input_t m_G;
 
-	netlist_ttl_output_t m_Y;
+	logic_output_t m_Y;
 
-	netlist_state_t<int> m_chan;
+	int m_chan;
 );
 
 NETLIB_DEVICE(74153,
 public:
 	NETLIB_NAME(74153sub) m_sub;
-	netlist_ttl_input_t m_A;
-	netlist_ttl_input_t m_B;
+	logic_input_t m_A;
+	logic_input_t m_B;
 );
 
 NETLIB_DEVICE(74153_dip,
 
 	NETLIB_NAME(74153sub) m_1;
 	NETLIB_NAME(74153sub) m_2;
-	netlist_ttl_input_t m_A;
-	netlist_ttl_input_t m_B;
+	logic_input_t m_A;
+	logic_input_t m_B;
 );
+
+NETLIB_NAMESPACE_DEVICES_END()
 
 #endif /* NLD_74153_H_ */

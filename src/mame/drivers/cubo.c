@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles, Mariusz Wojcieszek, Ernesto Corvi, Stephh, Dirk Best
 /*
 
    Cubo CD32 (additional hardware and games by CD Express, Milan, Italy)
@@ -5,12 +7,11 @@
    The CuboCD32 is a stock retail CD32 unit with additional hardware to adapt it
    for JAMMA use.
 
-   copyright-holders: Aaron Giles, Mariusz Wojcieszek, Ernesto Corvi, Stephh, Dirk Best
-
    Known Games:
    Title                | rev. | year
    ----------------------------------------------
    Candy Puzzle         |  1.0 | 1995
+   Double Strixx        |      | 1995
    Harem Challenge      |      | 1995
    Laser Quiz           |      | 1995
    Laser Quiz 2 "Italy" |  1.0 | 1995
@@ -18,6 +19,7 @@
    Laser Strixx 2       |      | 1995
    Magic Premium        |  1.1 | 1996
    Laser Quiz France    |  1.0 | 1995
+   Laser Quiz Greece?   |      | 1995 *may exist
    Odeon Twister        |      | 199x
    Odeon Twister 2      |202.19| 1999
 
@@ -1357,12 +1359,12 @@ INPUT_PORTS_END
 
 
 
-GAME( 1993, cubo,     0,    cubo, cubo,     cubo_state, cubo,     ROT0, "Commodore",  "Cubo BIOS",                 GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_IS_BIOS_ROOT )
-GAME( 1995, cndypuzl, cubo, cubo, cndypuzl, cubo_state, cndypuzl, ROT0, "CD Express", "Candy Puzzle (v1.0)",       GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1995, haremchl, cubo, cubo, haremchl, cubo_state, haremchl, ROT0, "CD Express", "Harem Challenge",           GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1995, lsrquiz,  cubo, cubo, lsrquiz,  cubo_state, lsrquiz,  ROT0, "CD Express", "Laser Quiz Italy",          GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )  /* no player 2 inputs (ingame) */
-GAME( 1995, lsrquiz2, cubo, cubo, lsrquiz2, cubo_state, lsrquiz2, ROT0, "CD Express", "Laser Quiz 2 Italy (v1.0)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1995, lasstixx, cubo, cubo, lasstixx, cubo_state, lasstixx, ROT0, "CD Express", "Laser Strixx 2",            GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1995, mgnumber, cubo, cubo, mgnumber, cubo_state, mgnumber, ROT0, "CD Express", "Magic Number",              GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1996, mgprem11, cubo, cubo, mgprem11, cubo_state, mgprem11, ROT0, "CD Express", "Magic Premium (v1.1)",      GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1999, odeontw2, cubo, cubo, odeontw2, cubo_state, cubo,     ROT0, "CD Express", "Odeon Twister 2 (v202.19)", GAME_NOT_WORKING )
+GAME( 1993, cubo,     0,    cubo, cubo,     cubo_state, cubo,     ROT0, "Commodore",  "Cubo BIOS",                 MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND | MACHINE_IS_BIOS_ROOT )
+GAME( 1995, cndypuzl, cubo, cubo, cndypuzl, cubo_state, cndypuzl, ROT0, "CD Express", "Candy Puzzle (v1.0)",       MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )
+GAME( 1995, haremchl, cubo, cubo, haremchl, cubo_state, haremchl, ROT0, "CD Express", "Harem Challenge",           MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )
+GAME( 1995, lsrquiz,  cubo, cubo, lsrquiz,  cubo_state, lsrquiz,  ROT0, "CD Express", "Laser Quiz Italy",          MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )  /* no player 2 inputs (ingame) */
+GAME( 1995, lsrquiz2, cubo, cubo, lsrquiz2, cubo_state, lsrquiz2, ROT0, "CD Express", "Laser Quiz 2 Italy (v1.0)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )
+GAME( 1995, lasstixx, cubo, cubo, lasstixx, cubo_state, lasstixx, ROT0, "CD Express", "Laser Strixx 2",            MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )
+GAME( 1995, mgnumber, cubo, cubo, mgnumber, cubo_state, mgnumber, ROT0, "CD Express", "Magic Number",              MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )
+GAME( 1996, mgprem11, cubo, cubo, mgprem11, cubo_state, mgprem11, ROT0, "CD Express", "Magic Premium (v1.1)",      MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )
+GAME( 1999, odeontw2, cubo, cubo, odeontw2, cubo_state, cubo,     ROT0, "CD Express", "Odeon Twister 2 (v202.19)", MACHINE_NOT_WORKING )

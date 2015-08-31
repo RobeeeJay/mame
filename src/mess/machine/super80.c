@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Robbbert
 /* Super80.c written by Robbbert, 2005-2009. See driver source for documentation. */
 
 #include "includes/super80.h"
@@ -139,7 +141,7 @@ READ8_MEMBER( super80_state::port3e_r )
 WRITE8_MEMBER( super80_state::port3f_w )
 {
 	// m_fdc->58(BIT(data, 0));   5/8 pin not emulated in wd_fdc
-	m_fdc->set_unscaled_clock(BIT(data, 1) ? 2e6 : 1e6); // ENMF pin not emulated in wd_fdc
+	m_fdc->enmf_w(BIT(data,1));
 
 	floppy_image_device *floppy = NULL;
 	if (BIT(data, 2)) floppy = m_floppy0->get_device();
@@ -225,13 +227,13 @@ QUICKLOAD_LOAD_MEMBER( super80_state, super80 )
 	UINT16 exec_addr, start_addr, end_addr;
 
 	/* load the binary into memory */
-	if (z80bin_load_file(&image, file_type, &exec_addr, &start_addr, &end_addr) == IMAGE_INIT_FAIL)
+	if (z80bin_load_file(&image, m_maincpu->space(AS_PROGRAM), file_type, &exec_addr, &start_addr, &end_addr) == IMAGE_INIT_FAIL)
 		return IMAGE_INIT_FAIL;
 
 	/* is this file executable? */
 	if (exec_addr != 0xffff)
 		/* check to see if autorun is on */
-		if BIT(m_io_config->read_safe(0xFF), 0)
+		if BIT(m_io_config->read(), 0)
 			m_maincpu->set_pc(exec_addr);
 
 	return IMAGE_INIT_PASS;

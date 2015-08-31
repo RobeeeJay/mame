@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Karl Stenerud
 /* ======================================================================== */
 /* ========================= LICENSING & COPYRIGHT ======================== */
 /* ======================================================================== */
@@ -8,16 +10,6 @@ static const char copyright_notice[] =
 "Version 4.95 (2012-02-19)\n"
 "A portable Motorola M68xxx/CPU32/ColdFire processor emulation engine.\n"
 "Copyright Karl Stenerud.  All rights reserved.\n"
-"\n"
-"This code may be freely used for non-commercial purpooses as long as this\n"
-"copyright notice remains unaltered in the source code and any binary files\n"
-"containing this code in compiled form.\n"
-"\n"
-"All other licensing terms must be negotiated with the author\n"
-"(Karl Stenerud).\n"
-"\n"
-"The latest version of this code can be obtained at:\n"
-"http://kstenerud.cjb.net or http://mamedev.org/\n"
 ;
 #endif
 
@@ -677,7 +669,7 @@ static void m68k_presave(m68000_base_device *m68k)
 static void m68k_postload(m68000_base_device *m68k)
 {
 	m68ki_set_sr_noint_nosp(m68k, m68k->save_sr);
-	fprintf(stderr, "Reloaded, pc=%x\n", REG_PC(m68k));
+	//fprintf(stderr, "Reloaded, pc=%x\n", REG_PC(m68k));
 	m68k->stopped = (m68k->save_stopped ? STOP_LEVEL_STOP : 0) | (m68k->save_halted  ? STOP_LEVEL_HALT : 0);
 	m68ki_jump(m68k, REG_PC(m68k));
 }
@@ -964,6 +956,7 @@ void m68000_base_device::init_cpu_common(void)
 
 	//this = device;//deviceparam;
 	program = &space(AS_PROGRAM);
+	oprogram = has_space(AS_DECRYPTED_OPCODES) ? &space(AS_DECRYPTED_OPCODES) : program;
 	int_ack_callback = device_irq_acknowledge_delegate(FUNC(m68000_base_device::standard_irq_callback_member), this);
 
 	/* disable all MMUs */
@@ -1173,47 +1166,47 @@ void m68000_base_device::state_export(const device_state_entry &entry)
 	}
 }
 
-void m68000_base_device::state_string_export(const device_state_entry &entry, astring &string)
+void m68000_base_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	UINT16 sr;
 
 	switch (entry.index())
 	{
 		case M68K_FP0:
-			string.printf("%f", fx80_to_double(REG_FP(this)[0]));
+			strprintf(str,"%f", fx80_to_double(REG_FP(this)[0]));
 			break;
 
 		case M68K_FP1:
-			string.printf("%f", fx80_to_double(REG_FP(this)[1]));
+			strprintf(str,"%f", fx80_to_double(REG_FP(this)[1]));
 			break;
 
 		case M68K_FP2:
-			string.printf("%f", fx80_to_double(REG_FP(this)[2]));
+			strprintf(str,"%f", fx80_to_double(REG_FP(this)[2]));
 			break;
 
 		case M68K_FP3:
-			string.printf("%f", fx80_to_double(REG_FP(this)[3]));
+			strprintf(str,"%f", fx80_to_double(REG_FP(this)[3]));
 			break;
 
 		case M68K_FP4:
-			string.printf("%f", fx80_to_double(REG_FP(this)[4]));
+			strprintf(str,"%f", fx80_to_double(REG_FP(this)[4]));
 			break;
 
 		case M68K_FP5:
-			string.printf("%f", fx80_to_double(REG_FP(this)[5]));
+			strprintf(str,"%f", fx80_to_double(REG_FP(this)[5]));
 			break;
 
 		case M68K_FP6:
-			string.printf("%f", fx80_to_double(REG_FP(this)[6]));
+			strprintf(str,"%f", fx80_to_double(REG_FP(this)[6]));
 			break;
 
 		case M68K_FP7:
-			string.printf("%f", fx80_to_double(REG_FP(this)[7]));
+			strprintf(str,"%f", fx80_to_double(REG_FP(this)[7]));
 			break;
 
 		case STATE_GENFLAGS:
 			sr = m68ki_get_sr(this);
-			string.printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+			strprintf(str,"%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
 				sr & 0x8000 ? 'T':'.',
 				sr & 0x4000 ? 't':'.',
 				sr & 0x2000 ? 'S':'.',
@@ -1238,12 +1231,6 @@ void m68000_base_device::state_string_export(const device_state_entry &entry, as
 
 /* global access */
 
-void m68000_base_device::set_encrypted_opcode_range(offs_t start, offs_t end)
-{
-	encrypted_start = start;
-	encrypted_end = end;
-}
-
 void m68000_base_device::set_hmmu_enable(int enable)
 {
 	hmmu_enabled = enable;
@@ -1260,13 +1247,15 @@ void m68000_base_device::set_instruction_hook(read32_delegate ihook)
 
 UINT16 m68000_base_device::m68008_read_immediate_16(offs_t address)
 {
-	return (m_direct->read_decrypted_byte(address) << 8) | (m_direct->read_decrypted_byte(address + 1));
+	return (m_odirect->read_byte(address) << 8) | (m_odirect->read_byte(address + 1));
 }
 
-void m68000_base_device::init8(address_space &space)
+void m68000_base_device::init8(address_space &space, address_space &ospace)
 {
 	m_space = &space;
 	m_direct = &space.direct();
+	m_ospace = &ospace;
+	m_odirect = &ospace.direct();
 //  m_cpustate = this;
 	opcode_xor = 0;
 
@@ -1285,12 +1274,12 @@ void m68000_base_device::init8(address_space &space)
 
 UINT16 m68000_base_device::read_immediate_16(offs_t address)
 {
-	return m_direct->read_decrypted_word((address), opcode_xor);
+	return m_odirect->read_word((address), opcode_xor);
 }
 
 UINT16 m68000_base_device::simple_read_immediate_16(offs_t address)
 {
-	return m_direct->read_decrypted_word(address);
+	return m_odirect->read_word(address);
 }
 
 void m68000_base_device::m68000_write_byte(offs_t address, UINT8 data)
@@ -1300,10 +1289,13 @@ void m68000_base_device::m68000_write_byte(offs_t address, UINT8 data)
 	m_space->write_word(address & ~1, data | (data << 8), masks[address & 1]);
 }
 
-void m68000_base_device::init16(address_space &space)
+void m68000_base_device::init16(address_space &space, address_space &ospace)
 {
 	m_space = &space;
 	m_direct = &space.direct();
+	m_ospace = &ospace;
+	m_odirect = &ospace.direct();
+
 	opcode_xor = 0;
 
 	readimm16 = m68k_readimm16_delegate(FUNC(m68000_base_device::simple_read_immediate_16), this);
@@ -1324,10 +1316,12 @@ void m68000_base_device::init16(address_space &space)
  ****************************************************************************/
 
 /* interface for 32-bit data bus (68EC020, 68020) */
-void m68000_base_device::init32(address_space &space)
+void m68000_base_device::init32(address_space &space, address_space &ospace)
 {
 	m_space = &space;
 	m_direct = &space.direct();
+	m_ospace = &ospace;
+	m_odirect = &ospace.direct();
 	opcode_xor = WORD_XOR_BE(0);
 
 	readimm16 = m68k_readimm16_delegate(FUNC(m68000_base_device::read_immediate_16), this);
@@ -1376,7 +1370,7 @@ UINT16 m68000_base_device::read_immediate_16_mmu(offs_t address)
 		}
 	}
 
-	return m_direct->read_decrypted_word((address), opcode_xor);
+	return m_odirect->read_word((address), opcode_xor);
 }
 
 /* potentially misaligned 16-bit reads with a 32-bit data bus (and 24-bit address bus) */
@@ -1541,10 +1535,12 @@ void m68000_base_device::writelong_d32_mmu(offs_t address, UINT32 data)
 	m_space->write_byte(address + 3, data);
 }
 
-void m68000_base_device::init32mmu(address_space &space)
+void m68000_base_device::init32mmu(address_space &space, address_space &ospace)
 {
 	m_space = &space;
 	m_direct = &space.direct();
+	m_ospace = &ospace;
+	m_odirect = &ospace.direct();
 	opcode_xor = WORD_XOR_BE(0);
 
 	readimm16 = m68k_readimm16_delegate(FUNC(m68000_base_device::read_immediate_16_mmu), this);
@@ -1585,7 +1581,7 @@ UINT16 m68000_base_device::read_immediate_16_hmmu(offs_t address)
 		address = hmmu_translate_addr(this, address);
 	}
 
-	return m_direct->read_decrypted_word((address), opcode_xor);
+	return m_odirect->read_word((address), opcode_xor);
 }
 
 /* potentially misaligned 16-bit reads with a 32-bit data bus (and 24-bit address bus) */
@@ -1667,10 +1663,12 @@ void m68000_base_device::writelong_d32_hmmu(offs_t address, UINT32 data)
 	m_space->write_byte(address + 3, data);
 }
 
-void m68000_base_device::init32hmmu(address_space &space)
+void m68000_base_device::init32hmmu(address_space &space, address_space &ospace)
 {
 	m_space = &space;
 	m_direct = &space.direct();
+	m_ospace = &ospace;
+	m_odirect = &ospace.direct();
 	opcode_xor = WORD_XOR_BE(0);
 
 	readimm16 = m68k_readimm16_delegate(FUNC(m68000_base_device::read_immediate_16_hmmu), this);
@@ -1737,11 +1735,15 @@ void m68000_base_device::define_state(void)
 		state_add(M68K_MSP,    "MSP",       iotemp).callimport().callexport();
 	state_add(M68K_ISP,        "ISP",       iotemp).callimport().callexport();
 
-	astring tempstr;
-	for (int regnum = 0; regnum < 8; regnum++)
-		state_add(M68K_D0 + regnum, tempstr.format("D%d", regnum), dar[regnum]);
-	for (int regnum = 0; regnum < 8; regnum++)
-		state_add(M68K_A0 + regnum, tempstr.format("A%d", regnum), dar[8 + regnum]);
+	std::string tempstr;
+	for (int regnum = 0; regnum < 8; regnum++) {
+		strprintf(tempstr,"D%d", regnum);
+		state_add(M68K_D0 + regnum, tempstr.c_str(), dar[regnum]);
+	}
+	for (int regnum = 0; regnum < 8; regnum++) {
+		strprintf(tempstr,"A%d", regnum);
+		state_add(M68K_A0 + regnum, tempstr.c_str(), dar[8 + regnum]);
+	}
 
 	state_add(M68K_PREF_ADDR,  "PREF_ADDR", pref_addr).mask(addrmask);
 	state_add(M68K_PREF_DATA,  "PREF_DATA", pref_data);
@@ -1761,8 +1763,10 @@ void m68000_base_device::define_state(void)
 
 	if (cpu_type & MASK_030_OR_LATER)
 	{
-		for (int regnum = 0; regnum < 8; regnum++)
-			state_add(M68K_FP0 + regnum, tempstr.format("FP%d", regnum), iotemp).callimport().callexport().formatstr("%10s");
+		for (int regnum = 0; regnum < 8; regnum++) {
+			strprintf(tempstr,"FP%d", regnum);
+			state_add(M68K_FP0 + regnum, tempstr.c_str(), iotemp).callimport().callexport().formatstr("%10s");
+		}
 		state_add(M68K_FPSR, "FPSR", fpsr);
 		state_add(M68K_FPCR, "FPCR", fpcr);
 	}
@@ -1782,7 +1786,7 @@ void m68000_base_device::init_cpu_m68000(void)
 	cpu_type         = CPU_TYPE_000;
 //  dasm_type        = M68K_CPU_TYPE_68000;
 
-	init16(*program);
+	init16(*program, *oprogram);
 	sr_mask          = 0xa71f; /* T1 -- S  -- -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[0];
 	cyc_instruction  = m68ki_cycles[0];
@@ -1812,7 +1816,7 @@ void m68000_base_device::init_cpu_m68008(void)
 	cpu_type         = CPU_TYPE_008;
 //  dasm_type        = M68K_CPU_TYPE_68008;
 
-	init8(*program);
+	init8(*program, *oprogram);
 	sr_mask          = 0xa71f; /* T1 -- S  -- -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[0];
 	cyc_instruction  = m68ki_cycles[0];
@@ -1840,7 +1844,7 @@ void m68000_base_device::init_cpu_m68010(void)
 	cpu_type         = CPU_TYPE_010;
 //  dasm_type        = M68K_CPU_TYPE_68010;
 
-	init16(*program);
+	init16(*program, *oprogram);
 	sr_mask          = 0xa71f; /* T1 -- S  -- -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[1];
 	cyc_instruction  = m68ki_cycles[1];
@@ -1867,7 +1871,7 @@ void m68000_base_device::init_cpu_m68020(void)
 	cpu_type         = CPU_TYPE_020;
 //  dasm_type        = M68K_CPU_TYPE_68020;
 
-	init32(*program);
+	init32(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[2];
 	cyc_instruction  = m68ki_cycles[2];
@@ -1900,7 +1904,7 @@ void m68000_base_device::init_cpu_m68020pmmu(void)
 	has_fpu          = 1;
 
 
-	init32mmu(*program);
+	init32mmu(*program, *oprogram);
 }
 
 
@@ -1913,7 +1917,7 @@ void m68000_base_device::init_cpu_m68020hmmu(void)
 	has_fpu  = 1;
 
 
-	init32hmmu(*program);
+	init32hmmu(*program, *oprogram);
 }
 
 void m68000_base_device::init_cpu_m68ec020(void)
@@ -1924,7 +1928,7 @@ void m68000_base_device::init_cpu_m68ec020(void)
 //  dasm_type        = M68K_CPU_TYPE_68EC020;
 
 
-	init32(*program);
+	init32(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[2];
 	cyc_instruction  = m68ki_cycles[2];
@@ -1953,7 +1957,7 @@ void m68000_base_device::init_cpu_m68030(void)
 //  dasm_type        = M68K_CPU_TYPE_68030;
 
 
-	init32mmu(*program);
+	init32mmu(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[3];
 	cyc_instruction  = m68ki_cycles[3];
@@ -1983,7 +1987,7 @@ void m68000_base_device::init_cpu_m68ec030(void)
 //  dasm_type        = M68K_CPU_TYPE_68EC030;
 
 
-	init32(*program);
+	init32(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[3];
 	cyc_instruction  = m68ki_cycles[3];
@@ -2013,7 +2017,7 @@ void m68000_base_device::init_cpu_m68040(void)
 //  dasm_type        = M68K_CPU_TYPE_68040;
 
 
-	init32mmu(*program);
+	init32mmu(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[4];
 	cyc_instruction  = m68ki_cycles[4];
@@ -2042,7 +2046,7 @@ void m68000_base_device::init_cpu_m68ec040(void)
 //  dasm_type        = M68K_CPU_TYPE_68EC040;
 
 
-	init32(*program);
+	init32(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[4];
 	cyc_instruction  = m68ki_cycles[4];
@@ -2071,7 +2075,7 @@ void m68000_base_device::init_cpu_m68lc040(void)
 //  dasm_type        = M68K_CPU_TYPE_68LC040;
 
 
-	init32mmu(*program);
+	init32mmu(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[4];
 	cyc_instruction  = m68ki_cycles[4];
@@ -2107,7 +2111,7 @@ void m68000_base_device::init_cpu_fscpu32(void)
 //  dasm_type        = M68K_CPU_TYPE_FSCPU32;
 
 
-	init32(*program);
+	init32(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[5];
 	cyc_instruction  = m68ki_cycles[5];
@@ -2135,7 +2139,7 @@ void m68000_base_device::init_cpu_coldfire(void)
 //  dasm_type        = M68K_CPU_TYPE_COLDFIRE;
 
 
-	init32(*program);
+	init32(*program, *oprogram);
 	sr_mask          = 0xf71f; /* T1 T0 S  M  -- I2 I1 I0 -- -- -- X  N  Z  V  C  */
 	jump_table       = m68ki_instruction_jump_table[6];
 	cyc_instruction  = m68ki_cycles[6];
@@ -2241,25 +2245,25 @@ CPU_DISASSEMBLE( dasm_coldfire )
 	return m68k_disassemble_raw(buffer, pc, oprom, opram, M68K_CPU_TYPE_COLDFIRE);
 }
 
-offs_t m68000_base_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68000)(this, buffer, pc, oprom, opram, options); };
-offs_t m68000_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68000)(this, buffer, pc, oprom, opram, options); };
-offs_t m68301_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68000)(this, buffer, pc, oprom, opram, options); };
-offs_t m68008_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68008)(this, buffer, pc, oprom, opram, options); };
-offs_t m68008plcc_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68008)(this, buffer, pc, oprom, opram, options); };
-offs_t m68010_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68010)(this, buffer, pc, oprom, opram, options); };
-offs_t m68ec020_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); };
-offs_t m68020_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); };
-offs_t m68020fpu_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); };
-offs_t m68020pmmu_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); };
-offs_t m68020hmmu_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); };
-offs_t m68ec030_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68ec030)(this, buffer, pc, oprom, opram, options); };
-offs_t m68030_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68030)(this, buffer, pc, oprom, opram, options); };
-offs_t m68ec040_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68ec040)(this, buffer, pc, oprom, opram, options); };
-offs_t m68lc040_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68lc040)(this, buffer, pc, oprom, opram, options); };
-offs_t m68040_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68040)(this, buffer, pc, oprom, opram, options); };
-offs_t scc68070_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68000)(this, buffer, pc, oprom, opram, options); };
-offs_t fscpu32_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_fscpu32)(this, buffer, pc, oprom, opram, options); };
-offs_t mcf5206e_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_coldfire)(this, buffer, pc, oprom, opram, options); };
+offs_t m68000_base_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68000)(this, buffer, pc, oprom, opram, options); }
+offs_t m68000_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68000)(this, buffer, pc, oprom, opram, options); }
+offs_t m68301_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68000)(this, buffer, pc, oprom, opram, options); }
+offs_t m68008_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68008)(this, buffer, pc, oprom, opram, options); }
+offs_t m68008plcc_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68008)(this, buffer, pc, oprom, opram, options); }
+offs_t m68010_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68010)(this, buffer, pc, oprom, opram, options); }
+offs_t m68ec020_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); }
+offs_t m68020_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); }
+offs_t m68020fpu_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); }
+offs_t m68020pmmu_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); }
+offs_t m68020hmmu_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68020)(this, buffer, pc, oprom, opram, options); }
+offs_t m68ec030_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68ec030)(this, buffer, pc, oprom, opram, options); }
+offs_t m68030_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68030)(this, buffer, pc, oprom, opram, options); }
+offs_t m68ec040_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68ec040)(this, buffer, pc, oprom, opram, options); }
+offs_t m68lc040_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68lc040)(this, buffer, pc, oprom, opram, options); }
+offs_t m68040_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68040)(this, buffer, pc, oprom, opram, options); }
+offs_t scc68070_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_m68000)(this, buffer, pc, oprom, opram, options); }
+offs_t fscpu32_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_fscpu32)(this, buffer, pc, oprom, opram, options); }
+offs_t mcf5206e_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options) { return CPU_DISASSEMBLE_NAME(dasm_coldfire)(this, buffer, pc, oprom, opram, options); }
 
 
 /* Service an interrupt request and start exception processing */
@@ -2332,7 +2336,8 @@ const device_type M68K = &device_creator<m68000_base_device>;
 
 m68000_base_device::m68000_base_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock)
 	: cpu_device(mconfig, M68K, "M68K", tag, owner, clock, "m68k", __FILE__),
-	m_program_config("program", ENDIANNESS_BIG, 16, 24)
+		m_program_config("program", ENDIANNESS_BIG, 16, 24),
+		m_oprogram_config("decrypted_opcodes", ENDIANNESS_BIG, 16, 24)
 {
 	clear_all();
 }
@@ -2343,7 +2348,8 @@ m68000_base_device::m68000_base_device(const machine_config &mconfig, const char
 m68000_base_device::m68000_base_device(const machine_config &mconfig, const char *name, const char *tag, device_t *owner, UINT32 clock,
 										const device_type type, UINT32 prg_data_width, UINT32 prg_address_bits, address_map_constructor internal_map, const char *shortname, const char *source)
 	: cpu_device(mconfig, type, name, tag, owner, clock, shortname, source),
-		m_program_config("program", ENDIANNESS_BIG, prg_data_width, prg_address_bits, 0, internal_map)
+		m_program_config("program", ENDIANNESS_BIG, prg_data_width, prg_address_bits, 0, internal_map),
+		m_oprogram_config("decrypted_opcodes", ENDIANNESS_BIG, prg_data_width, prg_address_bits, 0, internal_map)
 {
 	clear_all();
 }
@@ -2352,7 +2358,8 @@ m68000_base_device::m68000_base_device(const machine_config &mconfig, const char
 m68000_base_device::m68000_base_device(const machine_config &mconfig, const char *name, const char *tag, device_t *owner, UINT32 clock,
 										const device_type type, UINT32 prg_data_width, UINT32 prg_address_bits, const char *shortname, const char *source)
 	: cpu_device(mconfig, type, name, tag, owner, clock, shortname, source),
-		m_program_config("program", ENDIANNESS_BIG, prg_data_width, prg_address_bits)
+		m_program_config("program", ENDIANNESS_BIG, prg_data_width, prg_address_bits),
+		m_oprogram_config("decrypted_opcodes", ENDIANNESS_BIG, prg_data_width, prg_address_bits)
 {
 	clear_all();
 }
@@ -2445,9 +2452,6 @@ void m68000_base_device::clear_all()
 	m_direct = 0;
 
 
-	encrypted_start = 0;
-	encrypted_end = 0;
-
 	iotemp = 0;
 
 	save_sr = 0;
@@ -2478,10 +2482,11 @@ void m68000_base_device::clear_all()
 	mmu_tmp_buserror_rw = 0;
 
 	for (int i=0;i<M68K_IC_SIZE;i++)
+	{
 		ic_address[i] = 0;
-
-	for (int i=0;i<M68K_IC_SIZE;i++)
 		ic_data[i] = 0;
+		ic_valid[i] = false;
+	}
 
 	internal = 0;
 }
@@ -2537,12 +2542,12 @@ void m68000_base_device::execute_set_input(int inputnum, int state)
 
 const address_space_config *m68000_base_device::memory_space_config(address_spacenum spacenum) const
 {
-	if (spacenum == AS_PROGRAM)
+	switch(spacenum)
 	{
-		return &m_program_config;
+	case AS_PROGRAM:           return &m_program_config;
+	case AS_DECRYPTED_OPCODES: return has_configured_map(AS_DECRYPTED_OPCODES) ? &m_oprogram_config : NULL;
+	default:                   return NULL;
 	}
-
-	return NULL;
 }
 
 

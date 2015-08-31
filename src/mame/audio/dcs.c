@@ -927,6 +927,7 @@ void dcs2_audio_device::device_start()
 	if (m_dram_in_mb != 0)
 	{
 		m_sounddata = auto_alloc_array(machine(), UINT16, m_dram_in_mb << (20-1));
+		save_pointer(NAME(m_sounddata), m_dram_in_mb << (20-1));
 		m_sounddata_words = (m_dram_in_mb << 20) / 2;
 	}
 	else
@@ -1954,7 +1955,7 @@ void dcs_audio_device::recompute_sample_rate()
 
 	/* now put it down to samples, so we know what the channel frequency has to be */
 	sample_period = sample_period * (16 * m_channels);
-	dmadac_set_frequency(&m_dmadac[0], m_channels, ATTOSECONDS_TO_HZ(sample_period.attoseconds));
+	dmadac_set_frequency(&m_dmadac[0], m_channels, ATTOSECONDS_TO_HZ(sample_period.attoseconds()));
 	dmadac_enable(&m_dmadac[0], m_channels, 1);
 
 	/* fire off a timer which will hit every half-buffer */

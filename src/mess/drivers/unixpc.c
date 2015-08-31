@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Dirk Best
 /***************************************************************************
 
     AT&T Unix PC series
@@ -206,7 +208,7 @@ static MACHINE_CONFIG_START( unixpc, unixpc_state )
 	MCFG_RAM_EXTRA_OPTIONS("2M")
 
 	// floppy
-	MCFG_DEVICE_ADD("wd2797", WD2797x, 1000000)
+	MCFG_DEVICE_ADD("wd2797", WD2797, 1000000)
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(unixpc_state, wd2797_intrq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(unixpc_state, wd2797_drq_w))
 	MCFG_FLOPPY_DRIVE_ADD("wd2797:0", unixpc_floppies, "525dd", floppy_image_device::default_floppy_formats)
@@ -230,4 +232,4 @@ ROM_END
 ***************************************************************************/
 
 //    YEAR  NAME  PARENT  COMPAT  MACHINE  INPUT   INIT  COMPANY  FULLNAME  FLAGS
-COMP( 1985, 3b1,  0,      0,      unixpc,  unixpc, driver_device, 0,    "AT&T",  "3B1",    GAME_NOT_WORKING | GAME_NO_SOUND )
+COMP( 1985, 3b1,  0,      0,      unixpc,  unixpc, driver_device, 0,    "AT&T",  "3B1",    MACHINE_NOT_WORKING | MACHINE_NO_SOUND )

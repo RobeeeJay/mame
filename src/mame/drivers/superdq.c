@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi
 /*************************************************************************
 
     Universal System 1
@@ -411,6 +413,6 @@ ROM_END
  *
  *************************************/
 
-GAME( 1984, superdq,  0,        superdq, superdq, driver_device, 0, ROT0, "Universal", "Super Don Quix-ote (Long Scenes)", GAME_NOT_WORKING )
-GAME( 1984, superdqs, superdq,  superdq, superdq, driver_device, 0, ROT0, "Universal", "Super Don Quix-ote (Short Scenes)", GAME_NOT_WORKING )
-GAME( 1984, superdqa, superdq,  superdq, superdq, driver_device, 0, ROT0, "Universal", "Super Don Quix-ote (Short Scenes, Alt)", GAME_NOT_WORKING )
+GAME( 1984, superdq,  0,        superdq, superdq, driver_device, 0, ROT0, "Universal", "Super Don Quix-ote (Long Scenes)", MACHINE_NOT_WORKING )
+GAME( 1984, superdqs, superdq,  superdq, superdq, driver_device, 0, ROT0, "Universal", "Super Don Quix-ote (Short Scenes)", MACHINE_NOT_WORKING )
+GAME( 1984, superdqa, superdq,  superdq, superdq, driver_device, 0, ROT0, "Universal", "Super Don Quix-ote (Short Scenes, Alt)", MACHINE_NOT_WORKING )

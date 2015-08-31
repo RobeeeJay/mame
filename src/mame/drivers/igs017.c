@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, Luca Elia
 /************************************************************************************************************
 
                                         -= IGS017 / IGS031 Based Hardware =-
@@ -70,7 +72,8 @@ public:
 		m_screen(*this, "screen"),
 		m_palette(*this, "palette"),
 		m_generic_paletteram_8(*this, "paletteram"),
-		m_generic_paletteram_16(*this, "paletteram")
+		m_generic_paletteram_16(*this, "paletteram"),
+		m_decrypted_opcodes(*this, "decrypted_opcodes")
 	{ }
 
 	int m_input_addr;
@@ -87,6 +90,7 @@ public:
 	required_device<palette_device> m_palette;
 	optional_shared_ptr<UINT8> m_generic_paletteram_8;
 	optional_shared_ptr<UINT16> m_generic_paletteram_16;
+	optional_shared_ptr<UINT8> m_decrypted_opcodes;
 
 	void igs025_to_igs022_callback( void );
 
@@ -689,7 +693,7 @@ void igs017_state::mgcs_decrypt_tiles()
 	dynamic_buffer tmp(length);
 	int i;
 
-	memcpy(tmp,rom,length);
+	memcpy(&tmp[0],rom,length);
 	for (i = 0;i < length;i++)
 	{
 		int addr = (i & ~0xffff) | BITSWAP16(i,15,14,13,12,11,10,6,7,8,9,5,4,3,2,1,0);
@@ -845,13 +849,11 @@ DRIVER_INIT_MEMBER(igs017_state,starzan)
 	int size = 0x040000;
 
 	UINT8 *data = memregion("maincpu")->base();
-	UINT8 *code = auto_alloc_array(machine(), UINT8, size);
+	UINT8 *code = m_decrypted_opcodes;
 	memcpy(code, data, size);
 
 	starzan_decrypt(data, size, false); // data
 	starzan_decrypt(code, size, true);  // opcodes
-
-	m_maincpu->space(AS_PROGRAM).set_decrypted_region(0x00000, 0x3ffff, code);
 
 	mgcs_flip_sprites();
 }
@@ -983,7 +985,7 @@ void igs017_state::lhzb2_decrypt_tiles()
 	int i;
 
 	int addr;
-	memcpy(tmp, rom, length);
+	memcpy(&tmp[0], rom, length);
 	for (i = 0; i < length; i++)
 	{
 		addr = (i & ~0xffffff) | BITSWAP24(i,23,22,21,20,19,18,17,1,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,0);
@@ -1207,7 +1209,7 @@ void igs017_state::slqz2_decrypt_tiles()
 	dynamic_buffer tmp(length);
 	int i;
 
-	memcpy(tmp,rom,length);
+	memcpy(&tmp[0],rom,length);
 	for (i = 0;i < length;i++)
 	{
 		int addr = (i & ~0xff) | BITSWAP8(i,7,4,5,6,3,2,1,0);
@@ -1345,6 +1347,10 @@ static ADDRESS_MAP_START( iqblocka_map, AS_PROGRAM, 8, igs017_state )
 	AM_RANGE( 0x0e000, 0x0efff ) AM_RAM
 	AM_RANGE( 0x0f000, 0x0ffff ) AM_RAM
 	AM_RANGE( 0x10000, 0x3ffff ) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( decrypted_opcodes_map, AS_DECRYPTED_OPCODES, 8, igs017_state )
+	AM_RANGE( 0x00000, 0x3ffff ) AM_ROM AM_SHARE("decrypted_opcodes")
 ADDRESS_MAP_END
 
 WRITE8_MEMBER(igs017_state::nmi_enable_w)
@@ -3704,6 +3710,10 @@ static MACHINE_CONFIG_START( iqblocka, igs017_state )
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.5)
 MACHINE_CONFIG_END
 
+static MACHINE_CONFIG_DERIVED( starzan, iqblocka )
+	MCFG_DEVICE_MODIFY("maincpu")
+	MCFG_CPU_DECRYPTED_OPCODES_MAP(decrypted_opcodes_map)
+MACHINE_CONFIG_END
 
 
 // mgcs
@@ -4655,17 +4665,17 @@ ROM_START( spkrform )
 ROM_END
 
 
-GAME( 1996,  iqblocka, iqblock,  iqblocka, iqblocka, igs017_state, iqblocka, ROT0, "IGS",              "Shu Zi Le Yuan (V127M)",                      GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION )
-GAME( 1996,  iqblockf, iqblock,  iqblocka, iqblocka, igs017_state, iqblockf, ROT0, "IGS",              "Shu Zi Le Yuan (V113FR)",                     GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION )
+GAME( 1996,  iqblocka, iqblock,  iqblocka, iqblocka, igs017_state, iqblocka, ROT0, "IGS",              "Shu Zi Le Yuan (V127M)",                      MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION )
+GAME( 1996,  iqblockf, iqblock,  iqblocka, iqblocka, igs017_state, iqblockf, ROT0, "IGS",              "Shu Zi Le Yuan (V113FR)",                     MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION )
 GAME( 1997,  mgdh,     0,        mgdha,    mgdh,     igs017_state, mgdh,     ROT0, "IGS",              "Mahjong Man Guan Da Heng (Taiwan, V125T1)",   0 )
 GAME( 1997,  mgdha,    mgdh,     mgdha,    mgdh ,    igs017_state, mgdha,    ROT0, "IGS",              "Mahjong Man Guan Da Heng (Taiwan, V123T1)",   0 )
 GAME( 1997,  sdmg2,    0,        sdmg2,    sdmg2,    igs017_state, sdmg2,    ROT0, "IGS",              "Mahjong Super Da Man Guan II (China, V754C)", 0 )
-GAME( 1997,  tjsb,     0,        tjsb,     tjsb,     igs017_state, tjsb,     ROT0, "IGS",              "Mahjong Tian Jiang Shen Bing (V137C)",        GAME_UNEMULATED_PROTECTION )
-GAME( 1998,  mgcs,     0,        mgcs,     mgcs,     igs017_state, mgcs,     ROT0, "IGS",              "Mahjong Man Guan Cai Shen (V103CS)",          GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_SOUND )
-GAME( 1998,  lhzb2,    0,        lhzb2,    lhzb2,    igs017_state, lhzb2,    ROT0, "IGS",              "Mahjong Long Hu Zheng Ba 2 (set 1)",          GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION )
+GAME( 1997,  tjsb,     0,        tjsb,     tjsb,     igs017_state, tjsb,     ROT0, "IGS",              "Mahjong Tian Jiang Shen Bing (V137C)",        MACHINE_UNEMULATED_PROTECTION )
+GAME( 1998,  mgcs,     0,        mgcs,     mgcs,     igs017_state, mgcs,     ROT0, "IGS",              "Mahjong Man Guan Cai Shen (V103CS)",          MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION | MACHINE_IMPERFECT_SOUND )
+GAME( 1998,  lhzb2,    0,        lhzb2,    lhzb2,    igs017_state, lhzb2,    ROT0, "IGS",              "Mahjong Long Hu Zheng Ba 2 (set 1)",          MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION )
 GAME( 1998,  lhzb2a,   lhzb2,    lhzb2a,   lhzb2a,   igs017_state, lhzb2a,   ROT0, "IGS",              "Mahjong Long Hu Zheng Ba 2 (VS221M)",         0 )
-GAME( 1998,  slqz2,    0,        slqz2,    slqz2,    igs017_state, slqz2,    ROT0, "IGS",              "Mahjong Shuang Long Qiang Zhu 2 (VS203J)",    GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION )
-GAME( 1999?, tarzan,   0,        iqblocka, iqblocka, igs017_state, tarzan,   ROT0, "IGS",              "Tarzan (V109C)",                              GAME_NOT_WORKING )
-GAME( 1999?, tarzana,  tarzan,   iqblocka, iqblocka, igs017_state, tarzana,  ROT0, "IGS",              "Tarzan (V107)",                               GAME_NOT_WORKING )
-GAME( 2000?, starzan,  0,        iqblocka, iqblocka, igs017_state, starzan,  ROT0, "IGS / G.F. Gioca", "Super Tarzan (Italy, V100I)",                 GAME_NOT_WORKING )
-GAME( ????,  spkrform, spk116it, spkrform, spkrform, igs017_state, spkrform, ROT0, "IGS",              "Super Poker (v100xD03) / Formosa",            GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION )
+GAME( 1998,  slqz2,    0,        slqz2,    slqz2,    igs017_state, slqz2,    ROT0, "IGS",              "Mahjong Shuang Long Qiang Zhu 2 (VS203J)",    MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION )
+GAME( 1999?, tarzan,   0,        iqblocka, iqblocka, igs017_state, tarzan,   ROT0, "IGS",              "Tarzan (V109C)",                              MACHINE_NOT_WORKING )
+GAME( 1999?, tarzana,  tarzan,   iqblocka, iqblocka, igs017_state, tarzana,  ROT0, "IGS",              "Tarzan (V107)",                               MACHINE_NOT_WORKING )
+GAME( 2000?, starzan,  0,        starzan,  iqblocka, igs017_state, starzan,  ROT0, "IGS / G.F. Gioca", "Super Tarzan (Italy, V100I)",                 MACHINE_NOT_WORKING )
+GAME( ????,  spkrform, spk116it, spkrform, spkrform, igs017_state, spkrform, ROT0, "IGS",              "Super Poker (v100xD03) / Formosa",            MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION )

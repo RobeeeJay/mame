@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:smf
 /*
  * PlayStation CPU emulator
@@ -1417,7 +1417,7 @@ void psxcpu_device::update_rom_config()
 		}
 	}
 
-	if( window_size < max_window_size )
+	if( window_size < max_window_size && !m_disable_rom_berr)
 	{
 		m_program->install_readwrite_handler( 0x1fc00000 + window_size, 0x1fffffff, read32_delegate( FUNC( psxcpu_device::berr_r ), this ), write32_delegate( FUNC( psxcpu_device::berr_w ), this ) );
 		m_program->install_readwrite_handler( 0x9fc00000 + window_size, 0x9fffffff, read32_delegate( FUNC( psxcpu_device::berr_r ), this ), write32_delegate( FUNC( psxcpu_device::berr_w ), this ) );
@@ -1437,7 +1437,7 @@ void psxcpu_device::update_cop0( int reg )
 		( m_cp0r[ CP0_SR ] & SR_IEC ) != 0 &&
 		( m_cp0r[ CP0_SR ] & m_cp0r[ CP0_CAUSE ] & CAUSE_IP ) != 0 )
 	{
-		m_op = m_direct->read_decrypted_dword( m_pc );
+		m_op = m_direct->read_dword( m_pc );
 		execute_unstoppable_instructions( 1 );
 		exception( EXC_INT );
 	}
@@ -1470,11 +1470,11 @@ void psxcpu_device::fetch_next_op()
 	{
 		UINT32 safepc = m_delayv & ~m_bad_word_address_mask;
 
-		m_op = m_direct->read_decrypted_dword( safepc );
+		m_op = m_direct->read_dword( safepc );
 	}
 	else
 	{
-		m_op = m_direct->read_decrypted_dword( m_pc + 4 );
+		m_op = m_direct->read_dword( m_pc + 4 );
 	}
 }
 
@@ -1756,6 +1756,7 @@ psxcpu_device::psxcpu_device( const machine_config &mconfig, device_type type, c
 	m_cd_write_handler( *this ),
 	m_ram( *this, "ram" )
 {
+	m_disable_rom_berr = false;
 }
 
 cxd8530aq_device::cxd8530aq_device( const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock )
@@ -2025,18 +2026,18 @@ void psxcpu_device::state_import( const device_state_entry &entry )
 //  for the debugger
 //-------------------------------------------------
 
-void psxcpu_device::state_string_export( const device_state_entry &entry, astring &string )
+void psxcpu_device::state_string_export( const device_state_entry &entry, std::string &str )
 {
 	switch( entry.index() )
 	{
 	case PSXCPU_DELAYR:
 		if( m_delayr <= PSXCPU_DELAYR_NOTPC )
 		{
-			string.printf( "%02x %-3s", m_delayr, delayn[ m_delayr ] );
+			strprintf(str, "%02x %-3s", m_delayr, delayn[m_delayr]);
 		}
 		else
 		{
-			string.printf( "%02x ---", m_delayr );
+			strprintf(str, "%02x ---", m_delayr);
 		}
 		break;
 	}
@@ -2289,7 +2290,7 @@ void psxcpu_device::execute_run()
 		if( LOG_BIOSCALL ) log_bioscall();
 		debugger_instruction_hook( this,  m_pc );
 
-		m_op = m_direct->read_decrypted_dword( m_pc );
+		m_op = m_direct->read_dword( m_pc );
 
 		if( m_berr )
 		{
@@ -3372,6 +3373,11 @@ READ8_MEMBER( psxcpu_device::cd_r )
 WRITE8_MEMBER( psxcpu_device::cd_w )
 {
 	m_cd_write_handler( space, offset, data, mem_mask );
+}
+
+void psxcpu_device::set_disable_rom_berr(bool mode)
+{
+	m_disable_rom_berr = mode;
 }
 
 static MACHINE_CONFIG_FRAGMENT( psx )

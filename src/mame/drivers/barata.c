@@ -1,5 +1,5 @@
-// license:MAME|GPL-2.0+
-// copyright-holders:FelipeSanches
+// license:GPL-2.0+
+// copyright-holders:Felipe Sanches
 /*************************************************************************
 
     barata.c
@@ -329,4 +329,4 @@ ROM_END
 /*************************
 *      Game Drivers      *
 *************************/
-GAME( 2002, barata,     0,        barata,   barata,    driver_device, 0,        ROT0,  "Eletro Matic Equipamentos Eletromec??nicos", "Dona Barata (early prototype)", GAME_IMPERFECT_GRAPHICS )
+GAME( 2002, barata,     0,        barata,   barata,    driver_device, 0,        ROT0,  "Eletro Matic Equipamentos Eletromec??nicos", "Dona Barata (early prototype)", MACHINE_IMPERFECT_GRAPHICS )

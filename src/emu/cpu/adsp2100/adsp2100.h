@@ -208,7 +208,7 @@ protected:
 		CHIP_TYPE_ADSP2104,
 		CHIP_TYPE_ADSP2105,
 		CHIP_TYPE_ADSP2115,
-		CHIP_TYPE_ADSP2181,
+		CHIP_TYPE_ADSP2181
 	};
 
 	// construction/destruction
@@ -237,7 +237,7 @@ protected:
 
 	// device_state_interface overrides
 	virtual void state_import(const device_state_entry &entry);
-	virtual void state_string_export(const device_state_entry &entry, astring &string);
+	virtual void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const;

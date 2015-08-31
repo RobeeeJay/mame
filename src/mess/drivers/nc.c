@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Wilbert Pol, Kevin Thacker
 /******************************************************************************
 
         nc.c
@@ -795,8 +797,8 @@ void nc_state::machine_start()
 {
 	m_type = NC_TYPE_1xx;
 
-	astring region_tag;
-	m_card_ram = memregion(region_tag.cpy(m_card->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_card_ram = memregion(region_tag.assign(m_card->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 	if (m_card_ram)
 		m_card_size = m_card_ram->bytes();
 	else
@@ -1139,8 +1141,8 @@ MACHINE_START_MEMBER(nc_state, nc200)
 {
 	m_type = NC_TYPE_200;
 
-	astring region_tag;
-	m_card_ram = memregion(region_tag.cpy(m_card->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_card_ram = memregion(region_tag.assign(m_card->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 	if (m_card_ram)
 		m_card_size = m_card_ram->bytes();
 	else
@@ -1551,4 +1553,4 @@ ROM_END
 COMP( 1992, nc100,  0,      0,      nc100,  nc100, nc_state,  nc,      "Amstrad plc",  "NC100",    0 )
 COMP( 1992, dw225,  nc100,  0,      nc100,  nc100, nc_state,  nc,      "NTS Computer Systems", "DreamWriter 225",    0 )
 COMP( 1992, nc150,  nc100,  0,      nc100,  nc100, nc_state,  nc,      "Amstrad plc",  "NC150",    0 )
-COMP( 1993, nc200,  0,      0,      nc200,  nc200, nc_state,  nc,      "Amstrad plc",  "NC200",    GAME_NOT_WORKING ) // boot hangs while checking the MC146818 UIP (update in progress) bit
+COMP( 1993, nc200,  0,      0,      nc200,  nc200, nc_state,  nc,      "Amstrad plc",  "NC200",    MACHINE_NOT_WORKING ) // boot hangs while checking the MC146818 UIP (update in progress) bit

@@ -59,10 +59,10 @@
 #ifndef NLD_74107_H_
 #define NLD_74107_H_
 
-#include "../nl_base.h"
+#include "nl_base.h"
 
 #define TTL_74107A(_name, _CLK, _J, _K, _CLRQ)                                      \
-		NET_REGISTER_DEV(74107A, _name)                                             \
+		NET_REGISTER_DEV(TTL_74107A, _name)                                             \
 		NET_CONNECT(_name, CLK, _CLK)                                               \
 		NET_CONNECT(_name, J,  _J)                                                  \
 		NET_CONNECT(_name, K,  _K)                                                  \
@@ -72,17 +72,19 @@
 		TTL_74107A(_name, _CLK, _J, _K, _CLRQ)
 
 #define TTL_74107_DIP(_name)                                                         \
-		NET_REGISTER_DEV(74107_dip, _name)
+		NET_REGISTER_DEV(TTL_74107_DIP, _name)
+
+NETLIB_NAMESPACE_DEVICES_START()
 
 NETLIB_SUBDEVICE(74107Asub,
-	netlist_ttl_input_t m_clk;
+	logic_input_t m_clk;
 
-	netlist_ttl_output_t m_Q;
-	netlist_ttl_output_t m_QQ;
+	logic_output_t m_Q;
+	logic_output_t m_QQ;
 
-	netlist_state_t<netlist_sig_t> m_Q1;
-	netlist_state_t<netlist_sig_t> m_Q2;
-	netlist_state_t<netlist_sig_t> m_F;
+	netlist_sig_t m_Q1;
+	netlist_sig_t m_Q2;
+	netlist_sig_t m_F;
 
 	ATTR_HOT void newstate(const netlist_sig_t state);
 
@@ -92,9 +94,9 @@ NETLIB_DEVICE(74107A,
 public:
 	NETLIB_NAME(74107Asub) sub;
 
-	netlist_ttl_input_t m_J;
-	netlist_ttl_input_t m_K;
-	netlist_ttl_input_t m_clrQ;
+	logic_input_t m_J;
+	logic_input_t m_K;
+	logic_input_t m_clrQ;
 
 );
 
@@ -111,5 +113,7 @@ NETLIB_DEVICE(74107_dip,
 	NETLIB_NAME(74107) m_1;
 	NETLIB_NAME(74107) m_2;
 );
+
+NETLIB_NAMESPACE_DEVICES_END()
 
 #endif /* NLD_74107_H_ */

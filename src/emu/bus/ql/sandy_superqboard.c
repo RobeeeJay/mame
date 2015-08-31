@@ -4,9 +4,6 @@
 
     Sandy SuperQBoard/SuperQMouse (with HD upgrade) emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 #include "sandy_superqboard.h"
@@ -105,7 +102,7 @@ WRITE_LINE_MEMBER( sandy_superqboard_t::busy_w )
 //-------------------------------------------------
 
 static MACHINE_CONFIG_FRAGMENT( sandy_superqboard )
-	MCFG_DEVICE_ADD(WD1772_TAG, WD1772x, XTAL_16MHz/2)
+	MCFG_DEVICE_ADD(WD1772_TAG, WD1772, XTAL_16MHz/2)
 	MCFG_FLOPPY_DRIVE_ADD(WD1772_TAG":0", sandy_superqboard_floppies, "35hd", sandy_superqboard_t::floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD(WD1772_TAG":1", sandy_superqboard_floppies, NULL, sandy_superqboard_t::floppy_formats)
 

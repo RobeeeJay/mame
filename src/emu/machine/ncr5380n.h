@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Olivier Galibert
 /*********************************************************************
 
     ncr5380n.c
@@ -113,7 +115,7 @@ private:
 		INIT_XFR_WAIT_REQ,
 		INIT_CPT_RECV_BYTE_ACK,
 		INIT_CPT_RECV_WAIT_REQ,
-		INIT_CPT_RECV_BYTE_NACK,
+		INIT_CPT_RECV_BYTE_NACK
 	};
 
 	enum {
@@ -127,18 +129,18 @@ private:
 		ARB_TIMEOUT_ABORT,
 		ARB_DESKEW_WAIT,
 
-		// Send/recieve byte
+		// Send/receive byte
 		SEND_WAIT_SETTLE,
 		SEND_WAIT_REQ_0,
 		RECV_WAIT_REQ_1,
 		RECV_WAIT_SETTLE,
-		RECV_WAIT_REQ_0,
+		RECV_WAIT_REQ_0
 	};
 
 	enum {
 		STATE_MASK = 0x00ff,
 		SUB_SHIFT  = 8,
-		SUB_MASK   = 0xff00,
+		SUB_MASK   = 0xff00
 	};
 
 	enum { BUS_BUSY, BUS_FREE_WAIT, BUS_FREE };
@@ -180,7 +182,7 @@ private:
 		MODE_EOPIRQ       = 0x08,
 		MODE_BSYIRQ       = 0x04,
 		MODE_DMA          = 0x02,
-		MODE_ARBITRATE    = 0x01,
+		MODE_ARBITRATE    = 0x01
 	};
 
 	enum { DMA_NONE, DMA_IN, DMA_OUT };

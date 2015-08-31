@@ -1,21 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Peter Trauner
 /*****************************************************************************
  *
  *   disasm.c
  *   portable lh5801 emulator interface
  *
- *   Copyright Peter Trauner, all rights reserved.
- *
- *   - This source code is released as freeware for non-commercial purposes.
- *   - You are free to use and redistribute this code in modified or
- *     unmodified form, provided you list me in the credits.
- *   - If you modify this source code, you must add a notice to each modified
- *     source file that it has been changed.  If you're a nice person, you
- *     will clearly mark each change too.  :)
- *   - If you wish to use this for commercial purposes, please contact me at
- *     peter.trauner@jk.uni-linz.ac.at
- *   - The author of this copywritten work reserves the right to change the
- *     terms of its usage and license at any time, including retroactively
- *   - This entire notice must remain in the source code.
  *
  *****************************************************************************/
 
@@ -96,7 +85,7 @@ enum Ins
 	OFF, // clears bf flip flop
 	RDP, SDP,// reset display flip flop
 	RPU, SPU,// flip flop pu off
-	RPV, SPV,// flip flop pv off
+	RPV, SPV // flip flop pv off
 };
 
 static const char *const InsNames[]={

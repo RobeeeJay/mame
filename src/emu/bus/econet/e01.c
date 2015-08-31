@@ -4,9 +4,6 @@
 
     Acorn FileStore E01/E01S network hard disk emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
     http://acorn.chriswhy.co.uk/Network/Econet.html
     http://acorn.chriswhy.co.uk/Network/Pics/Acorn_FileStoreE01.html
     http://acorn.chriswhy.co.uk/8bit_Upgrades/Acorn_FileStoreE01S.html
@@ -253,7 +250,7 @@ static MACHINE_CONFIG_FRAGMENT( e01 )
 	MCFG_DEVICE_ADD(MC6854_TAG, MC6854, 0)
 	MCFG_MC6854_OUT_IRQ_CB(WRITELINE(e01_device, adlc_irq_w))
 	MCFG_MC6854_OUT_TXD_CB(WRITELINE(e01_device, econet_data_w))
-	MCFG_WD2793x_ADD(WD2793_TAG, XTAL_8MHz/4)
+	MCFG_WD2793_ADD(WD2793_TAG, XTAL_8MHz/4)
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(e01_device, fdc_irq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(e01_device, fdc_drq_w))
 	MCFG_FLOPPY_DRIVE_ADD(WD2793_TAG":0", e01_floppies, "35dd", floppy_image_device::default_floppy_formats)

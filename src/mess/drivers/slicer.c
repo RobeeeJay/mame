@@ -1,3 +1,6 @@
+// license:BSD-3-Clause
+// copyright-holders:Carl
+
 // Slicer Computers Slicer 80186 SBC
 // The bios makefile refers to a "exe3bin" utility, this can be substituted with FreeDOS exe2bin and the /l=0xf800 option
 // which will fixup the relocations
@@ -110,7 +113,7 @@ static MACHINE_CONFIG_START( slicer, slicer_state )
 	MCFG_RS232_PORT_ADD("rs232_2", default_rs232_devices, NULL)
 	MCFG_RS232_RXD_HANDLER(DEVWRITELINE("sc2681", mc68681_device, rx_b_w))
 
-	MCFG_FD1797x_ADD("fdc", XTAL_16MHz/2/8)
+	MCFG_FD1797_ADD("fdc", XTAL_16MHz/2/8)
 	MCFG_WD_FDC_INTRQ_CALLBACK(DEVWRITELINE("maincpu", i80186_cpu_device, int1_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(DEVWRITELINE("maincpu", i80186_cpu_device, drq0_w))
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", slicer_floppies, "525dd", floppy_image_device::default_floppy_formats)
@@ -137,4 +140,4 @@ ROM_START( slicer )
 	ROM_LOAD("epbios.bin", 0x0000, 0x8001, CRC(96fe9dd4) SHA1(5fc43454fe7d51f2ae97aef822155dcd28eb7f23))
 ROM_END
 
-COMP( 1983, slicer, 0, 0, slicer, 0, driver_device, 0, "Slicer Computers", "Slicer", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1983, slicer, 0, 0, slicer, 0, driver_device, 0, "Slicer Computers", "Slicer", MACHINE_NO_SOUND)

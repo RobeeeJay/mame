@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Sega 315-5313 - Megadrive VDP */
 
 #include "emu.h"
@@ -174,10 +176,10 @@ void sega315_5313_device::device_start()
 	save_pointer(NAME(m_sprite_renderline), 1024);
 	save_pointer(NAME(m_highpri_renderline), 320);
 	save_pointer(NAME(m_video_renderline), 320/4);
-	save_pointer(NAME(m_palette_lookup), 0x40/2);
-	save_pointer(NAME(m_palette_lookup_sprite), 0x40/2);
-	save_pointer(NAME(m_palette_lookup_shadow), 0x40/2);
-	save_pointer(NAME(m_palette_lookup_highlight), 0x40/2);
+	save_pointer(NAME(m_palette_lookup), 0x40);
+	save_pointer(NAME(m_palette_lookup_sprite), 0x40);
+	save_pointer(NAME(m_palette_lookup_shadow), 0x40);
+	save_pointer(NAME(m_palette_lookup_highlight), 0x40);
 	save_pointer(NAME(m_render_line_raw), 320/2);
 	if (m_use_alt_timing)
 		save_pointer(NAME(m_render_line), 320/2);
@@ -1139,9 +1141,9 @@ UINT16 sega315_5313_device::get_hposition()
 
 		time_elapsed_since_megadriv_scanline_timer = m_megadriv_scanline_timer->time_elapsed();
 
-		if (time_elapsed_since_megadriv_scanline_timer.attoseconds<(ATTOSECONDS_PER_SECOND/m_framerate /m_total_scanlines))
+		if (time_elapsed_since_megadriv_scanline_timer.attoseconds() < (ATTOSECONDS_PER_SECOND/m_framerate /m_total_scanlines))
 		{
-			value4 = (UINT16)(MAX_HPOSITION*((double)(time_elapsed_since_megadriv_scanline_timer.attoseconds) / (double)(ATTOSECONDS_PER_SECOND/m_framerate /m_total_scanlines)));
+			value4 = (UINT16)(MAX_HPOSITION*((double)(time_elapsed_since_megadriv_scanline_timer.attoseconds()) / (double)(ATTOSECONDS_PER_SECOND/m_framerate /m_total_scanlines)));
 		}
 		else /* in some cases (probably due to rounding errors) we get some stupid results (the odd huge value where the time elapsed is much higher than the scanline time??!).. hopefully by clamping the result to the maximum we limit errors */
 		{
@@ -2733,7 +2735,7 @@ void sega315_5313_device::vdp_handle_eof()
 
 	visarea.set(0, scr_width - 1, 0, m_visible_scanlines - 1);
 
-	m_screen->configure(480, m_total_scanlines, visarea, m_screen->frame_period().attoseconds);
+	m_screen->configure(480, m_total_scanlines, visarea, m_screen->frame_period().attoseconds());
 }
 
 

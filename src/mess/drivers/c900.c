@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Curt Coder
 /******************************************************************************************
 
     Commodore C900
@@ -12,6 +14,8 @@
 
     The FDC is an intelligent device that communicates with the main board via the MMU.
     It has a 6508 CPU.
+
+    Disk drive is a Matsushita JA-560-012
 
 *******************************************************************************************/
 
@@ -128,4 +132,4 @@ ROM_START( c900 )
 ROM_END
 
 /*    YEAR  NAME   PARENT  COMPAT  MACHINE INPUT   INIT COMPANY     FULLNAME        FLAGS */
-COMP( 1985, c900,   0,      0,      c900,    c900, driver_device,    0, "Commodore", "Commodore 900", GAME_IS_SKELETON )
+COMP( 1985, c900,   0,      0,      c900,    c900, driver_device,    0, "Commodore", "Commodore 900", MACHINE_IS_SKELETON )

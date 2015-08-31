@@ -552,7 +552,7 @@ static MACHINE_CONFIG_START( xor100, xor100_state )
 	MCFG_Z80CTC_ZC1_CB(WRITELINE(xor100_state, ctc_z1_w))
 	MCFG_Z80CTC_ZC2_CB(WRITELINE(xor100_state, ctc_z2_w))
 
-	MCFG_FD1795x_ADD(WD1795_TAG, XTAL_8MHz/4)
+	MCFG_FD1795_ADD(WD1795_TAG, XTAL_8MHz/4)
 	MCFG_FLOPPY_DRIVE_ADD(WD1795_TAG":0", xor100_floppies, "8ssdd", floppy_image_device::default_floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD(WD1795_TAG":1", xor100_floppies, "8ssdd", floppy_image_device::default_floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD(WD1795_TAG":2", xor100_floppies, NULL,    floppy_image_device::default_floppy_formats)
@@ -596,4 +596,4 @@ ROM_END
 /* System Drivers */
 
 /*    YEAR  NAME    PARENT  COMPAT  MACHINE     INPUT       INIT    COMPANY                 FULLNAME        FLAGS */
-COMP( 1980, xor100, 0,      0,      xor100,     xor100, driver_device,     0,   "Xor Data Science",     "XOR S-100-12", GAME_SUPPORTS_SAVE | GAME_NO_SOUND_HW)
+COMP( 1980, xor100, 0,      0,      xor100,     xor100, driver_device,     0,   "Xor Data Science",     "XOR S-100-12", MACHINE_SUPPORTS_SAVE | MACHINE_NO_SOUND_HW)

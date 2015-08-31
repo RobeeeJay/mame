@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, Tomasz Slanina
 /*
 
     D-DAY   (c)Jaleco 1984
@@ -662,7 +664,7 @@ DRIVER_INIT_MEMBER(ddayjlc_state,ddayjlc)
 		UINT32 oldaddr, newadr, length,j;
 		UINT8 *src, *dst;
 		dynamic_buffer temp(0x10000);
-		src = temp;
+		src = &temp[0];
 		dst = memregion("gfx1")->base();
 		length = memregion("gfx1")->bytes();
 		memcpy(src, dst, length);
@@ -681,5 +683,5 @@ DRIVER_INIT_MEMBER(ddayjlc_state,ddayjlc)
 	membank("bank1")->set_entry(0);
 }
 
-GAME( 1984, ddayjlc,  0,       ddayjlc, ddayjlc, ddayjlc_state, ddayjlc, ROT90, "Jaleco", "D-Day (Jaleco set 1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1984, ddayjlca, ddayjlc, ddayjlc, ddayjlc, ddayjlc_state, ddayjlc, ROT90, "Jaleco", "D-Day (Jaleco set 2)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1984, ddayjlc,  0,       ddayjlc, ddayjlc, ddayjlc_state, ddayjlc, ROT90, "Jaleco", "D-Day (Jaleco set 1)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1984, ddayjlca, ddayjlc, ddayjlc, ddayjlc, ddayjlc_state, ddayjlc, ROT90, "Jaleco", "D-Day (Jaleco set 2)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )

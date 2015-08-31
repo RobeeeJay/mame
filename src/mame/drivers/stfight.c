@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mark McDougall
 /*****************************          (by Mark McDougall)
  *** STREET FIGHT hardware ***  This has been adapted from the excellent
  *****************************  Psychic 5 description (by Roberto Ventura)
@@ -54,7 +56,7 @@ RST 10,the main IRQ, is to be triggered each time the screen is refreshed.
 RST 08 must be triggered in order to make the game work properly. I haven't
 ascertained the exact frequency of this interrupt yet, though the game
 appears to run at the correct speed with RST08 at 30Hz. Curiously a trace
-on the interrupt pin shows two interrupts occuring at 60Hz, obviously the
+on the interrupt pin shows two interrupts occurring at 60Hz, obviously the
 VBlank interrupt followed by a second interrupt some 3.3ms later. At some
 stage I'll get around to probing the data lines to find the interrupt
 vector addresses.
@@ -271,6 +273,10 @@ static ADDRESS_MAP_START( cpu1_map, AS_PROGRAM, 8, stfight_state )
 	AM_RANGE(0xd800, 0xd808) AM_WRITE(stfight_vh_latch_w) AM_SHARE("vh_latch_ram")
 	AM_RANGE(0xe000, 0xefff) AM_RAM
 	AM_RANGE(0xf000, 0xffff) AM_RAM AM_SHARE("sprite_ram")
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( decrypted_opcodes_map, AS_DECRYPTED_OPCODES, 8, stfight_state )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM AM_SHARE("decrypted_opcodes")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( cshooter_cpu1_map, AS_PROGRAM, 8, stfight_state )
@@ -534,6 +540,7 @@ static MACHINE_CONFIG_START( stfight, stfight_state )
 	/* basic machine hardware */
 	MCFG_CPU_ADD("maincpu", Z80, XTAL_12MHz / 4)
 	MCFG_CPU_PROGRAM_MAP(cpu1_map)
+	MCFG_CPU_DECRYPTED_OPCODES_MAP(decrypted_opcodes_map)
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", stfight_state,  stfight_vb_interrupt)
 
 	MCFG_CPU_ADD("audiocpu", Z80, XTAL_12MHz / 4)
@@ -587,6 +594,7 @@ MACHINE_CONFIG_END
 static MACHINE_CONFIG_DERIVED( cshooter, stfight )
 	MCFG_CPU_REPLACE("maincpu", Z80, XTAL_12MHz / 2)
 	MCFG_CPU_PROGRAM_MAP(cshooter_cpu1_map)
+	MCFG_DEVICE_REMOVE_ADDRESS_MAP(AS_DECRYPTED_OPCODES)
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", stfight_state,  stfight_vb_interrupt)
 
 	MCFG_CPU_REPLACE("audiocpu", Z80, XTAL_12MHz / 2)
@@ -1035,12 +1043,12 @@ ROM_START( cshooter )
 	ROM_LOAD( "82s123.7a",  0x0800, 0x0020, CRC(93e2d292) SHA1(af8edd0cfe85f28ede9604cfaf4516d54e5277c9) ) // sprite color related? (not used)
 ROM_END
 
-// Note: Marked GAME_IMPERFECT_SOUND due to YM2203 clock issue
-GAME( 1986, empcity,  0,       stfight, stfight, stfight_state, empcity, ROT0,   "Seibu Kaihatsu",                           "Empire City: 1931 (bootleg?)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1986, empcityu, empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu (Taito / Romstar license)", "Empire City: 1931 (US)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE ) // different title logo
-GAME( 1986, empcityj, empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu (Taito license)",           "Empire City: 1931 (Japan)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1986, empcityi, empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu (Eurobed license)",         "Empire City: 1931 (Italy)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1986, stfight,  empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu (Tuning license)",          "Street Fight (Germany)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1986, stfighta, empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu",                           "Street Fight (bootleg?)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+// Note: Marked MACHINE_IMPERFECT_SOUND due to YM2203 clock issue
+GAME( 1986, empcity,  0,       stfight, stfight, stfight_state, empcity, ROT0,   "Seibu Kaihatsu",                           "Empire City: 1931 (bootleg?)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1986, empcityu, empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu (Taito / Romstar license)", "Empire City: 1931 (US)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE ) // different title logo
+GAME( 1986, empcityj, empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu (Taito license)",           "Empire City: 1931 (Japan)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1986, empcityi, empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu (Eurobed license)",         "Empire City: 1931 (Italy)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1986, stfight,  empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu (Tuning license)",          "Street Fight (Germany)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1986, stfighta, empcity, stfight, stfight, stfight_state, stfight, ROT0,   "Seibu Kaihatsu",                           "Street Fight (bootleg?)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
 /* Cross Shooter runs on a slightly modified PCB, with a different text tilemap and gfx blobs (see also cshooter.c) */
-GAME( 1987, cshooter,  0,      cshooter,cshooter, stfight_state, cshooter,ROT270,"Seibu Kaihatsu (Taito license)",           "Cross Shooter (not encrypted)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
+GAME( 1987, cshooter,  0,      cshooter,cshooter, stfight_state, cshooter,ROT270,"Seibu Kaihatsu (Taito license)",           "Cross Shooter (not encrypted)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )

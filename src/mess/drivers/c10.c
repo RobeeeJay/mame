@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Robbbert
 /***************************************************************************
 
         Cromemco C-10 Personal Computer
@@ -186,4 +188,4 @@ ROM_END
 /* Driver */
 
 /*   YEAR   NAME    PARENT  COMPAT   MACHINE  INPUT  INIT        COMPANY   FULLNAME       FLAGS */
-COMP( 1982, c10,    0,      0,       c10,     c10, c10_state,    c10,     "Cromemco", "C-10", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1982, c10,    0,      0,       c10,     c10, c10_state,    c10,     "Cromemco", "C-10", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

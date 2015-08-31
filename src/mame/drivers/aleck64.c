@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ville Linde
 /* 'Aleck64' and similar boards */
 /* N64 based hardware */
 /*
@@ -190,12 +192,13 @@ public:
 	DECLARE_READ16_MEMBER(e90_prot_r);
 	DECLARE_WRITE16_MEMBER(e90_prot_w);
 	UINT32 screen_update_e90(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+
 private:
 	UINT32 m_dip_read_offset;
 };
 
 
-WRITE32_MEMBER(aleck64_state::aleck_dips_w )
+WRITE32_MEMBER(aleck64_state::aleck_dips_w)
 {
 	/*
 	    mtetrisc uses offset 0x1c and 0x03 a good bit in conjunction with reading INMJ.
@@ -215,44 +218,42 @@ WRITE32_MEMBER(aleck64_state::aleck_dips_w )
 	}
 }
 
-READ32_MEMBER(aleck64_state::aleck_dips_r )
+READ32_MEMBER(aleck64_state::aleck_dips_r)
 {
 	// srmvs uses 0x40, communications?
 
 	switch( offset )
 	{
-		case 0:
-			return (ioport("IN0")->read());   /* mtetrisc has regular inputs here */
-		case 1:
-			return (ioport("IN1")->read());
-		case 2:
+	case 0:
+		return (ioport("IN0")->read());   /* mtetrisc has regular inputs here */
+	case 1:
+		return (ioport("IN1")->read());
+	case 2:
 		{
-			UINT32 val = ioport("INMJ")->read();
+			UINT32 const val = ioport("INMJ")->read();
 
 			switch( m_dip_read_offset >> 8 & 0xff )
 			{
-				case 1:
-					return  val;
+			case 1:
+				return  val;
 
-				case 2:
-					return val << 8;
+			case 2:
+				return val << 8;
 
-				case 4:
-					return val << 16;
+			case 4:
+				return val << 16;
 
-				case 8:
-					return val >> 8;
+			case 8:
+				return val >> 8;
 
-				default:
-					logerror("Unexpected read from INMJ with no dip_read_offset set.\n");
-					return 0;
+			default:
+				logerror("Unexpected read from INMJ with no dip_read_offset set.\n");
+				return 0;
 			}
 		}
-		default:
-		{
-			logerror("Unknown aleck_dips_r(0x%08x, 0x%08x) @ 0x%08x PC=%08x\n", offset, 0xc0800000 + offset*4, mem_mask, space.device().safe_pc());
-			return 0;
-		}
+	default:
+		logerror("Unknown aleck_dips_r(0x%08x, 0x%08x) @ 0x%08x PC=%08x\n", offset, 0xc0800000 + offset*4, mem_mask, space.device().safe_pc());
+		return 0;
 	}
 }
 
@@ -367,6 +368,9 @@ static ADDRESS_MAP_START( rsp_map, AS_PROGRAM, 32, aleck64_state )
 ADDRESS_MAP_END
 
 static INPUT_PORTS_START( aleck64 )
+	PORT_START("input")
+	PORT_BIT( 0xff, 0x05, IPT_SPECIAL )                                     // Tell base driver to expect two gamepads
+
 	PORT_START("P1")
 	PORT_BIT( 0x8000, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(1)          // Button A
 	PORT_BIT( 0x4000, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(1)          // Button B
@@ -497,13 +501,11 @@ static INPUT_PORTS_START( 11beat )
 INPUT_PORTS_END
 
 static INPUT_PORTS_START( mtetrisc )
+
 	// The basic N64 controls are unused in this game
-	PORT_START("P1")
-	PORT_START("P1_ANALOG_X")
-	PORT_START("P1_ANALOG_Y")
-	PORT_START("P2")
-	PORT_START("P2_ANALOG_X")
-	PORT_START("P2_ANALOG_Y")
+	PORT_START("input")
+	PORT_BIT( 0xff, 0x00, IPT_SPECIAL )
+
 	PORT_START("INMJ")
 
 	PORT_START("IN0")
@@ -534,6 +536,9 @@ static INPUT_PORTS_START( mtetrisc )
 INPUT_PORTS_END
 
 static INPUT_PORTS_START( starsldr )
+	PORT_START("input")
+	PORT_BIT( 0xff, 0x05, IPT_SPECIAL )                                     // Tell base driver to expect two gamepads
+
 	PORT_START("P1")
 	PORT_BIT( 0x8000, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(1)          // Button A
 	PORT_BIT( 0x4000, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(1)          // Button B
@@ -636,13 +641,9 @@ static INPUT_PORTS_START( starsldr )
 	PORT_BIT( 0x00040000, IP_ACTIVE_LOW, IPT_COIN1 )
 INPUT_PORTS_END
 
-	static INPUT_PORTS_START( doncdoon )
-	PORT_START("P1")
-	PORT_START("P1_ANALOG_X")
-	PORT_START("P1_ANALOG_Y")
-	PORT_START("P2")
-	PORT_START("P2_ANALOG_X")
-	PORT_START("P2_ANALOG_Y")
+static INPUT_PORTS_START( doncdoon )
+	PORT_START("input")
+	PORT_BIT( 0xff, 0x00, IPT_SPECIAL ) // Disable standard N64 controls
 
 	PORT_START("IN0")
 	PORT_BIT(0xfcff8080, IP_ACTIVE_LOW, IPT_UNUSED )
@@ -685,12 +686,9 @@ static INPUT_PORTS_START( kurufev )
 INPUT_PORTS_END
 
 static INPUT_PORTS_START( twrshaft )
-	PORT_START("P1")
-	PORT_START("P1_ANALOG_X")
-	PORT_START("P1_ANALOG_Y")
-	PORT_START("P2")
-	PORT_START("P2_ANALOG_X")
-	PORT_START("P2_ANALOG_Y")
+	PORT_START("input")
+	PORT_BIT( 0xff, 0x00, IPT_SPECIAL ) // Disable standard N64 controls
+
 	PORT_START("INMJ")
 
 	PORT_START("IN0")
@@ -713,14 +711,10 @@ static INPUT_PORTS_START( twrshaft )
 INPUT_PORTS_END
 
 static INPUT_PORTS_START( hipai )
-	PORT_START("P1")
-	PORT_START("P1_ANALOG_X")
-	PORT_START("P1_ANALOG_Y")
-	PORT_START("P2")
-	PORT_START("P2_ANALOG_X")
-	PORT_START("P2_ANALOG_Y")
+	PORT_START("input")
+	PORT_BIT( 0xff, 0x00, IPT_SPECIAL ) // Disable standard N64 controls
 
-PORT_START("INMJ")
+	PORT_START("INMJ")
 	PORT_BIT( 0xe1c1c0c1, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x00000100, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x00000200, IP_ACTIVE_LOW, IPT_MAHJONG_A )
@@ -857,16 +851,15 @@ static MACHINE_CONFIG_START( aleck64, aleck64_state )
 	MCFG_RSP_SP_SET_STATUS_CB(DEVWRITE32("rcp",n64_periphs, sp_set_status))
 	MCFG_CPU_PROGRAM_MAP(rsp_map)
 
-
 	MCFG_SCREEN_ADD("screen", RASTER)
 	MCFG_SCREEN_REFRESH_RATE(60)
 	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(0))
 	MCFG_SCREEN_SIZE(640, 525)
 	MCFG_SCREEN_VISIBLE_AREA(0, 639, 0, 239)
 	MCFG_SCREEN_UPDATE_DRIVER(aleck64_state, screen_update_n64)
+	MCFG_SCREEN_VBLANK_DRIVER(aleck64_state, screen_eof_n64)
 
 	MCFG_PALETTE_ADD("palette", 0x1000)
-
 
 	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
 
@@ -876,6 +869,8 @@ static MACHINE_CONFIG_START( aleck64, aleck64_state )
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "rspeaker", 1.0)
 
 	MCFG_N64_PERIPHS_ADD("rcp");
+
+	MCFG_FORCE_NO_DRC()
 MACHINE_CONFIG_END
 
 UINT32 aleck64_state::screen_update_e90(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
@@ -975,8 +970,7 @@ ROM_START( mtetrisc )
 	PIF_BOOTROM
 
 	ROM_REGION32_BE( 0x4000000, "user2", 0 )
-	ROM_LOAD16_WORD_SWAP( "nus-zcaj.u4", 0x000000, 0x1000000, CRC(ec4563fc) SHA1(4d5a30873a5850cf4cd1c0bdbe24e1934f163cd0) )
-
+	ROM_LOAD16_WORD_SWAP( "nus-zcaj.u4", 0x000000, 0x1000000, CRC(c9de64db) SHA1(59932c70b43ff8e9264c670f37b3abbe939b7f95) )
 	ROM_REGION32_BE( 0x100000, "user3", 0 )
 	ROM_LOAD ( "tet-01m.u5", 0x000000, 0x100000, CRC(f78f859b) SHA1(b07c85e0453869fe43792f42081f64a5327e58e6) )
 
@@ -1139,13 +1133,20 @@ ROM_START( doncdoon )
 	ROM_LOAD( "normslp.rom", 0x00, 0x80, CRC(4f2ae525) SHA1(eab43f8cc52c8551d9cff6fced18ef80eaba6f05) )
 ROM_END
 
-
+/* Mayjinsen 3
+ * PCB marking: "SeTa // 3D Rom PCB-2A // SETA CORPORATION // MADE IN JAPAN"
+ * PCB has:
+ * U1 CIC-NUS; CIC-NUS-5101 security chip (Sharp SM5K3 MCU)
+ * U2 BU9850; BU9850 4k Serial EEPROM (Rohm, proprietary/custom part?)
+ * U3 NUS64M: "MXC991789M // MX23L6402-35A // NUS-ZSCJ-0 // 1Q4787A2" Macronix custom latchable self-addressable mask rom
+ * Internal checksum is verified to match rom dump
+ */
 ROM_START( mayjin3 )
 	ROM_REGION32_BE( 0x800, "user1", ROMREGION_ERASE00 )
 	PIF_BOOTROM
 
 	ROM_REGION32_BE( 0x4000000, "user2", 0 )
-	ROM_LOAD16_WORD_SWAP( "nus-zscj.u3", 0x000000, 0x800000, CRC(8b36eb91) SHA1(179745625c16c6813d5f8d29bfd7628783d55806) )
+	ROM_LOAD16_WORD_SWAP( "nus-zscj-0.u3", 0x000000, 0x800000, CRC(52a37340) SHA1(b5834bfde5b8a7e20415b2593abd76ec95ab27c7) ) // U3 NUS64M
 
 	ROM_REGION16_BE( 0x80, "normpoint", 0 )
 	ROM_LOAD( "normpnt.rom", 0x00, 0x80, CRC(e7f2a005) SHA1(c27b4a364a24daeee6e99fd286753fd6216362b4) )
@@ -1159,16 +1160,16 @@ ROM_END
 
 
 // BIOS
-GAME( 1998, aleck64,  0,        aleck64, aleck64, aleck64_state,  aleck64, ROT0, "Nintendo / Seta", "Aleck64 PIF BIOS", GAME_IS_BIOS_ROOT)
+GAME( 1998, aleck64,  0,        aleck64, aleck64, aleck64_state,  aleck64, ROT0, "Nintendo / Seta", "Aleck64 PIF BIOS", MACHINE_IS_BIOS_ROOT)
 
 // games
-GAME( 1998, 11beat,   aleck64,  aleck64, 11beat, aleck64_state,   aleck64, ROT0, "Hudson", "Eleven Beat", GAME_NOT_WORKING ) // crashes at kick off / during attract with DRC
-GAME( 1998, mtetrisc, aleck64,  a64_e90, mtetrisc, aleck64_state, aleck64, ROT0, "Capcom", "Magical Tetris Challenge (981009 Japan)", GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, starsldr, aleck64,  aleck64, starsldr, aleck64_state, aleck64, ROT0, "Hudson / Seta", "Star Soldier: Vanishing Earth", GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, vivdolls, aleck64,  aleck64, aleck64, aleck64_state,  aleck64, ROT0, "Visco", "Vivid Dolls", GAME_IMPERFECT_GRAPHICS )
-GAME( 1999, srmvs,    aleck64,  aleck64, srmvs, aleck64_state,    aleck64, ROT0, "Seta", "Super Real Mahjong VS", GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS )
-GAME( 2003, twrshaft, aleck64,  aleck64, twrshaft, aleck64_state, aleck64, ROT0, "Aruze", "Tower & Shaft", GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS )
-GAME( 2003, hipai,    aleck64,  aleck64, hipai, aleck64_state,    aleck64, ROT0, "Aruze / Seta", "Hi Pai Paradise", GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS )
-GAME( 2003, doncdoon, aleck64,  aleck64, doncdoon, aleck64_state, aleck64, ROT0, "Aruze", "Hanabi de Doon! - Don-chan Puzzle", GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS )
-GAME( 2003, kurufev,  aleck64,  aleck64, kurufev, aleck64_state,  aleck64, ROT0, "Aruze / Takumi", "Kurukuru Fever", GAME_NOT_WORKING|GAME_IMPERFECT_GRAPHICS )
-GAME( 2000, mayjin3,  aleck64,  aleck64, aleck64, aleck64_state,  aleck64, ROT0, "Seta / Able Corporation", "Mayjinsen 3", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1998, 11beat,   aleck64,  aleck64, 11beat, aleck64_state,   aleck64, ROT0, "Hudson", "Eleven Beat", MACHINE_NOT_WORKING ) // crashes at kick off / during attract with DRC
+GAME( 1998, mtetrisc, aleck64,  a64_e90, mtetrisc, aleck64_state, aleck64, ROT0, "Capcom", "Magical Tetris Challenge (981009 Japan)", MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1998, starsldr, aleck64,  aleck64, starsldr, aleck64_state, aleck64, ROT0, "Hudson / Seta", "Star Soldier: Vanishing Earth", MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1998, vivdolls, aleck64,  aleck64, aleck64, aleck64_state,  aleck64, ROT0, "Visco", "Vivid Dolls", MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1999, srmvs,    aleck64,  aleck64, srmvs, aleck64_state,    aleck64, ROT0, "Seta", "Super Real Mahjong VS", MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )
+GAME( 2003, twrshaft, aleck64,  aleck64, twrshaft, aleck64_state, aleck64, ROT0, "Aruze", "Tower & Shaft", MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )
+GAME( 2003, hipai,    aleck64,  aleck64, hipai, aleck64_state,    aleck64, ROT0, "Aruze / Seta", "Hi Pai Paradise", MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )
+GAME( 2003, doncdoon, aleck64,  aleck64, doncdoon, aleck64_state, aleck64, ROT0, "Aruze", "Hanabi de Doon! - Don-chan Puzzle", MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )
+GAME( 2003, kurufev,  aleck64,  aleck64, kurufev, aleck64_state,  aleck64, ROT0, "Aruze / Takumi", "Kurukuru Fever", MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )
+GAME( 2000, mayjin3,  aleck64,  aleck64, aleck64, aleck64_state,  aleck64, ROT0, "Seta / Able Corporation", "Mayjinsen 3", MACHINE_NOT_WORKING|MACHINE_IMPERFECT_GRAPHICS )

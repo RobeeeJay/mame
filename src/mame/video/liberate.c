@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*******************************************************************************
 
     Todo:
@@ -207,7 +209,11 @@ VIDEO_START_MEMBER(liberate_state,prosoccr)
 
 	m_fix_tilemap->set_transparent_pen(0);
 
+	m_fg_gfx = memregion("fg_gfx")->base();
 	m_charram = auto_alloc_array(machine(), UINT8, 0x1800 * 2);
+
+	save_pointer(NAME(m_charram), 0x1800 * 2);
+	save_pointer(NAME(m_fg_gfx), 0x6000);
 }
 
 VIDEO_START_MEMBER(liberate_state,boomrang)
@@ -236,14 +242,6 @@ VIDEO_START_MEMBER(liberate_state,prosport)
 }
 
 /***************************************************************************/
-
-WRITE8_MEMBER(liberate_state::prosport_paletteram_w)
-{
-	m_paletteram[offset] = data;
-
-	/* RGB output is inverted */
-	m_palette->set_pen_color(offset, pal3bit(~data >> 0), pal3bit(~data >> 3), pal2bit(~data >> 6));
-}
 
 PALETTE_INIT_MEMBER(liberate_state,liberate)
 {

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /***************************************************************************
 
 Deniam games
@@ -7,10 +9,10 @@ Check archive.org for http://deniam.co.kr
 
 Title            System     Date
 ---------------- ---------- ----------
-GO!GO!           deniam-16b 1995/10/11
+GO!GO!           deniam-16b 1995/10/11 UNDUMPED "Go Go Quiz Song Stop"
 Logic Pro        deniam-16b 1996/10/20
 Karian Cross     deniam-16b 1997/04/17
-LOTTERY GAME     deniam-16c 1997/05/21 UNDUMPED
+LOTTERY GAME     deniam-16c 1997/05/21 UNDUMPED "Bogori (Lottery Game)"
 Logic Pro 2      deniam-16c 1997/06/20
 Propose          deniam-16c 1997/06/21 UNDUMPED
 
@@ -413,7 +415,7 @@ ROM_END
 
 
 
-GAME( 1996, logicpro, 0,        deniam16b, logicpr2, deniam_state, logicpro, ROT0, "Deniam", "Logic Pro (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME( 1996, croquis,  logicpro, deniam16b, logicpr2, deniam_state, logicpro, ROT0, "Deniam", "Croquis (Germany)", GAME_SUPPORTS_SAVE )
-GAME( 1996, karianx,  0,        deniam16b, karianx, deniam_state,  karianx,  ROT0, "Deniam", "Karian Cross (Rev. 1.0)", GAME_SUPPORTS_SAVE )
-GAME( 1997, logicpr2, 0,        deniam16c, logicpr2, deniam_state, logicpro, ROT0, "Deniam", "Logic Pro 2 (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1996, logicpro, 0,        deniam16b, logicpr2, deniam_state, logicpro, ROT0, "Deniam", "Logic Pro (Japan)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1996, croquis,  logicpro, deniam16b, logicpr2, deniam_state, logicpro, ROT0, "Deniam", "Croquis (Germany)", MACHINE_SUPPORTS_SAVE )
+GAME( 1996, karianx,  0,        deniam16b, karianx, deniam_state,  karianx,  ROT0, "Deniam", "Karian Cross (Rev. 1.0)", MACHINE_SUPPORTS_SAVE )
+GAME( 1997, logicpr2, 0,        deniam16c, logicpr2, deniam_state, logicpro, ROT0, "Deniam", "Logic Pro 2 (Japan)", MACHINE_SUPPORTS_SAVE )

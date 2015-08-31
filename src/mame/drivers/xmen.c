@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /***************************************************************************
 
 X-Men
@@ -81,15 +83,9 @@ WRITE16_MEMBER(xmen_state::xmen_18fa00_w)
 	}
 }
 
-void xmen_state::sound_reset_bank()
-{
-	membank("bank4")->set_entry(m_sound_curbank & 0x07);
-}
-
 WRITE8_MEMBER(xmen_state::sound_bankswitch_w)
 {
-	m_sound_curbank = data;
-	sound_reset_bank();
+	m_z80bank->set_entry(data & 0x07);
 }
 
 
@@ -116,7 +112,7 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sound_map, AS_PROGRAM, 8, xmen_state )
 	AM_RANGE(0x0000, 0x7fff) AM_ROM
-	AM_RANGE(0x8000, 0xbfff) AM_ROMBANK("bank4")
+	AM_RANGE(0x8000, 0xbfff) AM_ROMBANK("z80bank")
 	AM_RANGE(0xc000, 0xdfff) AM_RAM
 	AM_RANGE(0xe000, 0xe22f) AM_DEVREADWRITE("k054539", k054539_device, read, write)
 	AM_RANGE(0xe800, 0xe801) AM_MIRROR(0x0400) AM_DEVREADWRITE("ymsnd", ym2151_device, read, write)
@@ -280,17 +276,13 @@ INPUT_PORTS_END
 
 void xmen_state::machine_start()
 {
-	UINT8 *ROM = memregion("audiocpu")->base();
+	m_z80bank->configure_entries(0, 8, memregion("audiocpu")->base(), 0x4000);
+	m_z80bank->set_entry(0);
 
-	membank("bank4")->configure_entries(0, 8, &ROM[0x10000], 0x4000);
-	membank("bank4")->set_entry(0);
-
-	save_item(NAME(m_sound_curbank));
 	save_item(NAME(m_sprite_colorbase));
 	save_item(NAME(m_layer_colorbase));
 	save_item(NAME(m_layerpri));
 	save_item(NAME(m_vblank_irq_mask));
-	machine().save().register_postload(save_prepost_delegate(FUNC(xmen_state::sound_reset_bank), this));
 }
 
 void xmen_state::machine_reset()
@@ -304,7 +296,6 @@ void xmen_state::machine_reset()
 	}
 
 	m_sprite_colorbase = 0;
-	m_sound_curbank = 0;
 	m_vblank_irq_mask = 0;
 }
 
@@ -499,9 +490,8 @@ ROM_START( xmen )
 	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -527,9 +517,8 @@ ROM_START( xmenj )
 	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -555,9 +544,8 @@ ROM_START( xmene )
 	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -583,9 +571,8 @@ ROM_START( xmena )
 	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -611,9 +598,8 @@ ROM_START( xmenaa )
 	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -639,9 +625,8 @@ ROM_START( xmen2pe )
 	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -660,6 +645,33 @@ ROM_START( xmen2pe )
 	ROM_LOAD( "xmen_eaa.nv", 0x0000, 0x0080, CRC(1cbcb653) SHA1(a86b4ad34ccbd868662ff8c61eb21ec07e8bf8b1) )
 ROM_END
 
+ROM_START( xmen2pu )
+	ROM_REGION( 0x100000, "maincpu", 0 )
+	ROM_LOAD16_BYTE( "065-uab04.10d",  0x00000, 0x20000, CRC(ff003db1) SHA1(b8aeb98dc0a38f0bda152d893fb60679bbdbadb3) ) /* US 2 Player version */
+	ROM_LOAD16_BYTE( "065-uab05.10f",  0x00001, 0x20000, CRC(4e99a943) SHA1(66b47de497a116b2002cc5496c1a3f4173a55bc5) )
+	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
+	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
+
+	ROM_REGION( 0x20000, "audiocpu", 0 )
+	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
+
+	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
+	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
+	ROM_LOAD32_WORD( "065-a07.16l", 0x000002, 0x100000, CRC(c5dc8fc4) SHA1(9887cb002c8b72be7ce933cb397f00cdc5506c8c) )
+
+	ROM_REGION( 0x400000, "gfx2", 0 )   /* graphics (addressable by the main CPU) */
+	ROM_LOAD64_WORD( "065-a09.2h",  0x000000, 0x100000, CRC(ea05d52f) SHA1(7f2c14f907355856fb94e3a67b73aa1919776835) ) /* sprites */
+	ROM_LOAD64_WORD( "065-a10.2l",  0x000002, 0x100000, CRC(96b91802) SHA1(641943557b59b91f0edd49ec8a73cef7d9268b32) )
+	ROM_LOAD64_WORD( "065-a12.1h",  0x000004, 0x100000, CRC(321ed07a) SHA1(5b00ed676daeea974bdce6701667cfe573099dad) )
+	ROM_LOAD64_WORD( "065-a11.1l",  0x000006, 0x100000, CRC(46da948e) SHA1(168ac9178ee5bad5931557fb549e1237971d7839) )
+
+	ROM_REGION( 0x200000, "k054539", 0 )    /* samples for the 054539 */
+	ROM_LOAD( "065-a06.1f",  0x000000, 0x200000, CRC(5adbcee0) SHA1(435feda697193bc51db80eba46be474cbbc1de4b) )
+
+	ROM_REGION16_BE( 0x80, "eeprom", 0 )
+	ROM_LOAD( "xmen_uab.nv", 0x0000, 0x0080, CRC(79b76593) SHA1(f9921a2963f249fa341bfb57cc9e213e2efed9b9) )
+ROM_END
+
 ROM_START( xmen2pa )
 	ROM_REGION( 0x100000, "maincpu", 0 )
 	ROM_LOAD16_BYTE( "065-aaa04.10d",  0x00000, 0x20000, CRC(7f8b27c2) SHA1(052db1f47671564a440544a41fc397a19d1aff3a) ) /* Asia 2 Player version */
@@ -667,9 +679,8 @@ ROM_START( xmen2pa )
 	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -695,9 +706,8 @@ ROM_START( xmen2pj )
 	ROM_LOAD16_BYTE( "065-a02.9d",     0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.9f",     0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.6f",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.15l", 0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -777,9 +787,8 @@ ROM_START( xmen6p )
 	ROM_LOAD16_BYTE( "065-a02.17g",   0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.17j",   0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.7b",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.1l",  0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -798,7 +807,6 @@ ROM_START( xmen6p )
 	ROM_LOAD( "xmen_ecb.nv", 0x0000, 0x0080, CRC(462c6e1a) SHA1(a57087163d7a760d5922c70842cfae20e6a2f5b5) )
 ROM_END
 
-
 ROM_START( xmen6pu )
 	ROM_REGION( 0x100000, "maincpu", 0 )
 	ROM_LOAD16_BYTE( "065-ucb04.18g", 0x00000, 0x20000, CRC(0f09b8e0) SHA1(79f4d86d8ec45b39e34ddf45860bea0c74dae183) ) /* US 6 Player version */
@@ -806,9 +814,8 @@ ROM_START( xmen6pu )
 	ROM_LOAD16_BYTE( "065-a02.17g",   0x80000, 0x40000, CRC(b31dc44c) SHA1(4bdac05826b4d6d4fe46686ede5190e2f73eefc5) )
 	ROM_LOAD16_BYTE( "065-a03.17j",   0x80001, 0x40000, CRC(13842fe6) SHA1(b61f094eb94336edb8708d3437ead9b853b2d6e6) )
 
-	ROM_REGION( 0x30000, "audiocpu", 0 )        /* 64k+128k for sound cpu */
+	ROM_REGION( 0x20000, "audiocpu", 0 )
 	ROM_LOAD( "065-a01.7b",   0x00000, 0x20000, CRC(147d3a4d) SHA1(a14409fe991e803b9e7812303e3a9ebd857d8b01) )
-	ROM_RELOAD(               0x10000, 0x20000 )
 
 	ROM_REGION( 0x200000, "k052109", 0 )    /* tiles */
 	ROM_LOAD32_WORD( "065-a08.1l",  0x000000, 0x100000, CRC(6b649aca) SHA1(2595f314517738e8614facf578cc951a6c36a180) )
@@ -829,14 +836,15 @@ ROM_END
 
 /* Second "version" letter denotes players, A=2 players, B=4 players, C=6 players ??? - For the Asia versions both D & E are 4 players */
 
-GAME( 1992, xmen,    0,    xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver UBB)", GAME_SUPPORTS_SAVE )
-GAME( 1992, xmenj,   xmen, xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver JBA)", GAME_SUPPORTS_SAVE )
-GAME( 1992, xmene,   xmen, xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver EBA)", GAME_SUPPORTS_SAVE )
-GAME( 1992, xmena,   xmen, xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver AEA)", GAME_SUPPORTS_SAVE )
-GAME( 1992, xmenaa,  xmen, xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver ADA)", GAME_SUPPORTS_SAVE )
-GAME( 1992, xmen2pe, xmen, xmen,   xmen2p, driver_device,  0,   ROT0, "Konami", "X-Men (2 Players ver EAA)", GAME_SUPPORTS_SAVE )
-GAME( 1992, xmen2pa, xmen, xmen,   xmen2p, driver_device,  0,   ROT0, "Konami", "X-Men (2 Players ver AAA)", GAME_SUPPORTS_SAVE )
-GAME( 1992, xmen2pj, xmen, xmen,   xmen2p, driver_device,  0,   ROT0, "Konami", "X-Men (2 Players ver JAA)", GAME_SUPPORTS_SAVE )
+GAME( 1992, xmen,    0,    xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver UBB)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmenj,   xmen, xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver JBA)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmene,   xmen, xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver EBA)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmena,   xmen, xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver AEA)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmenaa,  xmen, xmen,   xmen,   driver_device,  0,   ROT0, "Konami", "X-Men (4 Players ver ADA)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmen2pe, xmen, xmen,   xmen2p, driver_device,  0,   ROT0, "Konami", "X-Men (2 Players ver EAA)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmen2pu, xmen, xmen,   xmen2p, driver_device,  0,   ROT0, "Konami", "X-Men (2 Players ver UAB)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmen2pa, xmen, xmen,   xmen2p, driver_device,  0,   ROT0, "Konami", "X-Men (2 Players ver AAA)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmen2pj, xmen, xmen,   xmen2p, driver_device,  0,   ROT0, "Konami", "X-Men (2 Players ver JAA)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1992, xmen6p,  xmen, xmen6p, xmen6p, driver_device,  0,   ROT0, "Konami", "X-Men (6 Players ver ECB)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME( 1992, xmen6pu, xmen, xmen6p, xmen6p, driver_device,  0,   ROT0, "Konami", "X-Men (6 Players ver UCB)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
+GAME( 1992, xmen6p,  xmen, xmen6p, xmen6p, driver_device,  0,   ROT0, "Konami", "X-Men (6 Players ver ECB)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1992, xmen6pu, xmen, xmen6p, xmen6p, driver_device,  0,   ROT0, "Konami", "X-Men (6 Players ver UCB)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /***************************************************************************
 
     Tatsumi TX-1/Buggy Boy sound hardware
@@ -130,12 +132,12 @@ WRITE8_MEMBER( tx1_sound_device::pit8253_w )
 	{
 		if (m_pit8253.idx[offset] == 0)
 		{
-			m_pit8253.counts[offset].LSB = data;
+			m_pit8253.counts[offset].as8bit.LSB = data;
 			m_pit8253.idx[offset] = 1;
 		}
 		else
 		{
-			m_pit8253.counts[offset].MSB = data;
+			m_pit8253.counts[offset].as8bit.MSB = data;
 			m_pit8253.idx[offset] = 0;
 		}
 	}

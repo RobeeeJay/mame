@@ -1114,19 +1114,15 @@ static MACHINE_CONFIG_DERIVED( mk4, midzeus )
 	MCFG_MIDWAY_IOASIC_SHUFFLE_DEFAULT(1)
 MACHINE_CONFIG_END
 
-READ8_MEMBER(midzeus_state::PIC16C5X_T0_clk_r)
+READ_LINE_MEMBER(midzeus_state::PIC16C5X_T0_clk_r)
 {
 	return 0;
 }
 
-static ADDRESS_MAP_START( pic_io_map, AS_IO, 8, midzeus_state )
-	AM_RANGE(PIC16C5x_T0, PIC16C5x_T0) AM_READ(PIC16C5X_T0_clk_r)
-ADDRESS_MAP_END
-
 
 static MACHINE_CONFIG_DERIVED( invasn, midzeus )
 	MCFG_CPU_ADD("pic", PIC16C57, 8000000)  /* ? */
-	MCFG_CPU_IO_MAP(pic_io_map)
+	MCFG_PIC16C5x_T0_CB(READLINE(midzeus_state, PIC16C5X_T0_clk_r))
 
 	MCFG_DEVICE_MODIFY("ioasic")
 	MCFG_MIDWAY_IOASIC_UPPER(468/* or 488 */)
@@ -1525,16 +1521,16 @@ DRIVER_INIT_MEMBER(midzeus_state,thegrid)
  *
  *************************************/
 
-GAME(  1997, mk4,      0,        mk4,      mk4,      midzeus_state, mk4,      ROT0, "Midway", "Mortal Kombat 4 (version 3.0)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME(  1997, mk4a,     mk4,      mk4,      mk4,      midzeus_state, mk4,      ROT0, "Midway", "Mortal Kombat 4 (version 2.1)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME(  1997, mk4b,     mk4,      mk4,      mk4,      midzeus_state, mk4,      ROT0, "Midway", "Mortal Kombat 4 (version 1.0)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME(  1999, invasnab, 0,        invasn,   invasn,   midzeus_state, invasn,   ROT0, "Midway", "Invasion - The Abductors (version 5.0)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME(  1999, invasnab4,invasnab, invasn,   invasn,   midzeus_state, invasn,   ROT0, "Midway", "Invasion - The Abductors (version 4.0)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME(  1999, invasnab3,invasnab, invasn,   invasn,   midzeus_state, invasn,   ROT0, "Midway", "Invasion - The Abductors (version 3.0)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAMEL( 1999, crusnexo, 0,        crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 2.4)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE, layout_crusnexo )
-GAMEL( 1999, crusnexoa,crusnexo, crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 2.0)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE, layout_crusnexo )
-GAMEL( 1999, crusnexob,crusnexo, crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 1.6)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE, layout_crusnexo )
-GAMEL( 1999, crusnexoc,crusnexo, crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 1.3)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE, layout_crusnexo )
-GAMEL( 1999, crusnexod,crusnexo, crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 1.0)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE, layout_crusnexo )
-GAME(  2001, thegrid,  0,        thegrid,  thegrid,  midzeus_state, thegrid,  ROT0, "Midway", "The Grid (version 1.2)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME(  2001, thegrida, thegrid,  thegrid,  thegrid,  midzeus_state, thegrid,  ROT0, "Midway", "The Grid (version 1.1)", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
+GAME(  1997, mk4,      0,        mk4,      mk4,      midzeus_state, mk4,      ROT0, "Midway", "Mortal Kombat 4 (version 3.0)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME(  1997, mk4a,     mk4,      mk4,      mk4,      midzeus_state, mk4,      ROT0, "Midway", "Mortal Kombat 4 (version 2.1)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME(  1997, mk4b,     mk4,      mk4,      mk4,      midzeus_state, mk4,      ROT0, "Midway", "Mortal Kombat 4 (version 1.0)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME(  1999, invasnab, 0,        invasn,   invasn,   midzeus_state, invasn,   ROT0, "Midway", "Invasion - The Abductors (version 5.0)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME(  1999, invasnab4,invasnab, invasn,   invasn,   midzeus_state, invasn,   ROT0, "Midway", "Invasion - The Abductors (version 4.0)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME(  1999, invasnab3,invasnab, invasn,   invasn,   midzeus_state, invasn,   ROT0, "Midway", "Invasion - The Abductors (version 3.0)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAMEL( 1999, crusnexo, 0,        crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 2.4)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE, layout_crusnexo )
+GAMEL( 1999, crusnexoa,crusnexo, crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 2.0)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE, layout_crusnexo )
+GAMEL( 1999, crusnexob,crusnexo, crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 1.6)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE, layout_crusnexo )
+GAMEL( 1999, crusnexoc,crusnexo, crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 1.3)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE, layout_crusnexo )
+GAMEL( 1999, crusnexod,crusnexo, crusnexo, crusnexo, midzeus_state, crusnexo, ROT0, "Midway", "Cruis'n Exotica (version 1.0)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE, layout_crusnexo )
+GAME(  2001, thegrid,  0,        thegrid,  thegrid,  midzeus_state, thegrid,  ROT0, "Midway", "The Grid (version 1.2)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME(  2001, thegrida, thegrid,  thegrid,  thegrid,  midzeus_state, thegrid,  ROT0, "Midway", "The Grid (version 1.1)", MACHINE_NOT_WORKING | MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )

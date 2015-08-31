@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /***************************************************************************
 
     cubeqcpu.h
@@ -46,7 +48,7 @@ enum
 	CQUESTSND_RAMF,
 	CQUESTSND_RTNLATCH,
 	CQUESTSND_ADRCNTR,
-	CQUESTSND_DINLATCH,
+	CQUESTSND_DINLATCH
 };
 
 enum
@@ -78,7 +80,7 @@ enum
 	CQUESTROT_DSRCLATCH,
 	CQUESTROT_RSRCLATCH,
 	CQUESTROT_LDADDR,
-	CQUESTROT_LDDATA,
+	CQUESTROT_LDDATA
 };
 
 enum
@@ -108,7 +110,7 @@ enum
 	CQUESTLIN_XCNT,
 	CQUESTLIN_YCNT,
 	CQUESTLIN_CLATCH,
-	CQUESTLIN_ZLATCH,
+	CQUESTLIN_ZLATCH
 };
 
 
@@ -230,7 +232,7 @@ protected:
 	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : NULL; }
 
 	// device_state_interface overrides
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 8; }
@@ -314,7 +316,7 @@ protected:
 	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : NULL; }
 
 	// device_state_interface overrides
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 8; }

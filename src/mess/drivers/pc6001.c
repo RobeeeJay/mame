@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Angelo Salese
 /*******************************************************************************************************************************************************
 
@@ -1343,7 +1343,7 @@ WRITE8_MEMBER(pc6001_state::pc6001m2_vram_bank_w)
 
 			visarea.set(0, (320) - 1, 0, (y_height) - 1);
 
-			machine().first_screen()->configure(320, 240, visarea, machine().first_screen()->frame_period().attoseconds);
+			machine().first_screen()->configure(320, 240, visarea, machine().first_screen()->frame_period().attoseconds());
 		}
 	}
 
@@ -2078,8 +2078,8 @@ void pc6001_state::machine_reset()
 	if (m_cart->exists())
 		m_maincpu->space(AS_PROGRAM).install_read_handler(0x4000, 0x5fff, read8_delegate(FUNC(generic_slot_device::read_rom),(generic_slot_device*)m_cart));
 
-	astring region_tag;
-	m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 
 	m_port_c_8255=0;
 
@@ -2096,8 +2096,8 @@ MACHINE_RESET_MEMBER(pc6001_state,pc6001m2)
 {
 	m_video_ram = m_region_maincpu->base() + 0xc000 + 0x28000;
 
-	astring region_tag;
-	m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 	// hackish way to simplify bankswitch handling
 	if (m_cart_rom)
 		memcpy(m_region_maincpu->base() + 0x48000, m_cart_rom->base(), 0x4000);
@@ -2135,8 +2135,8 @@ MACHINE_RESET_MEMBER(pc6001_state,pc6001sr)
 {
 	m_video_ram = m_region_maincpu->base() + 0x70000;
 
-	astring region_tag;
-	m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 	// should this be mirrored into the EXROM regions? hard to tell without an actual cart dump...
 
 	m_port_c_8255=0;
@@ -2469,8 +2469,8 @@ ROM_START( pc6001sr )
 ROM_END
 
 /*    YEAR  NAME      PARENT   COMPAT MACHINE   INPUT     INIT    COMPANY  FULLNAME          FLAGS */
-COMP( 1981, pc6001,   0,       0,     pc6001,   pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6001 (Japan)",    GAME_NOT_WORKING )
-COMP( 1981, pc6001a,  pc6001,  0,     pc6001,   pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6001A (US)",      GAME_NOT_WORKING ) // This version is also known as the NEC Trek
-COMP( 1983, pc6001mk2,pc6001,  0,     pc6001m2, pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6001mkII (Japan)",   GAME_NOT_WORKING )
-COMP( 1983, pc6601,   pc6001,  0,     pc6601,   pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6601 (Japan)",       GAME_NOT_WORKING )
-COMP( 1984, pc6001sr, pc6001,  0,     pc6001sr, pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6001mkIISR (Japan)", GAME_NOT_WORKING )
+COMP( 1981, pc6001,   0,       0,     pc6001,   pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6001 (Japan)",    MACHINE_NOT_WORKING )
+COMP( 1981, pc6001a,  pc6001,  0,     pc6001,   pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6001A (US)",      MACHINE_NOT_WORKING ) // This version is also known as the NEC Trek
+COMP( 1983, pc6001mk2,pc6001,  0,     pc6001m2, pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6001mkII (Japan)",   MACHINE_NOT_WORKING )
+COMP( 1983, pc6601,   pc6001,  0,     pc6601,   pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6601 (Japan)",       MACHINE_NOT_WORKING )
+COMP( 1984, pc6001sr, pc6001,  0,     pc6001sr, pc6001, driver_device,   0,      "Nippon Electronic Company",   "PC-6001mkIISR (Japan)", MACHINE_NOT_WORKING )

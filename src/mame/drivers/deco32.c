@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /***************************************************************************
 
     Data East 32 bit ARM based games:
@@ -221,6 +223,97 @@ Notes:
 
                    PROM.9J     Fujitsu MB7124 compatible with 82S147  Labelled 'LN-00'
 
+
+
+Fighter's History
+Data East, 1993
+
+PCB Layout
+----------
+
+DE-0395-1   DEC-22VO
+|-----------------------------------------------------|
+| TA8205AH  6164                      MBF-05    2M-8M*|
+|           LE02  HuC6280A            MBF-04       8M*|
+|           YM2151            52*     MBF-03   4M-16M*|
+|     YM3012      32.220MHz           MBF-02      16M*|
+|  JP1   MBF-07   93C45                        4M-16M*|
+|CN2     MBF-06                                   16M*|
+|  M6295(1)                   52*                     |
+|     M6295(2)                                        |
+|      |-----|                       |-----|          |
+|J     | 75  |   113/153*            | 52  |          |
+|A     |     |             |-----|   |     |          |
+|M     |-----|             | 113 |   |-----|          |
+|M                         |     |            28MHz   |
+|A                         |-----|                    |
+|            PAL*                                     |
+|      99*   KT-00             |-----| 6164    MBF-01 |
+|                              | 74  | 6164           |
+|                              |     |         MBF-00 |
+|      |-----|  |-----|        |-----|                |
+|      | 113 |  | 200 |        |-----| 6164           |
+|      |     |  |     |        | 56  | 6164           |
+|      |-----|  |-----|        |     |  VE-01A        |
+|TEST_SW                       |-----|  VE-00 |-----| |
+|                                             | 156 | |
+|  CN4      LH52250  LH52250   LE01           |     | |
+|  CN3*     LH52250  LH52250   LE00           |-----| |
+|-----------------------------------------------------|
+
+Very similar to the DE-0396-0 described below with the notable exceptions:
+  The sound area reworked to use the HuC6280A instead of a standard Z80
+  Uses the larger 113 instead of the 153 chips, however both PCBs have
+    solder pads in the same locations for either chip.
+  Uses the 56 instead of the 141
+
+
+DE-0396-0   DEC-22VO
+|-----------------------------------------------------|
+| TA8205AH  Z80                       MBF-05    2M-8M*|
+|           6164  YM2151              MBF-04       8M*|
+|           LJ02              52*     MBF-03   4M-16M*|
+|     YM3012      32.220MHz           MBF-02      16M*|
+|  JP1   MBF-07   93C45                        4M-16M*|
+|CN2     MBF-06                                   16M*|
+|  M6295(1)                   52*                     |
+|     M6295(2)                                        |
+|      |-----|                       |-----|          |
+|J     | 75  |   113/153*            | 52  |          |
+|A     |     |             |-----|   |     |          |
+|M     |-----|             | 153 |   |-----|          |
+|M                         |     |            28MHz   |
+|A                         |-----|                    |
+|            PAL*                                     |
+|      99*   KT-00             |-----| 6164    MBF-01 |
+|                              | 74  | 6164           |
+|                              |     |         MBF-00 |
+|      |-----|  |-----|        |-----|                |
+|      | 153 |  | 200 |        |-----| 6164           |
+|      |     |  |     |        | 141 | 6164           |
+|      |-----|  |-----|        |     |  VE-01A        |
+|TEST_SW                       |-----|  VE-00 |-----| |
+|                                             | 156 | |
+|  CN4      LH52250  LH52250   LJ01-3         |     | |
+|  CN3*     LH52250  LH52250   LJ00-3         |-----| |
+|-----------------------------------------------------|
+
+This PCB is very close to the DE-397-0 listed above
+
+       Custom ICs-
+                   DE #            Package Type      Additional #'s (for reference of scratched-off chips on other PCB's)
+                   ------------------------------------------------------------------------------------------------------
+                   156 (CPU)       100 Pin PQFP      9321EV 301811 (Doesn't use encryption functions of the 156)
+                   141             160 Pin PQFP      24220F008
+                   74              160 Pin PQFP      24220F009
+                   52              128 Pin PQFP      9313EV 211771 VC5259-0001
+                   153 (x2)        144 Pin PQFP      L7A0888 9312
+                   75              100 Pin PQFP      L7A0680 9143
+                   200             100 Pin PQFP      JAPAN 9315PP002  (chip is darker black)
+
+NOTE: There are several unpopulated locations (denoted by *) for additional rom chips
+      or more custom ICs.
+
 ***************************************************************************/
 
 #include "emu.h"
@@ -230,10 +323,8 @@ Notes:
 #include "cpu/m6809/m6809.h"
 #include "cpu/z80/z80.h"
 #include "includes/decocrpt.h"
-#include "machine/eepromser.h"
 #include "includes/deco32.h"
 #include "sound/2151intf.h"
-#include "sound/okim6295.h"
 
 /**********************************************************************************/
 
@@ -243,7 +334,7 @@ TIMER_DEVICE_CALLBACK_MEMBER(deco32_state::interrupt_gen)
 	m_maincpu->set_input_line(ARM_IRQ_LINE, HOLD_LINE);
 }
 
-READ32_MEMBER(deco32_state::deco32_irq_controller_r)
+READ32_MEMBER(deco32_state::irq_controller_r)
 {
 	int vblank;
 
@@ -279,7 +370,7 @@ READ32_MEMBER(deco32_state::deco32_irq_controller_r)
 	return 0xffffffff;
 }
 
-WRITE32_MEMBER(deco32_state::deco32_irq_controller_w)
+WRITE32_MEMBER(deco32_state::irq_controller_w)
 {
 	int scanline;
 
@@ -303,7 +394,7 @@ WRITE32_MEMBER(deco32_state::deco32_irq_controller_w)
 	}
 }
 
-WRITE32_MEMBER(deco32_state::deco32_sound_w)
+WRITE32_MEMBER(deco32_state::sound_w)
 {
 	soundlatch_byte_w(space,0,data & 0xff);
 	m_audiocpu->set_input_line(0, HOLD_LINE);
@@ -315,7 +406,7 @@ void deco32_state::deco32_sound_cb( address_space &space, UINT16 data, UINT16 me
 	m_audiocpu->set_input_line(0, HOLD_LINE);
 }
 
-READ32_MEMBER(deco32_state::deco32_71_r)
+READ32_MEMBER(deco32_state::_71_r)
 {
 	/* Bit 0x80 goes high when sprite DMA is complete, and low
 	while it's in progress, we don't bother to emulate it */
@@ -347,7 +438,7 @@ WRITE32_MEMBER(deco32_state::fghthist_eeprom_w)
 		m_eeprom->di_write((data & 0x10) >> 4);
 		m_eeprom->cs_write((data & 0x40) ? ASSERT_LINE : CLEAR_LINE);
 
-		deco32_pri_w(space,0,data&0x1,0xffffffff); /* Bit 0 - layer priority toggle */
+		pri_w(space,0,data&0x1,0xffffffff); /* Bit 0 - layer priority toggle */
 	}
 	else if (!ACCESSING_BITS_8_15)
 	{
@@ -355,15 +446,17 @@ WRITE32_MEMBER(deco32_state::fghthist_eeprom_w)
 	}
 }
 
+
 /**********************************************************************************/
 
-READ32_MEMBER(deco32_state::dragngun_service_r)
+
+READ32_MEMBER(dragngun_state::service_r)
 {
 //  logerror("%08x:Read service\n",space.device().safe_pc());
 	return ioport("IN2")->read();
 }
 
-READ32_MEMBER(deco32_state::lockload_gun_mirror_r)
+READ32_MEMBER(dragngun_state::lockload_gun_mirror_r)
 {
 //logerror("%08x:Read gun %d\n",space.device().safe_pc(),offset);
 //return ((machine().rand()%0xffff)<<16) | machine().rand()%0xffff;
@@ -372,33 +465,32 @@ READ32_MEMBER(deco32_state::lockload_gun_mirror_r)
 	return ioport("IN3")->read() | ioport("LIGHT0_X")->read() | (ioport("LIGHT0_X")->read()<<16) | (ioport("LIGHT0_X")->read()<<24); //((machine().rand()%0xff)<<16);
 }
 
-
-READ32_MEMBER(dragngun_state::dragngun_lightgun_r)
+READ32_MEMBER(dragngun_state::lightgun_r)
 {
 	/* Ports 0-3 are read, but seem unused */
-	switch (m_dragngun_lightgun_port) {
+	switch (m_lightgun_port) {
 	case 4: return ioport("LIGHT0_X")->read();
 	case 5: return ioport("LIGHT1_X")->read();
 	case 6: return ioport("LIGHT0_Y")->read();
 	case 7: return ioport("LIGHT1_Y")->read();
 	}
 
-//  logerror("Illegal lightgun port %d read \n",m_dragngun_lightgun_port);
+//  logerror("Illegal lightgun port %d read \n",m_lightgun_port);
 	return 0;
 }
 
-WRITE32_MEMBER(dragngun_state::dragngun_lightgun_w)
+WRITE32_MEMBER(dragngun_state::lightgun_w)
 {
-//  logerror("Lightgun port %d\n",m_dragngun_lightgun_port);
-	m_dragngun_lightgun_port=offset;
+//  logerror("Lightgun port %d\n",m_lightgun_port);
+	m_lightgun_port=offset;
 }
 
-READ32_MEMBER(deco32_state::dragngun_eeprom_r)
+READ32_MEMBER(dragngun_state::eeprom_r)
 {
 	return 0xfffffffe | m_eeprom->do_read();
 }
 
-WRITE32_MEMBER(deco32_state::dragngun_eeprom_w)
+WRITE32_MEMBER(dragngun_state::eeprom_w)
 {
 	if (ACCESSING_BITS_0_7) {
 		m_eeprom->clk_write((data & 0x2) ? ASSERT_LINE : CLEAR_LINE);
@@ -409,8 +501,8 @@ WRITE32_MEMBER(deco32_state::dragngun_eeprom_w)
 	logerror("%s:Write control 1 %08x %08x\n",machine().describe_context(),offset,data);
 }
 
-/**********************************************************************************/
 
+/**********************************************************************************/
 
 
 WRITE32_MEMBER(deco32_state::tattass_control_w)
@@ -529,7 +621,7 @@ WRITE32_MEMBER(deco32_state::tattass_control_w)
 	}
 
 	/* Playfield control - Only written in full word memory accesses */
-	deco32_pri_w(space,0,data&0x3,0xffffffff); /* Bit 0 - layer priority toggle, Bit 1 - BG2/3 Joint mode (8bpp) */
+	pri_w(space,0,data&0x3,0xffffffff); /* Bit 0 - layer priority toggle, Bit 1 - BG2/3 Joint mode (8bpp) */
 
 	/* Sound board reset control */
 	if (data&0x80)
@@ -543,13 +635,14 @@ WRITE32_MEMBER(deco32_state::tattass_control_w)
 	//logerror("%08x: %08x data\n",data,mem_mask);
 }
 
+
 /**********************************************************************************/
+
 
 UINT16 deco32_state::port_b_nslasher(int unused)
 {
 	return (m_eeprom->do_read());
 }
-
 
 void deco32_state::nslasher_sound_cb( address_space &space, UINT16 data, UINT16 mem_mask )
 {
@@ -572,9 +665,6 @@ void deco32_state::tattass_sound_cb( address_space &space, UINT16 data, UINT16 m
 	m_decobsmt->bsmt_comms_w(space, 0, soundcommand);
 }
 
-
-
-
 WRITE32_MEMBER(deco32_state::nslasher_eeprom_w)
 {
 	if (ACCESSING_BITS_0_7)
@@ -583,90 +673,89 @@ WRITE32_MEMBER(deco32_state::nslasher_eeprom_w)
 		m_eeprom->di_write((data & 0x10) >> 4);
 		m_eeprom->cs_write((data & 0x40) ? ASSERT_LINE : CLEAR_LINE);
 
-		deco32_pri_w(space,0,data&0x3,0xffffffff); /* Bit 0 - layer priority toggle, Bit 1 - BG2/3 Joint mode (8bpp) */
+		pri_w(space,0,data&0x3,0xffffffff); /* Bit 0 - layer priority toggle, Bit 1 - BG2/3 Joint mode (8bpp) */
 	}
 }
 
 
-
-
 /**********************************************************************************/
 
-READ32_MEMBER(deco32_state::deco32_spriteram_r)
+
+READ32_MEMBER(deco32_state::spriteram_r)
 {
 	return m_spriteram16[offset] ^ 0xffff0000;
 }
 
-WRITE32_MEMBER(deco32_state::deco32_spriteram_w)
+WRITE32_MEMBER(deco32_state::spriteram_w)
 {
 	data &= 0x0000ffff;
 	mem_mask &= 0x0000ffff;
 	COMBINE_DATA(&m_spriteram16[offset]);
 }
 
-WRITE32_MEMBER(deco32_state::deco32_buffer_spriteram_w)
+WRITE32_MEMBER(deco32_state::buffer_spriteram_w)
 {
 	memcpy(m_spriteram16_buffered, m_spriteram16, 0x1000);
 }
 
-READ32_MEMBER(deco32_state::deco32_spriteram2_r)
+READ32_MEMBER(deco32_state::spriteram2_r)
 {
 	return m_spriteram16_2[offset] ^ 0xffff0000;
 }
 
-WRITE32_MEMBER(deco32_state::deco32_spriteram2_w)
+WRITE32_MEMBER(deco32_state::spriteram2_w)
 {
 	data &= 0x0000ffff;
 	mem_mask &= 0x0000ffff;
 	COMBINE_DATA(&m_spriteram16_2[offset]);
 }
 
-WRITE32_MEMBER(deco32_state::deco32_buffer_spriteram2_w)
+WRITE32_MEMBER(deco32_state::buffer_spriteram2_w)
 {
 	memcpy(m_spriteram16_2_buffered, m_spriteram16_2, 0x1000);
 }
 
 
 // tattass tests these as 32-bit ram, even if only 16-bits are hooked up to the tilemap chip - does it mirror parts of the dword?
-WRITE32_MEMBER(deco32_state::deco32_pf1_rowscroll_w){ COMBINE_DATA(&m_pf1_rowscroll32[offset]); data &= 0x0000ffff; mem_mask &= 0x0000ffff; COMBINE_DATA(&m_pf1_rowscroll[offset]); }
-WRITE32_MEMBER(deco32_state::deco32_pf2_rowscroll_w){ COMBINE_DATA(&m_pf2_rowscroll32[offset]); data &= 0x0000ffff; mem_mask &= 0x0000ffff; COMBINE_DATA(&m_pf2_rowscroll[offset]); }
-WRITE32_MEMBER(deco32_state::deco32_pf3_rowscroll_w){ COMBINE_DATA(&m_pf3_rowscroll32[offset]); data &= 0x0000ffff; mem_mask &= 0x0000ffff; COMBINE_DATA(&m_pf3_rowscroll[offset]); }
-WRITE32_MEMBER(deco32_state::deco32_pf4_rowscroll_w){ COMBINE_DATA(&m_pf4_rowscroll32[offset]); data &= 0x0000ffff; mem_mask &= 0x0000ffff; COMBINE_DATA(&m_pf4_rowscroll[offset]); }
+WRITE32_MEMBER(deco32_state::pf1_rowscroll_w){ COMBINE_DATA(&m_pf1_rowscroll32[offset]); data &= 0x0000ffff; mem_mask &= 0x0000ffff; COMBINE_DATA(&m_pf1_rowscroll[offset]); }
+WRITE32_MEMBER(deco32_state::pf2_rowscroll_w){ COMBINE_DATA(&m_pf2_rowscroll32[offset]); data &= 0x0000ffff; mem_mask &= 0x0000ffff; COMBINE_DATA(&m_pf2_rowscroll[offset]); }
+WRITE32_MEMBER(deco32_state::pf3_rowscroll_w){ COMBINE_DATA(&m_pf3_rowscroll32[offset]); data &= 0x0000ffff; mem_mask &= 0x0000ffff; COMBINE_DATA(&m_pf3_rowscroll[offset]); }
+WRITE32_MEMBER(deco32_state::pf4_rowscroll_w){ COMBINE_DATA(&m_pf4_rowscroll32[offset]); data &= 0x0000ffff; mem_mask &= 0x0000ffff; COMBINE_DATA(&m_pf4_rowscroll[offset]); }
 
 
 static ADDRESS_MAP_START( captaven_map, AS_PROGRAM, 32, deco32_state )
 	AM_RANGE(0x000000, 0x0fffff) AM_ROM
 
-	AM_RANGE(0x100000, 0x100007) AM_READ(deco32_71_r)
-	AM_RANGE(0x100000, 0x100003) AM_WRITE(deco32_buffer_spriteram_w)
+	AM_RANGE(0x100000, 0x100007) AM_READ(_71_r)
+	AM_RANGE(0x100000, 0x100003) AM_WRITE(buffer_spriteram_w)
 	AM_RANGE(0x108000, 0x108003) AM_WRITENOP /* ? */
-	AM_RANGE(0x110000, 0x111fff) AM_READWRITE(deco32_spriteram_r, deco32_spriteram_w)
+	AM_RANGE(0x110000, 0x111fff) AM_READWRITE(spriteram_r, spriteram_w)
 	AM_RANGE(0x120000, 0x127fff) AM_RAM AM_SHARE("ram") /* Main RAM */
 
 //  AM_RANGE(0x128000, 0x128fff) AM_DEVREAD("ioprot", deco146_device,captaven_prot_r)
-//  AM_RANGE(0x1280c8, 0x1280cb) AM_WRITE(deco32_sound_w)
+//  AM_RANGE(0x1280c8, 0x1280cb) AM_WRITE(sound_w)
 	AM_RANGE(0x128000, 0x12ffff) AM_READWRITE16(dg_protection_region_0_146_r, dg_protection_region_0_146_w, 0x0000ffff)
 
-	AM_RANGE(0x130000, 0x131fff) AM_RAM_WRITE(deco32_nonbuffered_palette_w) AM_SHARE("paletteram") /* Palette RAM */
-	AM_RANGE(0x148000, 0x14800f) AM_READWRITE(deco32_irq_controller_r, deco32_irq_controller_w)
+	AM_RANGE(0x130000, 0x131fff) AM_RAM_WRITE(nonbuffered_palette_w) AM_SHARE("paletteram") /* Palette RAM */
+	AM_RANGE(0x148000, 0x14800f) AM_READWRITE(irq_controller_r, irq_controller_w)
 	AM_RANGE(0x160000, 0x167fff) AM_RAM /* Extra work RAM */
 	AM_RANGE(0x168000, 0x168003) AM_READ(captaven_soundcpu_r)
 
-	AM_RANGE(0x178000, 0x178003) AM_WRITE(deco32_pri_w)
+	AM_RANGE(0x178000, 0x178003) AM_WRITE(pri_w)
 
 
 	AM_RANGE(0x180000, 0x18001f) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 	AM_RANGE(0x190000, 0x191fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x192000, 0x193fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w) /* Mirror address - bug in program code */
 	AM_RANGE(0x194000, 0x195fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x1a0000, 0x1a3fff) AM_RAM_WRITE(deco32_pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
-	AM_RANGE(0x1a4000, 0x1a5fff) AM_RAM_WRITE(deco32_pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
+	AM_RANGE(0x1a0000, 0x1a3fff) AM_RAM_WRITE(pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
+	AM_RANGE(0x1a4000, 0x1a5fff) AM_RAM_WRITE(pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
 
 	AM_RANGE(0x1c0000, 0x1c001f) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 	AM_RANGE(0x1d0000, 0x1d1fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x1d4000, 0x1d5fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w) // unused
-	AM_RANGE(0x1e0000, 0x1e3fff) AM_RAM_WRITE(deco32_pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
-	AM_RANGE(0x1e4000, 0x1e5fff) AM_RAM_WRITE(deco32_pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32") // unused
+	AM_RANGE(0x1e0000, 0x1e3fff) AM_RAM_WRITE(pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
+	AM_RANGE(0x1e4000, 0x1e5fff) AM_RAM_WRITE(pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32") // unused
 ADDRESS_MAP_END
 
 
@@ -706,31 +795,31 @@ WRITE32_MEMBER( deco32_state::fghthist_protection_region_0_146_w )
 
 
 static ADDRESS_MAP_START( fghthist_map, AS_PROGRAM, 32, deco32_state )
-//  AM_RANGE(0x000000, 0x001fff) AM_ROM AM_WRITE(deco32_pf1_data_w) // wtf??
+//  AM_RANGE(0x000000, 0x001fff) AM_ROM AM_WRITE(pf1_data_w) // wtf??
 	AM_RANGE(0x000000, 0x0fffff) AM_ROM
 	AM_RANGE(0x100000, 0x11ffff) AM_RAM AM_SHARE("ram")
 	AM_RANGE(0x120020, 0x12002f) AM_READ(fghthist_control_r)
 	AM_RANGE(0x12002c, 0x12002f) AM_WRITE(fghthist_eeprom_w)
-	AM_RANGE(0x1201fc, 0x1201ff) AM_WRITE(deco32_sound_w)
+	AM_RANGE(0x1201fc, 0x1201ff) AM_WRITE(sound_w)
 
 	AM_RANGE(0x140000, 0x140003) AM_WRITENOP /* VBL irq ack */
 
-	AM_RANGE(0x168000, 0x169fff) AM_RAM_WRITE(deco32_buffered_palette_w) AM_SHARE("paletteram")
-	AM_RANGE(0x16c008, 0x16c00b) AM_WRITE(deco32_palette_dma_w)
+	AM_RANGE(0x168000, 0x169fff) AM_RAM_WRITE(buffered_palette_w) AM_SHARE("paletteram")
+	AM_RANGE(0x16c008, 0x16c00b) AM_WRITE(palette_dma_w)
 	//
-	AM_RANGE(0x178000, 0x179fff) AM_READWRITE(deco32_spriteram_r, deco32_spriteram_w)
-	AM_RANGE(0x17c010, 0x17c013) AM_WRITE(deco32_buffer_spriteram_w)
+	AM_RANGE(0x178000, 0x179fff) AM_READWRITE(spriteram_r, spriteram_w)
+	AM_RANGE(0x17c010, 0x17c013) AM_WRITE(buffer_spriteram_w)
 
 	AM_RANGE(0x182000, 0x183fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x184000, 0x185fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x192000, 0x193fff) AM_RAM_WRITE(deco32_pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
-	AM_RANGE(0x194000, 0x195fff) AM_RAM_WRITE(deco32_pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
+	AM_RANGE(0x192000, 0x193fff) AM_RAM_WRITE(pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
+	AM_RANGE(0x194000, 0x195fff) AM_RAM_WRITE(pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
 	AM_RANGE(0x1a0000, 0x1a001f) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 
 	AM_RANGE(0x1c2000, 0x1c3fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x1c4000, 0x1c5fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x1d2000, 0x1d3fff) AM_RAM_WRITE(deco32_pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
-	AM_RANGE(0x1d4000, 0x1d5fff) AM_RAM_WRITE(deco32_pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32")
+	AM_RANGE(0x1d2000, 0x1d3fff) AM_RAM_WRITE(pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
+	AM_RANGE(0x1d4000, 0x1d5fff) AM_RAM_WRITE(pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32")
 	AM_RANGE(0x1e0000, 0x1e001f) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 
 	AM_RANGE(0x16c000, 0x16c01f) AM_READNOP
@@ -746,28 +835,27 @@ static ADDRESS_MAP_START( fghthsta_memmap, AS_PROGRAM, 32, deco32_state )
 	AM_RANGE(0x140000, 0x140003) AM_WRITENOP /* VBL irq ack */
 	AM_RANGE(0x150000, 0x150003) AM_WRITE(fghthist_eeprom_w) /* Volume port/Eprom */
 
-	AM_RANGE(0x168000, 0x169fff) AM_RAM_WRITE(deco32_buffered_palette_w) AM_SHARE("paletteram")
-	AM_RANGE(0x16c008, 0x16c00b) AM_WRITE(deco32_palette_dma_w)
+	AM_RANGE(0x168000, 0x169fff) AM_RAM_WRITE(buffered_palette_w) AM_SHARE("paletteram")
+	AM_RANGE(0x16c008, 0x16c00b) AM_WRITE(palette_dma_w)
 	AM_RANGE(0x16c010, 0x16c013) AM_READNOP
 
-	AM_RANGE(0x178000, 0x179fff) AM_READWRITE(deco32_spriteram_r, deco32_spriteram_w)
-	AM_RANGE(0x17c010, 0x17c013) AM_WRITE(deco32_buffer_spriteram_w)
+	AM_RANGE(0x178000, 0x179fff) AM_READWRITE(spriteram_r, spriteram_w)
+	AM_RANGE(0x17c010, 0x17c013) AM_WRITE(buffer_spriteram_w)
 	AM_RANGE(0x17c020, 0x17c023) AM_READNOP
 
 	AM_RANGE(0x182000, 0x183fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x184000, 0x185fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x192000, 0x193fff)  AM_RAM_WRITE(deco32_pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
-	AM_RANGE(0x194000, 0x195fff)  AM_RAM_WRITE(deco32_pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
+	AM_RANGE(0x192000, 0x193fff)  AM_RAM_WRITE(pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
+	AM_RANGE(0x194000, 0x195fff)  AM_RAM_WRITE(pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
 	AM_RANGE(0x1a0000, 0x1a001f) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 
 	AM_RANGE(0x1c2000, 0x1c3fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x1c4000, 0x1c5fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x1d2000, 0x1d3fff)  AM_RAM_WRITE(deco32_pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
-	AM_RANGE(0x1d4000, 0x1d5fff)  AM_RAM_WRITE(deco32_pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32")
+	AM_RANGE(0x1d2000, 0x1d3fff)  AM_RAM_WRITE(pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
+	AM_RANGE(0x1d4000, 0x1d5fff)  AM_RAM_WRITE(pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32")
 	AM_RANGE(0x1e0000, 0x1e001f) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 
 	AM_RANGE(0x200000, 0x207fff) AM_READWRITE(fghthist_protection_region_0_146_r, fghthist_protection_region_0_146_w) AM_SHARE("prot32ram") // only maps on 16-bits
-
 ADDRESS_MAP_END
 
 
@@ -788,7 +876,7 @@ WRITE16_MEMBER( deco32_state::dg_protection_region_0_146_w )
 	m_deco146->write_data( space, deco146_addr, data, mem_mask, cs );
 }
 
-READ32_MEMBER( dragngun_state::dragngun_unk_video_r)
+READ32_MEMBER( dragngun_state::unk_video_r)
 {
 	return machine().rand();
 }
@@ -801,11 +889,11 @@ static ADDRESS_MAP_START( dragngun_map, AS_PROGRAM, 32, dragngun_state )
 //  AM_RANGE(0x0120000, 0x0120fff) AM_DEVREAD("ioprot", deco146_device, dragngun_prot_r)
 	AM_RANGE(0x0120000, 0x0127fff) AM_READWRITE16(dg_protection_region_0_146_r, dg_protection_region_0_146_w, 0x0000ffff)
 
-//  AM_RANGE(0x01204c0, 0x01204c3) AM_WRITE(deco32_sound_w)
-	AM_RANGE(0x0128000, 0x012800f) AM_READWRITE(deco32_irq_controller_r, deco32_irq_controller_w)
-	AM_RANGE(0x0130000, 0x0131fff) AM_RAM_WRITE(deco32_buffered_palette_w) AM_SHARE("paletteram")
+//  AM_RANGE(0x01204c0, 0x01204c3) AM_WRITE(sound_w)
+	AM_RANGE(0x0128000, 0x012800f) AM_READWRITE(irq_controller_r, irq_controller_w)
+	AM_RANGE(0x0130000, 0x0131fff) AM_RAM_WRITE(buffered_palette_w) AM_SHARE("paletteram")
 	AM_RANGE(0x0138000, 0x0138003) AM_NOP /* Palette dma complete in bit 0x8? ack?  return 0 else tight loop */
-	AM_RANGE(0x0138008, 0x013800b) AM_WRITE(deco32_palette_dma_w)
+	AM_RANGE(0x0138008, 0x013800b) AM_WRITE(palette_dma_w)
 
 	AM_RANGE(0x0170100, 0x0170103) AM_WRITENOP
 	AM_RANGE(0x0170038, 0x017003b) AM_WRITENOP
@@ -815,41 +903,41 @@ static ADDRESS_MAP_START( dragngun_map, AS_PROGRAM, 32, dragngun_state )
 	AM_RANGE(0x0180000, 0x018001f) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 	AM_RANGE(0x0190000, 0x0191fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x0194000, 0x0195fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x01a0000, 0x01a3fff) AM_RAM_WRITE(deco32_pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
-	AM_RANGE(0x01a4000, 0x01a5fff) AM_RAM_WRITE(deco32_pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
+	AM_RANGE(0x01a0000, 0x01a3fff) AM_RAM_WRITE(pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
+	AM_RANGE(0x01a4000, 0x01a5fff) AM_RAM_WRITE(pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
 
 	AM_RANGE(0x01c0000, 0x01c001f) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 	AM_RANGE(0x01d0000, 0x01d1fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x01d4000, 0x01d5fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w) // unused
-	AM_RANGE(0x01e0000, 0x01e3fff) AM_RAM_WRITE(deco32_pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
-	AM_RANGE(0x01e4000, 0x01e5fff) AM_RAM_WRITE(deco32_pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32") // unused
+	AM_RANGE(0x01e0000, 0x01e3fff) AM_RAM_WRITE(pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
+	AM_RANGE(0x01e4000, 0x01e5fff) AM_RAM_WRITE(pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32") // unused
 
 	AM_RANGE(0x0204800, 0x0204fff) AM_RAM // ace? 0x10 byte increments only  // 13f ff stuff
 
 
-	AM_RANGE(0x0208000, 0x0208fff) AM_RAM AM_SHARE("dragngun_lay0")
-	AM_RANGE(0x020c000, 0x020cfff) AM_RAM AM_SHARE("dragngun_lay1")
-	AM_RANGE(0x0210000, 0x0217fff) AM_RAM AM_SHARE("dragngun_look0")
-	AM_RANGE(0x0218000, 0x021ffff) AM_RAM AM_SHARE("dragngun_look1")
+	AM_RANGE(0x0208000, 0x0208fff) AM_RAM AM_SHARE("lay0")
+	AM_RANGE(0x020c000, 0x020cfff) AM_RAM AM_SHARE("lay1")
+	AM_RANGE(0x0210000, 0x0217fff) AM_RAM AM_SHARE("look0")
+	AM_RANGE(0x0218000, 0x021ffff) AM_RAM AM_SHARE("look1")
 	AM_RANGE(0x0220000, 0x0221fff) AM_RAM AM_SHARE("spriteram") /* Main spriteram */
 
 	AM_RANGE(0x0228000, 0x02283ff) AM_RAM //0x10 byte increments only
 
-	AM_RANGE(0x0230000, 0x0230003) AM_WRITE(dragngun_spriteram_dma_w)
+	AM_RANGE(0x0230000, 0x0230003) AM_WRITE(spriteram_dma_w)
 
 	AM_RANGE(0x0300000, 0x03fffff) AM_ROM
 
 	AM_RANGE(0x0400000, 0x0400003) AM_DEVREADWRITE8("oki3", okim6295_device, read, write, 0x000000ff)
 	AM_RANGE(0x0410000, 0x0410003) AM_WRITENOP /* Some kind of serial bit-stream - digital volume control? */
-	AM_RANGE(0x0420000, 0x0420003) AM_READWRITE(dragngun_eeprom_r, dragngun_eeprom_w)
-	AM_RANGE(0x0438000, 0x0438003) AM_READ(dragngun_lightgun_r)
-	AM_RANGE(0x0430000, 0x043001f) AM_WRITE(dragngun_lightgun_w)
-	AM_RANGE(0x0440000, 0x0440003) AM_READ(dragngun_service_r)
+	AM_RANGE(0x0420000, 0x0420003) AM_READWRITE(eeprom_r, eeprom_w)
+	AM_RANGE(0x0438000, 0x0438003) AM_READ(lightgun_r)
+	AM_RANGE(0x0430000, 0x043001f) AM_WRITE(lightgun_w)
+	AM_RANGE(0x0440000, 0x0440003) AM_READ(service_r)
 
-	AM_RANGE(0x0500000, 0x0500003) AM_WRITE(dragngun_sprite_control_w)
+	AM_RANGE(0x0500000, 0x0500003) AM_WRITE(sprite_control_w)
 
 	// this is clearly the dvi video related area
-	AM_RANGE(0x1000000, 0x1000007) AM_READ(dragngun_unk_video_r)
+	AM_RANGE(0x1000000, 0x1000007) AM_READ(unk_video_r)
 	AM_RANGE(0x1000100, 0x1007fff) AM_RAM
 	AM_RANGE(0x10b0000, 0x10b01ff) AM_RAM
 	AM_RANGE(0x1400000, 0x1ffffff) AM_ROM AM_REGION("dvi", 0x00000) // reads from here during boss battles when the videos should be displayed at the offsets where the DVI headers are
@@ -861,14 +949,14 @@ static ADDRESS_MAP_START( lockload_map, AS_PROGRAM, 32, dragngun_state )
 	AM_RANGE(0x000000, 0x0fffff) AM_ROM
 	AM_RANGE(0x100000, 0x11ffff) AM_RAM AM_SHARE("ram")
 //  AM_RANGE(0x120000, 0x120fff) AM_DEVREAD("ioprot", deco146_device, dragngun_prot_r)
-//  AM_RANGE(0x1204c0, 0x1204c3) AM_WRITE(deco32_sound_w)
+//  AM_RANGE(0x1204c0, 0x1204c3) AM_WRITE(sound_w)
 	AM_RANGE(0x120000, 0x127fff) AM_READWRITE16(dg_protection_region_0_146_r, dg_protection_region_0_146_w, 0x0000ffff)
 
-	AM_RANGE(0x128000, 0x12800f) AM_READWRITE(deco32_irq_controller_r, deco32_irq_controller_w)
+	AM_RANGE(0x128000, 0x12800f) AM_READWRITE(irq_controller_r, irq_controller_w)
 
-	AM_RANGE(0x130000, 0x131fff) AM_RAM_WRITE(deco32_buffered_palette_w) AM_SHARE("paletteram")
+	AM_RANGE(0x130000, 0x131fff) AM_RAM_WRITE(buffered_palette_w) AM_SHARE("paletteram")
 	AM_RANGE(0x138000, 0x138003) AM_READONLY AM_WRITENOP //palette dma complete in bit 0x8? ack?  return 0 else tight loop
-	AM_RANGE(0x138008, 0x13800b) AM_WRITE(deco32_palette_dma_w)
+	AM_RANGE(0x138008, 0x13800b) AM_WRITE(palette_dma_w)
 
 	AM_RANGE(0x170000, 0x170007) AM_READ(lockload_gun_mirror_r) /* Not on Dragongun */
 	AM_RANGE(0x178008, 0x17800f) AM_WRITENOP /* Gun read ACK's */
@@ -876,33 +964,33 @@ static ADDRESS_MAP_START( lockload_map, AS_PROGRAM, 32, dragngun_state )
 	AM_RANGE(0x180000, 0x18001f) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 	AM_RANGE(0x190000, 0x191fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x194000, 0x195fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x1a0000, 0x1a3fff) AM_RAM_WRITE(deco32_pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
-	AM_RANGE(0x1a4000, 0x1a5fff) AM_RAM_WRITE(deco32_pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
+	AM_RANGE(0x1a0000, 0x1a3fff) AM_RAM_WRITE(pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
+	AM_RANGE(0x1a4000, 0x1a5fff) AM_RAM_WRITE(pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
 
 	AM_RANGE(0x1c0000, 0x1c001f) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 	AM_RANGE(0x1d0000, 0x1d1fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x1d4000, 0x1d5fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w) // unused
-	AM_RANGE(0x1e0000, 0x1e3fff) AM_RAM_WRITE(deco32_pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
-	AM_RANGE(0x1e4000, 0x1e5fff) AM_RAM_WRITE(deco32_pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32") // unused
+	AM_RANGE(0x1e0000, 0x1e3fff) AM_RAM_WRITE(pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
+	AM_RANGE(0x1e4000, 0x1e5fff) AM_RAM_WRITE(pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32") // unused
 
 	AM_RANGE(0x204800, 0x204fff) AM_RAM             //0x10 byte increments only
-	AM_RANGE(0x208000, 0x208fff) AM_RAM AM_SHARE("dragngun_lay0")
-	AM_RANGE(0x20c000, 0x20cfff) AM_RAM AM_SHARE("dragngun_lay1")
-	AM_RANGE(0x210000, 0x217fff) AM_RAM AM_SHARE("dragngun_look0")
-	AM_RANGE(0x218000, 0x21ffff) AM_RAM AM_SHARE("dragngun_look1")
+	AM_RANGE(0x208000, 0x208fff) AM_RAM AM_SHARE("lay0")
+	AM_RANGE(0x20c000, 0x20cfff) AM_RAM AM_SHARE("lay1")
+	AM_RANGE(0x210000, 0x217fff) AM_RAM AM_SHARE("look0")
+	AM_RANGE(0x218000, 0x21ffff) AM_RAM AM_SHARE("look1")
 	AM_RANGE(0x220000, 0x221fff) AM_RAM AM_SHARE("spriteram") /* Main spriteram */
 
 	AM_RANGE(0x228000, 0x2283ff) AM_RAM             //0x10 byte increments only
-	AM_RANGE(0x230000, 0x230003) AM_WRITE(dragngun_spriteram_dma_w)
+	AM_RANGE(0x230000, 0x230003) AM_WRITE(spriteram_dma_w)
 
 	AM_RANGE(0x300000, 0x3fffff) AM_ROM
 
 //  AM_RANGE(0x400000, 0x400003) AM_DEVREADWRITE8("oki3", okim6295_device, read, write, 0x000000ff)
-	AM_RANGE(0x420000, 0x420003) AM_READWRITE(dragngun_eeprom_r, dragngun_eeprom_w)
-//  AM_RANGE(0x430000, 0x43001f) AM_WRITE(dragngun_lightgun_w)
-//  AM_RANGE(0x438000, 0x438003) AM_READ(dragngun_lightgun_r)
-	AM_RANGE(0x440000, 0x440003) AM_READ(dragngun_service_r)
-	AM_RANGE(0x500000, 0x500003) AM_WRITE(dragngun_sprite_control_w)
+	AM_RANGE(0x420000, 0x420003) AM_READWRITE(eeprom_r, eeprom_w)
+//  AM_RANGE(0x430000, 0x43001f) AM_WRITE(lightgun_w)
+//  AM_RANGE(0x438000, 0x438003) AM_READ(lightgun_r)
+	AM_RANGE(0x440000, 0x440003) AM_READ(service_r)
+	AM_RANGE(0x500000, 0x500003) AM_WRITE(sprite_control_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( tattass_map, AS_PROGRAM, 32, deco32_state )
@@ -916,38 +1004,37 @@ static ADDRESS_MAP_START( tattass_map, AS_PROGRAM, 32, deco32_state )
 	AM_RANGE(0x150000, 0x150003) AM_WRITE(tattass_control_w) /* Volume port/Eprom/Priority */
 
 	AM_RANGE(0x162000, 0x162fff) AM_RAM             /* 'Jack' RAM!? */
-	AM_RANGE(0x163000, 0x16309f) AM_RAM_WRITE(deco32_ace_ram_w) AM_SHARE("ace_ram")
+	AM_RANGE(0x163000, 0x16309f) AM_RAM_WRITE(ace_ram_w) AM_SHARE("ace_ram")
 	AM_RANGE(0x164000, 0x164003) AM_WRITENOP /* Palette control BG2/3 ($1a constant) */
 	AM_RANGE(0x164004, 0x164007) AM_WRITENOP /* Palette control Obj1 ($6 constant) */
 	AM_RANGE(0x164008, 0x16400b) AM_WRITENOP /* Palette control Obj2 ($5 constant) */
 	AM_RANGE(0x16400c, 0x16400f) AM_WRITENOP
-	AM_RANGE(0x168000, 0x169fff) AM_RAM_WRITE(deco32_buffered_palette_w) AM_SHARE("paletteram")
+	AM_RANGE(0x168000, 0x169fff) AM_RAM_WRITE(buffered_palette_w) AM_SHARE("paletteram")
 	AM_RANGE(0x16c000, 0x16c003) AM_WRITENOP
-	AM_RANGE(0x16c008, 0x16c00b) AM_WRITE(deco32_palette_dma_w)
+	AM_RANGE(0x16c008, 0x16c00b) AM_WRITE(palette_dma_w)
 
-	AM_RANGE(0x170000, 0x171fff) AM_READWRITE(deco32_spriteram_r, deco32_spriteram_w)
+	AM_RANGE(0x170000, 0x171fff) AM_READWRITE(spriteram_r, spriteram_w)
 	AM_RANGE(0x174000, 0x174003) AM_WRITENOP /* Sprite DMA mode (2) */
-	AM_RANGE(0x174010, 0x174013) AM_WRITE(deco32_buffer_spriteram_w)
+	AM_RANGE(0x174010, 0x174013) AM_WRITE(buffer_spriteram_w)
 	AM_RANGE(0x174018, 0x17401b) AM_WRITENOP /* Sprite 'CPU' (unused) */
 
-	AM_RANGE(0x178000, 0x179fff) AM_READWRITE(deco32_spriteram2_r, deco32_spriteram2_w)
+	AM_RANGE(0x178000, 0x179fff) AM_READWRITE(spriteram2_r, spriteram2_w)
 	AM_RANGE(0x17c000, 0x17c003) AM_WRITENOP /* Sprite DMA mode (2) */
-	AM_RANGE(0x17c010, 0x17c013) AM_WRITE(deco32_buffer_spriteram2_w)
+	AM_RANGE(0x17c010, 0x17c013) AM_WRITE(buffer_spriteram2_w)
 	AM_RANGE(0x17c018, 0x17c01b) AM_WRITENOP /* Sprite 'CPU' (unused) */
 
 	AM_RANGE(0x182000, 0x183fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x184000, 0x185fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x192000, 0x193fff) AM_RAM_WRITE(deco32_pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
-	AM_RANGE(0x194000, 0x195fff) AM_RAM_WRITE(deco32_pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
+	AM_RANGE(0x192000, 0x193fff) AM_RAM_WRITE(pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
+	AM_RANGE(0x194000, 0x195fff) AM_RAM_WRITE(pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
 	AM_RANGE(0x1a0000, 0x1a001f) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 
 	AM_RANGE(0x1c2000, 0x1c3fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x1c4000, 0x1c5fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x1d2000, 0x1d3fff) AM_RAM_WRITE(deco32_pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
-	AM_RANGE(0x1d4000, 0x1d5fff) AM_RAM_WRITE(deco32_pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32")
+	AM_RANGE(0x1d2000, 0x1d3fff) AM_RAM_WRITE(pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
+	AM_RANGE(0x1d4000, 0x1d5fff) AM_RAM_WRITE(pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32")
 	AM_RANGE(0x1e0000, 0x1e001f) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 
-//  AM_RANGE(0x200000, 0x200fff) AM_READWRITE(tattass_prot_r, tattass_prot_w) AM_SHARE("prot32ram")
 	AM_RANGE(0x200000, 0x207fff) AM_READWRITE16(nslasher_protection_region_0_104_r, nslasher_protection_region_0_104_w, 0xffff0000)
 	AM_RANGE(0x200000, 0x207fff) AM_READ16(nslasher_debug_r, 0x0000ffff)
 ADDRESS_MAP_END
@@ -982,41 +1069,39 @@ static ADDRESS_MAP_START( nslasher_map, AS_PROGRAM, 32, deco32_state )
 	AM_RANGE(0x140000, 0x140003) AM_WRITENOP                    /* Vblank ack */
 	AM_RANGE(0x150000, 0x150003) AM_WRITE(nslasher_eeprom_w)    /* Volume port/Eprom/Priority */
 
-	AM_RANGE(0x163000, 0x16309f) AM_RAM_WRITE(deco32_ace_ram_w) AM_SHARE("ace_ram") /* 'Ace' RAM!? */
+	AM_RANGE(0x163000, 0x16309f) AM_RAM_WRITE(ace_ram_w) AM_SHARE("ace_ram") /* 'Ace' RAM!? */
 	AM_RANGE(0x164000, 0x164003) AM_WRITENOP /* Palette control BG2/3 ($1a constant) */
 	AM_RANGE(0x164004, 0x164007) AM_WRITENOP /* Palette control Obj1 ($4 constant) */
 	AM_RANGE(0x164008, 0x16400b) AM_WRITENOP /* Palette control Obj2 ($6 constant) */
 	AM_RANGE(0x16400c, 0x16400f) AM_WRITENOP
-	AM_RANGE(0x168000, 0x169fff) AM_RAM_WRITE(deco32_buffered_palette_w) AM_SHARE("paletteram")
+	AM_RANGE(0x168000, 0x169fff) AM_RAM_WRITE(buffered_palette_w) AM_SHARE("paletteram")
 	AM_RANGE(0x16c000, 0x16c003) AM_WRITENOP
-	AM_RANGE(0x16c008, 0x16c00b) AM_WRITE(deco32_palette_dma_w)
+	AM_RANGE(0x16c008, 0x16c00b) AM_WRITE(palette_dma_w)
 
-	AM_RANGE(0x170000, 0x171fff) AM_READWRITE(deco32_spriteram_r, deco32_spriteram_w)
+	AM_RANGE(0x170000, 0x171fff) AM_READWRITE(spriteram_r, spriteram_w)
 	AM_RANGE(0x174000, 0x174003) AM_WRITENOP /* Sprite DMA mode (2) */
-	AM_RANGE(0x174010, 0x174013) AM_WRITE(deco32_buffer_spriteram_w)
+	AM_RANGE(0x174010, 0x174013) AM_WRITE(buffer_spriteram_w)
 	AM_RANGE(0x174018, 0x17401b) AM_WRITENOP /* Sprite 'CPU' (unused) */
 
-	AM_RANGE(0x178000, 0x179fff) AM_READWRITE(deco32_spriteram2_r, deco32_spriteram2_w)
+	AM_RANGE(0x178000, 0x179fff) AM_READWRITE(spriteram2_r, spriteram2_w)
 	AM_RANGE(0x17c000, 0x17c003) AM_WRITENOP /* Sprite DMA mode (2) */
-	AM_RANGE(0x17c010, 0x17c013) AM_WRITE(deco32_buffer_spriteram2_w)
+	AM_RANGE(0x17c010, 0x17c013) AM_WRITE(buffer_spriteram2_w)
 	AM_RANGE(0x17c018, 0x17c01b) AM_WRITENOP /* Sprite 'CPU' (unused) */
 
 	AM_RANGE(0x182000, 0x183fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x184000, 0x185fff) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x192000, 0x193fff) AM_RAM_WRITE(deco32_pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
-	AM_RANGE(0x194000, 0x195fff) AM_RAM_WRITE(deco32_pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
+	AM_RANGE(0x192000, 0x193fff) AM_RAM_WRITE(pf1_rowscroll_w) AM_SHARE("pf1_rowscroll32")
+	AM_RANGE(0x194000, 0x195fff) AM_RAM_WRITE(pf2_rowscroll_w) AM_SHARE("pf2_rowscroll32")
 	AM_RANGE(0x1a0000, 0x1a001f) AM_DEVREADWRITE("tilegen1", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 
 	AM_RANGE(0x1c2000, 0x1c3fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf1_data_dword_r, pf1_data_dword_w)
 	AM_RANGE(0x1c4000, 0x1c5fff) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf2_data_dword_r, pf2_data_dword_w)
-	AM_RANGE(0x1d2000, 0x1d3fff) AM_RAM_WRITE(deco32_pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
-	AM_RANGE(0x1d4000, 0x1d5fff) AM_RAM_WRITE(deco32_pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32")
+	AM_RANGE(0x1d2000, 0x1d3fff) AM_RAM_WRITE(pf3_rowscroll_w) AM_SHARE("pf3_rowscroll32")
+	AM_RANGE(0x1d4000, 0x1d5fff) AM_RAM_WRITE(pf4_rowscroll_w) AM_SHARE("pf4_rowscroll32")
 	AM_RANGE(0x1e0000, 0x1e001f) AM_DEVREADWRITE("tilegen2", deco16ic_device, pf_control_dword_r, pf_control_dword_w)
 
-//  AM_RANGE(0x200000, 0x200fff) AM_READWRITE(nslasher_prot_r, nslasher_prot_w) AM_SHARE("prot32ram")
 	AM_RANGE(0x200000, 0x207fff) AM_READWRITE16(nslasher_protection_region_0_104_r, nslasher_protection_region_0_104_w, 0xffff0000)
 	AM_RANGE(0x200000, 0x207fff) AM_READ16(nslasher_debug_r, 0x0000ffff) // seems to be debug switches / code activated by this?
-
 ADDRESS_MAP_END
 
 /******************************************************************************/
@@ -1692,7 +1777,6 @@ static MACHINE_CONFIG_START( captaven, deco32_state )
 	MCFG_SCREEN_SIZE(42*8, 32*8)
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 40*8-1, 1*8, 31*8-1)
 	MCFG_SCREEN_UPDATE_DRIVER(deco32_state, screen_update_captaven)
-	MCFG_SCREEN_VBLANK_DRIVER(deco32_state, screen_eof_captaven)
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", captaven)
@@ -1952,6 +2036,31 @@ static MACHINE_CONFIG_START( fghthsta, deco32_state ) /* DE-0395-1 PCB */
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "rspeaker", 0.35)
 MACHINE_CONFIG_END
 
+static MACHINE_CONFIG_DERIVED( fghthistz, fghthsta )
+	MCFG_DEVICE_REMOVE("audiocpu")
+
+	MCFG_CPU_ADD("audiocpu", Z80, 32220000/9)
+	MCFG_CPU_PROGRAM_MAP(nslasher_sound)
+	MCFG_CPU_IO_MAP(nslasher_io_sound)
+
+	MCFG_SOUND_MODIFY("ymsnd")
+	//MCFG_YM2151_IRQ_HANDLER(WRITELINE(deco32_state,sound_irq_nslasher))
+	MCFG_YM2151_IRQ_HANDLER(INPUTLINE("audiocpu",0))
+
+	MCFG_YM2151_PORT_WRITE_HANDLER(WRITE8(deco32_state,sound_bankswitch_w))
+	MCFG_SOUND_ROUTE(0, "lspeaker", 0.40)
+	MCFG_SOUND_ROUTE(1, "rspeaker", 0.40)
+	/*
+	MCFG_DEVICE_REMOVE("ioprot")
+	MCFG_DECO146_ADD("ioprot")
+	MCFG_DECO146_SET_PORTA_CALLBACK( deco32_state, port_a_fghthist )
+	MCFG_DECO146_SET_PORTB_CALLBACK( deco32_state, port_b_fghthist )
+	MCFG_DECO146_SET_PORTC_CALLBACK( deco32_state, port_c_fghthist )
+	MCFG_DECO146_SET_INTERFACE_SCRAMBLE_INTERLEAVE
+	MCFG_DECO146_SET_USE_MAGIC_ADDRESS_XOR
+	MCFG_DECO146_SET_SOUNDLATCH_CALLBACK(deco32_state, nslasher_sound_cb)
+	*/
+MACHINE_CONFIG_END
 
 DECO16IC_BANK_CB_MEMBER(dragngun_state::bank_1_callback)
 {
@@ -1987,7 +2096,6 @@ static MACHINE_CONFIG_START( dragngun, dragngun_state )
 	MCFG_SCREEN_SIZE(42*8, 32*8)
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 40*8-1, 1*8, 31*8-1)
 	MCFG_SCREEN_UPDATE_DRIVER(dragngun_state, screen_update_dragngun)
-	MCFG_SCREEN_VBLANK_DRIVER(dragngun_state, screen_eof_dragngun)
 	//MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_BUFFERED_SPRITERAM32_ADD("spriteram")
@@ -2060,7 +2168,7 @@ static MACHINE_CONFIG_START( dragngun, dragngun_state )
 MACHINE_CONFIG_END
 
 
-TIMER_DEVICE_CALLBACK_MEMBER(deco32_state::lockload_vbl_irq)
+TIMER_DEVICE_CALLBACK_MEMBER(dragngun_state::lockload_vbl_irq)
 {
 	int scanline = param;
 
@@ -2083,7 +2191,7 @@ static MACHINE_CONFIG_START( lockload, dragngun_state )
 	/* basic machine hardware */
 	MCFG_CPU_ADD("maincpu", ARM, 28000000/4)
 	MCFG_CPU_PROGRAM_MAP(lockload_map)
-	MCFG_TIMER_DRIVER_ADD_SCANLINE("scantimer", deco32_state, lockload_vbl_irq, "screen", 0, 1)
+	MCFG_TIMER_DRIVER_ADD_SCANLINE("scantimer", dragngun_state, lockload_vbl_irq, "screen", 0, 1)
 
 	MCFG_CPU_ADD("audiocpu", Z80, 32220000/8)
 	MCFG_CPU_PROGRAM_MAP(nslasher_sound)
@@ -2102,7 +2210,6 @@ static MACHINE_CONFIG_START( lockload, dragngun_state )
 	MCFG_SCREEN_SIZE(42*8, 32*8+22)
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 40*8-1, 1*8, 31*8-1)
 	MCFG_SCREEN_UPDATE_DRIVER(dragngun_state, screen_update_dragngun)
-	MCFG_SCREEN_VBLANK_DRIVER(dragngun_state, screen_eof_dragngun)
 
 	MCFG_BUFFERED_SPRITERAM32_ADD("spriteram")
 
@@ -2329,7 +2436,6 @@ static MACHINE_CONFIG_START( nslasher, deco32_state )
 	MCFG_DECO146_SET_SOUNDLATCH_CALLBACK(deco32_state, nslasher_sound_cb)
 	MCFG_DECO146_SET_INTERFACE_SCRAMBLE_INTERLEAVE
 
-
 	/* sound hardware */
 	MCFG_SPEAKER_STANDARD_STEREO("lspeaker", "rspeaker")
 
@@ -2361,8 +2467,8 @@ static MACHINE_CONFIG_DERIVED( nslasheru, nslasher )
 	MCFG_DECO146_SET_PORTB_CALLBACK( deco32_state, port_b_nslasher )
 	MCFG_DECO146_SET_SOUNDLATCH_CALLBACK(deco32_state, deco32_sound_cb)
 	MCFG_DECO146_SET_INTERFACE_SCRAMBLE_INTERLEAVE
-
 MACHINE_CONFIG_END
+
 
 /**********************************************************************************/
 
@@ -2888,8 +2994,8 @@ ROM_END
 
 ROM_START( fghthist ) /* DE-0380-2 PCB */
 	ROM_REGION(0x100000, "maincpu", 0 ) /* ARM 32 bit code */
-	ROM_LOAD32_WORD( "kx00-unknown.bin", 0x000000, 0x80000, CRC(fe5eaba1) SHA1(c8a3784af487a1bbd2150abf4b1c8f3ad33da8a4) ) /* Version 43-07, Overseas */
-	ROM_LOAD32_WORD( "kx01-unknown.bin", 0x000002, 0x80000, CRC(3fb8d738) SHA1(2fca7a3ea483f01c97fb28a0adfa6d7980d8236c) )
+	ROM_LOAD32_WORD( "kx00-3.1f", 0x000000, 0x80000, CRC(fe5eaba1) SHA1(c8a3784af487a1bbd2150abf4b1c8f3ad33da8a4) ) /* Version 43-07, Overseas */
+	ROM_LOAD32_WORD( "kx01-3.2f", 0x000002, 0x80000, CRC(3fb8d738) SHA1(2fca7a3ea483f01c97fb28a0adfa6d7980d8236c) )
 
 	ROM_REGION(0x10000, "audiocpu", 0 ) /* Sound CPU */
 	ROM_LOAD( "kx02.18k",  0x00000,  0x10000,  CRC(5fd2309c) SHA1(2fb7af54d5cd9bf7dd6fb4f6b82aa52b03294f1f) )
@@ -2920,10 +3026,78 @@ ROM_START( fghthist ) /* DE-0380-2 PCB */
 	ROM_LOAD( "ve-01.4d",  0x0200, 0x0104, NO_DUMP ) /* PAL16L8 is read protected */
 ROM_END
 
-ROM_START( fghthistu ) /* DE-0395-1 PCB */
+ROM_START( fghthista ) /* DE-0380-2 PCB */
 	ROM_REGION(0x100000, "maincpu", 0 ) /* ARM 32 bit code */
-	ROM_LOAD32_WORD( "le-00.1f", 0x000000, 0x80000, CRC(a5c410eb) SHA1(e2b0cb2351782e1155ecc4029010beb7326fd874) ) /* Version 42-05, US */
-	ROM_LOAD32_WORD( "le-01.2f", 0x000002, 0x80000, CRC(7e148aa2) SHA1(b21e16604c4d29611f91d629deb9f041eaf41e9b) )
+	ROM_LOAD32_WORD( "kx00-2.1f", 0x000000, 0x80000, CRC(a7c36bbd) SHA1(590937818343da53a6bccbd3ea1d7102abd4f27e) ) /* Version 43-05, Overseas */
+	ROM_LOAD32_WORD( "kx01-2.2f", 0x000002, 0x80000, CRC(bdc60bb1) SHA1(e621c5cf357f49aa62deef4da1e2227021f552ce) )
+
+	ROM_REGION(0x10000, "audiocpu", 0 ) /* Sound CPU */
+	ROM_LOAD( "kx02.18k",  0x00000,  0x10000,  CRC(5fd2309c) SHA1(2fb7af54d5cd9bf7dd6fb4f6b82aa52b03294f1f) )
+
+	ROM_REGION( 0x100000, "gfx1", 0 )
+	ROM_LOAD( "mbf00-8.8a",  0x000000,  0x100000,  CRC(d3e9b580) SHA1(fc4676e0ecc6c32441ff66fa1f990cc3158237db) ) /* Encrypted tiles */
+
+	ROM_REGION( 0x100000, "gfx2", 0 )
+	ROM_LOAD( "mbf01-8.9a",  0x000000,  0x100000,  CRC(0c6ed2eb) SHA1(8e37ef4b1f0b6d3370a08758bfd602cb5f221282) ) /* Encrypted tiles */
+
+	ROM_REGION( 0x800000, "gfx3", 0 ) /* Sprites */
+	ROM_LOAD16_BYTE( "mbf02-16.16d",  0x000001,  0x200000,  CRC(c19c5953) SHA1(e6ed26f932c6c86bbd1fc4c000aa2f510c268009) )
+	ROM_LOAD16_BYTE( "mbf04-16.18d",  0x000000,  0x200000,  CRC(f6a23fd7) SHA1(74e5559f17cd591aa25d2ed6c34ac9ed89e2e9ba) )
+	ROM_LOAD16_BYTE( "mbf03-16.17d",  0x400001,  0x200000,  CRC(37d25c75) SHA1(8219d31091b4317190618edd8acc49f97cba6a1e) )
+	ROM_LOAD16_BYTE( "mbf05-16.19d",  0x400000,  0x200000,  CRC(137be66d) SHA1(3fde345183ce04a7a65b4cedfd050d771df7d026) )
+
+	ROM_REGION(0x80000, "oki1", 0 )
+	ROM_LOAD( "mbf06.15k",  0x000000,  0x80000,  CRC(fb513903) SHA1(7727a49ff7977f159ed36d097020edef3b5b36ba) )
+
+	ROM_REGION(0x80000, "oki2", 0 )
+	ROM_LOAD( "mbf07.16k",  0x000000,  0x80000,  CRC(51d4adc7) SHA1(22106ed7a05db94adc5a783ce34529e29d24d41a) )
+
+	ROM_REGION(512, "proms", 0 )
+	ROM_LOAD( "kt-00.8j",  0,  512,  CRC(7294354b) SHA1(14fe42ad5d26d022c0fe9a46a4a9017af2296f40) ) /* MB7124H type prom */
+
+	ROM_REGION( 0x0400, "plds", 0 )
+	ROM_LOAD( "ve-00.3d",  0x0000, 0x0104, NO_DUMP ) /* PAL16L8 is read protected */
+	ROM_LOAD( "ve-01.4d",  0x0200, 0x0104, NO_DUMP ) /* PAL16L8 is read protected */
+ROM_END
+
+ROM_START( fghthistu ) /* DE-0396-0 PCB */
+	ROM_REGION(0x100000, "maincpu", 0 ) /* ARM 32 bit code */
+	ROM_LOAD32_WORD( "lj00-3.1f", 0x000000, 0x80000, CRC(17543d60) SHA1(ff206e8552587b41d075b3c99f9ad733f1c2b5e0) ) /* Version 42-09, US */
+	ROM_LOAD32_WORD( "lj01-3.2f", 0x000002, 0x80000, CRC(e255d48f) SHA1(30444832cfed7eeb6082010eb219362adbafb826) )
+
+	ROM_REGION(0x10000, "audiocpu", 0 ) /* Sound CPU */
+	ROM_LOAD( "lj02-.17k",  0x00000,  0x10000,  CRC(146a1063) SHA1(d16734c2443bf38add54040b9dd2628ba523638d) )
+
+	ROM_REGION( 0x100000, "gfx1", 0 )
+	ROM_LOAD( "mbf00-8.8a",  0x000000,  0x100000,  CRC(d3e9b580) SHA1(fc4676e0ecc6c32441ff66fa1f990cc3158237db) ) /* Encrypted tiles */
+
+	ROM_REGION( 0x100000, "gfx2", 0 )
+	ROM_LOAD( "mbf01-8.9a",  0x000000,  0x100000,  CRC(0c6ed2eb) SHA1(8e37ef4b1f0b6d3370a08758bfd602cb5f221282) ) /* Encrypted tiles */
+
+	ROM_REGION( 0x800000, "gfx3", 0 ) /* Sprites */
+	ROM_LOAD16_BYTE( "mbf02-16.16d",  0x000001,  0x200000,  CRC(c19c5953) SHA1(e6ed26f932c6c86bbd1fc4c000aa2f510c268009) )
+	ROM_LOAD16_BYTE( "mbf04-16.18d",  0x000000,  0x200000,  CRC(f6a23fd7) SHA1(74e5559f17cd591aa25d2ed6c34ac9ed89e2e9ba) )
+	ROM_LOAD16_BYTE( "mbf03-16.17d",  0x400001,  0x200000,  CRC(37d25c75) SHA1(8219d31091b4317190618edd8acc49f97cba6a1e) )
+	ROM_LOAD16_BYTE( "mbf05-16.19d",  0x400000,  0x200000,  CRC(137be66d) SHA1(3fde345183ce04a7a65b4cedfd050d771df7d026) )
+
+	ROM_REGION(0x80000, "oki1", 0 )
+	ROM_LOAD( "mbf06.15k",  0x000000,  0x80000,  CRC(fb513903) SHA1(7727a49ff7977f159ed36d097020edef3b5b36ba) )
+
+	ROM_REGION(0x80000, "oki2", 0 )
+	ROM_LOAD( "mbf07.16k",  0x000000,  0x80000,  CRC(51d4adc7) SHA1(22106ed7a05db94adc5a783ce34529e29d24d41a) )
+
+	ROM_REGION(512, "proms", 0 )
+	ROM_LOAD( "kt-00.8j",  0,  512,  CRC(7294354b) SHA1(14fe42ad5d26d022c0fe9a46a4a9017af2296f40) ) /* MB7124H type prom */
+
+	ROM_REGION( 0x0400, "plds", 0 )
+	ROM_LOAD( "ve-00.3d",  0x0000, 0x0104, NO_DUMP ) /* PAL16L8 is read protected */
+	ROM_LOAD( "ve-01.4d",  0x0200, 0x0104, NO_DUMP ) /* PAL16L8 is read protected */
+ROM_END
+
+ROM_START( fghthistua ) /* DE-0395-1 PCB */
+	ROM_REGION(0x100000, "maincpu", 0 ) /* ARM 32 bit code */
+	ROM_LOAD32_WORD( "le00-1.1f", 0x000000, 0x80000, CRC(fccacafb) SHA1(b7236a90a09dbd5870a16aa4e4eac5ab5c098418) ) /* Version 42-06, US */
+	ROM_LOAD32_WORD( "le01-1.2f", 0x000002, 0x80000, CRC(06a3c326) SHA1(3d8842fb69def93fc544e89fd0e56ada416157dc) )
 
 	ROM_REGION(0x10000, "audiocpu", 0 ) /* Sound CPU */
 	ROM_LOAD( "le02.18k",  0x00000,  0x10000,  CRC(5fd2309c) SHA1(2fb7af54d5cd9bf7dd6fb4f6b82aa52b03294f1f) )
@@ -2954,7 +3128,41 @@ ROM_START( fghthistu ) /* DE-0395-1 PCB */
 	ROM_LOAD( "ve-01a.4d", 0x0200, 0x0104, NO_DUMP ) /* PAL16L8 is read protected */
 ROM_END
 
-ROM_START( fghthistua ) /* DE-0380-2 PCB */
+ROM_START( fghthistub ) /* DE-0395-1 PCB */
+	ROM_REGION(0x100000, "maincpu", 0 ) /* ARM 32 bit code */
+	ROM_LOAD32_WORD( "le00.1f", 0x000000, 0x80000, CRC(a5c410eb) SHA1(e2b0cb2351782e1155ecc4029010beb7326fd874) ) /* Version 42-05, US */
+	ROM_LOAD32_WORD( "le01.2f", 0x000002, 0x80000, CRC(7e148aa2) SHA1(b21e16604c4d29611f91d629deb9f041eaf41e9b) )
+
+	ROM_REGION(0x10000, "audiocpu", 0 ) /* Sound CPU */
+	ROM_LOAD( "le02.18k",  0x00000,  0x10000,  CRC(5fd2309c) SHA1(2fb7af54d5cd9bf7dd6fb4f6b82aa52b03294f1f) )
+
+	ROM_REGION( 0x100000, "gfx1", 0 )
+	ROM_LOAD( "mbf00-8.8a",  0x000000,  0x100000,  CRC(d3e9b580) SHA1(fc4676e0ecc6c32441ff66fa1f990cc3158237db) ) /* Encrypted tiles */
+
+	ROM_REGION( 0x100000, "gfx2", 0 )
+	ROM_LOAD( "mbf01-8.9a",  0x000000,  0x100000,  CRC(0c6ed2eb) SHA1(8e37ef4b1f0b6d3370a08758bfd602cb5f221282) ) /* Encrypted tiles */
+
+	ROM_REGION( 0x800000, "gfx3", 0 ) /* Sprites */
+	ROM_LOAD16_BYTE( "mbf02-16.16d",  0x000001,  0x200000,  CRC(c19c5953) SHA1(e6ed26f932c6c86bbd1fc4c000aa2f510c268009) )
+	ROM_LOAD16_BYTE( "mbf04-16.18d",  0x000000,  0x200000,  CRC(f6a23fd7) SHA1(74e5559f17cd591aa25d2ed6c34ac9ed89e2e9ba) )
+	ROM_LOAD16_BYTE( "mbf03-16.17d",  0x400001,  0x200000,  CRC(37d25c75) SHA1(8219d31091b4317190618edd8acc49f97cba6a1e) )
+	ROM_LOAD16_BYTE( "mbf05-16.19d",  0x400000,  0x200000,  CRC(137be66d) SHA1(3fde345183ce04a7a65b4cedfd050d771df7d026) )
+
+	ROM_REGION(0x80000, "oki1", 0 )
+	ROM_LOAD( "mbf06.15k",  0x000000,  0x80000,  CRC(fb513903) SHA1(7727a49ff7977f159ed36d097020edef3b5b36ba) )
+
+	ROM_REGION(0x80000, "oki2", 0 )
+	ROM_LOAD( "mbf07.16k",  0x000000,  0x80000,  CRC(51d4adc7) SHA1(22106ed7a05db94adc5a783ce34529e29d24d41a) )
+
+	ROM_REGION(512, "proms", 0 )
+	ROM_LOAD( "kt-00.8j",  0,  512,  CRC(7294354b) SHA1(14fe42ad5d26d022c0fe9a46a4a9017af2296f40) ) /* MB7124H type prom */
+
+	ROM_REGION( 0x0400, "plds", 0 )
+	ROM_LOAD( "ve-00.3d",  0x0000, 0x0104, NO_DUMP ) /* PAL16L8 is read protected */
+	ROM_LOAD( "ve-01a.4d", 0x0200, 0x0104, NO_DUMP ) /* PAL16L8 is read protected */
+ROM_END
+
+ROM_START( fghthistuc ) /* DE-0380-2 PCB */
 	ROM_REGION(0x100000, "maincpu", 0 ) /* ARM 32 bit code */
 	ROM_LOAD32_WORD( "kz00-1.1f", 0x000000, 0x80000, CRC(3a3dd15c) SHA1(689b51adf73402b12191a75061b8e709468c91bc) ) /* Version 42-03, US */
 	ROM_LOAD32_WORD( "kz01-1.2f", 0x000002, 0x80000, CRC(86796cd6) SHA1(c397c07d7a1d03ba96ccb2fe7a0ad25b8331e945) )
@@ -3614,10 +3822,15 @@ DRIVER_INIT_MEMBER(deco32_state,captaven)
 {
 	deco56_decrypt_gfx(machine(), "gfx1");
 	deco56_decrypt_gfx(machine(), "gfx2");
+
+	save_item(NAME(m_raster_enable));
+	save_item(NAME(m_nslasher_sound_irq));
+	save_item(NAME(m_irq_source));
 }
 
 extern void process_dvi_data(UINT8* dvi_data, int offset, int regionsize);
-void dragngun_state::init_dragngun_common()
+
+void dragngun_state::dragngun_init_common()
 {
 	const UINT8 *SRC_RAM = memregion("gfx1")->base();
 	UINT8 *DST_RAM = memregion("gfx2")->base();
@@ -3645,6 +3858,10 @@ void dragngun_state::init_dragngun_common()
 	}
 #endif
 
+	save_item(NAME(m_lightgun_port));
+	save_item(NAME(m_raster_enable));
+	save_item(NAME(m_irq_source));
+
 	// there are DVI headers at 0x000000, 0x580000, 0x800000, 0xB10000, 0xB80000
 //  process_dvi_data(memregion("dvi")->base(),0x000000, 0x1000000);
 //  process_dvi_data(memregion("dvi")->base(),0x580000, 0x1000000);
@@ -3655,7 +3872,7 @@ void dragngun_state::init_dragngun_common()
 
 DRIVER_INIT_MEMBER(dragngun_state,dragngun)
 {
-	init_dragngun_common();
+	dragngun_init_common();
 
 	UINT32 *ROM = (UINT32 *)memregion("maincpu")->base();
 	ROM[0x1b32c/4]=0xe1a00000; // bl $ee000: NOP test switch lock
@@ -3663,12 +3880,11 @@ DRIVER_INIT_MEMBER(dragngun_state,dragngun)
 
 DRIVER_INIT_MEMBER(dragngun_state,dragngunj)
 {
-	init_dragngun_common();
+	dragngun_init_common();
 
 	UINT32 *ROM = (UINT32 *)memregion("maincpu")->base();
 	ROM[0x1a1b4/4]=0xe1a00000; // bl $ee000: NOP test switch lock
 }
-
 
 DRIVER_INIT_MEMBER(deco32_state,fghthist)
 {
@@ -3688,6 +3904,10 @@ DRIVER_INIT_MEMBER(dragngun_state,lockload)
 	memcpy(RAM+0x300000,RAM+0x100000,0x100000);
 	memset(RAM+0x100000,0,0x100000);
 
+	save_item(NAME(m_raster_enable));
+	save_item(NAME(m_nslasher_sound_irq));
+	save_item(NAME(m_irq_source));
+
 //  ROM[0x3fe3c0/4]=0xe1a00000;//  NOP test switch lock
 //  ROM[0x3fe3cc/4]=0xe1a00000;//  NOP test switch lock
 //  ROM[0x3fe40c/4]=0xe1a00000;//  NOP test switch lock
@@ -3699,17 +3919,25 @@ DRIVER_INIT_MEMBER(deco32_state,tattass)
 	dynamic_buffer tmp(0x80000);
 
 	/* Reorder bitplanes to make decoding easier */
-	memcpy(tmp,RAM+0x80000,0x80000);
+	memcpy(&tmp[0],RAM+0x80000,0x80000);
 	memcpy(RAM+0x80000,RAM+0x100000,0x80000);
-	memcpy(RAM+0x100000,tmp,0x80000);
+	memcpy(RAM+0x100000,&tmp[0],0x80000);
 
 	RAM = memregion("gfx2")->base();
-	memcpy(tmp,RAM+0x80000,0x80000);
+	memcpy(&tmp[0],RAM+0x80000,0x80000);
 	memcpy(RAM+0x80000,RAM+0x100000,0x80000);
-	memcpy(RAM+0x100000,tmp,0x80000);
+	memcpy(RAM+0x100000,&tmp[0],0x80000);
 
 	deco56_decrypt_gfx(machine(), "gfx1"); /* 141 */
 	deco56_decrypt_gfx(machine(), "gfx2"); /* 141 */
+
+	save_item(NAME(m_tattass_eprom_bit));
+	save_item(NAME(m_lastClock));
+	save_item(NAME(m_buffer));
+	save_item(NAME(m_bufPtr));
+	save_item(NAME(m_pendingCommand));
+	save_item(NAME(m_readBitCount));
+	save_item(NAME(m_byteAddr));
 }
 
 DRIVER_INIT_MEMBER(deco32_state,nslasher)
@@ -3718,14 +3946,14 @@ DRIVER_INIT_MEMBER(deco32_state,nslasher)
 	dynamic_buffer tmp(0x80000);
 
 	/* Reorder bitplanes to make decoding easier */
-	memcpy(tmp,RAM+0x80000,0x80000);
+	memcpy(&tmp[0],RAM+0x80000,0x80000);
 	memcpy(RAM+0x80000,RAM+0x100000,0x80000);
-	memcpy(RAM+0x100000,tmp,0x80000);
+	memcpy(RAM+0x100000,&tmp[0],0x80000);
 
 	RAM = memregion("gfx2")->base();
-	memcpy(tmp,RAM+0x80000,0x80000);
+	memcpy(&tmp[0],RAM+0x80000,0x80000);
 	memcpy(RAM+0x80000,RAM+0x100000,0x80000);
-	memcpy(RAM+0x100000,tmp,0x80000);
+	memcpy(RAM+0x100000,&tmp[0],0x80000);
 
 	deco56_decrypt_gfx(machine(), "gfx1"); /* 141 */
 	deco74_decrypt_gfx(machine(), "gfx2");
@@ -3734,40 +3962,49 @@ DRIVER_INIT_MEMBER(deco32_state,nslasher)
 
 	soundlatch_setclearedvalue(0xff);
 
+	save_item(NAME(m_nslasher_sound_irq));
+
 	/* The board for Night Slashers is very close to the Fighter's History and
 	Tattoo Assassins boards, but has an encrypted ARM cpu. */
 }
 
 /**********************************************************************************/
 
-GAME( 1991, captaven,   0,        captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (Asia Rev 1.4)", 0 )
-GAME( 1991, captavena,  captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (Asia Rev 1.0)", 0 )
-GAME( 1991, captavene,  captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (UK Rev 1.4)", 0 )
-GAME( 1991, captavenu,  captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (US Rev 1.9)", 0 )
-GAME( 1991, captavenuu, captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (US Rev 1.6)", 0 )
-GAME( 1991, captavenua, captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (US Rev 1.4)", 0 )
-GAME( 1991, captavenj,  captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (Japan Rev 0.2)", 0 )
+GAME( 1991, captaven,   0,        captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (Asia Rev 1.4)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, captavena,  captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (Asia Rev 1.0)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, captavene,  captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (UK Rev 1.4)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, captavenu,  captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (US Rev 1.9)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, captavenuu, captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (US Rev 1.6)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, captavenua, captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (US Rev 1.4)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, captavenj,  captaven, captaven, captaven, deco32_state,   captaven,  ROT0, "Data East Corporation", "Captain America and The Avengers (Japan Rev 0.2)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1993, fghthist,   0,        fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (World ver 43-07, DE-0380-2 PCB)", 0 )
-GAME( 1993, fghthistu,  fghthist, fghthsta, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (US ver 42-05, DE-0395-1 PCB)", 0 )
-GAME( 1993, fghthistua, fghthist, fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (US ver 42-03, DE-0380-2 PCB)", 0 )
-GAME( 1993, fghthistj,  fghthist, fghthsta, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (Japan ver 41-07, DE-0395-1 PCB)", 0 )
-GAME( 1993, fghthistja, fghthist, fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (Japan ver 41-05, DE-0380-2 PCB)", 0 )
-GAME( 1993, fghthistjb, fghthist, fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (Japan ver 41-04, DE-0380-1 PCB)", 0 )
+// DE-0396-0 PCB sets (uses a Z80)
+GAME( 1993, fghthistu,  fghthist, fghthistz,fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (US ver 42-09, DE-0396-0 PCB)", MACHINE_SUPPORTS_SAVE )
+// DE-0395-1 PCB sets
+GAME( 1993, fghthistua, fghthist, fghthsta, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (US ver 42-06, DE-0395-1 PCB)", MACHINE_SUPPORTS_SAVE )
+GAME( 1993, fghthistub, fghthist, fghthsta, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (US ver 42-05, DE-0395-1 PCB)", MACHINE_SUPPORTS_SAVE )
+GAME( 1993, fghthistj,  fghthist, fghthsta, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (Japan ver 41-07, DE-0395-1 PCB)", MACHINE_SUPPORTS_SAVE )
+// DE-0380-2 PCB sets
+GAME( 1993, fghthist,   0,        fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (World ver 43-07, DE-0380-2 PCB)", MACHINE_SUPPORTS_SAVE )
+GAME( 1993, fghthista,  fghthist, fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (World ver 43-05, DE-0380-2 PCB)", MACHINE_SUPPORTS_SAVE )
+GAME( 1993, fghthistuc, fghthist, fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (US ver 42-03, DE-0380-2 PCB)", MACHINE_SUPPORTS_SAVE )
+GAME( 1993, fghthistja, fghthist, fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (Japan ver 41-05, DE-0380-2 PCB)", MACHINE_SUPPORTS_SAVE )
+// DE-0380-1 PCB sets
+GAME( 1993, fghthistjb, fghthist, fghthist, fghthist, deco32_state,   fghthist,  ROT0, "Data East Corporation", "Fighter's History (Japan ver 41-04, DE-0380-1 PCB)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1994, nslasher,   0,        nslasher, nslasher, deco32_state,   nslasher,  ROT0, "Data East Corporation", "Night Slashers (Korea Rev 1.3)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1994, nslasherj,  nslasher, nslasher, nslasher, deco32_state,   nslasher,  ROT0, "Data East Corporation", "Night Slashers (Japan Rev 1.2)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1994, nslashers,  nslasher, nslasher, nslasher, deco32_state,   nslasher,  ROT0, "Data East Corporation", "Night Slashers (Over Sea Rev 1.2)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1994, nslasheru,  nslasher, nslasheru,nslasher, deco32_state,   nslasher,  ROT0, "Data East Corporation", "Night Slashers (US Rev 1.2, HuC6280 Sound CPU)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1994, nslasher,   0,        nslasher, nslasher, deco32_state,   nslasher,  ROT0, "Data East Corporation", "Night Slashers (Korea Rev 1.3)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1994, nslasherj,  nslasher, nslasher, nslasher, deco32_state,   nslasher,  ROT0, "Data East Corporation", "Night Slashers (Japan Rev 1.2)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1994, nslashers,  nslasher, nslasher, nslasher, deco32_state,   nslasher,  ROT0, "Data East Corporation", "Night Slashers (Over Sea Rev 1.2)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1994, nslasheru,  nslasher, nslasheru,nslasher, deco32_state,   nslasher,  ROT0, "Data East Corporation", "Night Slashers (US Rev 1.2, HuC6280 Sound CPU)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
 
-GAME( 1994, tattass,    0,        tattass,  tattass,  deco32_state,   tattass,   ROT0, "Data East Pinball",     "Tattoo Assassins (US prototype)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1994, tattassa,   tattass,  tattass,  tattass,  deco32_state,   tattass,   ROT0, "Data East Pinball",     "Tattoo Assassins (Asia prototype)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1994, tattass,    0,        tattass,  tattass,  deco32_state,   tattass,   ROT0, "Data East Pinball",     "Tattoo Assassins (US prototype)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1994, tattassa,   tattass,  tattass,  tattass,  deco32_state,   tattass,   ROT0, "Data East Pinball",     "Tattoo Assassins (Asia prototype)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
 
 
 // Dragon Gun / Lock 'n' Loaded have very different sprite hardware
-GAME( 1993, dragngun,   0,        dragngun, dragngun, dragngun_state, dragngun,  ROT0, "Data East Corporation", "Dragon Gun (US)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, dragngunj,  dragngun, dragngun, dragngun, dragngun_state, dragngunj, ROT0, "Data East Corporation", "Dragon Gun (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, dragngun,   0,        dragngun, dragngun, dragngun_state, dragngun,  ROT0, "Data East Corporation", "Dragon Gun (US)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1993, dragngunj,  dragngun, dragngun, dragngun, dragngun_state, dragngunj, ROT0, "Data East Corporation", "Dragon Gun (Japan)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
 
-GAME( 1994, lockload,   0,        lockload, lockload, dragngun_state, lockload,  ROT0, "Data East Corporation", "Locked 'n Loaded (World)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
-GAME( 1994, gunhard,    lockload, lockload, lockload, dragngun_state, lockload,  ROT0, "Data East Corporation", "Gun Hard (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
-GAME( 1994, lockloadu,  lockload, lockloadu,lockload, dragngun_state, lockload,  ROT0, "Data East Corporation", "Locked 'n Loaded (US, Dragon Gun conversion)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // HuC6280 Sound CPU
+GAME( 1994, lockload,   0,        lockload, lockload, dragngun_state, lockload,  ROT0, "Data East Corporation", "Locked 'n Loaded (World)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND | MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1994, gunhard,    lockload, lockload, lockload, dragngun_state, lockload,  ROT0, "Data East Corporation", "Gun Hard (Japan)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND | MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1994, lockloadu,  lockload, lockloadu,lockload, dragngun_state, lockload,  ROT0, "Data East Corporation", "Locked 'n Loaded (US, Dragon Gun conversion)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND | MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE ) // HuC6280 Sound CPU

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Paul Priest
 /* One Shot One Kill & Maddonna
    Driver by David Haywood and Paul Priest
    Dip Switches and Inputs by stephh
@@ -444,6 +446,15 @@ ROM_START( maddonna )
 	ROM_LOAD( "x1", 0x00000, 0x10000, CRC(6b213183) SHA1(599c59d155d11edb151bfaed1d24ef964462a447) ) // motherboard rom, zooming?
 ROM_END
 
+// The tiles containing the copyright string (tiles 0x3979 onwards) differ in this set.
+// Both versions have tiles containing the 'Tuning - Germany' copyright messages, but
+// the parent set has additional tiles containing the '(c)Copyright 1995' which is shown
+// on the title screen.
+//
+// The lack of these tiles in this set causes all subsequent tiles to be shifted.  It is
+// likely that the correct program roms for this set either don't show '(c)Copyright 1995'
+// or display it using the regular font instead.
+
 ROM_START( maddonnb )
 	ROM_REGION( 0x40000, "maincpu", 0 ) /* 68000 Code */
 	/* program roms missing in this dump, gfx don't seem 100% correct for other ones */
@@ -472,6 +483,6 @@ ROM_END
 
 
 
-GAME( 1995, maddonna, 0,        maddonna, maddonna, driver_device, 0, ROT0, "Tuning",  "Mad Donna (set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1995, maddonnb, maddonna, maddonna, maddonna, driver_device, 0, ROT0, "Tuning",  "Mad Donna (set 2)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
-GAME( 1996, oneshot,  0,        oneshot,  oneshot , driver_device, 0, ROT0, "Promat",  "One Shot One Kill", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
+GAME( 1995, maddonna, 0,        maddonna, maddonna, driver_device, 0, ROT0, "Tuning",  "Mad Donna (set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1995, maddonnb, maddonna, maddonna, maddonna, driver_device, 0, ROT0, "Tuning",  "Mad Donna (set 2)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1996, oneshot,  0,        oneshot,  oneshot , driver_device, 0, ROT0, "Promat",  "One Shot One Kill", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )

@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:smf
 #include "idehd.h"
 
@@ -12,7 +12,9 @@
 
 #define LOGPRINT(x) do { if (VERBOSE) logerror x; if (PRINTF_IDE_COMMANDS) osd_printf_debug x; } while (0)
 
-#define TIME_PER_SECTOR                     (attotime::from_usec(100))
+#define TIME_PER_SECTOR_WRITE               (attotime::from_usec(100))
+/* read time <2 breaks primrag2, ==100 breaks bm1stmix */
+#define TIME_PER_SECTOR_READ                (attotime::from_usec(2))
 #define TIME_PER_ROTATION                   (attotime::from_hz(5400/60))
 #define TIME_BETWEEN_SECTORS                (attotime::from_nsec(400))
 
@@ -393,8 +395,7 @@ void ata_mass_storage_device::fill_buffer()
 		if (m_sector_count > 0)
 		{
 			set_dasp(ASSERT_LINE);
-
-			start_busy(TIME_BETWEEN_SECTORS, PARAM_COMMAND);
+			start_busy(TIME_PER_SECTOR_READ, PARAM_COMMAND);
 		}
 		break;
 	}
@@ -408,7 +409,7 @@ void ata_mass_storage_device::finished_read()
 	set_dasp(CLEAR_LINE);
 
 	/* now do the read */
-	count = read_sector(lba, m_buffer);
+	count = read_sector(lba, &m_buffer[0]);
 
 	/* if we succeeded, advance to the next sector and set the nice bits */
 	if (count == 1)
@@ -477,12 +478,12 @@ void ata_mass_storage_device::process_buffer()
 {
 	if (m_command == IDE_COMMAND_SECURITY_UNLOCK)
 	{
-		if (m_user_password_enable && memcmp(m_buffer, m_user_password, 2 + 32) == 0)
+		if (m_user_password_enable && memcmp(&m_buffer[0], m_user_password, 2 + 32) == 0)
 		{
 			LOGPRINT(("IDE Unlocked user password\n"));
 			m_user_password_enable = 0;
 		}
-		if (m_master_password_enable && memcmp(m_buffer, m_master_password, 2 + 32) == 0)
+		if (m_master_password_enable && memcmp(&m_buffer[0], m_master_password, 2 + 32) == 0)
 		{
 			LOGPRINT(("IDE Unlocked master password\n"));
 			m_master_password_enable = 0;
@@ -519,13 +520,13 @@ void ata_mass_storage_device::process_buffer()
 			else
 			{
 				/* set a timer to do the write */
-				start_busy(TIME_PER_SECTOR, PARAM_COMMAND);
+				start_busy(TIME_PER_SECTOR_WRITE, PARAM_COMMAND);
 			}
 		}
 		else
 		{
 			/* set a timer to do the write */
-			start_busy(TIME_PER_SECTOR, PARAM_COMMAND);
+			start_busy(TIME_PER_SECTOR_WRITE, PARAM_COMMAND);
 		}
 	}
 }
@@ -538,7 +539,7 @@ void ata_mass_storage_device::finished_write()
 	set_dasp(CLEAR_LINE);
 
 	/* now do the write */
-	count = write_sector(lba, m_buffer);
+	count = write_sector(lba, &m_buffer[0]);
 
 	/* if we succeeded, advance to the next sector and set the nice bits */
 	if (count == 1)
@@ -790,7 +791,7 @@ void ide_hdd_device::device_reset()
 
 		// build the features page
 		UINT32 metalength;
-		if (m_handle->read_metadata (HARD_DISK_IDENT_METADATA_TAG, 0, m_buffer, 512, metalength) == CHDERR_NONE)
+		if (m_handle->read_metadata (HARD_DISK_IDENT_METADATA_TAG, 0, &m_buffer[0], 512, metalength) == CHDERR_NONE)
 		{
 			for( int w = 0; w < 256; w++ )
 			{

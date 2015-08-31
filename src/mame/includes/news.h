@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 
 class news_state : public driver_device
 {
@@ -12,7 +14,6 @@ public:
 	/* memory pointers */
 	required_shared_ptr<UINT8> m_bgram;
 	required_shared_ptr<UINT8> m_fgram;
-//  UINT8 *  m_paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t *m_fg_tilemap;

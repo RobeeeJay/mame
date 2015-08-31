@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Novomatic CoolFire I */
 /* Austrian gaming system - used late 2002 - early 2008? */
 
@@ -1261,7 +1263,7 @@ DRIVER_INIT_MEMBER(gaminator_state,gaminator)
 
 
 
-#define GAME_FLAGS GAME_NOT_WORKING|GAME_NO_SOUND
+#define GAME_FLAGS MACHINE_NOT_WORKING|MACHINE_NO_SOUND
 
 GAME( 2002?, g4u2       ,0,         gaminator, gaminator, gaminator_state, gaminator, ROT0, "Novotech","Games 4 U 2 (94 5.6-0)", GAME_FLAGS )
 

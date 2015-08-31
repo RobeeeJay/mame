@@ -1,5 +1,5 @@
-// license:MAME
-// copyright-holders:
+// license:BSD-3-Clause
+// copyright-holders:Barry Rodewald, Robbbert
 /*
     Gimix 6809-Based Computers
 
@@ -586,7 +586,7 @@ static MACHINE_CONFIG_START( gimix, gimix_state )
 	MCFG_PTM6840_IRQ_CB(WRITELINE(gimix_state,irq_w))  // PCB pictures show both the RTC and timer set to generate IRQs (are jumper configurable)
 
 	/* floppy disks */
-	MCFG_FD1797x_ADD("fdc",XTAL_8MHz / 4)
+	MCFG_FD1797_ADD("fdc",XTAL_8MHz / 4)
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(gimix_state,fdc_irq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(gimix_state,fdc_drq_w))
 	MCFG_WD_FDC_FORCE_READY
@@ -683,4 +683,4 @@ ROM_START( gimix )
 		ROM_LOAD( "gimixhd.h11",  0x000000, 0x001000, CRC(35c12201) SHA1(51ac9052f9757d79c7f5bd3aa5d8421e98cfcc37) )
 ROM_END
 
-COMP( 1980, gimix,    0,      0,      gimix,        gimix, driver_device, 0,      "Gimix",  "Gimix 6809 System",  GAME_IS_SKELETON | GAME_NOT_WORKING | GAME_NO_SOUND )
+COMP( 1980, gimix,    0,      0,      gimix,        gimix, driver_device, 0,      "Gimix",  "Gimix 6809 System",  MACHINE_IS_SKELETON | MACHINE_NOT_WORKING | MACHINE_NO_SOUND )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /***************************************************************************
 
  Meadows Discrete Game List
@@ -7,7 +9,9 @@
  Cobra Gunship (1976)
  Drop Zone 4 (1975)
  Flim Flam (1974)
- 4 in 1 Meadows (197?)
+ Gridiron (1977)
+ Meadows 4 in 1 (197?)
+ Star Shooter (1975)
 
 ***************************************************************************/
 
@@ -17,7 +21,6 @@
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied by Pong, not accurate for this driver!
 // start
@@ -161,7 +164,7 @@ ROM_END
 
 
 
-GAME( 1976, bombaway,  0,        meadows,  0,  driver_device,  0, ROT0, "Meadows",  "Bombs Away [TTL]", GAME_IS_SKELETON )
-GAME( 1976, ckidzo,    0,        meadows,  0,  driver_device,  0, ROT0, "Meadows",  "Ckidzo [TTL]", GAME_IS_SKELETON )
-GAME( 1976, cgunship,  0,        meadows,  0,  driver_device,  0, ROT0, "Meadows",  "Cobra Gunship [TTL]", GAME_IS_SKELETON )
-GAME( 197?, mead4in1,  0,        meadows,  0,  driver_device,  0, ROT0, "Meadows",  "Meadows 4 in 1 [TTL]", GAME_IS_SKELETON )
+GAME( 1976, bombaway,  0,        meadows,  0,  driver_device,  0, ROT0, "Meadows",  "Bombs Away [TTL]", MACHINE_IS_SKELETON )
+GAME( 1976, ckidzo,    0,        meadows,  0,  driver_device,  0, ROT0, "Meadows",  "Ckidzo [TTL]", MACHINE_IS_SKELETON )
+GAME( 1976, cgunship,  0,        meadows,  0,  driver_device,  0, ROT0, "Meadows",  "Cobra Gunship [TTL]", MACHINE_IS_SKELETON )
+GAME( 197?, mead4in1,  0,        meadows,  0,  driver_device,  0, ROT0, "Meadows",  "Meadows 4 in 1 [TTL]", MACHINE_IS_SKELETON )

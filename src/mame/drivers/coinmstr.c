@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, Roberto Fresca, David Haywood
 /*==================================================================================
 
   Coinmaster trivia and poker games.
@@ -112,7 +114,7 @@
   (keep pressing HOLD 4, and press HIGH and LOW to set the stake limit
   between 10-100).
 
-  Pressing DEAL/START, you can get the winning hands, occurence of
+  Pressing DEAL/START, you can get the winning hands, occurrence of
   spades, diamonds, clubs and hearts. also number of jokers dealt.
 
   With DIP switch #8 ON, you can enter a sort of test mode, where you
@@ -1746,7 +1748,7 @@ DRIVER_INIT_MEMBER(coinmstr_state,coinmstr)
 	dynamic_buffer buf(length);
 	int i;
 
-	memcpy(buf,rom,length);
+	memcpy(&buf[0],rom,length);
 
 	for(i = 0; i < length; i++)
 	{
@@ -1761,9 +1763,9 @@ DRIVER_INIT_MEMBER(coinmstr_state,coinmstr)
 *************************/
 
 /*    YEAR  NAME      PARENT    MACHINE   INPUT     STATE           INIT      ROT    COMPANY                  FULLNAME                                   FLAGS   */
-GAME( 1985, quizmstr, 0,        quizmstr, quizmstr, coinmstr_state, coinmstr, ROT0, "Loewen Spielautomaten", "Quizmaster (German)",                      GAME_UNEMULATED_PROTECTION )
-GAME( 1987, trailblz, 0,        trailblz, trailblz, coinmstr_state, coinmstr, ROT0, "Coinmaster",            "Trail Blazer",                             GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING ) // or Trail Blazer 2 ?
-GAME( 1989, supnudg2, 0,        supnudg2, supnudg2, coinmstr_state, coinmstr, ROT0, "Coinmaster",            "Super Nudger II - P173 (Version 5.21)",    GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1990, pokeroul, 0,        pokeroul, pokeroul, driver_device,  0,        ROT0, "Coinmaster",            "Poker Roulette (Version 8.22)",            GAME_NOT_WORKING )
-GAME( 1985, jpcoin,   0,        jpcoin ,  jpcoin,   driver_device,  0,        ROT0, "Coinmaster",            "Joker Poker (Coinmaster set 1)",           GAME_NOT_WORKING ) // io stuff is different at least
+GAME( 1985, quizmstr, 0,        quizmstr, quizmstr, coinmstr_state, coinmstr, ROT0, "Loewen Spielautomaten", "Quizmaster (German)",                      MACHINE_UNEMULATED_PROTECTION )
+GAME( 1987, trailblz, 0,        trailblz, trailblz, coinmstr_state, coinmstr, ROT0, "Coinmaster",            "Trail Blazer",                             MACHINE_UNEMULATED_PROTECTION | MACHINE_NOT_WORKING ) // or Trail Blazer 2 ?
+GAME( 1989, supnudg2, 0,        supnudg2, supnudg2, coinmstr_state, coinmstr, ROT0, "Coinmaster",            "Super Nudger II - P173 (Version 5.21)",    MACHINE_UNEMULATED_PROTECTION | MACHINE_NOT_WORKING )
+GAME( 1990, pokeroul, 0,        pokeroul, pokeroul, driver_device,  0,        ROT0, "Coinmaster",            "Poker Roulette (Version 8.22)",            MACHINE_NOT_WORKING )
+GAME( 1985, jpcoin,   0,        jpcoin ,  jpcoin,   driver_device,  0,        ROT0, "Coinmaster",            "Joker Poker (Coinmaster set 1)",           MACHINE_NOT_WORKING ) // io stuff is different at least
 GAME( 1990, jpcoin2,  0,        jpcoin2,  jpcoin2,  driver_device,  0,        ROT0, "Coinmaster",            "Joker Poker (Coinmaster, Amusement Only)", 0 )

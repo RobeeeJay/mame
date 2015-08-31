@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -132,4 +132,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT               COMPANY              FULLNAME       FLAGS */
-COMP( 2002, sitcom, 0,      0,       sitcom,    sitcom, driver_device,  0,   "San Bergmans & Izabella Malcolm", "Sitcom", GAME_NO_SOUND_HW)
+COMP( 2002, sitcom, 0,      0,       sitcom,    sitcom, driver_device,  0,   "San Bergmans & Izabella Malcolm", "Sitcom", MACHINE_NO_SOUND_HW)

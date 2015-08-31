@@ -78,7 +78,7 @@
 
     The SoftBox supports 5, 10, and 20 MB hard disks.  The distribution disk
     is configured for 10 MB as explained above.  To use other sizes, make
-    a new image with CHDMAN.  See the top of src/mess/includes/corvushd.h
+    a new image with CHDMAN.  See the top of src/emu/machine/corvushd.h
     for the parameters for the other drives.
 
     After the image has been created and the SoftBox emulator started with
@@ -447,4 +447,4 @@ ROM_END
 //**************************************************************************
 
 //    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY   FULLNAME       FLAGS
-COMP( 1981, softbox,    0,      0,      softbox,        softbox, driver_device, 0,      "Small Systems Engineering",  "SoftBox",  GAME_NO_SOUND_HW )
+COMP( 1981, softbox,    0,      0,      softbox,        softbox, driver_device, 0,      "Small Systems Engineering",  "SoftBox",  MACHINE_NO_SOUND_HW )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*********************************\
 
  ARCompact disassembler
@@ -20,7 +22,7 @@
 
 #define ARCOMPACT_OPERATION ((op & 0xf800) >> 11)
 
-extern char *output;;
+extern char *output;
 
 CPU_DISASSEMBLE(arcompact)
 {

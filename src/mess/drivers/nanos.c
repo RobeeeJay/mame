@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         Nanos
@@ -539,4 +541,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT     COMPANY                                              FULLNAME       FLAGS */
-COMP( 1985, nanos,  0,      0,       nanos,     nanos, driver_device,    0,   "Ingenieurhochschule fur Seefahrt Warnemunde/Wustrow", "NANOS", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1985, nanos,  0,      0,       nanos,     nanos, driver_device,    0,   "Ingenieurhochschule fur Seefahrt Warnemunde/Wustrow", "NANOS", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

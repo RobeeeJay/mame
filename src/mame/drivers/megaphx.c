@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*
    Dinamic / Inder arcade hardware
 
@@ -348,14 +350,6 @@ WRITE8_MEMBER(megaphx_state::port_c_w)
 }
 
 
-static ADDRESS_MAP_START( megaphx_pic_io_map, AS_IO, 8, megaphx_state )
-//  AM_RANGE(0x00, 0x00) AM_WRITE(playmark_oki_banking_w)
-//  AM_RANGE(0x01, 0x01) AM_READWRITE(playmark_snd_command_r, playmark_oki_w)
-//  AM_RANGE(0x02, 0x02) AM_READWRITE(playmark_snd_flag_r, playmark_snd_control_w)
-//  AM_RANGE(PIC16C5x_T0, PIC16C5x_T0) AM_READ(PIC16C5X_T0_clk_r)
-ADDRESS_MAP_END
-
-
 static MACHINE_CONFIG_START( megaphx, megaphx_state )
 
 	MCFG_CPU_ADD("maincpu", M68000, 8000000) // ??  can't read xtal due to reflections, CPU is an 8Mhz part
@@ -363,7 +357,6 @@ static MACHINE_CONFIG_START( megaphx, megaphx_state )
 
 	MCFG_CPU_ADD("pic", PIC16C54, 12000000)    /* 3MHz */
 	/* Program and Data Maps are internal to the MCU */
-	MCFG_CPU_IO_MAP(megaphx_pic_io_map)
 
 	MCFG_INDER_AUDIO_ADD("inder_sb")
 
@@ -417,4 +410,4 @@ ROM_START( megaphx )
 	ROM_LOAD( "p40_u29_palce16v8h-25.jed", 0x000, 0xbd4, CRC(44b7e51c) SHA1(b8b34f3b319d664ec3ad72ed87d9f65701f183a5) )
 ROM_END
 
-GAME( 1991, megaphx,  0,        megaphx, megaphx, megaphx_state, megaphx, ROT0, "Dinamic / Inder", "Mega Phoenix", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1991, megaphx,  0,        megaphx, megaphx, megaphx_state, megaphx, ROT0, "Dinamic / Inder", "Mega Phoenix", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )

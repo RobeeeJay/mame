@@ -1,12 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria,Aaron Giles
 /*********************************************************************
 
     romload.h
 
     ROM loading functions.
-
-    Copyright Nicola Salmoria and the MAME Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 *********************************************************************/
 
 #pragma once
@@ -227,6 +225,7 @@ struct rom_entry
 #define ROM_LOAD32_DWORD(name,offset,length,hash)   ROMX_LOAD(name, offset, length, hash, ROM_GROUPDWORD)
 #define ROM_LOAD64_WORD(name,offset,length,hash)    ROMX_LOAD(name, offset, length, hash, ROM_GROUPWORD | ROM_SKIP(6))
 #define ROM_LOAD64_WORD_SWAP(name,offset,length,hash) ROMX_LOAD(name, offset, length, hash, ROM_GROUPWORD | ROM_REVERSE | ROM_SKIP(6))
+#define ROM_LOAD64_DWORD_SWAP(name,offset,length,hash) ROMX_LOAD(name, offset, length, hash, ROM_GROUPDWORD | ROM_REVERSE | ROM_SKIP(4))
 
 
 /* ----- ROM_RELOAD related macros ----- */
@@ -268,7 +267,7 @@ void rom_init(running_machine &machine);
 
 /* return the number of warnings we generated */
 int rom_load_warnings(running_machine &machine);
-astring& software_load_warnings_message(running_machine &machine);
+std::string& software_load_warnings_message(running_machine &machine);
 
 /* return the number of BAD_DUMP/NO_DUMP warnings we generated */
 int rom_load_knownbad(running_machine &machine);
@@ -297,7 +296,7 @@ const rom_entry *rom_next_file(const rom_entry *romp);
 UINT32 rom_file_size(const rom_entry *romp);
 
 /* return the appropriate name for a rom region */
-astring &rom_region_name(astring &result, const device_t &device, const rom_entry *romp);
+std::string rom_region_name(const device_t &device, const rom_entry *romp);
 
 /* return pointer to the first per-game parameter */
 const rom_entry *rom_first_parameter(const device_t &device);
@@ -306,10 +305,10 @@ const rom_entry *rom_first_parameter(const device_t &device);
 const rom_entry *rom_next_parameter(const rom_entry *romp);
 
 /* return the appropriate name for a per-game parameter */
-astring &rom_parameter_name(astring &result, const device_t &device, const rom_entry *romp);
+std::string rom_parameter_name(const device_t &device, const rom_entry *romp);
 
 /* return the value for a per-game parameter */
-astring rom_parameter_value(const rom_entry *romp);
+std::string rom_parameter_value(const rom_entry *romp);
 
 
 /* ----- disk handling ----- */

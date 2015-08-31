@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Antoine Mine
 /****************************************************************************
 
   Copyright (C) Antoine Mine' 2006
@@ -111,7 +113,6 @@
 
 #include "imgtool.h"
 #include "iflopimg.h"
-#include "formats/basicdsk.h"
 
 #include <time.h>
 

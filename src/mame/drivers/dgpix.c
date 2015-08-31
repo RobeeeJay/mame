@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, Tomasz Slanina
 /********************************************************************
 
  dgPIX VRender0 hardware
@@ -375,6 +377,8 @@ INPUT_PORTS_END
 void dgpix_state::video_start()
 {
 	m_vram = auto_alloc_array(machine(), UINT32, 0x40000*2/4);
+
+	save_pointer(NAME(m_vram), 0x40000*2/4);
 }
 
 UINT32 dgpix_state::screen_update_dgpix(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)
@@ -682,9 +686,9 @@ DRIVER_INIT_MEMBER(dgpix_state,fmaniac3)
 	m_flash_roms = 2;
 }
 
-GAME( 1999, elfin,          0, dgpix, dgpix, dgpix_state, elfin,    ROT0, "dgPIX Entertainment Inc.", "Elfin",                             GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1999, jumpjump,       0, dgpix, dgpix, dgpix_state, jumpjump, ROT0, "dgPIX Entertainment Inc.", "Jump Jump",                         GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1999, xfiles,         0, dgpix, dgpix, dgpix_state, xfiles,   ROT0, "dgPIX Entertainment Inc.", "The X-Files",                       GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1999, xfilesk,   xfiles, dgpix, dgpix, dgpix_state, xfilesk,  ROT0, "dgPIX Entertainment Inc.", "The X-Files (Censored, Korea)",     GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1999, kdynastg,       0, dgpix, dgpix, dgpix_state, kdynastg, ROT0, "EZ Graphics",              "King of Dynast Gear (version 1.8)", GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 2002, fmaniac3,       0, dgpix, dgpix, dgpix_state, fmaniac3, ROT0, "Saero Entertainment",      "Fishing Maniac 3",                  GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1999, elfin,          0, dgpix, dgpix, dgpix_state, elfin,    ROT0, "dgPIX Entertainment Inc.", "Elfin",                             MACHINE_NO_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1999, jumpjump,       0, dgpix, dgpix, dgpix_state, jumpjump, ROT0, "dgPIX Entertainment Inc.", "Jump Jump",                         MACHINE_NO_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1999, xfiles,         0, dgpix, dgpix, dgpix_state, xfiles,   ROT0, "dgPIX Entertainment Inc.", "The X-Files",                       MACHINE_NO_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1999, xfilesk,   xfiles, dgpix, dgpix, dgpix_state, xfilesk,  ROT0, "dgPIX Entertainment Inc.", "The X-Files (Censored, Korea)",     MACHINE_NO_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1999, kdynastg,       0, dgpix, dgpix, dgpix_state, kdynastg, ROT0, "EZ Graphics",              "King of Dynast Gear (version 1.8)", MACHINE_NO_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 2002, fmaniac3,       0, dgpix, dgpix, dgpix_state, fmaniac3, ROT0, "Saero Entertainment",      "Fishing Maniac 3",                  MACHINE_NO_SOUND | MACHINE_SUPPORTS_SAVE )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /*************************************************************************
 
     Over Drive
@@ -25,9 +27,6 @@ public:
 		m_sprram(*this, "sprram"),
 		m_screen(*this, "screen")
 	{ }
-
-	/* memory pointers */
-//  UINT16 *   m_paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	int       m_zoom_colorbase[2];

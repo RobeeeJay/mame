@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Uki
 /*****************************************************************************
 
     Markham (c) 1983 Sun Electronics
@@ -240,4 +242,4 @@ ROM_START( markham )
 ROM_END
 
 
-GAME( 1983, markham, 0, markham, markham, driver_device, 0, ROT0, "Sun Electronics", "Markham", GAME_SUPPORTS_SAVE )
+GAME( 1983, markham, 0, markham, markham, driver_device, 0, ROT0, "Sun Electronics", "Markham", MACHINE_SUPPORTS_SAVE )

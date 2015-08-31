@@ -4,9 +4,6 @@
 
     Morrow Designs Disk Jockey 2D/B floppy controller board emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 /*
@@ -107,7 +104,7 @@ static MACHINE_CONFIG_FRAGMENT( s100_dj2db )
 	MCFG_DEVICE_ADD(BR1941_TAG, COM8116, XTAL_5_0688MHz)
 	MCFG_COM8116_FR_HANDLER(WRITELINE(s100_dj2db_device, fr_w))
 
-	MCFG_MB8866x_ADD(MB8866_TAG, XTAL_10MHz/5)
+	MCFG_MB8866_ADD(MB8866_TAG, XTAL_10MHz/5)
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(s100_dj2db_device, fdc_intrq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(s100_dj2db_device, fdc_drq_w))
 

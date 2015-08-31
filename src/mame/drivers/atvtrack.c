@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Angelo Salese, Samuele Zannoli
 /*
   ATV Track
   (c)2002 Gaelco
@@ -219,8 +221,9 @@ READ64_MEMBER(atvtrack_state::area2_r)
 				dat = (dat << 8) | 0xc0;
 		}
 		return dat;
-	} else
-		;
+	} else {
+		/* nothing */
+	}
 	return 0;
 }
 
@@ -278,8 +281,9 @@ WRITE64_MEMBER(atvtrack_state::area3_w)
 			data=data >> 8;
 		}
 		m_nandaddressstep = 0;
-	} else
-		;
+	} else {
+		/* nothing */
+	}
 }
 
 READ64_MEMBER(atvtrack_state::area4_r)
@@ -314,8 +318,9 @@ WRITE64_MEMBER(atvtrack_state::area4_w)
 			data = data >> 8;
 		}
 		m_nandaddressstep++;
-	} else
-		;
+	} else {
+		/* nothing */
+	}
 }
 
 READ64_MEMBER(atvtrack_state::ioport_r)
@@ -590,8 +595,8 @@ ROM_START( smashdrv )
 	// ic21 unpopulated
 ROM_END
 
-GAME( 2002, atvtrack,  0,          atvtrack,    atvtrack, driver_device,    0, ROT0, "Gaelco", "ATV Track (set 1)", GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2002, atvtracka, atvtrack,   atvtrack,    atvtrack, driver_device,    0, ROT0, "Gaelco", "ATV Track (set 2)", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 2002, atvtrack,  0,          atvtrack,    atvtrack, driver_device,    0, ROT0, "Gaelco", "ATV Track (set 1)", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2002, atvtracka, atvtrack,   atvtrack,    atvtrack, driver_device,    0, ROT0, "Gaelco", "ATV Track (set 2)", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
 
 // almost identical PCB, FlashROM mapping and master registers addresses different
-GAME( 2000, smashdrv, 0,           smashdrv,    atvtrack, driver_device,    0, ROT0, "Gaelco", "Smashing Drive", GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 2000, smashdrv, 0,           smashdrv,    atvtrack, driver_device,    0, ROT0, "Gaelco", "Smashing Drive", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )

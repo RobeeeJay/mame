@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mariusz Wojcieszek
 /*
     Microtouch touch screen controller
 
@@ -266,7 +268,7 @@ void microtouch_device::rcv_complete()
 		m_tx_buffer[m_tx_buffer_num++] = 0x0d;
 		m_rx_buffer_ptr = 0;
 	}
-};
+}
 
 INPUT_CHANGED_MEMBER( microtouch_device::touch )
 {

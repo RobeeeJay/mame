@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /*
 
  Quake Arcade Tournament
@@ -145,4 +147,4 @@ ROM_START(quake)
 ROM_END
 
 
-GAME( 1998, quake,  0,   quake, quake, driver_device, 0, ROT0, "Lazer-Tron / iD Software", "Quake Arcade Tournament (Release Beta 2)", GAME_IS_SKELETON )
+GAME( 1998, quake,  0,   quake, quake, driver_device, 0, ROT0, "Lazer-Tron / iD Software", "Quake Arcade Tournament (Release Beta 2)", MACHINE_IS_SKELETON )

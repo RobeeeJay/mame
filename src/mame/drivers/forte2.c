@@ -140,7 +140,7 @@ DRIVER_INIT_MEMBER(forte2_state,pesadelo)
 
 	// address line swap
 	dynamic_buffer buf(memsize);
-	memcpy(buf, mem, memsize);
+	memcpy(&buf[0], mem, memsize);
 	for ( i = 0; i < memsize; i++ )
 	{
 		mem[BITSWAP16(i,11,9,8,13,14,15,12,7,6,5,4,3,2,1,0,10)] = buf[i];
@@ -153,4 +153,4 @@ ROM_START( pesadelo )
 	ROM_LOAD( "epr2764.15", 0x00000, 0x10000, CRC(1ae2f724) SHA1(12880dd7ad82acf04861843fb9d4f0f926d18f6b) )
 ROM_END
 
-GAME( 1989, pesadelo, 0, pesadelo, pesadelo, forte2_state, pesadelo, ROT0, "bootleg (Forte II Games) / Konami", "Pesadelo (bootleg of Knightmare on MSX)", GAME_SUPPORTS_SAVE )
+GAME( 1989, pesadelo, 0, pesadelo, pesadelo, forte2_state, pesadelo, ROT0, "bootleg (Forte II Games) / Konami", "Pesadelo (bootleg of Knightmare on MSX)", MACHINE_SUPPORTS_SAVE )

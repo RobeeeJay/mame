@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ryan Holtz
 /**************************\
 *
 *   SunPlus u'nSP emulator
@@ -26,7 +28,7 @@ enum
 
 	UNSP_IRQ,
 	UNSP_FIQ,
-	UNSP_SB,
+	UNSP_SB
 
 };
 

@@ -1,7 +1,15 @@
-#ifdef SDLMAME_NET_PCAP
+// license:BSD-3-Clause
+// copyright-holders:Carl
+#if defined(OSD_NET_USE_PCAP)
 
 #if defined(SDLMAME_WIN32) || defined(OSD_WINDOWS)
-
+#ifdef UNICODE
+#define LIB_NAME        L"wpcap.dll"
+#define LoadDynamicLibrary LoadLibraryW
+#else
+#define LIB_NAME        "wpcap.dll"
+#define LoadDynamicLibrary LoadLibraryA
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -15,8 +23,7 @@
 
 #if defined(SDLMAME_WIN32) || defined(OSD_WINDOWS)
 
-#define LIB_NAME		L"wpcap.dll"
-#define LIB_ERROR_STR 	"Unable to load winpcap: %lx\n"
+#define LIB_ERROR_STR   "Unable to load winpcap: %lx\n"
 typedef DWORD except_type;
 
 #else
@@ -28,18 +35,18 @@ typedef DWORD except_type;
 #endif
 
 #ifdef SDLMAME_MACOSX
-#define LIB_NAME	"libpcap.dylib"
+#define LIB_NAME    "libpcap.dylib"
 #else
-#define LIB_NAME	"libpcap.so"
+#define LIB_NAME    "libpcap.so"
 #endif
-#define LIB_ERROR_STR 	"Unable to load pcap: %s\n"
+#define LIB_ERROR_STR   "Unable to load pcap: %s\n"
 
 typedef void *HMODULE;
 typedef const char *except_type;
 #define FreeLibrary(x) dlclose(x)
 #define GetLastError() dlerror()
 #define GetProcAddress(x, y) dlsym(x, y)
-#define LoadLibrary(x) dlopen(x, RTLD_LAZY)
+#define LoadDynamicLibrary(x) dlopen(x, RTLD_LAZY)
 
 #endif
 
@@ -53,7 +60,7 @@ public:
 	}
 	virtual ~pcap_module() { }
 
-	virtual int init();
+	virtual int init(const osd_options &options);
 	virtual void exit();
 
 	virtual bool probe();
@@ -178,7 +185,7 @@ void netdev_pcap::set_mac(const char *mac)
 	sprintf(filter, "not ether src %.2X:%.2X:%.2X:%.2X:%.2X:%.2X and (ether dst %.2X:%.2X:%.2X:%.2X:%.2X:%.2X or ether multicast or ether broadcast or ether dst 09:00:07:ff:ff:ff)", (unsigned char)mac[0], (unsigned char)mac[1], (unsigned char)mac[2],(unsigned char)mac[3], (unsigned char)mac[4], (unsigned char)mac[5], (unsigned char)mac[0], (unsigned char)mac[1], (unsigned char)mac[2],(unsigned char)mac[3], (unsigned char)mac[4], (unsigned char)mac[5]);
 #else
 	sprintf(filter, "ether dst %.2X:%.2X:%.2X:%.2X:%.2X:%.2X or ether multicast or ether broadcast", (unsigned char)mac[0], (unsigned char)mac[1], (unsigned char)mac[2],(unsigned char)mac[3], (unsigned char)mac[4], (unsigned char)mac[5]);
-#endif	
+#endif
 	if(pcap_compile_dl(m_p, &fp, filter, 1, 0) == -1) {
 		logerror("Error with pcap_compile\n");
 	}
@@ -189,7 +196,14 @@ void netdev_pcap::set_mac(const char *mac)
 
 int netdev_pcap::send(UINT8 *buf, int len)
 {
-	if(!m_p) return 0;
+	int ret;
+	if(!m_p) {
+		printf("send invoked, but no pcap context\n");
+		return 0;
+	}
+	ret = pcap_sendpacket_dl(m_p, buf, len);
+	printf("sent packet length %d, returned %d\n", len, ret);
+	return ret ? len : 0;
 	return (!pcap_sendpacket_dl(m_p, buf, len))?len:0;
 }
 
@@ -219,6 +233,7 @@ int netdev_pcap::recv_dev(UINT8 **buf)
 netdev_pcap::~netdev_pcap()
 {
 	if(m_p) pcap_close_dl(m_p);
+	m_p = NULL;
 }
 
 static CREATE_NETDEV(create_pcap)
@@ -231,14 +246,14 @@ bool pcap_module::probe()
 {
 	if (handle == NULL)
 	{
-		handle = LoadLibrary(LIB_NAME);
+		handle = LoadDynamicLibrary(LIB_NAME);
 		return (handle != NULL);
 	}
 	return true;
 }
 
 
-int pcap_module::init()
+int pcap_module::init(const osd_options &options)
 {
 	pcap_if_t *devs;
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -279,7 +294,11 @@ int pcap_module::init()
 
 	while(devs)
 	{
-		add_netdev(devs->name, devs->description, create_pcap);
+		if(devs->description) {
+			add_netdev(devs->name, devs->description, create_pcap);
+		} else {
+			add_netdev(devs->name, devs->name, create_pcap);
+		}
 		devs = devs->next;
 	}
 	return 0;
@@ -300,4 +319,3 @@ void pcap_module::exit()
 
 
 MODULE_DEFINITION(NETDEV_PCAP, pcap_module)
-

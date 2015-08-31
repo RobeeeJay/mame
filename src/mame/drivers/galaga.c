@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /***************************************************************************
 
 Bosconian  (c) 1981 Namco
@@ -2599,6 +2601,9 @@ ROM_START( xevious )
 	ROM_LOAD( "xvi-4.3l",     0x0700, 0x0200, CRC(fd8b9d91) SHA1(87ddf0b9d723aabb422d6d416aa9ec6bc246bf34) ) /* sprite lookup table low bits */
 	ROM_LOAD( "xvi-5.3m",     0x0900, 0x0200, CRC(bf906d82) SHA1(776168a73d3b9f0ce05610acc8a623deae0a572b) ) /* sprite lookup table high bits */
 
+	ROM_REGION( 0x0200, "pals_vidbd", 0) /* PAL's located on the video board */
+	ROM_LOAD( "XVI-3.1F",     0x0000, 0x0117, CRC(9192d57a) SHA1(5f36db93b6083767f93aa3a0e4bc2d4fc7e27f9c) ) /* N82S153N */
+
 	ROM_REGION( 0x0200, "namco", 0 )    /* sound PROMs */
 	ROM_LOAD( "xvi-2.7n",     0x0000, 0x0100, CRC(550f06bc) SHA1(816a0fafa0b084ac11ae1af70a5186539376fc2a) )
 	ROM_LOAD( "xvi-1.5n",     0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )    /* timing - not used */
@@ -2651,8 +2656,8 @@ ROM_START( xeviousa )
 	ROM_LOAD( "xvi-4.3l",     0x0700, 0x0200, CRC(fd8b9d91) SHA1(87ddf0b9d723aabb422d6d416aa9ec6bc246bf34) ) /* sprite lookup table low bits */
 	ROM_LOAD( "xvi-5.3m",     0x0900, 0x0200, CRC(bf906d82) SHA1(776168a73d3b9f0ce05610acc8a623deae0a572b) ) /* sprite lookup table high bits */
 
-	ROM_REGION( 0x0001, "pals_vidbd", 0) /* PAL's located on the video board */
-	ROM_LOAD( "137294-001.1f", 0x0000, 0x0001, NO_DUMP ) /* N82S153N */
+	ROM_REGION( 0x0200, "pals_vidbd", 0) /* PAL's located on the video board */
+	ROM_LOAD( "XVI-3.1F",     0x0000, 0x0117, CRC(9192d57a) SHA1(5f36db93b6083767f93aa3a0e4bc2d4fc7e27f9c) ) /* N82S153N - 137294-001*/
 
 	ROM_REGION( 0x0200, "namco", 0 )    /* sound PROMs */
 	ROM_LOAD( "xvi-2.7n",     0x0000, 0x0100, CRC(550f06bc) SHA1(816a0fafa0b084ac11ae1af70a5186539376fc2a) )
@@ -2699,8 +2704,8 @@ ROM_START( xeviousb )
 	ROM_LOAD( "xvi-4.3l",     0x0700, 0x0200, CRC(fd8b9d91) SHA1(87ddf0b9d723aabb422d6d416aa9ec6bc246bf34) ) /* sprite lookup table low bits */
 	ROM_LOAD( "xvi-5.3m",     0x0900, 0x0200, CRC(bf906d82) SHA1(776168a73d3b9f0ce05610acc8a623deae0a572b) ) /* sprite lookup table high bits */
 
-	ROM_REGION( 0x0001, "pals_vidbd", 0) /* PAL's located on the video board */
-	ROM_LOAD( "137294-001.1f", 0x0000, 0x0001, NO_DUMP ) /* N82S153N */
+	ROM_REGION( 0x0200, "pals_vidbd", 0) /* PAL's located on the video board */
+	ROM_LOAD( "XVI-3.1F",     0x0000, 0x0117, CRC(9192d57a) SHA1(5f36db93b6083767f93aa3a0e4bc2d4fc7e27f9c) ) /* N82S153N - 137294-001*/
 
 	ROM_REGION( 0x0200, "namco", 0 )    /* sound PROMs */
 	ROM_LOAD( "xvi-2.7n",     0x0000, 0x0100, CRC(550f06bc) SHA1(816a0fafa0b084ac11ae1af70a5186539376fc2a) )
@@ -2750,8 +2755,8 @@ ROM_START( xeviousc )
 	ROM_LOAD( "xvi-4.3l",     0x0700, 0x0200, CRC(fd8b9d91) SHA1(87ddf0b9d723aabb422d6d416aa9ec6bc246bf34) ) /* sprite lookup table low bits */
 	ROM_LOAD( "xvi-5.3m",     0x0900, 0x0200, CRC(bf906d82) SHA1(776168a73d3b9f0ce05610acc8a623deae0a572b) ) /* sprite lookup table high bits */
 
-	ROM_REGION( 0x0001, "pals_vidbd", 0) /* PAL's located on the video board */
-	ROM_LOAD( "137294-001.1f", 0x0000, 0x0001, NO_DUMP ) /* N82S153N */
+	ROM_REGION( 0x0200, "pals_vidbd", 0) /* PAL's located on the video board */
+	ROM_LOAD( "XVI-3.1F",     0x0000, 0x0117, CRC(9192d57a) SHA1(5f36db93b6083767f93aa3a0e4bc2d4fc7e27f9c) ) /* N82S153N - 137294-001*/
 
 	ROM_REGION( 0x0200, "namco", 0 )    /* sound PROMs */
 	ROM_LOAD( "xvi-2.7n",     0x0000, 0x0100, CRC(550f06bc) SHA1(816a0fafa0b084ac11ae1af70a5186539376fc2a) )
@@ -3364,37 +3369,37 @@ DRIVER_INIT_MEMBER(xevious_state,battles)
 /* Original Namco hardware, with Namco Customs */
 
 //    YEAR, NAME,      PARENT,  MACHINE, INPUT,    INIT,    MONITOR,COMPANY,FULLNAME,FLAGS
-GAME( 1981, bosco,     0,       bosco,   bosco, driver_device,    0,       ROT0,   "Namco", "Bosconian (new version)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1981, boscoo,    bosco,   bosco,   bosco, driver_device,    0,       ROT0,   "Namco", "Bosconian (old version)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1981, boscoo2,   bosco,   bosco,   bosco, driver_device,    0,       ROT0,   "Namco", "Bosconian (older version)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1981, boscomd,   bosco,   bosco,   boscomd, driver_device,  0,       ROT0,   "Namco (Midway license)", "Bosconian (Midway, new version)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1981, boscomdo,  bosco,   bosco,   boscomd, driver_device,  0,       ROT0,   "Namco (Midway license)", "Bosconian (Midway, old version)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
+GAME( 1981, bosco,     0,       bosco,   bosco, driver_device,    0,       ROT0,   "Namco", "Bosconian (new version)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1981, boscoo,    bosco,   bosco,   bosco, driver_device,    0,       ROT0,   "Namco", "Bosconian (old version)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1981, boscoo2,   bosco,   bosco,   bosco, driver_device,    0,       ROT0,   "Namco", "Bosconian (older version)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1981, boscomd,   bosco,   bosco,   boscomd, driver_device,  0,       ROT0,   "Namco (Midway license)", "Bosconian (Midway, new version)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1981, boscomdo,  bosco,   bosco,   boscomd, driver_device,  0,       ROT0,   "Namco (Midway license)", "Bosconian (Midway, old version)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
 
-GAME( 1981, galaga,    0,       galaga,  galaga, galaga_state,   galaga,  ROT90,  "Namco", "Galaga (Namco rev. B)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1981, galagao,   galaga,  galaga,  galaga, galaga_state,   galaga,  ROT90,  "Namco", "Galaga (Namco)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1981, galagamw,  galaga,  galaga,  galagamw, galaga_state, galaga,  ROT90,  "Namco (Midway license)", "Galaga (Midway set 1)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1981, galagamk,  galaga,  galaga,  galaga, galaga_state,   galaga,  ROT90,  "Namco (Midway license)", "Galaga (Midway set 2)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1981, galagamf,  galaga,  galaga,  galaga, galaga_state,   galaga,  ROT90,  "Namco (Midway license)", "Galaga (Midway set 1 with fast shoot hack)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
+GAME( 1981, galaga,    0,       galaga,  galaga, galaga_state,   galaga,  ROT90,  "Namco", "Galaga (Namco rev. B)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1981, galagao,   galaga,  galaga,  galaga, galaga_state,   galaga,  ROT90,  "Namco", "Galaga (Namco)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1981, galagamw,  galaga,  galaga,  galagamw, galaga_state, galaga,  ROT90,  "Namco (Midway license)", "Galaga (Midway set 1)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1981, galagamk,  galaga,  galaga,  galaga, galaga_state,   galaga,  ROT90,  "Namco (Midway license)", "Galaga (Midway set 2)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1981, galagamf,  galaga,  galaga,  galaga, galaga_state,   galaga,  ROT90,  "Namco (Midway license)", "Galaga (Midway set 1 with fast shoot hack)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
 
-GAME( 1982, xevious,   0,       xevious, xevious, xevious_state,  xevious, ROT90,  "Namco", "Xevious (Namco)", GAME_SUPPORTS_SAVE )
-GAME( 1982, xeviousa,  xevious, xevious, xeviousa, xevious_state, xevious, ROT90,  "Namco (Atari license)", "Xevious (Atari, harder)", GAME_SUPPORTS_SAVE )
-GAME( 1982, xeviousb,  xevious, xevious, xeviousb, xevious_state, xevious, ROT90,  "Namco (Atari license)", "Xevious (Atari)", GAME_SUPPORTS_SAVE )
-GAME( 1982, xeviousc,  xevious, xevious, xeviousa, xevious_state, xevious, ROT90,  "Namco (Atari license)", "Xevious (Atari, Namco PCB)", GAME_SUPPORTS_SAVE )
-GAME( 1984, sxevious,  xevious, xevious, sxevious, xevious_state, xevious, ROT90,  "Namco", "Super Xevious", GAME_SUPPORTS_SAVE )
-GAME( 1984, sxeviousj, xevious, xevious, sxevious, xevious_state, xevious, ROT90,  "Namco", "Super Xevious (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1982, xevious,   0,       xevious, xevious, xevious_state,  xevious, ROT90,  "Namco", "Xevious (Namco)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, xeviousa,  xevious, xevious, xeviousa, xevious_state, xevious, ROT90,  "Namco (Atari license)", "Xevious (Atari, harder)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, xeviousb,  xevious, xevious, xeviousb, xevious_state, xevious, ROT90,  "Namco (Atari license)", "Xevious (Atari)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, xeviousc,  xevious, xevious, xeviousa, xevious_state, xevious, ROT90,  "Namco (Atari license)", "Xevious (Atari, Namco PCB)", MACHINE_SUPPORTS_SAVE )
+GAME( 1984, sxevious,  xevious, xevious, sxevious, xevious_state, xevious, ROT90,  "Namco", "Super Xevious", MACHINE_SUPPORTS_SAVE )
+GAME( 1984, sxeviousj, xevious, xevious, sxevious, xevious_state, xevious, ROT90,  "Namco", "Super Xevious (Japan)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1982, digdug,    0,       digdug,  digdug, driver_device,   0,       ROT90,  "Namco", "Dig Dug (rev 2)", GAME_SUPPORTS_SAVE )
-GAME( 1982, digdug1,   digdug,  digdug,  digdug, driver_device,   0,       ROT90,  "Namco", "Dig Dug (rev 1)", GAME_SUPPORTS_SAVE )
-GAME( 1982, digdugat,  digdug,  digdug,  digdug, driver_device,   0,       ROT90,  "Namco (Atari license)", "Dig Dug (Atari, rev 2)", GAME_SUPPORTS_SAVE )
-GAME( 1982, digdugat1, digdug,  digdug,  digdug, driver_device,   0,       ROT90,  "Namco (Atari license)", "Dig Dug (Atari, rev 1)", GAME_SUPPORTS_SAVE )
-GAME( 1982, digsid,    digdug,  digdug,  digdug, driver_device,   0,       ROT90,  "Namco (Sidam license)", "Dig Dug (manufactured by Sidam)", GAME_SUPPORTS_SAVE )
+GAME( 1982, digdug,    0,       digdug,  digdug, driver_device,   0,       ROT90,  "Namco", "Dig Dug (rev 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, digdug1,   digdug,  digdug,  digdug, driver_device,   0,       ROT90,  "Namco", "Dig Dug (rev 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, digdugat,  digdug,  digdug,  digdug, driver_device,   0,       ROT90,  "Namco (Atari license)", "Dig Dug (Atari, rev 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, digdugat1, digdug,  digdug,  digdug, driver_device,   0,       ROT90,  "Namco (Atari license)", "Dig Dug (Atari, rev 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, digsid,    digdug,  digdug,  digdug, driver_device,   0,       ROT90,  "Namco (Sidam license)", "Dig Dug (manufactured by Sidam)", MACHINE_SUPPORTS_SAVE )
 
 /* Bootlegs with replacement I/O chips */
 
-GAME( 1981, gallag,    galaga,  galagab, galaga, galaga_state,   galaga,  ROT90,  "bootleg", "Gallag", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1984, gatsbee,   galaga,  galagab, gatsbee, galaga_state,  gatsbee, ROT90,  "hack", "Gatsbee", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1981, gallag,    galaga,  galagab, galaga, galaga_state,   galaga,  ROT90,  "bootleg", "Gallag", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )
+GAME( 1984, gatsbee,   galaga,  galagab, gatsbee, galaga_state,  gatsbee, ROT90,  "hack", "Gatsbee", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND )
 
-GAME( 1982, xevios,    xevious, xevious, xevious, xevious_state,  xevios,  ROT90,  "bootleg", "Xevios", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1982, battles,   xevious, battles, xevious, xevious_state,  battles, ROT90,  "bootleg", "Battles", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1982, xevios,    xevious, xevious, xevious, xevious_state,  xevios,  ROT90,  "bootleg", "Xevios", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1982, battles,   xevious, battles, xevious, xevious_state,  battles, ROT90,  "bootleg", "Battles", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
 
-GAME( 1982, dzigzag,   digdug,  dzigzag, digdug, driver_device,   0,       ROT90,  "bootleg", "Zig Zag (Dig Dug hardware)", GAME_SUPPORTS_SAVE )
+GAME( 1982, dzigzag,   digdug,  dzigzag, digdug, driver_device,   0,       ROT90,  "bootleg", "Zig Zag (Dig Dug hardware)", MACHINE_SUPPORTS_SAVE )

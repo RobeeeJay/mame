@@ -1,8 +1,10 @@
+// license:???
+// copyright-holders:K.Wilkins, Derrick Renaud, Frank Palazzolo, Couriersud
 /************************************************************************
  *
  *  MAME - Discrete sound system emulation library
  *
- *  Written by Keith Wilkins (mame@esplexo.co.uk)
+ *  Written by K.Wilkins (mame@esplexo.co.uk)
  *
  *  (c) K.Wilkins 2000
  *
@@ -37,7 +39,16 @@
 #include "wavwrite.h"
 #include "discrete.h"
 
+// for now, make buggy GCC/Mingw STFU about I64FMT
+#if (defined(__MINGW32__) && (__GNUC__ >= 5))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wformat-extra-args"
+#endif
 
+
+/* for_each collides with c++ standard libraries - include it here */
+#define for_each(_T, _e, _l) for (_T _e = (_l)->begin_ptr() ;  _e <= (_l)->end_ptr(); _e++)
 
 // device type definition
 const device_type DISCRETE = &device_creator<discrete_sound_device>;
@@ -117,7 +128,7 @@ public:
 	node_step_list_t        step_list;
 
 	/* list of source nodes */
-	dynamic_array_t<input_buffer> source_list;      /* discrete_source_node */
+	vector_t<input_buffer> source_list;      /* discrete_source_node */
 
 	int                     task_group;
 
@@ -137,7 +148,7 @@ protected:
 	void check(discrete_task *dest_task);
 	void prepare_for_queue(int samples);
 
-	dynamic_array_t<output_buffer>      m_buffers;
+	vector_t<output_buffer>      m_buffers;
 	discrete_device &                   m_device;
 
 private:
@@ -525,7 +536,7 @@ void discrete_device::discrete_build_list(const discrete_block *intf, sound_bloc
 		}
 		else if (intf[node_count].type == DSO_DELETE)
 		{
-			dynamic_array_t<int> deletethem;
+			vector_t<int> deletethem;
 
 			for (int i=0; i<block_list.count(); i++)
 			{
@@ -646,7 +657,7 @@ void discrete_device::display_profiling(void)
 		discrete_step_interface *step;
 		if ((*node)->interface(step))
 			if (step->run_time > tresh)
-				printf("%3d: %20s %8.2f %10.2f\n", (*node)->index(), (*node)->module_name(), (float) step->run_time / (float) total * 100.0, ((float) step->run_time) / (float) m_total_samples);
+				printf("%3d: %20s %8.2f %10.2f\n", (*node)->index(), (*node)->module_name(), (double) step->run_time / (double) total * 100.0, ((double) step->run_time) / (double) m_total_samples);
 	}
 
 	/* Task information */
@@ -860,7 +871,7 @@ void discrete_device::device_start()
 	//m_stream = machine().sound().stream_alloc(*this, 0, 2, 22257);
 
 	const discrete_block *intf_start = m_intf;
-	char name[32];
+	char name[128];
 
 	/* If a clock is specified we will use it, otherwise run at the audio sample rate. */
 	if (this->clock())
@@ -1131,3 +1142,7 @@ WRITE8_MEMBER( discrete_device::write )
 		discrete_log("discrete_sound_w write to non-existent NODE_%02d\n", offset-NODE_00);
 	}
 }
+
+#if (defined(__MINGW32__) && (__GNUC__ >= 5))
+#pragma GCC diagnostic pop
+#endif

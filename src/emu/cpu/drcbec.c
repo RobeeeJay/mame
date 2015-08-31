@@ -127,7 +127,7 @@ enum
 	OP_FFRI4,
 	OP_FFRI8,
 	OP_FFRFS,
-	OP_FFRFD,
+	OP_FFRFD
 };
 
 
@@ -1929,7 +1929,7 @@ int drcbe_c::execute(code_handle &entry)
 				break;
 
 			case MAKE_OPCODE_SHORT(OP_FRSQRT, 4, 0):    // FSRSQRT dst,src1
-				FSPARAM0 = 1.0f / sqrt(FSPARAM1);
+				FSPARAM0 = 1.0f / sqrtf(FSPARAM1);
 				break;
 
 

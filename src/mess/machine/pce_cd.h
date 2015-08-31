@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 #ifndef __PCE_CD_H
 #define __PCE_CD_H
 
@@ -60,6 +62,8 @@ public:
 	DECLARE_READ8_MEMBER(intf_r);
 	DECLARE_READ8_MEMBER(acard_r);
 
+	void nvram_init(nvram_device &nvram, void *data, size_t size);
+
 private:
 	void adpcm_stop(UINT8 irq_flag);
 	void adpcm_play();
@@ -88,6 +92,8 @@ private:
 	TIMER_CALLBACK_MEMBER(adpcm_fadein_callback);
 	TIMER_CALLBACK_MEMBER(clear_ack);
 	TIMER_CALLBACK_MEMBER(adpcm_dma_timer_callback);
+
+	required_device<cpu_device> m_maincpu;
 
 	UINT8   m_regs[16];
 	UINT8   *m_bram;

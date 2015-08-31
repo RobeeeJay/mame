@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*
 
 Summit Coin - Push Over (c)1981
@@ -343,4 +345,4 @@ ROM_START( pushover )
 ROM_END
 
 
-GAME( 1981, pushover,  0,    summit, summit, driver_device,  0, ROT270, "Summit Coin", "Push Over (Summit Coin)", GAME_NOT_WORKING|GAME_NO_SOUND|GAME_WRONG_COLORS )
+GAME( 1981, pushover,  0,    summit, summit, driver_device,  0, ROT270, "Summit Coin", "Push Over (Summit Coin)", MACHINE_NOT_WORKING|MACHINE_NO_SOUND|MACHINE_WRONG_COLORS )

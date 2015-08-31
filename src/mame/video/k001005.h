@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 #pragma once
 #ifndef __K001005_H__
 #define __K001005_H__
@@ -34,7 +36,7 @@ enum k001005_param
 	K001005_FOG_R,
 	K001005_FOG_G,
 	K001005_FOG_B,
-	K001005_FAR_Z,
+	K001005_FAR_Z
 };
 
 

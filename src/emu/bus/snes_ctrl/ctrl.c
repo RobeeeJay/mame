@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /**********************************************************************
 
     Nintendo Super Famicom & SNES controller port emulation
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 **********************************************************************/
 
@@ -11,6 +10,7 @@
 // slot devices
 #include "bcbattle.h"
 #include "joypad.h"
+#include "miracle.h"
 #include "mouse.h"
 #include "multitap.h"
 #include "pachinko.h"
@@ -132,4 +132,5 @@ SLOT_INTERFACE_START( snes_control_port_devices )
 	SLOT_INTERFACE("sscope", SNES_SUPERSCOPE)
 	SLOT_INTERFACE("twintap", SNES_TWINTAP)
 	SLOT_INTERFACE("barcode_battler", SNES_BARCODE_BATTLER)
+	SLOT_INTERFACE("miracle_piano", SNES_MIRACLE)
 SLOT_INTERFACE_END

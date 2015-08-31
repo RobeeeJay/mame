@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Robbbert
 /***************************************************************************
 
         Intel iPDS
@@ -163,4 +165,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT   COMPANY   FULLNAME       FLAGS */
-COMP( 1982, ipds,  0,       0,       ipds,  ipds, driver_device,     0,     "Intel",   "iPDS",  GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1982, ipds,  0,       0,       ipds,  ipds, driver_device,     0,     "Intel",   "iPDS",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

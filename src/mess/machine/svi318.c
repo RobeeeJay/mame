@@ -1,3 +1,5 @@
+// license:???
+// copyright-holders:Sean Young,Tomas Karlsson
 /*
 ** Spectravideo SVI-318 and SVI-328
 **
@@ -10,7 +12,6 @@
 #include "includes/svi318.h"
 #include "cpu/z80/z80.h"
 #include "video/tms9928a.h"
-#include "machine/wd17xx.h"
 #include "imagedev/flopdrv.h"
 #include "formats/svi_cas.h"
 #include "sound/ay8910.h"
@@ -221,23 +222,26 @@ WRITE_LINE_MEMBER(svi318_state::fdc_drq_w)
 
 WRITE8_MEMBER(svi318_state::fdc_drive_motor_w)
 {
-	switch (data & 3)
-	{
-	case 1:
-		m_fd1793->set_drive(0);
-		m_driveselect = 0;
-		break;
-	case 2:
-		m_fd1793->set_drive(1);
-		m_driveselect = 1;
-		break;
-	}
+	m_floppy = NULL;
+
+	if (BIT(data, 0)) m_floppy = m_floppy0->get_device();
+	if (BIT(data, 1)) m_floppy = m_floppy1->get_device();
+
+	m_fd1793->set_floppy(m_floppy);
+
+	if (m_floppy0->get_device())
+		m_floppy0->get_device()->mon_w(!BIT(data, 2));
+
+	if (m_floppy1->get_device())
+		m_floppy1->get_device()->mon_w(!BIT(data, 3));
 }
 
 WRITE8_MEMBER(svi318_state::fdc_density_side_w)
 {
 	m_fd1793->dden_w(BIT(data, 0));
-	m_fd1793->set_side(BIT(data, 1));
+
+	if (m_floppy)
+		m_floppy->ss_w(BIT(data, 1));
 }
 
 READ8_MEMBER(svi318_state::fdc_irqdrq_r)
@@ -421,8 +425,8 @@ DRIVER_INIT_MEMBER(svi318_state, svi328_806)
 
 void svi318_state::machine_start()
 {
-	astring region_tag;
-	m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 	m_bios_rom = memregion("maincpu");
 
 	// 80 column card start
@@ -432,8 +436,8 @@ void svi318_state::machine_start()
 		// The upper 2KB will be set to FFs and will never be written to
 		m_svi806_ram.resize(0x1000);
 		save_item(NAME(m_svi806_ram));
-		memset(m_svi806_ram, 0x00, 0x800);
-		memset(m_svi806_ram + 0x800, 0xff, 0x800);
+		memset(&m_svi806_ram[0], 0x00, 0x800);
+		memset(&m_svi806_ram[0x800], 0xff, 0x800);
 
 		m_svi806_gfx = memregion("gfx1")->base();
 
@@ -443,10 +447,8 @@ void svi318_state::machine_start()
 	}
 
 	// register for savestates
-	save_item(NAME(m_driveselect));
 	save_item(NAME(m_drq));
 	save_item(NAME(m_irq));
-	save_item(NAME(m_heads));
 
 	save_item(NAME(m_bank_switch));
 	save_item(NAME(m_bank_low));
@@ -463,34 +465,12 @@ void svi318_state::machine_start()
 	machine().save().register_postload(save_prepost_delegate(FUNC(svi318_state::postload), this));
 }
 
-
-static void svi318_load_proc(device_image_interface &image)
-{
-	svi318_state *state = image.device().machine().driver_data<svi318_state>();
-	int size = image.length();
-	int id = floppy_get_drive(&image.device());
-
-	switch (size)
-	{
-	case 172032:    /* SVI-328 SSDD */
-		state->m_heads[id] = 1;
-		break;
-	case 346112:    /* SVI-328 DSDD */
-		state->m_heads[id] = 2;
-		break;
-	case 348160:    /* SVI-728 DSDD CP/M */
-		state->m_heads[id] = 2;
-		break;
-	}
-}
-
 void svi318_state::machine_reset()
 {
 	m_keyboard_row = 0;
 	m_centronics_busy = 0;
 	m_svi806_present = 0;
 	m_svi806_ram_enabled = 0;
-	m_driveselect = 0;
 	m_drq = 0;
 	m_irq = 0;
 
@@ -502,9 +482,6 @@ void svi318_state::machine_reset()
 
 	m_bank_switch = 0xff;
 	set_banks();
-
-	for (int drive = 0; drive < 2; drive++)
-		floppy_get_device(machine(), drive)->floppy_install_load_proc(svi318_load_proc);
 }
 
 /* Memory */
@@ -649,7 +626,7 @@ void svi318_state::set_banks()
 	if (m_svi806_present)
 	{
 		if (m_svi806_ram_enabled)
-			m_bank4->set_base(m_svi806_ram);
+			m_bank4->set_base(&m_svi806_ram[0]);
 		else
 			m_bank4->set_base(m_bank_high2_ptr + 0x3000);
 	}
@@ -758,7 +735,7 @@ WRITE8_MEMBER(svi318_state::io_ext_w)
 		break;
 
 	case 0x30:
-		m_fd1793->command_w(space, 0, data);
+		m_fd1793->cmd_w(space, 0, data);
 		break;
 	case 0x31:
 		m_fd1793->track_w(space, 0, data);

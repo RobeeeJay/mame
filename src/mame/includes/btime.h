@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari, Couriersud
 /***************************************************************************
 
     Burger Time hardware
@@ -12,7 +14,6 @@ public:
 		m_rambase(*this, "rambase"),
 		m_videoram(*this, "videoram"),
 		m_colorram(*this, "colorram"),
-		m_paletteram(*this, "palette"),
 		m_bnj_backgroundram(*this, "bnj_bgram"),
 		m_zoar_scrollram(*this, "zoar_scrollram"),
 		m_lnc_charbank(*this, "lnc_charbank"),
@@ -29,7 +30,6 @@ public:
 	optional_shared_ptr<UINT8> m_rambase;
 	required_shared_ptr<UINT8> m_videoram;
 	required_shared_ptr<UINT8> m_colorram;
-	optional_shared_ptr<UINT8> m_paletteram;
 	optional_shared_ptr<UINT8> m_bnj_backgroundram;
 	optional_shared_ptr<UINT8> m_zoar_scrollram;
 	optional_shared_ptr<UINT8> m_lnc_charbank;
@@ -76,7 +76,6 @@ public:
 	DECLARE_READ8_MEMBER(wtennis_reset_hack_r);
 	DECLARE_READ8_MEMBER(mmonkey_protection_r);
 	DECLARE_WRITE8_MEMBER(mmonkey_protection_w);
-	DECLARE_WRITE8_MEMBER(btime_paletteram_w);
 	DECLARE_WRITE8_MEMBER(lnc_videoram_w);
 	DECLARE_READ8_MEMBER(btime_mirrorvideoram_r);
 	DECLARE_READ8_MEMBER(btime_mirrorcolorram_r);

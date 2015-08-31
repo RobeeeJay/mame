@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli
 #pragma once
 
 #ifndef __SSP1601_H__
@@ -38,7 +40,7 @@ protected:
 	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : ((spacenum == AS_IO) ? &m_io_config : NULL); }
 
 	// device_state_interface overrides
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 2; }
@@ -55,14 +57,14 @@ private:
 			struct {
 					unsigned char m_r0[4];
 					unsigned char m_r1[4];
-			};
+			} regs;
 	};
 	union {
 			unsigned short m_RAM[256*2];      /* 2 256-word internal RAM banks */
 			struct {
 					unsigned short m_RAM0[256];
 					unsigned short m_RAM1[256];
-			};
+			} mem;
 	};
 	UINT16 m_stack[6]; /* 6-level hardware stack */
 	PAIR m_ppc;

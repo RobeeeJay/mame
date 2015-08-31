@@ -117,7 +117,7 @@ void palette_device::set_indirect_color(int index, rgb_t rgb)
 		m_indirect_colors[index] = rgb;
 
 		// update the palette for any colortable entries that reference it
-		for (UINT32 pen = 0; pen < m_indirect_pens.count(); pen++)
+		for (UINT32 pen = 0; pen < m_indirect_pens.size(); pen++)
 			if (m_indirect_pens[pen] == index)
 				m_palette->entry_set_color(pen, rgb);
 	}
@@ -150,11 +150,11 @@ UINT32 palette_device::transpen_mask(gfx_element &gfx, int color, int transcolor
 	UINT32 entry = gfx.colorbase() + (color % gfx.colors()) * gfx.granularity();
 
 	// make sure we are in range
-	assert(entry < m_indirect_pens.count());
+	assert(entry < m_indirect_pens.size());
 	assert(gfx.depth() <= 32);
 
 	// either gfx->color_depth entries or as many as we can get up until the end
-	int count = MIN(gfx.depth(), m_indirect_pens.count() - entry);
+	int count = MIN(gfx.depth(), m_indirect_pens.size() - entry);
 
 	// set a bit anywhere the transcolor matches
 	UINT32 mask = 0;
@@ -408,8 +408,8 @@ void palette_device::device_start()
 	if (share != NULL)
 	{
 		// find the extended (split) memory, if present
-		astring tag_ext(tag(), "_ext");
-		const memory_share *share_ext = memshare(tag_ext.cstr());
+		std::string tag_ext = std::string(tag()).append("_ext");
+		const memory_share *share_ext = memshare(tag_ext.c_str());
 
 		// make sure we have specified a format
 		assert_always(m_raw_to_rgb.bytes_per_entry() > 0, "Palette has memory share but no format specified");
@@ -816,6 +816,72 @@ void palette_device::palette_init_monochrome_yellow(palette_device &palette)
 
 
 /*-------------------------------------------------
+    3bit_rgb - 8-color rgb
+-------------------------------------------------*/
+
+void palette_device::palette_init_3bit_rgb(palette_device &palette)
+{
+	for (int i = 0; i < 8; i++)
+		palette.set_pen_color(i, rgb_t(pal1bit(i >> 0), pal1bit(i >> 1), pal1bit(i >> 2)));
+}
+
+
+/*-------------------------------------------------
+    3bit_rbg - 8-color rgb
+-------------------------------------------------*/
+
+void palette_device::palette_init_3bit_rbg(palette_device &palette)
+{
+	for (int i = 0; i < 8; i++)
+		palette.set_pen_color(i, rgb_t(pal1bit(i >> 0), pal1bit(i >> 2), pal1bit(i >> 1)));
+}
+
+
+/*-------------------------------------------------
+    3bit_brg - 8-color rgb
+-------------------------------------------------*/
+
+void palette_device::palette_init_3bit_brg(palette_device &palette)
+{
+	for (int i = 0; i < 8; i++)
+		palette.set_pen_color(i, rgb_t(pal1bit(i >> 1), pal1bit(i >> 2), pal1bit(i >> 0)));
+}
+
+
+/*-------------------------------------------------
+    3bit_grb - 8-color rgb
+-------------------------------------------------*/
+
+void palette_device::palette_init_3bit_grb(palette_device &palette)
+{
+	for (int i = 0; i < 8; i++)
+		palette.set_pen_color(i, rgb_t(pal1bit(i >> 1), pal1bit(i >> 0), pal1bit(i >> 2)));
+}
+
+
+/*-------------------------------------------------
+    3bit_gbr - 8-color rgb
+-------------------------------------------------*/
+
+void palette_device::palette_init_3bit_gbr(palette_device &palette)
+{
+	for (int i = 0; i < 8; i++)
+		palette.set_pen_color(i, rgb_t(pal1bit(i >> 2), pal1bit(i >> 0), pal1bit(i >> 1)));
+}
+
+
+/*-------------------------------------------------
+    3bit_bgr - 8-color rgb
+-------------------------------------------------*/
+
+void palette_device::palette_init_3bit_bgr(palette_device &palette)
+{
+	for (int i = 0; i < 8; i++)
+		palette.set_pen_color(i, rgb_t(pal1bit(i >> 2), pal1bit(i >> 1), pal1bit(i >> 0)));
+}
+
+
+/*-------------------------------------------------
     RRRR_GGGG_BBBB - standard 4-4-4 palette,
     assuming the commonly used resistor values:
 
@@ -898,16 +964,6 @@ void palette_device::palette_init_RRRRRGGGGGGBBBBB(palette_device &palette)
 
 	for (i = 0; i < 0x10000; i++)
 		palette.set_pen_color(i, rgbexpand<5,6,5>(i, 11, 5, 0));
-}
-
-
-rgb_t raw_to_rgb_converter::BBGGRRII_decoder(UINT32 raw)
-{
-	UINT8 i = raw & 3;
-	UINT8 r = pal4bit(((raw >> 0) & 0x0c) | i);
-	UINT8 g = pal4bit(((raw >> 2) & 0x0c) | i);
-	UINT8 b = pal4bit(((raw >> 4) & 0x0c) | i);
-	return rgb_t(r, g, b);
 }
 
 rgb_t raw_to_rgb_converter::IRRRRRGGGGGBBBBB_decoder(UINT32 raw)

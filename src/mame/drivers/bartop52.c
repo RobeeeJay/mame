@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mariusz Wojcieszek
 /*
     Atari Bartop 5200 prototype system
 
@@ -158,4 +160,4 @@ ROM_START(barbball)
 	ROM_LOAD( "5200.rom",     0xf800, 0x0800, BAD_DUMP CRC(4248d3e3) SHA1(6ad7a1e8c9fad486fbec9498cb48bf5bc3adc530) )
 ROM_END
 
-GAME( 1983, barbball, 0, a5200, bartop52, driver_device, 0, ROT0, "Atari", "Barroom Baseball (prototype)", GAME_NOT_WORKING )
+GAME( 1983, barbball, 0, a5200, bartop52, driver_device, 0, ROT0, "Atari", "Barroom Baseball (prototype)", MACHINE_NOT_WORKING )

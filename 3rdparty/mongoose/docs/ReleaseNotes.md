@@ -1,5 +1,30 @@
 # Mongoose Release Notes
 
+## Release 5.6, 2015-03-17
+
+Changes in Libmongoose library:
+
+- Added `-dav_root` configuration option that gives an ability to mount
+  a different root directory (not document_root)
+- Fixes for build under Win23 and MinGW
+- Bugfix: Double dots removal
+- Bugfix: final chunked response double-send
+- Fixed compilation in 64-bit environments
+- Added OS/2 compatibility
+- Added `getaddrinfo()` call and `NS_ENABLE_GETADDRINFO`
+- Various SSL-related fixes
+- Added integer overflow protection in `iobuf_append()` and `deliver_websocket_frame()`
+- Fixed NetBSD build
+- Enabled `NS_ENABLE_IPV6` build for Visual Studio 2008+
+- Enhanced comma detection in `parse_header()`
+- Fixed unchanged memory accesses on ARM
+- Added ability to use custom memory allocator through NS_MALLOC, NS_FREE, NS_REALLOC
+
+Changes in Mongoose binary:
+
+- Added `-start_browser` option to disable automatic browser launch
+- Added experimental SSL support. To listen on HTTPS port, use `ssl://PORT:SSL_CERT` format. For example, to listen on HTTP port 8080 and HTTPS port 8043, use `-listening_port 8080,ssl://8043:ssl_cert.pem`
+
 ## Release 5.5, October 28 2014
 
 Changes in Libmongoose library:
@@ -143,7 +168,7 @@ Changes in pre-compiled binaries:
     since mongoose buffers all data prior to calling the callback
    * keep-alive support is the default
    * Dropped SSI support and throttling support
-   *  Several configuraition parameters are gone:
+   *  Several configuration parameters are gone:
     *  `cgi_environment` (replaced with MONGOOSE_CGI),
     *  `protect_uri` (not useful)
     *  `ssi_pattern` (SSI support is gone)
@@ -189,5 +214,5 @@ Changes in pre-compiled binaries:
   *  Couple of bugfixes, thanks to contributors
 
 
-Eearlier release notes could be found by searching
+Earlier release notes could be found by searching
 [Mongoose mailing list](https://groups.google.com/forum/#!forum/mongoose-users)

@@ -1,8 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /***************************************************************************
 
 Pandora's Palace(GX328) (c) 1984 Konami/Interlogic
 
-Driver by Manuel Abadia <manu@teleline.es>
+Driver by Manuel Abadia <emumanu+mame@gmail.com>
 
 Notes:
 - Press 1P and 2P together to enter test mode.
@@ -401,4 +403,4 @@ ROM_START( pandoras )
 ROM_END
 
 
-GAME( 1984, pandoras, 0, pandoras, pandoras, driver_device, 0, ROT90, "Konami / Interlogic", "Pandora's Palace", GAME_SUPPORTS_SAVE )
+GAME( 1984, pandoras, 0, pandoras, pandoras, driver_device, 0, ROT90, "Konami / Interlogic", "Pandora's Palace", MACHINE_SUPPORTS_SAVE )

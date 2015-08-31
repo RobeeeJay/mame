@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* mpu4 sets which have been split, and appear to do something useful
 
   I'm trying to keep this file to official Barcrest / BwB rebuilds on mod4 hw
@@ -25,7 +27,7 @@ INPUT_PORTS_EXTERN( grtecp );
 INPUT_PORTS_EXTERN( mpu4jackpot8tkn );
 INPUT_PORTS_EXTERN( mpu4jackpot8per );
 
-#define GAME_FLAGS (GAME_NOT_WORKING|GAME_REQUIRES_ARTWORK)
+#define GAME_FLAGS (MACHINE_NOT_WORKING|MACHINE_REQUIRES_ARTWORK|MACHINE_MECHANICAL)
 
 DRIVER_INIT_MEMBER(mpu4_state,m4debug)
 {
@@ -177,7 +179,7 @@ ROM_START( m4andycpdut )
 ROM_END
 
 // blank copyright  and "DAC 1.3" (6 reel game, not the same as the UK version?)
-GAME(199?, m4andycpdut,     m4andycp    ,mod4oki    ,mpu4               , mpu4_state,m4_showstring          ,ROT0,   "Barcrest","Andy Capp (Barcrest) [DAC 1.3, Dutch] (MPU4)",         GAME_FLAGS|GAME_NO_SOUND )
+GAME(199?, m4andycpdut,     m4andycp    ,mod4oki    ,mpu4               , mpu4_state,m4_showstring          ,ROT0,   "Barcrest","Andy Capp (Barcrest) [DAC 1.3, Dutch] (MPU4)",         GAME_FLAGS|MACHINE_NO_SOUND )
 
 
 #define M4ANDYFL_EXTRA_ROMS \

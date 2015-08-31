@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Samuele Zannoli
 /*
  * geforce 3d (NV2A) vertex program disassembler
  */
@@ -68,6 +70,32 @@ struct vertex_nv {
  */
 class vertex_program_simulator {
 public:
+	enum VectorialOperation {
+		VecNOP=0,
+		VecMOV,
+		VecMUL,
+		VecADD,
+		VecMAD,
+		VecDP3,
+		VecDPH,
+		VecDP4,
+		VecDST,
+		VecMIN,
+		VecMAX,
+		VecSLT,
+		VecSGE,
+		VecARL
+	};
+	enum ScalarOperation {
+		ScaNOP=0,
+		ScaIMV,
+		ScaRCP,
+		ScaRCC,
+		ScaRSQ,
+		ScaEXP,
+		ScaLOG,
+		ScaLIT
+	};
 	vertex_program_simulator();
 	// input vertex
 	vertex_nv *input;
@@ -90,7 +118,8 @@ public:
 			int SwizzleA[4], SignA, ParameterTypeA, TempIndexA;
 			int SwizzleB[4], SignB, ParameterTypeB, TempIndexB;
 			int SwizzleC[4], SignC, ParameterTypeC, TempIndexC;
-			int VecOperation, ScaOperation;
+			VectorialOperation VecOperation;
+			ScalarOperation ScaOperation;
 			int OutputWriteMask, MultiplexerControl;
 			int VecTempWriteMask, ScaTempWriteMask;
 			int VecTempIndex, OutputIndex;
@@ -156,6 +185,7 @@ public:
 		memset(pfifo, 0, sizeof(pfifo));
 		memset(pcrtc, 0, sizeof(pcrtc));
 		memset(pmc, 0, sizeof(pmc));
+		memset(pgraph, 0, sizeof(pgraph));
 		memset(ramin, 0, sizeof(ramin));
 		computedilated();
 		objectdata = &(object_data_alloc());
@@ -165,6 +195,7 @@ public:
 		enabled_vertex_attributes = 0;
 		indexesleft_count = 0;
 		vertex_pipeline = 4;
+		color_mask = 0xffffffff;
 		alpha_test_enabled = false;
 		alpha_reference = 0;
 		alpha_func = nv2a_renderer::ALWAYS;
@@ -188,6 +219,13 @@ public:
 		limits_rendertarget.set(0, 0, 640, 480);
 		pitch_rendertarget = 0;
 		pitch_depthbuffer = 0;
+		log2height_rendertarget = 0;
+		log2width_rendertarget = 0;
+		dilate_rendertarget = 0;
+		antialiasing_rendertarget = 0;
+		type_rendertarget = nv2a_renderer::LINEAR;
+		depth_rendertarget = nv2a_renderer::NV2A_RT_DEPTH_FORMAT_Z24S8;
+		color_rendertarget = nv2a_renderer::NV2A_COLOR_FORMAT_A8R8G8B8;
 		rendertarget = NULL;
 		depthbuffer = NULL;
 		displayedtarget = NULL;
@@ -202,8 +240,10 @@ public:
 	}
 	DECLARE_READ32_MEMBER(geforce_r);
 	DECLARE_WRITE32_MEMBER(geforce_w);
-	bool vblank_callback(screen_device &screen, bool state);
+	void vblank_callback(screen_device &screen, bool state);
 	UINT32 screen_update_callback(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
+	bool update_interrupts();
+	void set_interrupt_device(pic8259_device *device);
 
 	void render_texture_simple(INT32 scanline, const extent_t &extent, const nvidia_object_data &extradata, int threadid);
 	void render_color(INT32 scanline, const extent_t &extent, const nvidia_object_data &extradata, int threadid);
@@ -245,13 +285,15 @@ public:
 	int toggle_wait_vblank_support();
 	void debug_grab_texture(int type, const char *filename);
 	void debug_grab_vertex_program_slot(int slot, UINT32 *instruction);
-	void start();
+	void start(address_space *cpu_space);
 	void savestate_items();
 	void read_vertex(address_space & space, offs_t address, vertex_nv &vertex, int attrib);
-	int read_vertices_0x1810(address_space & space, vertex_nv *destination, int offset, int limit);
 	int read_vertices_0x1800(address_space & space, vertex_nv *destination, UINT32 address, int limit);
+	int read_vertices_0x1808(address_space & space, vertex_nv *destination, UINT32 address, int limit);
+	int read_vertices_0x1810(address_space & space, vertex_nv *destination, int offset, int limit);
 	int read_vertices_0x1818(address_space & space, vertex_nv *destination, UINT32 address, int limit);
 	void convert_vertices_poly(vertex_nv *source, vertex_t *destination, int count);
+	inline UINT8 *direct_access_ptr(offs_t address);
 	TIMER_CALLBACK_MEMBER(puller_timer_work);
 
 	struct {
@@ -265,12 +307,22 @@ public:
 	UINT32 pfifo[0x2000 / 4];
 	UINT32 pcrtc[0x1000 / 4];
 	UINT32 pmc[0x1000 / 4];
+	UINT32 pgraph[0x2000 / 4];
 	UINT32 ramin[0x100000 / 4];
 	UINT32 dma_offset[2];
 	UINT32 dma_size[2];
+	UINT8 *basemempointer;
+	pic8259_device *interruptdevice;
 	rectangle limits_rendertarget;
 	UINT32 pitch_rendertarget;
 	UINT32 pitch_depthbuffer;
+	int log2height_rendertarget;
+	int log2width_rendertarget;
+	int dilate_rendertarget;
+	int antialiasing_rendertarget;
+	int type_rendertarget;
+	int depth_rendertarget;
+	int color_rendertarget;
 	UINT32 *rendertarget;
 	UINT32 *depthbuffer;
 	UINT32 *displayedtarget;
@@ -395,6 +447,7 @@ public:
 		int used;
 		osd_lock *lock;
 	} combiner;
+	UINT32 color_mask;
 	bool alpha_test_enabled;
 	int alpha_func;
 	int alpha_reference;
@@ -592,5 +645,20 @@ public:
 		DECR = 0x1e03,
 		INCR_WRAP = 0x8507,
 		DECR_WRAP = 0x8508
+	};
+	enum NV2A_RT_TYPE {
+		LINEAR = 1,
+		SWIZZLED = 2
+	};
+	enum NV2A_RT_DEPTH_FORMAT {
+		NV2A_RT_DEPTH_FORMAT_Z16 = 0x0001,
+		NV2A_RT_DEPTH_FORMAT_Z24S8 = 0x0002
+	};
+
+	enum NV2A_COLOR_FORMAT {
+		NV2A_COLOR_FORMAT_R5G6B5 = 0x0003,
+		NV2A_COLOR_FORMAT_X8R8G8B8 = 0x0005,
+		NV2A_COLOR_FORMAT_A8R8G8B8 = 0x0008,
+		NV2A_COLOR_FORMAT_B8 = 0x0009
 	};
 };

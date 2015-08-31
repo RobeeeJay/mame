@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ryan Holtz
 /***************************************************************************
 
     Sony PocketStation
@@ -885,8 +887,8 @@ void pockstat_state::machine_start()
 	m_rtc_regs.timer = machine().scheduler().timer_alloc(timer_expired_delegate(FUNC(pockstat_state::rtc_tick),this));
 	m_rtc_regs.timer->adjust(attotime::from_hz(1), index);
 
-	astring region_tag;
-	m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 
 	save_item(NAME(m_ftlb_regs.control));
 	save_item(NAME(m_ftlb_regs.stat));
@@ -1012,4 +1014,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME      PARENT  COMPAT  MACHINE    INPUT     INIT  COMPANY                             FULLNAME       FLAGS */
-CONS( 1999, pockstat, 0,      0,      pockstat,  pockstat, driver_device, 0,    "Sony Computer Entertainment Inc", "Sony PocketStation", GAME_SUPPORTS_SAVE )
+CONS( 1999, pockstat, 0,      0,      pockstat,  pockstat, driver_device, 0,    "Sony Computer Entertainment Inc", "Sony PocketStation", MACHINE_SUPPORTS_SAVE )

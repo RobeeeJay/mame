@@ -1,5 +1,5 @@
-// license:?
-// copyright-holders:Angelo Salese, R. Belmont, Juergen Bunchmueller
+// license:LGPL-2.1+
+// copyright-holders:Angelo Salese, R. Belmont, Juergen Buchmueller
 /******************************************************************************
  *
  *  Acorn Archimedes 310
@@ -377,7 +377,7 @@ static MACHINE_CONFIG_START( a310, a310_state )
 	MCFG_RAM_DEFAULT_SIZE("2M")
 	MCFG_RAM_EXTRA_OPTIONS("512K, 1M, 4M, 8M, 16M")
 
-	MCFG_WD1772x_ADD("fdc", 8000000 / 1) // TODO: frequency
+	MCFG_WD1772_ADD("fdc", 8000000 / 1) // TODO: frequency
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE( a310_state, a310_wd177x_intrq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(a310_state, a310_wd177x_drq_w))
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", a310_floppies, "35dd", a310_state::floppy_formats)
@@ -448,6 +448,6 @@ ROM_START( a3020 )
 ROM_END
 
 /*    YEAR  NAME  PARENT  COMPAT  MACHINE  INPUT  INIT   COMPANY  FULLNAME */
-COMP( 1988, a310, 0,      0,      a310,    a310, a310_state,  a310,   "Acorn", "Archimedes 310", GAME_NOT_WORKING)
-COMP( 1988, a3010, a310,  0,      a310,    a310, a310_state,  a310,   "Acorn", "Archimedes 3010", GAME_NOT_WORKING)
-COMP( 1988, a3020, a310,  0,      a310,    a310, a310_state,  a310,   "Acorn", "Archimedes 3020", GAME_NOT_WORKING)
+COMP( 1988, a310, 0,      0,      a310,    a310, a310_state,  a310,   "Acorn", "Archimedes 310", MACHINE_NOT_WORKING)
+COMP( 1988, a3010, a310,  0,      a310,    a310, a310_state,  a310,   "Acorn", "Archimedes 3010", MACHINE_NOT_WORKING)
+COMP( 1988, a3020, a310,  0,      a310,    a310, a310_state,  a310,   "Acorn", "Archimedes 3020", MACHINE_NOT_WORKING)

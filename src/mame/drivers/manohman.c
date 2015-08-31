@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Fresca
 /***************************************************************************
 
   MANN, OH-MANN
@@ -155,8 +157,8 @@ public:
 static ADDRESS_MAP_START( manohman_map, AS_PROGRAM, 16, _manohman_state )
 	AM_RANGE(0x000000, 0x01ffff) AM_ROM
 	AM_RANGE(0x100000, 0x100001) AM_NOP     // smell to MAX696 watchdog...
-	AM_RANGE(0x300000, 0x300001) AM_DEVWRITE8("saa", saa1099_device, saa1099_data_w, 0x00ff)
-	AM_RANGE(0x300002, 0x300003) AM_DEVWRITE8("saa", saa1099_device, saa1099_control_w, 0x00ff)
+	AM_RANGE(0x300000, 0x300001) AM_DEVWRITE8("saa", saa1099_device, data_w, 0x00ff)
+	AM_RANGE(0x300002, 0x300003) AM_DEVWRITE8("saa", saa1099_device, control_w, 0x00ff)
 	AM_RANGE(0x500000, 0x503fff) AM_RAM
 	AM_RANGE(0x600006, 0x600007) AM_RAM     // write bitpatterns to compare with the 500000-503ff8 RAM testing.
 //  AM_RANGE(0xYYYYYY, 0xYYYYYY) AM_RAM
@@ -234,4 +236,4 @@ ROM_END
 *********************************************/
 
 /*    YEAR  NAME      PARENT  MACHINE   INPUT     INIT    ROT    COMPANY   FULLNAME        FLAGS... */
-GAME( 199?, manohman, 0,      manohman, manohman, driver_device, 0,      ROT0, "Merkur", "Mann, oh-Mann", GAME_NOT_WORKING | GAME_NO_SOUND | GAME_REQUIRES_ARTWORK )
+GAME( 199?, manohman, 0,      manohman, manohman, driver_device, 0,      ROT0, "Merkur", "Mann, oh-Mann", MACHINE_NOT_WORKING | MACHINE_NO_SOUND | MACHINE_REQUIRES_ARTWORK )

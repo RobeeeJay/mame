@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Matthew Conte
 /*****************************************************************************
 
   MAME/MESS NES APU CORE
@@ -141,9 +143,9 @@ void nesapu_device::device_start()
 	int rate = clock() / 4;
 
 	/* Initialize global variables */
-	m_samps_per_sync = rate / ATTOSECONDS_TO_HZ(machine().first_screen()->frame_period().attoseconds);
+	m_samps_per_sync = rate / ATTOSECONDS_TO_HZ(machine().first_screen()->frame_period().attoseconds());
 	m_buffer_size = m_samps_per_sync;
-	m_real_rate = m_samps_per_sync * ATTOSECONDS_TO_HZ(machine().first_screen()->frame_period().attoseconds);
+	m_real_rate = m_samps_per_sync * ATTOSECONDS_TO_HZ(machine().first_screen()->frame_period().attoseconds());
 	m_apu_incsize = (float) (clock() / (float) m_real_rate);
 
 	/* Use initializer calls */

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Chris Hardy
 /*
 
 Track & Field / Hyper Olympic
@@ -890,7 +892,7 @@ INTERRUPT_GEN_MEMBER(trackfld_state::vblank_nmi)
 static MACHINE_CONFIG_START( trackfld, trackfld_state )
 
 	/* basic machine hardware */
-	MCFG_CPU_ADD("maincpu", M6809, MASTER_CLOCK/6/2)    /* a guess for now */
+	MCFG_CPU_ADD("maincpu", KONAMI1, MASTER_CLOCK/6/2)    /* a guess for now */
 	MCFG_CPU_PROGRAM_MAP(main_map)
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", trackfld_state,  vblank_irq)
 
@@ -1008,8 +1010,11 @@ MACHINE_CONFIG_END
 static MACHINE_CONFIG_DERIVED( mastkin, trackfld )
 
 	/* basic machine hardware */
-	MCFG_CPU_MODIFY("maincpu")
+	MCFG_DEVICE_REMOVE("maincpu")
+
+	MCFG_CPU_ADD("maincpu", M6809, MASTER_CLOCK/6/2)    /* a guess for now */
 	MCFG_CPU_PROGRAM_MAP(mastkin_map)
+	MCFG_CPU_VBLANK_INT_DRIVER("screen", trackfld_state, vblank_irq)
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_DERIVED( wizzquiz, trackfld )
@@ -1419,24 +1424,14 @@ ROM_END
 
 DRIVER_INIT_MEMBER(trackfld_state,trackfld)
 {
-	konami1_decode(machine(), "maincpu");
 }
 
 DRIVER_INIT_MEMBER(trackfld_state,atlantol)
 {
 	address_space &space = m_maincpu->space(AS_PROGRAM);
 	UINT8 *rom = memregion("maincpu")->base();
-	UINT8 *decrypt;
-	int A;
 
-	/* "konami1" encrypted opcodes */
-	decrypt = konami1_decode(machine(), "maincpu");
-
-	/* not encrypted opcodes */
-	for (A = 0; A < 0x6000; A++)
-		decrypt[A] = rom[A];
-
-	space.set_decrypted_region(0x0000, 0xffff, decrypt);
+	machine().device<konami1_device>("maincpu")->set_encryption_boundary(0x6000);
 
 	space.install_write_handler(0x0800, 0x0800, write8_delegate(FUNC(trackfld_state::atlantol_gfxbank_w),this));
 	space.nop_write(0x1000, 0x1000);
@@ -1493,14 +1488,14 @@ DRIVER_INIT_MEMBER(trackfld_state,wizzquiz)
 }
 
 
-GAME( 1983, trackfld,  0,        trackfld, trackfld, trackfld_state, trackfld, ROT0,  "Konami", "Track & Field", GAME_SUPPORTS_SAVE )
-GAME( 1983, trackfldc, trackfld, trackfld, trackfld, trackfld_state, trackfld, ROT0,  "Konami (Centuri license)", "Track & Field (Centuri)", GAME_SUPPORTS_SAVE )
-GAME( 1983, hyprolym,  trackfld, trackfld, trackfld, trackfld_state, trackfld, ROT0,  "Konami", "Hyper Olympic", GAME_SUPPORTS_SAVE )
-GAME( 1983, hyprolymb, trackfld, hyprolyb, trackfld, trackfld_state, trackfld, ROT0,  "bootleg", "Hyper Olympic (bootleg)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1996, atlantol,  trackfld, atlantol, atlantol, trackfld_state, atlantol, ROT0,  "bootleg", "Atlant Olimpic", GAME_SUPPORTS_SAVE )
-GAME( 1982, trackfldnz,trackfld, trackfld, trackfld, trackfld_state, trackfld, ROT0,  "bootleg? (Goldberg Enterprizes Inc.)", "Track & Field (NZ bootleg?)", GAME_NOT_WORKING)
-GAME( 1988, mastkin,   0,        mastkin,  mastkin, trackfld_state,  mastkin,  ROT0,  "Du Tech", "The Masters of Kin", GAME_WRONG_COLORS | GAME_SUPPORTS_SAVE )
-GAME( 1985, wizzquiz,  0,        wizzquiz, wizzquiz, trackfld_state, wizzquiz, ROT0,  "Zilec-Zenitone (Konami license)", "Wizz Quiz (Konami version)", GAME_SUPPORTS_SAVE )
-GAME( 1985, wizzquiza, wizzquiz, wizzquiz, wizzquiz, trackfld_state, wizzquiz, ROT0,  "Zilec-Zenitone", "Wizz Quiz (version 4)", GAME_SUPPORTS_SAVE )
-GAME( 1987, reaktor,   0,        reaktor,  reaktor, driver_device,  0,        ROT90, "Zilec", "Reaktor (Track & Field conversion)", GAME_SUPPORTS_SAVE )
-GAME( 1985, yieartf,   yiear,    yieartf,  yieartf, driver_device,  0,        ROT0,  "Konami", "Yie Ar Kung-Fu (GX361 conversion)", GAME_SUPPORTS_SAVE ) // the conversion looks of bootleg quality, but the code is clearly a very different revision to either original hardware set...
+GAME( 1983, trackfld,  0,        trackfld, trackfld, trackfld_state, trackfld, ROT0,  "Konami", "Track & Field", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, trackfldc, trackfld, trackfld, trackfld, trackfld_state, trackfld, ROT0,  "Konami (Centuri license)", "Track & Field (Centuri)", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, hyprolym,  trackfld, trackfld, trackfld, trackfld_state, trackfld, ROT0,  "Konami", "Hyper Olympic", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, hyprolymb, trackfld, hyprolyb, trackfld, trackfld_state, trackfld, ROT0,  "bootleg", "Hyper Olympic (bootleg)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1996, atlantol,  trackfld, atlantol, atlantol, trackfld_state, atlantol, ROT0,  "bootleg", "Atlant Olimpic", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, trackfldnz,trackfld, trackfld, trackfld, trackfld_state, trackfld, ROT0,  "bootleg? (Goldberg Enterprizes Inc.)", "Track & Field (NZ bootleg?)", MACHINE_NOT_WORKING)
+GAME( 1988, mastkin,   0,        mastkin,  mastkin, trackfld_state,  mastkin,  ROT0,  "Du Tech", "The Masters of Kin", MACHINE_WRONG_COLORS | MACHINE_SUPPORTS_SAVE )
+GAME( 1985, wizzquiz,  0,        wizzquiz, wizzquiz, trackfld_state, wizzquiz, ROT0,  "Zilec-Zenitone (Konami license)", "Wizz Quiz (Konami version)", MACHINE_SUPPORTS_SAVE )
+GAME( 1985, wizzquiza, wizzquiz, wizzquiz, wizzquiz, trackfld_state, wizzquiz, ROT0,  "Zilec-Zenitone", "Wizz Quiz (version 4)", MACHINE_SUPPORTS_SAVE )
+GAME( 1987, reaktor,   0,        reaktor,  reaktor, driver_device,  0,        ROT90, "Zilec", "Reaktor (Track & Field conversion)", MACHINE_SUPPORTS_SAVE )
+GAME( 1985, yieartf,   yiear,    yieartf,  yieartf, driver_device,  0,        ROT0,  "Konami", "Yie Ar Kung-Fu (GX361 conversion)", MACHINE_SUPPORTS_SAVE ) // the conversion looks of bootleg quality, but the code is clearly a very different revision to either original hardware set...

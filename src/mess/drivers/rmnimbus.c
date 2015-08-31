@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phill Harvey-Smith, Carl
 /*
     drivers/rmnimbus.c
 
@@ -121,7 +123,7 @@ static MACHINE_CONFIG_START( nimbus, rmnimbus_state )
 	MCFG_PALETTE_ADD("palette", 16)
 
 	/* Backing storage */
-	MCFG_WD2793x_ADD(FDC_TAG, 1000000)
+	MCFG_WD2793_ADD(FDC_TAG, 1000000)
 	MCFG_WD_FDC_FORCE_READY
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(rmnimbus_state,nimbus_fdc_intrq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(rmnimbus_state,nimbus_fdc_drq_w))

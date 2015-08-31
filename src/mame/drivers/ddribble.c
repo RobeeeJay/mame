@@ -1,8 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /***************************************************************************
 
     Double Dribble (GX690) (c) Konami 1986
 
-    Driver by Manuel Abadia <manu@teleline.es>
+    Driver by Manuel Abadia <emumanu+mame@gmail.com>
 
     2008-08
     Dip locations and suggested settings verified with US manual.
@@ -368,5 +370,5 @@ ROM_START( ddribblep )
 	ROM_LOAD( "voice_10.d7", 0x10000, 0x10000, CRC(b4c97494) SHA1(93f7c3c93f6f790c3f480e183da0105b5ac3593b) )
 ROM_END
 
-GAME( 1986, ddribble,  0,        ddribble, ddribble, driver_device, 0, ROT0, "Konami", "Double Dribble", GAME_SUPPORTS_SAVE )
-GAME( 1986, ddribblep, ddribble, ddribble, ddribble, driver_device, 0, ROT0, "Konami", "Double Dribble (prototype?)", GAME_SUPPORTS_SAVE )
+GAME( 1986, ddribble,  0,        ddribble, ddribble, driver_device, 0, ROT0, "Konami", "Double Dribble", MACHINE_SUPPORTS_SAVE )
+GAME( 1986, ddribblep, ddribble, ddribble, ddribble, driver_device, 0, ROT0, "Konami", "Double Dribble (prototype?)", MACHINE_SUPPORTS_SAVE )

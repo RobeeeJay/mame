@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia, David Haywood
 /* Kaneko View2 Tilemaps */
 
 /*
@@ -195,8 +197,8 @@ void kaneko_view2_tilemap_device::kaneko16_vram_w(offs_t offset, UINT16 data, UI
 	m_tmap[_N_]->mark_tile_dirty(offset/2);
 }
 
-void kaneko_view2_tilemap_device::kaneko16_prepare(bitmap_ind16 &bitmap, const rectangle &cliprect) { kaneko16_prepare_common(bitmap, cliprect); };
-void kaneko_view2_tilemap_device::kaneko16_prepare(bitmap_rgb32 &bitmap, const rectangle &cliprect) { kaneko16_prepare_common(bitmap, cliprect); };
+void kaneko_view2_tilemap_device::kaneko16_prepare(bitmap_ind16 &bitmap, const rectangle &cliprect) { kaneko16_prepare_common(bitmap, cliprect); }
+void kaneko_view2_tilemap_device::kaneko16_prepare(bitmap_rgb32 &bitmap, const rectangle &cliprect) { kaneko16_prepare_common(bitmap, cliprect); }
 
 template<class _BitmapClass>
 void kaneko_view2_tilemap_device::kaneko16_prepare_common(_BitmapClass &bitmap, const rectangle &cliprect)

@@ -1,3 +1,5 @@
+// license:Public Domain
+// copyright-holders:Colin Plumb
 /*
  * This code implements the MD5 message-digest algorithm.
  * The algorithm is due to Ron Rivest.  This code was
@@ -151,6 +153,16 @@ MD5Final(md5byte digest[16], struct MD5Context *ctx)
  * reflect the addition of 16 longwords of new data.  MD5Update blocks
  * the data and converts bytes into longwords for this routine.
  */
+
+/**
+ * @fn  void MD5Transform(UWORD32 buf[4], UWORD32 const in[16])
+ *
+ * @brief   Md 5 transform.
+ *
+ * @param   buf The buffer.
+ * @param   in  The in.
+ */
+
 void
 MD5Transform(UWORD32 buf[4], UWORD32 const in[16])
 {

@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:David Haywood, Angelo Salese
 /*******************************************************************************************
 
@@ -559,4 +559,4 @@ ROM_END
  *
  *************************************/
 
-GAME( 1983, jantotsu,  0,    jantotsu, jantotsu, driver_device,  0, ROT270, "Sanritsu", "4nin-uchi Mahjong Jantotsu", GAME_SUPPORTS_SAVE )
+GAME( 1983, jantotsu,  0,    jantotsu, jantotsu, driver_device,  0, ROT270, "Sanritsu", "4nin-uchi Mahjong Jantotsu", MACHINE_SUPPORTS_SAVE )

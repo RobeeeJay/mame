@@ -1,5 +1,5 @@
-// license:MAME
-// copyright-holders:Robbbert
+// license:BSD-3-Clause
+// copyright-holders:Robbbert, Barry Rodewald
 /***************************************************************************
 
 Wicat - various systems.
@@ -895,7 +895,7 @@ static MACHINE_CONFIG_START( wicat, wicat_state )
 	MCFG_CPU_ADD("wd1kcpu",N8X300,XTAL_8MHz)
 	MCFG_CPU_PROGRAM_MAP(wicat_wd1000_mem)
 	MCFG_CPU_IO_MAP(wicat_wd1000_io)
-	MCFG_FD1795x_ADD("fdc",XTAL_8MHz)
+	MCFG_FD1795_ADD("fdc",XTAL_8MHz)
 
 
 MACHINE_CONFIG_END
@@ -986,4 +986,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT  MACHINE INPUT   CLASS         INIT    COMPANY          FULLNAME       FLAGS */
-COMP( 1982, wicat, 0,       0,     wicat, wicat, driver_device, 0, "Millennium Systems", "Wicat System 150", GAME_NOT_WORKING | GAME_NO_SOUND_HW )
+COMP( 1982, wicat, 0,       0,     wicat, wicat, driver_device, 0, "Millennium Systems", "Wicat System 150", MACHINE_NOT_WORKING | MACHINE_NO_SOUND_HW )

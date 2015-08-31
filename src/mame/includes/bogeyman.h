@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*************************************************************************
 
     Bogey Manor
@@ -35,7 +37,6 @@ public:
 	required_shared_ptr<UINT8> m_colorram;
 	required_shared_ptr<UINT8> m_colorram2;
 	required_shared_ptr<UINT8> m_spriteram;
-//  UINT8 *    m_paletteram;  // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t    *m_bg_tilemap;
@@ -52,7 +53,6 @@ public:
 	DECLARE_WRITE8_MEMBER(colorram_w);
 	DECLARE_WRITE8_MEMBER(videoram2_w);
 	DECLARE_WRITE8_MEMBER(colorram2_w);
-	DECLARE_WRITE8_MEMBER(paletteram_w);
 	DECLARE_WRITE8_MEMBER(colbank_w);
 
 	TILE_GET_INFO_MEMBER(get_bg_tile_info);

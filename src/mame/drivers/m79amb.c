@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Al Kossow
 /*          Ramtek M79 Ambush
 
 
@@ -298,4 +300,4 @@ DRIVER_INIT_MEMBER(m79amb_state,m79amb)
 	}
 }
 
-GAME( 1977, m79amb, 0, m79amb, m79amb, m79amb_state, m79amb, ROT0, "RamTek", "M-79 Ambush", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1977, m79amb, 0, m79amb, m79amb, m79amb_state, m79amb, ROT0, "RamTek", "M-79 Ambush", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Carlos A. Lozano
 /******************************************************************
 
 Cabal  (c)1998 Tad
@@ -48,6 +50,17 @@ Dip locations verified with Fabtek manual for the trackball version
 #include "sound/msm5205.h"
 #include "includes/cabal.h"
 
+MACHINE_START_MEMBER(cabal_state,cabal)
+{
+	save_item(NAME(m_last));
+}
+
+MACHINE_START_MEMBER(cabal_state,cabalbl)
+{
+	save_item(NAME(m_sound_command1));
+	save_item(NAME(m_sound_command2));
+}
+
 MACHINE_RESET_MEMBER(cabal_state,cabalbl)
 {
 	m_sound_command1 = m_sound_command2 = 0xff;
@@ -94,7 +107,7 @@ READ16_MEMBER(cabal_state::track_r)
 }
 
 
-WRITE16_MEMBER(cabal_state::cabal_sound_irq_trigger_word_w)
+WRITE16_MEMBER(cabal_state::sound_irq_trigger_word_w)
 {
 	m_seibu_sound->main_word_w(space,4,data,mem_mask);
 
@@ -114,17 +127,17 @@ static ADDRESS_MAP_START( main_map, AS_PROGRAM, 16, cabal_state )
 	AM_RANGE(0x40000, 0x437ff) AM_RAM
 	AM_RANGE(0x43800, 0x43fff) AM_RAM AM_SHARE("spriteram")
 	AM_RANGE(0x44000, 0x4ffff) AM_RAM
-	AM_RANGE(0x60000, 0x607ff) AM_RAM_WRITE(cabal_text_videoram16_w) AM_SHARE("colorram")
-	AM_RANGE(0x80000, 0x801ff) AM_RAM_WRITE(cabal_background_videoram16_w) AM_SHARE("videoram")
+	AM_RANGE(0x60000, 0x607ff) AM_RAM_WRITE(text_videoram_w) AM_SHARE("colorram")
+	AM_RANGE(0x80000, 0x801ff) AM_RAM_WRITE(background_videoram_w) AM_SHARE("videoram")
 	AM_RANGE(0x80200, 0x803ff) AM_RAM
 	AM_RANGE(0xa0000, 0xa0001) AM_READ_PORT("DSW")
 	AM_RANGE(0xa0008, 0xa000f) AM_READ(track_r)
 	AM_RANGE(0xa0010, 0xa0011) AM_READ_PORT("INPUTS")
 	AM_RANGE(0xc0000, 0xc0001) AM_WRITE(track_reset_w)
 	AM_RANGE(0xc0040, 0xc0041) AM_WRITENOP /* ??? */
-	AM_RANGE(0xc0080, 0xc0081) AM_WRITE(cabal_flipscreen_w)
+	AM_RANGE(0xc0080, 0xc0081) AM_WRITE(flipscreen_w)
 	AM_RANGE(0xe0000, 0xe07ff) AM_RAM_DEVWRITE("palette", palette_device, write) AM_SHARE("palette")
-	AM_RANGE(0xe8008, 0xe8009) AM_WRITE(cabal_sound_irq_trigger_word_w) // fix coin insertion
+	AM_RANGE(0xe8008, 0xe8009) AM_WRITE(sound_irq_trigger_word_w) // fix coin insertion
 	AM_RANGE(0xe8000, 0xe800d) AM_DEVREADWRITE("seibu_sound", seibu_sound_device, main_word_r, main_word_w)
 ADDRESS_MAP_END
 
@@ -133,14 +146,14 @@ static ADDRESS_MAP_START( cabalbl_main_map, AS_PROGRAM, 16, cabal_state )
 	AM_RANGE(0x40000, 0x437ff) AM_RAM
 	AM_RANGE(0x43800, 0x43fff) AM_RAM AM_SHARE("spriteram")
 	AM_RANGE(0x44000, 0x4ffff) AM_RAM
-	AM_RANGE(0x60000, 0x607ff) AM_RAM_WRITE(cabal_text_videoram16_w) AM_SHARE("colorram")
-	AM_RANGE(0x80000, 0x801ff) AM_RAM_WRITE(cabal_background_videoram16_w) AM_SHARE("videoram")
+	AM_RANGE(0x60000, 0x607ff) AM_RAM_WRITE(text_videoram_w) AM_SHARE("colorram")
+	AM_RANGE(0x80000, 0x801ff) AM_RAM_WRITE(background_videoram_w) AM_SHARE("videoram")
 	AM_RANGE(0x80200, 0x803ff) AM_RAM
 	AM_RANGE(0xa0000, 0xa0001) AM_READ_PORT("DSW")
 	AM_RANGE(0xa0008, 0xa0009) AM_READ_PORT("JOY")
 	AM_RANGE(0xa0010, 0xa0011) AM_READ_PORT("INPUTS")
 	AM_RANGE(0xc0040, 0xc0041) AM_WRITENOP /* ??? */
-	AM_RANGE(0xc0080, 0xc0081) AM_WRITE(cabal_flipscreen_w)
+	AM_RANGE(0xc0080, 0xc0081) AM_WRITE(flipscreen_w)
 	AM_RANGE(0xe0000, 0xe07ff) AM_RAM_DEVWRITE("palette", palette_device, write) AM_SHARE("palette")
 	AM_RANGE(0xe8000, 0xe8003) AM_WRITE(cabalbl_sndcmd_w)
 	AM_RANGE(0xe8004, 0xe8005) AM_READ(soundlatch2_word_r)
@@ -184,7 +197,7 @@ static ADDRESS_MAP_START( sound_map, AS_PROGRAM, 8, cabal_state )
 	AM_RANGE(0x401b, 0x401b) AM_DEVWRITE("seibu_sound", seibu_sound_device, coin_w)
 	AM_RANGE(0x6005, 0x6006) AM_DEVWRITE("adpcm2", seibu_adpcm_device, adr_w)
 	AM_RANGE(0x601a, 0x601a) AM_DEVWRITE("adpcm2", seibu_adpcm_device, ctl_w)
-	AM_RANGE(0x8000, 0xffff) AM_ROM
+	AM_RANGE(0x8000, 0xffff) AM_ROMBANK("seibu_bank1")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( cabalbl_sound_map, AS_PROGRAM, 8, cabal_state )
@@ -455,7 +468,7 @@ static GFXDECODE_START( cabal )
 GFXDECODE_END
 
 
-static MACHINE_CONFIG_START( cabal, cabal_state )
+static MACHINE_CONFIG_START( cabal_base, cabal_state )
 
 	/* basic machine hardware */
 	MCFG_CPU_ADD("maincpu", M68000, XTAL_20MHz/2) /* verified on pcb */
@@ -465,13 +478,15 @@ static MACHINE_CONFIG_START( cabal, cabal_state )
 	MCFG_CPU_ADD("audiocpu", Z80, XTAL_3_579545MHz) /* verified on pcb */
 	MCFG_CPU_PROGRAM_MAP(sound_map)
 
+	MCFG_MACHINE_START_OVERRIDE(cabal_state,cabal)
+
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
 	MCFG_SCREEN_REFRESH_RATE(59.60)   /* verified on pcb */
 	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(2500) /* not accurate */)
 	MCFG_SCREEN_SIZE(256, 256)
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
-	MCFG_SCREEN_UPDATE_DRIVER(cabal_state, screen_update_cabal)
+	MCFG_SCREEN_UPDATE_DRIVER(cabal_state, screen_update)
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", cabal)
@@ -494,6 +509,14 @@ static MACHINE_CONFIG_START( cabal, cabal_state )
 	MCFG_SOUND_ADD("adpcm2", SEIBU_ADPCM, 8000) /* it should use the msm5205 */
 	MCFG_SEIBU_ADPCM_ROMREGION("adpcm2")
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS,"mono", 0.40)
+MACHINE_CONFIG_END
+
+static MACHINE_CONFIG_DERIVED( cabal, cabal_base )
+	SEIBU_SOUND_SYSTEM_ENCRYPTED_LOW()
+MACHINE_CONFIG_END
+
+static MACHINE_CONFIG_DERIVED( cabalbl2, cabal_base )
+	SEIBU_SOUND_SYSTEM_ENCRYPTED_CUSTOM()
 MACHINE_CONFIG_END
 
 
@@ -521,6 +544,7 @@ static MACHINE_CONFIG_START( cabalbl, cabal_state )
 
 	MCFG_QUANTUM_TIME(attotime::from_hz(600))
 
+	MCFG_MACHINE_START_OVERRIDE(cabal_state,cabalbl)
 	MCFG_MACHINE_RESET_OVERRIDE(cabal_state,cabalbl)
 
 	/* video hardware */
@@ -529,7 +553,7 @@ static MACHINE_CONFIG_START( cabalbl, cabal_state )
 	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(2500) /* not accurate */)
 	MCFG_SCREEN_SIZE(256, 256)
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
-	MCFG_SCREEN_UPDATE_DRIVER(cabal_state, screen_update_cabal)
+	MCFG_SCREEN_UPDATE_DRIVER(cabal_state, screen_update)
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", cabal)
@@ -771,7 +795,7 @@ ROM_END
 // based on stickers present on the board it appears to have been manufactured by 'TAB-Austria' and is marked 'CA02'
 
 ROM_START( cabalbl2 )
-	ROM_REGION( 0x50000, "maincpu", 0 ) /* 64k for cpu code */
+	ROM_REGION( 0x40000, "maincpu", 0 ) /* 64k for cpu code */
 	ROM_LOAD16_BYTE( "c9.bin",    0x00000, 0x10000, CRC(00abbe0c) SHA1(bacf17444abfb4f56248ff56e37b0aa2b1a3800d) )
 	ROM_LOAD16_BYTE( "c7.bin",    0x00001, 0x10000, CRC(44736281) SHA1(1d6da95ef96d9c02aea70791e1cb87b70097d5ed) )
 	ROM_LOAD16_BYTE( "c8.bin",    0x20000, 0x10000, CRC(d763a47c) SHA1(146d8082a404b6eddaf2dc9ba41a997949c17f8a) )
@@ -815,42 +839,26 @@ ROM_START( cabalbl2 )
 ROM_END
 
 
-
-void cabal_state::seibu_sound_bootleg(const char *cpu,int length)
-{
-	address_space &space = machine().device(cpu)->memory().space(AS_PROGRAM);
-	UINT8 *decrypt = auto_alloc_array(machine(), UINT8, length);
-	UINT8 *rom = memregion(cpu)->base();
-
-	space.set_decrypted_region(0x0000, (length < 0x10000) ? (length - 1) : 0x1fff, decrypt);
-
-	memcpy(decrypt, rom+length, length);
-
-	if (length > 0x10000)
-		membank("bank1")->configure_decrypted_entries(0, (length - 0x10000) / 0x8000, decrypt + 0x10000, 0x8000);
-}
-
-
-
 DRIVER_INIT_MEMBER(cabal_state,cabal)
 {
-	m_seibu_sound->decrypt("audiocpu",0x2000);
 	m_adpcm1->decrypt("adpcm1");
 	m_adpcm2->decrypt("adpcm2");
 }
 
 DRIVER_INIT_MEMBER(cabal_state,cabalbl2)
 {
-	seibu_sound_bootleg("audiocpu",0x2000);
+	UINT8 *decrypt = m_seibu_sound->get_custom_decrypt();
+	memcpy(decrypt,        memregion("audiocpu")->base()+0x2000, 0x2000);
+	memcpy(decrypt+0x8000, memregion("audiocpu")->base()+0x8000, 0x8000);
 	m_adpcm1->decrypt("adpcm1");
 	m_adpcm2->decrypt("adpcm2");
 }
 
 
-GAME( 1988, cabal,   0,     cabal,   cabalj, cabal_state,   cabal,   ROT0, "TAD Corporation", "Cabal (World, Joystick version)", 0 )
-GAME( 1989, cabala,  cabal, cabal,   cabalj, cabal_state,   cabal,   ROT0, "TAD Corporation (Alpha Trading license)", "Cabal (Alpha Trading)", 0 ) // korea?
-GAME( 1988, cabalbl, cabal, cabalbl, cabalbl, driver_device,  0,       ROT0, "bootleg (Red Corporation)", "Cabal (bootleg of Joystick version, set 1, alternate sound hardware)", GAME_IMPERFECT_SOUND )
-GAME( 1988, cabalbl2,cabal, cabal,   cabalj, cabal_state,   cabalbl2,ROT0, "bootleg", "Cabal (bootleg of Joystick version, set 2)", 0 )
+GAME( 1988, cabal,   0,     cabal,   cabalj, cabal_state,   cabal,   ROT0, "TAD Corporation", "Cabal (World, Joystick version)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, cabala,  cabal, cabal,   cabalj, cabal_state,   cabal,   ROT0, "TAD Corporation (Alpha Trading license)", "Cabal (Alpha Trading)", MACHINE_SUPPORTS_SAVE ) // korea?
+GAME( 1988, cabalbl, cabal, cabalbl, cabalbl, driver_device,  0,       ROT0, "bootleg (Red Corporation)", "Cabal (bootleg of Joystick version, set 1, alternate sound hardware)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1988, cabalbl2,cabal, cabalbl2,cabalj, cabal_state,   cabalbl2,ROT0, "bootleg", "Cabal (bootleg of Joystick version, set 2)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1988, cabalus, cabal, cabal,   cabalt, cabal_state,   cabal,  ROT0, "TAD Corporation (Fabtek license)", "Cabal (US set 1, Trackball version)", 0 )
-GAME( 1988, cabalus2,cabal, cabal,   cabalt, cabal_state,   cabal,  ROT0, "TAD Corporation (Fabtek license)", "Cabal (US set 2, Trackball version)", 0 )
+GAME( 1988, cabalus, cabal, cabal,   cabalt, cabal_state,   cabal,  ROT0, "TAD Corporation (Fabtek license)", "Cabal (US set 1, Trackball version)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, cabalus2,cabal, cabal,   cabalt, cabal_state,   cabal,  ROT0, "TAD Corporation (Fabtek license)", "Cabal (US set 2, Trackball version)", MACHINE_SUPPORTS_SAVE )

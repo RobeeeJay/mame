@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 /***************************************************************************
 
     Saitek/Scisys Kasparov Stratos Chess Computer
-
-    license: MAME, BSD-3-Clause
-    copyright-holders: Olivier Galibert
 
 ***************************************************************************/
 
@@ -368,4 +367,4 @@ ROM_START( stratos )
 ROM_END
 
 /*     YEAR  NAME      PARENT   COMPAT  MACHINE    INPUT     CLASS          INIT     COMPANY    FULLNAME                           FLAGS */
-CONS(  1986, stratos,  0,       0,      stratos,   stratos,  stratos_state, stratos, "Saitek",  "Kasparov Stratos Chess Computer", GAME_NO_SOUND)
+CONS(  1986, stratos,  0,       0,      stratos,   stratos,  stratos_state, stratos, "Saitek",  "Kasparov Stratos Chess Computer", MACHINE_NO_SOUND)

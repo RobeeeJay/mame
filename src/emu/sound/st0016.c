@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Tomasz Slanina, David Haywood
 /************************************
       Seta custom ST-0016 chip
       sound emulation by R. Belmont, Tomasz Slanina, and David Haywood
@@ -43,6 +45,11 @@ void st0016_device::device_start()
 {
 	m_stream = stream_alloc(0, 2, 44100);
 	m_ram_read_cb.resolve_safe(0);
+
+	save_item(NAME(m_vpos));
+	save_item(NAME(m_frac));
+	save_item(NAME(m_lponce));
+	save_item(NAME(m_regs));
 }
 
 

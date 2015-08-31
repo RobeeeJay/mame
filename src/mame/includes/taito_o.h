@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina
 /*************************************************************************
 
     Taito O system
@@ -15,9 +17,6 @@ public:
 		m_tc0080vco(*this, "tc0080vco"),
 		m_gfxdecode(*this, "gfxdecode"),
 		m_palette(*this, "palette") { }
-
-	/* memory pointers */
-//  UINT16 *    paletteram;    // currently this uses generic palette handling
 
 	/* devices */
 	required_device<cpu_device> m_maincpu;

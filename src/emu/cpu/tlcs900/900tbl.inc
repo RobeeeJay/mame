@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 /*******************************************************************
 
 TLCS-900/H instruction set
@@ -28,7 +30,7 @@ enum e_operand
 	_M8,        /* (8) */
 	_M16,       /* (i16) */
 	_R,     /* register (defined by extension) */
-	_SR,        /* status register */
+	_SR         /* status register */
 };
 
 

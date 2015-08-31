@@ -11,6 +11,13 @@
 #include "emu.h"
 #include "debugger.h"
 
+// for now, make buggy GCC/Mingw STFU about I64FMT
+#if (defined(__MINGW32__) && (__GNUC__ >= 5))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wformat-extra-args"
+#endif
+
 
 //**************************************************************************
 //  DEBUGGING
@@ -187,7 +194,7 @@ void emu_timer::adjust(attotime start_delay, INT32 param, const attotime &period
 	m_enabled = true;
 
 	// clamp negative times to 0
-	if (start_delay.seconds < 0)
+	if (start_delay.seconds() < 0)
 		start_delay = attotime::zero;
 
 	// set the start and expire times
@@ -239,7 +246,7 @@ void emu_timer::register_save()
 {
 	// determine our instance number and name
 	int index = 0;
-	astring name;
+	std::string name;
 
 	// for non-device timers, it is an index based on the callback function name
 	if (m_device == NULL)
@@ -253,18 +260,18 @@ void emu_timer::register_save()
 	// for device timers, it is an index based on the device and timer ID
 	else
 	{
-		name.printf("%s/%d", m_device->tag(), m_id);
+		strprintf(name,"%s/%d", m_device->tag(), m_id);
 		for (emu_timer *curtimer = machine().scheduler().first_timer(); curtimer != NULL; curtimer = curtimer->next())
 			if (!curtimer->m_temporary && curtimer->m_device != NULL && curtimer->m_device == m_device && curtimer->m_id == m_id)
 				index++;
 	}
 
 	// save the bits
-	machine().save().save_item("timer", name, index, NAME(m_param));
-	machine().save().save_item("timer", name, index, NAME(m_enabled));
-	machine().save().save_item("timer", name, index, NAME(m_period));
-	machine().save().save_item("timer", name, index, NAME(m_start));
-	machine().save().save_item("timer", name, index, NAME(m_expire));
+	machine().save().save_item(m_device, "timer", name.c_str(), index, NAME(m_param));
+	machine().save().save_item(m_device, "timer", name.c_str(), index, NAME(m_enabled));
+	machine().save().save_item(m_device, "timer", name.c_str(), index, NAME(m_period));
+	machine().save().save_item(m_device, "timer", name.c_str(), index, NAME(m_start));
+	machine().save().save_item(m_device, "timer", name.c_str(), index, NAME(m_expire));
 }
 
 
@@ -445,22 +452,20 @@ void device_scheduler::timeslice()
 		{
 			// only process if this CPU is executing or truly halted (not yielding)
 			// and if our target is later than the CPU's current time (coarse check)
-			if (EXPECTED((exec->m_suspend == 0 || exec->m_eatcycles) && target.seconds >= exec->m_localtime.seconds))
+			if (EXPECTED((exec->m_suspend == 0 || exec->m_eatcycles) && target.seconds() >= exec->m_localtime.seconds()))
 			{
 				// compute how many attoseconds to execute this CPU
-				attoseconds_t delta = target.attoseconds - exec->m_localtime.attoseconds;
-				if (delta < 0 && target.seconds > exec->m_localtime.seconds)
+				attoseconds_t delta = target.attoseconds() - exec->m_localtime.attoseconds();
+				if (delta < 0 && target.seconds() > exec->m_localtime.seconds())
 					delta += ATTOSECONDS_PER_SECOND;
-#ifndef MAME_DEBUG_FAST
 				assert(delta == (target - exec->m_localtime).as_attoseconds());
-#endif
 
 				// if we have enough for at least 1 cycle, do the math
 				if (delta >= exec->m_attoseconds_per_cycle)
 				{
 					// compute how many cycles we want to execute
 					int ran = exec->m_cycles_running = divu_64x32((UINT64)delta >> exec->m_divshift, exec->m_divisor);
-					LOG(("  cpu '%s': %"I64FMT"d (%d cycles)\n", exec->device().tag(), delta, exec->m_cycles_running));
+					LOG(("  cpu '%s': %" I64FMT"d (%d cycles)\n", exec->device().tag(), delta, exec->m_cycles_running));
 
 					// if we're not suspended, actually execute
 					if (exec->m_suspend == 0)
@@ -559,7 +564,7 @@ void device_scheduler::trigger(int trigid, const attotime &after)
 void device_scheduler::boost_interleave(const attotime &timeslice_time, const attotime &boost_duration)
 {
 	// ignore timeslices > 1 second
-	if (timeslice_time.seconds > 0)
+	if (timeslice_time.seconds() > 0)
 		return;
 	add_scheduling_quantum(timeslice_time, boost_duration);
 }
@@ -755,15 +760,15 @@ void device_scheduler::rebuild_execute_list()
 			min_quantum = attotime::from_hz(60);
 
 		// if the configuration specifies a device to make perfect, pick that as the minimum
-		if (machine().config().m_perfect_cpu_quantum)
+		if (!machine().config().m_perfect_cpu_quantum.empty())
 		{
-			device_t *device = machine().device(machine().config().m_perfect_cpu_quantum);
+			device_t *device = machine().device(machine().config().m_perfect_cpu_quantum.c_str());
 			if (device == NULL)
-				fatalerror("Device '%s' specified for perfect interleave is not present!\n", machine().config().m_perfect_cpu_quantum.cstr());
+				fatalerror("Device '%s' specified for perfect interleave is not present!\n", machine().config().m_perfect_cpu_quantum.c_str());
 
 			device_execute_interface *exec;
 			if (!device->interface(exec))
-				fatalerror("Device '%s' specified for perfect interleave is not an executing device!\n", machine().config().m_perfect_cpu_quantum.cstr());
+				fatalerror("Device '%s' specified for perfect interleave is not an executing device!\n", machine().config().m_perfect_cpu_quantum.c_str());
 
 			min_quantum = min(attotime(0, exec->minimum_quantum()), min_quantum);
 		}
@@ -936,10 +941,11 @@ inline void device_scheduler::execute_timers()
 
 void device_scheduler::add_scheduling_quantum(const attotime &quantum, const attotime &duration)
 {
-	assert(quantum.seconds == 0);
+	assert(quantum.seconds() == 0);
 
 	attotime curtime = time();
 	attotime expire = curtime + duration;
+	const attoseconds_t quantum_attos = quantum.attoseconds();
 
 	// figure out where to insert ourselves, expiring any quanta that are out-of-date
 	quantum_slot *insert_after = NULL;
@@ -952,20 +958,20 @@ void device_scheduler::add_scheduling_quantum(const attotime &quantum, const att
 			m_quantum_allocator.reclaim(m_quantum_list.detach(*quant));
 
 		// if this quantum is shorter than us, we need to be inserted afterwards
-		else if (quant->m_requested <= quantum.attoseconds)
+		else if (quant->m_requested <= quantum_attos)
 			insert_after = quant;
 	}
 
 	// if we found an exact match, just take the maximum expiry time
-	if (insert_after != NULL && insert_after->m_requested == quantum.attoseconds)
+	if (insert_after != NULL && insert_after->m_requested == quantum_attos)
 		insert_after->m_expire = max(insert_after->m_expire, expire);
 
 	// otherwise, allocate a new quantum and insert it after the one we picked
 	else
 	{
 		quantum_slot &quant = *m_quantum_allocator.alloc();
-		quant.m_requested = quantum.attoseconds;
-		quant.m_actual = MAX(quantum.attoseconds, m_quantum_minimum);
+		quant.m_requested = quantum_attos;
+		quant.m_actual = MAX(quantum_attos, m_quantum_minimum);
 		quant.m_expire = expire;
 		m_quantum_list.insert_after(quant, insert_after);
 	}
@@ -984,3 +990,7 @@ void device_scheduler::dump_timers() const
 		timer->dump();
 	logerror("=============================================\n");
 }
+
+#if (defined(__MINGW32__) && (__GNUC__ >= 5))
+#pragma GCC diagnostic pop
+#endif

@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /**************************************************************************
 
@@ -459,4 +459,4 @@ ROM_END
 / Big Top  (1977)
 /-------------------------------------------------------------------*/
 
-GAME(1984,  aftor,  0,  wico,  wico, driver_device,  0,  ROT0,  "Wico", "Af-Tor", GAME_MECHANICAL)
+GAME(1984,  aftor,  0,  wico,  wico, driver_device,  0,  ROT0,  "Wico", "Af-Tor", MACHINE_MECHANICAL)

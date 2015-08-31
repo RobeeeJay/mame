@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mathis Rosenhauer
 /***************************************************************************
 
     Exidy Vertigo hardware
@@ -219,4 +221,4 @@ ROM_END
  *
  *************************************/
 
-GAME( 1986, topgunnr, 0, vertigo, vertigo, driver_device, 0, ROT0, "Exidy", "Top Gunner (Exidy)", GAME_SUPPORTS_SAVE )
+GAME( 1986, topgunnr, 0, vertigo, vertigo, driver_device, 0, ROT0, "Exidy", "Top Gunner (Exidy)", MACHINE_SUPPORTS_SAVE )

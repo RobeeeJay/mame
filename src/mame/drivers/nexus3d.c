@@ -1,3 +1,5 @@
+// license:???
+// copyright-holders:Scott Stone
 /************************************************************************
 
     NEXUS 3D Version 1.0 Board from Interpark
@@ -171,5 +173,5 @@ DRIVER_INIT_MEMBER(nexus3d_state,nexus3d)
 	memcpy( m_mainram, memregion("flash")->base(), 4 * 1024);
 }
 
-GAME( 2005, acheart,  0, nexus3d, nexus3d, nexus3d_state, nexus3d, ROT0, "Examu", "Arcana Heart",GAME_IS_SKELETON )
-GAME( 2006, acheartf, 0, nexus3d, nexus3d, nexus3d_state, nexus3d, ROT0, "Examu", "Arcana Heart Full",GAME_IS_SKELETON )
+GAME( 2005, acheart,  0, nexus3d, nexus3d, nexus3d_state, nexus3d, ROT0, "Examu", "Arcana Heart",MACHINE_IS_SKELETON )
+GAME( 2006, acheartf, 0, nexus3d, nexus3d, nexus3d_state, nexus3d, ROT0, "Examu", "Arcana Heart Full",MACHINE_IS_SKELETON )

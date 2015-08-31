@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ryan Holtz
 #ifndef __SUPERFX_H__
 #define __SUPERFX_H__
 
@@ -46,7 +48,7 @@ enum
 	SUPERFX_RAMCL,
 	SUPERFX_RAMAR,
 	SUPERFX_RAMDR,
-	SUPERFX_RAMADDR,
+	SUPERFX_RAMADDR
 };
 
 #define SUPERFX_SFR_IRQ     0x8000  // Interrupt Flag
@@ -184,7 +186,7 @@ private:
 
 	inline void superfx_regs_reset();
 	void superfx_update_speed();
-	void superfx_cache_flush();;
+	void superfx_cache_flush();
 	UINT8 superfx_cache_mmio_read(UINT32 addr);
 	void superfx_cache_mmio_write(UINT32 addr, UINT8 data);
 	void superfx_memory_reset();

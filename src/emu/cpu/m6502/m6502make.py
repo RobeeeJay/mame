@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
 USAGE = """
 Usage:
 %s device_name {opc.lst|-} disp.lst device.inc
@@ -15,7 +17,8 @@ def load_opcodes(fname):
     logging.info("load_opcodes: %s", fname)
     try:
         f = open(fname, "rU")
-    except Exception, err:
+    except Exception:
+        err = sys.exc_info()[1]
         logging.error("cannot read opcodes file %s [%s]", fname, err)
         sys.exit(1)
 
@@ -37,7 +40,8 @@ def load_disp(fname):
     states = []
     try:
         f = open(fname, "rU")
-    except Exception, err:
+    except Exception:
+        err = sys.exc_info()[1]
         logging.error("cannot read display file %s [%s]", fname, err)
         sys.exit(1)
     for line in f:
@@ -50,7 +54,7 @@ def load_disp(fname):
 
 def emit(f, text):
     """write string to file"""
-    print >>f, text,
+    print(text, file=f)
 
 FULL_PROLOG="""\
 void %(device)s::%(opcode)s_full()
@@ -226,7 +230,8 @@ def save(fname, device, opcodes, states):
     logging.info("saving: %s", fname)
     try:
         f = open(fname, "w")
-    except Exception, err:
+    except Exception:
+        err = sys.exc_info()[1]
         logging.error("cannot write file %s [%s]", fname, err)
         sys.exit(1)
     save_opcodes(f,device, opcodes)
@@ -249,7 +254,7 @@ def main(argv):
 
 
     if len(argv) != 5:
-        print USAGE % argv[0]
+        print(USAGE % argv[0])
         return 1
 
     device_name = argv[1]

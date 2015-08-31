@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /*************************************************************************
 
     S.P.Y.
@@ -25,11 +27,7 @@ public:
 	/* memory pointers */
 	required_shared_ptr<UINT8> m_ram;
 	UINT8      m_pmcram[0x800];
-	dynamic_array<UINT8> m_paletteram;
-
-	/* video-related */
-	int        m_layer_colorbase[3];
-	int        m_sprite_colorbase;
+	std::vector<UINT8> m_paletteram;
 
 	/* misc */
 	int        m_rambank;
@@ -55,7 +53,6 @@ public:
 	DECLARE_WRITE8_MEMBER(k052109_051960_w);
 	virtual void machine_start();
 	virtual void machine_reset();
-	virtual void video_start();
 	UINT32 screen_update_spy(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	INTERRUPT_GEN_MEMBER(spy_interrupt);
 	void spy_collision(  );

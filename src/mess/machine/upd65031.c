@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Sandro Ronco
 /**********************************************************************
 
     NEC uPD65031 'BLINK' emulation
@@ -77,7 +79,7 @@ enum
 
 	REG_RXD  = 0xe0,        // UART receive data register
 	REG_RXE  = 0xe1,        // UART extended receiver data
-	REG_UIT  = 0xe5,        // UART interrupt status
+	REG_UIT  = 0xe5         // UART interrupt status
 };
 
 //mode

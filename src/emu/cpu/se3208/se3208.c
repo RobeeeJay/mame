@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:ElSemi
 #include "emu.h"
 #include "debugger.h"
 #include "se3208.h"
@@ -1736,7 +1738,7 @@ void se3208_device::execute_run()
 {
 	do
 	{
-		UINT16 Opcode=m_direct->read_decrypted_word(m_PC, WORD_XOR_LE(0));
+		UINT16 Opcode=m_direct->read_word(m_PC, WORD_XOR_LE(0));
 
 		debugger_instruction_hook(this, m_PC);
 
@@ -1795,12 +1797,12 @@ void se3208_device::device_start()
 }
 
 
-void se3208_device::state_string_export(const device_state_entry &entry, astring &string)
+void se3208_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c %c%c%c%c%c",
+			strprintf(str, "%c%c%c%c %c%c%c%c%c",
 					m_SR&FLAG_C?'C':'.',
 					m_SR&FLAG_V?'V':'.',
 					m_SR&FLAG_S?'S':'.',

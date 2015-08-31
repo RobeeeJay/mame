@@ -1,3 +1,5 @@
+// license:???
+// copyright-holders:Hau
 /*
 
 Galactic Storm
@@ -355,4 +357,4 @@ ROM_START( galastrm )
 ROM_END
 
 
-GAME( 1992, galastrm, 0, galastrm, galastrm, driver_device, 0, ROT0, "Taito Corporation", "Galactic Storm (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1992, galastrm, 0, galastrm, galastrm, driver_device, 0, ROT0, "Taito Corporation", "Galactic Storm (Japan)", MACHINE_IMPERFECT_GRAPHICS )

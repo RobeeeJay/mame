@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Peter Trauner
 /******************************************************************************
  PeT peter.trauner@utanet.at 2000,2001
 
@@ -168,7 +170,7 @@ QUICKLOAD_LOAD_MEMBER( lynx_state, lynx )
 
 	data.resize(length);
 
-	if (image.fread( data, length) != length)
+	if (image.fread( &data[0], length) != length)
 	{
 		return IMAGE_INIT_FAIL;
 	}
@@ -193,5 +195,5 @@ QUICKLOAD_LOAD_MEMBER( lynx_state, lynx )
 ***************************************************************************/
 
 /*    YEAR  NAME    PARENT  COMPAT  MACHINE INPUT   INIT    COMPANY   FULLNAME      FLAGS */
-CONS( 1989, lynx,   0,      0,      lynx,   lynx, driver_device,   0,       "Atari",  "Lynx", GAME_SUPPORTS_SAVE )
-// CONS( 1991, lynx2,  lynx,   0,      lynx2,  lynx, driver_device,   0,       "Atari",  "Lynx II",    GAME_NOT_WORKING | GAME_IMPERFECT_SOUND )
+CONS( 1989, lynx,   0,      0,      lynx,   lynx, driver_device,   0,       "Atari",  "Lynx", MACHINE_SUPPORTS_SAVE )
+// CONS( 1991, lynx2,  lynx,   0,      lynx2,  lynx, driver_device,   0,       "Atari",  "Lynx II",    MACHINE_NOT_WORKING | MACHINE_IMPERFECT_SOUND )

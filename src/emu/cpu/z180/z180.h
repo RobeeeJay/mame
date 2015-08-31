@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #pragma once
 
 #ifndef __Z180_H__
@@ -151,13 +153,13 @@ protected:
 	virtual void execute_set_input(int inputnum, int state);
 
 	// device_memory_interface overrides
-	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const { return (spacenum == AS_PROGRAM) ? &m_program_config : ( (spacenum == AS_IO) ? &m_io_config : NULL ); }
+	virtual const address_space_config *memory_space_config(address_spacenum spacenum = AS_0) const;
 	virtual bool memory_translate(address_spacenum spacenum, int intention, offs_t &address);
 
 	// device_state_interface overrides
 	virtual void state_import(const device_state_entry &entry);
 	virtual void state_export(const device_state_entry &entry);
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 1; }
@@ -167,6 +169,7 @@ protected:
 private:
 	address_space_config m_program_config;
 	address_space_config m_io_config;
+	address_space_config m_decrypted_opcodes_config;
 
 	PAIR    m_PREPC,m_PC,m_SP,m_AF,m_BC,m_DE,m_HL,m_IX,m_IY;
 	PAIR    m_AF2,m_BC2,m_DE2,m_HL2;
@@ -191,6 +194,8 @@ private:
 	z80_daisy_chain m_daisy;
 	address_space *m_program;
 	direct_read_data *m_direct;
+	address_space *m_oprogram;
+	direct_read_data *m_odirect;
 	address_space *m_iospace;
 	UINT8   m_rtemp;
 	UINT32  m_ioltemp;

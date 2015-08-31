@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mirko Buffoni
 /*
 EA pin - defined by architecture, must implement:
    1 means external access, bypassing internal ROM
@@ -346,7 +348,7 @@ offs_t upi41_cpu_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8
 
 UINT8 mcs48_cpu_device::opcode_fetch()
 {
-	return m_direct->read_decrypted_byte(m_pc++);
+	return m_direct->read_byte(m_pc++);
 }
 
 
@@ -357,7 +359,7 @@ UINT8 mcs48_cpu_device::opcode_fetch()
 
 UINT8 mcs48_cpu_device::argument_fetch()
 {
-	return m_direct->read_raw_byte(m_pc++);
+	return m_direct->read_byte(m_pc++);
 }
 
 
@@ -976,10 +978,11 @@ void mcs48_cpu_device::device_start()
 		state_add(MCS48_P1,        "P1",        m_p1);
 		state_add(MCS48_P2,        "P2",        m_p2);
 
-		astring tempstr;
-		for (int regnum = 0; regnum < 8; regnum++)
-			state_add(MCS48_R0 + regnum, tempstr.format("R%d", regnum), m_rtemp).callimport().callexport();
-
+		std::string tempstr;
+		for (int regnum = 0; regnum < 8; regnum++) {
+			strprintf(tempstr, "R%d", regnum);
+			state_add(MCS48_R0 + regnum, tempstr.c_str(), m_rtemp).callimport().callexport();
+		}
 		state_add(MCS48_EA,        "EA",        m_ea).mask(0x1);
 
 		if (m_feature_mask & UPI41_FEATURE)
@@ -1295,12 +1298,12 @@ void mcs48_cpu_device::state_export(const device_state_entry &entry)
 	}
 }
 
-void mcs48_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void mcs48_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c %c%c%c%c%c%c%c%c",
+			strprintf(str, "%c%c %c%c%c%c%c%c%c%c",
 				m_irq_state ? 'I':'.',
 				m_a11       ? 'M':'.',
 				m_psw & 0x80 ? 'C':'.',

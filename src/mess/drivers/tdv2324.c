@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Curt Coder,Lord Nightmare
+// copyright-holders:Curt Coder,Jonathan Gevaryahu
 /*
 
     Tandberg TDV2324
@@ -287,7 +287,7 @@ static MACHINE_CONFIG_START( tdv2324, tdv2324_state )
 
 	MCFG_Z80SIO2_ADD(MK3887N4_TAG, 8000000/2, 0, 0, 0, 0)
 
-	MCFG_FD1797x_ADD(FD1797PL02_TAG, 8000000/4)
+	MCFG_FD1797_ADD(FD1797PL02_TAG, 8000000/4)
 	MCFG_FLOPPY_DRIVE_ADD(FD1797PL02_TAG":0", tdv2324_floppies, "8dsdd", floppy_image_device::default_floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD(FD1797PL02_TAG":1", tdv2324_floppies, "8dsdd", floppy_image_device::default_floppy_formats)
 
@@ -346,4 +346,4 @@ ROM_END
 //**************************************************************************
 
 //    YEAR  NAME      PARENT  COMPAT  MACHINE   INPUT     INIT  COMPANY     FULLNAME     FLAGS
-COMP( 1983, tdv2324,        0,      0,      tdv2324,        tdv2324, driver_device,     0,      "Tandberg",     "TDV 2324",     GAME_NOT_WORKING|GAME_NO_SOUND)
+COMP( 1983, tdv2324,        0,      0,      tdv2324,        tdv2324, driver_device,     0,      "Tandberg",     "TDV 2324",     MACHINE_NOT_WORKING|MACHINE_NO_SOUND)

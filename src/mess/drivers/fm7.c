@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Barry Rodewald
 /***********************************************************************************************
 
     Fujitsu Micro 7 (FM-7)
@@ -467,7 +469,7 @@ WRITE8_MEMBER(fm7_state::fm7_fdc_w)
 	switch(offset)
 	{
 		case 0:
-			m_fdc->command_w(space, offset,data);
+			m_fdc->cmd_w(space, offset,data);
 			break;
 		case 1:
 			m_fdc->track_w(space, offset,data);
@@ -480,7 +482,8 @@ WRITE8_MEMBER(fm7_state::fm7_fdc_w)
 			break;
 		case 4:
 			m_fdc_side = data & 0x01;
-			m_fdc->set_side(data & 0x01);
+			if (m_floppy)
+				m_floppy->ss_w(data & 0x01);
 			logerror("FDC: wrote %02x to 0x%04x (side)\n",data,offset+0xfd18);
 			break;
 		case 5:
@@ -491,9 +494,17 @@ WRITE8_MEMBER(fm7_state::fm7_fdc_w)
 			}
 			else
 			{
-				m_fdc->set_drive(data & 0x03);
-				floppy_get_device(machine(), data & 0x03)->floppy_mon_w(!BIT(data, 7));
-				floppy_get_device(machine(), data & 0x03)->floppy_drive_set_ready_state(data & 0x80,0);
+				switch (data & 0x01)
+				{
+				case 0: m_floppy = m_floppy0->get_device(); break;
+				case 1: m_floppy = m_floppy1->get_device(); break;
+				}
+
+				m_fdc->set_floppy(m_floppy);
+
+				if (m_floppy)
+					m_floppy->mon_w(!BIT(data, 7));
+
 				logerror("FDC: wrote %02x to 0x%04x (drive)\n",data,offset+0xfd18);
 			}
 			break;
@@ -2029,12 +2040,11 @@ void fm7_state::machine_reset()
 	memset(m_video_ram, 0, sizeof(UINT8) * 0x18000);
 }
 
-static const floppy_interface fm7_floppy_interface =
-{
-	FLOPPY_STANDARD_5_25_DSHD,
-	LEGACY_FLOPPY_OPTIONS_NAME(default),
-	"floppy_5_25"
-};
+
+static SLOT_INTERFACE_START( fm7_floppies )
+	SLOT_INTERFACE("qd", FLOPPY_525_QD)
+SLOT_INTERFACE_END
+
 
 #define MCFG_ADDRESS_BANK(tag) \
 MCFG_DEVICE_ADD(tag, ADDRESS_MAP_BANK, 0) \
@@ -2073,20 +2083,24 @@ static MACHINE_CONFIG_START( fm7, fm7_state )
 	MCFG_SCREEN_SIZE(640, 200)
 	MCFG_SCREEN_VISIBLE_AREA(0, 640-1, 0, 200-1)
 	MCFG_SCREEN_UPDATE_DRIVER(fm7_state, screen_update_fm7)
-	MCFG_SCREEN_PALETTE("palette")
 
-	MCFG_PALETTE_ADD("palette", 8)
-	MCFG_PALETTE_INIT_OWNER(fm7_state, fm7)
+	MCFG_PALETTE_ADD_3BIT_BRG("palette")
 
 	MCFG_CASSETTE_ADD("cassette")
 	MCFG_CASSETTE_FORMATS(fm7_cassette_formats)
 	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_STOPPED | CASSETTE_MOTOR_DISABLED | CASSETTE_SPEAKER_ENABLED)
 	MCFG_CASSETTE_INTERFACE("fm7_cass")
 
-	MCFG_DEVICE_ADD("fdc", MB8877, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+	MCFG_SOFTWARE_LIST_ADD("cass_list","fm7_cass")
+
+	MCFG_MB8877_ADD("fdc", XTAL_8MHz / 8)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+
+	MCFG_FLOPPY_DRIVE_ADD("fdc:0", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("fdc:1", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
+
+	MCFG_SOFTWARE_LIST_ADD("flop_list","fm7_disk")
 
 	MCFG_CENTRONICS_ADD("centronics", centronics_devices, "printer")
 	MCFG_SLOT_OPTION_ADD( "dsjoy", DEMPA_SHINBUNSHA_JOYSTICK )
@@ -2096,11 +2110,6 @@ static MACHINE_CONFIG_START( fm7, fm7_state )
 	MCFG_CENTRONICS_PERROR_HANDLER(WRITELINE(fm7_state, write_centronics_perror))
 
 	MCFG_CENTRONICS_OUTPUT_LATCH_ADD("cent_data_out", "centronics")
-
-	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(fm7_floppy_interface)
-
-	MCFG_SOFTWARE_LIST_ADD("cass_list","fm7_cass")
-	MCFG_SOFTWARE_LIST_ADD("flop_list","fm7_disk")
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_START( fm8, fm7_state )
@@ -2130,20 +2139,20 @@ static MACHINE_CONFIG_START( fm8, fm7_state )
 	MCFG_SCREEN_SIZE(640, 200)
 	MCFG_SCREEN_VISIBLE_AREA(0, 640-1, 0, 200-1)
 	MCFG_SCREEN_UPDATE_DRIVER(fm7_state, screen_update_fm7)
-	MCFG_SCREEN_PALETTE("palette")
 
-	MCFG_PALETTE_ADD("palette", 8)
-	MCFG_PALETTE_INIT_OWNER(fm7_state, fm7)
+	MCFG_PALETTE_ADD_3BIT_BRG("palette")
 
 	MCFG_CASSETTE_ADD("cassette")
 	MCFG_CASSETTE_FORMATS(fm7_cassette_formats)
 	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_STOPPED | CASSETTE_MOTOR_DISABLED | CASSETTE_SPEAKER_ENABLED)
 	MCFG_CASSETTE_INTERFACE("fm7_cass")
 
-	MCFG_DEVICE_ADD("fdc", MB8877, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+	MCFG_MB8877_ADD("fdc", XTAL_8MHz / 8)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+
+	MCFG_FLOPPY_DRIVE_ADD("fdc:0", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("fdc:1", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
 
 	MCFG_CENTRONICS_ADD("centronics", centronics_devices, "printer")
 	MCFG_CENTRONICS_BUSY_HANDLER(WRITELINE(fm7_state, write_centronics_busy))
@@ -2152,9 +2161,6 @@ static MACHINE_CONFIG_START( fm8, fm7_state )
 	MCFG_CENTRONICS_PERROR_HANDLER(WRITELINE(fm7_state, write_centronics_perror))
 
 	MCFG_CENTRONICS_OUTPUT_LATCH_ADD("cent_data_out", "centronics")
-
-	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(fm7_floppy_interface)
-
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_START( fm77av, fm7_state )
@@ -2206,20 +2212,26 @@ static MACHINE_CONFIG_START( fm77av, fm7_state )
 	MCFG_SCREEN_SIZE(640, 200)
 	MCFG_SCREEN_VISIBLE_AREA(0, 640-1, 0, 200-1)
 	MCFG_SCREEN_UPDATE_DRIVER(fm7_state, screen_update_fm7)
-	MCFG_SCREEN_PALETTE("palette")
 
-	MCFG_PALETTE_ADD("palette", 8 + 4096)
-	MCFG_PALETTE_INIT_OWNER(fm7_state, fm7)
+	MCFG_PALETTE_ADD_3BIT_BRG("palette")
+	MCFG_PALETTE_ADD("av_palette", 4096)
 
 	MCFG_CASSETTE_ADD("cassette")
 	MCFG_CASSETTE_FORMATS(fm7_cassette_formats)
 	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_STOPPED | CASSETTE_MOTOR_DISABLED | CASSETTE_SPEAKER_ENABLED)
 	MCFG_CASSETTE_INTERFACE("fm7_cass")
 
-	MCFG_DEVICE_ADD("fdc", MB8877, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+	MCFG_SOFTWARE_LIST_COMPATIBLE_ADD("cass_list", "fm7_cass")
+
+	MCFG_MB8877_ADD("fdc", XTAL_8MHz / 8)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+
+	MCFG_FLOPPY_DRIVE_ADD("fdc:0", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("fdc:1", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
+
+	MCFG_SOFTWARE_LIST_ADD("av_flop_list", "fm77av")
+	MCFG_SOFTWARE_LIST_COMPATIBLE_ADD("flop_list", "fm7_disk")
 
 	MCFG_CENTRONICS_ADD("centronics", centronics_devices, "printer")
 	MCFG_CENTRONICS_BUSY_HANDLER(WRITELINE(fm7_state, write_centronics_busy))
@@ -2228,12 +2240,6 @@ static MACHINE_CONFIG_START( fm77av, fm7_state )
 	MCFG_CENTRONICS_PERROR_HANDLER(WRITELINE(fm7_state, write_centronics_perror))
 
 	MCFG_CENTRONICS_OUTPUT_LATCH_ADD("cent_data_out", "centronics")
-
-	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(fm7_floppy_interface)
-
-	MCFG_SOFTWARE_LIST_ADD("av_flop_list","fm77av")
-	MCFG_SOFTWARE_LIST_COMPATIBLE_ADD("cass_list","fm7_cass")
-	MCFG_SOFTWARE_LIST_COMPATIBLE_ADD("flop_list","fm7_disk")
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_START( fm11, fm7_state )
@@ -2284,20 +2290,20 @@ static MACHINE_CONFIG_START( fm11, fm7_state )
 	MCFG_SCREEN_SIZE(640, 200)
 	MCFG_SCREEN_VISIBLE_AREA(0, 640-1, 0, 200-1)
 	MCFG_SCREEN_UPDATE_DRIVER(fm7_state, screen_update_fm7)
-	MCFG_SCREEN_PALETTE("palette")
 
-	MCFG_PALETTE_ADD("palette", 8)
-	MCFG_PALETTE_INIT_OWNER(fm7_state, fm7)
+	MCFG_PALETTE_ADD_3BIT_BRG("palette")
 
 	MCFG_CASSETTE_ADD("cassette")
 	MCFG_CASSETTE_FORMATS(fm7_cassette_formats)
 	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_STOPPED | CASSETTE_MOTOR_DISABLED | CASSETTE_SPEAKER_ENABLED)
 	MCFG_CASSETTE_INTERFACE("fm7_cass")
 
-	MCFG_DEVICE_ADD("fdc", MB8877, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+	MCFG_MB8877_ADD("fdc", XTAL_8MHz / 8)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+
+	MCFG_FLOPPY_DRIVE_ADD("fdc:0", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("fdc:1", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
 
 	MCFG_CENTRONICS_ADD("centronics", centronics_devices, "printer")
 	MCFG_CENTRONICS_BUSY_HANDLER(WRITELINE(fm7_state, write_centronics_busy))
@@ -2306,9 +2312,6 @@ static MACHINE_CONFIG_START( fm11, fm7_state )
 	MCFG_CENTRONICS_PERROR_HANDLER(WRITELINE(fm7_state, write_centronics_perror))
 
 	MCFG_CENTRONICS_OUTPUT_LATCH_ADD("cent_data_out", "centronics")
-
-	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(fm7_floppy_interface)
-
 MACHINE_CONFIG_END
 
 static MACHINE_CONFIG_START( fm16beta, fm7_state )
@@ -2338,20 +2341,20 @@ static MACHINE_CONFIG_START( fm16beta, fm7_state )
 	MCFG_SCREEN_SIZE(640, 200)
 	MCFG_SCREEN_VISIBLE_AREA(0, 640-1, 0, 200-1)
 	MCFG_SCREEN_UPDATE_DRIVER(fm7_state, screen_update_fm7)
-	MCFG_SCREEN_PALETTE("palette")
 
-	MCFG_PALETTE_ADD("palette", 8)
-	MCFG_PALETTE_INIT_OWNER(fm7_state, fm7)
+	MCFG_PALETTE_ADD_3BIT_BRG("palette")
 
 	MCFG_CASSETTE_ADD("cassette")
 	MCFG_CASSETTE_FORMATS(fm7_cassette_formats)
 	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_STOPPED | CASSETTE_MOTOR_DISABLED | CASSETTE_SPEAKER_ENABLED)
 	MCFG_CASSETTE_INTERFACE("fm7_cass")
 
-	MCFG_DEVICE_ADD("fdc", MB8877, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+	MCFG_MB8877_ADD("fdc", XTAL_8MHz / 8)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(fm7_state, fm7_fdc_drq_w))
+
+	MCFG_FLOPPY_DRIVE_ADD("fdc:0", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("fdc:1", fm7_floppies, "qd", floppy_image_device::default_floppy_formats)
 
 	MCFG_CENTRONICS_ADD("centronics", centronics_devices, "printer")
 	MCFG_CENTRONICS_BUSY_HANDLER(WRITELINE(fm7_state, write_centronics_busy))
@@ -2360,9 +2363,6 @@ static MACHINE_CONFIG_START( fm16beta, fm7_state )
 	MCFG_CENTRONICS_PERROR_HANDLER(WRITELINE(fm7_state, write_centronics_perror))
 
 	MCFG_CENTRONICS_OUTPUT_LATCH_ADD("cent_data_out", "centronics")
-
-	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(fm7_floppy_interface)
-
 MACHINE_CONFIG_END
 
 /* ROM definition */
@@ -2531,9 +2531,9 @@ ROM_END
 COMP( 1981, fm8,      0,      0,      fm8,     fm8, fm7_state,    fm7,  "Fujitsu",   "FM-8",         0)
 COMP( 1982, fm7,      0,      0,      fm7,     fm7, fm7_state,    fm7,  "Fujitsu",   "FM-7",         0)
 COMP( 1984, fmnew7,   fm7,    0,      fm7,     fm7, fm7_state,    fm7,  "Fujitsu",   "FM-NEW7",      0)
-COMP( 1985, fm77av,   fm7,    0,      fm77av,  fm7, fm7_state,    fm7,  "Fujitsu",   "FM-77AV",      GAME_IMPERFECT_GRAPHICS)
-COMP( 1985, fm7740sx, fm7,    0,      fm77av,  fm7, fm7_state,    fm7,  "Fujitsu",   "FM-77AV40SX",  GAME_NOT_WORKING)
+COMP( 1985, fm77av,   fm7,    0,      fm77av,  fm7, fm7_state,    fm7,  "Fujitsu",   "FM-77AV",      MACHINE_IMPERFECT_GRAPHICS)
+COMP( 1985, fm7740sx, fm7,    0,      fm77av,  fm7, fm7_state,    fm7,  "Fujitsu",   "FM-77AV40SX",  MACHINE_NOT_WORKING)
 
 // These may be separated into a separate driver, depending on how different they are to the FM-8/FM-7
-COMP( 1982, fm11,     0,      0,      fm11,     fm7, fm7_state,    fm7,       "Fujitsu",   "FM-11 EX",      GAME_NOT_WORKING)
-COMP( 1982, fm16beta, 0,      0,      fm16beta, fm7, fm7_state,    fm7,       "Fujitsu",   "FM-16\xCE\xB2", GAME_NOT_WORKING)
+COMP( 1982, fm11,     0,      0,      fm11,     fm7, fm7_state,    fm7,       "Fujitsu",   "FM-11 EX",      MACHINE_NOT_WORKING)
+COMP( 1982, fm16beta, 0,      0,      fm16beta, fm7, fm7_state,    fm7,       "Fujitsu",   "FM-16\xCE\xB2", MACHINE_NOT_WORKING)

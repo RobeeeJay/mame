@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /***************************************************************************
 
     Rollergames (GX999) (c) 1991 Konami
@@ -338,5 +340,5 @@ ROM_END
 
 ***************************************************************************/
 
-GAME( 1991, rollerg,  0,       rollerg, rollerg, driver_device, 0, ROT0, "Konami", "Rollergames (US)", GAME_SUPPORTS_SAVE )
-GAME( 1991, rollergj, rollerg, rollerg, rollerg, driver_device, 0, ROT0, "Konami", "Rollergames (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1991, rollerg,  0,       rollerg, rollerg, driver_device, 0, ROT0, "Konami", "Rollergames (US)", MACHINE_SUPPORTS_SAVE )
+GAME( 1991, rollergj, rollerg, rollerg, rollerg, driver_device, 0, ROT0, "Konami", "Rollergames (Japan)", MACHINE_SUPPORTS_SAVE )

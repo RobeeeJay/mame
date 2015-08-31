@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Carl
 #ifndef __I8086_H__
 #define __I8086_H__
 
@@ -10,6 +12,10 @@ extern const device_type I8088;
 
 #define INPUT_LINE_INT0         INPUT_LINE_IRQ0
 #define INPUT_LINE_TEST         20
+
+
+#define MCFG_I8086_LOCK_HANDLER(_write) \
+	devcb = &i8086_common_cpu_device::set_lock_handler(*device, DEVCB_##_write);
 
 
 enum
@@ -26,6 +32,9 @@ class i8086_common_cpu_device : public cpu_device
 public:
 	// construction/destruction
 	i8086_common_cpu_device(const machine_config &mconfig, device_type type, const char *name, const char *tag, device_t *owner, UINT32 clock, const char *shortname, const char *source);
+
+	template<class _Object> static devcb_base &set_lock_handler(device_t &device, _Object object)
+		{ return downcast<i8086_common_cpu_device &>(device).m_lock_handler.set_callback(object); }
 
 protected:
 	enum
@@ -118,7 +127,7 @@ protected:
 	virtual offs_t disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options);
 
 	// device_state_interface overrides
-	virtual void state_string_export(const device_state_entry &entry, astring &string);
+	virtual void state_string_export(const device_state_entry &entry, std::string &str);
 
 	virtual void interrupt(int int_num, int trap = 1);
 	bool common_op(UINT8 op);
@@ -323,6 +332,9 @@ protected:
 
 	UINT8 m_timing[200];
 	bool m_halt;
+
+	bool m_lock;
+	devcb_write_line m_lock_handler;
 };
 
 class i8086_cpu_device : public i8086_common_cpu_device

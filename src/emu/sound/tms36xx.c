@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 #include "emu.h"
 #include "tms36xx.h"
 
@@ -123,10 +125,10 @@ static const int tune2[96*6] = {
 /*
  * The theme from Phoenix, a sad little tune.
  * Gerald Coy:
- *   The starting song from Phoenix is coming from a old french movie and
+ *   The starting song from Phoenix comes from an old French movie and
  *   it's called : "Jeux interdits" which means "unallowed games"  ;-)
  * Mirko Buffoni:
- *   It's called "Sogni proibiti" in italian, by Anonymous.
+ *   It's called "Sogni proibiti" in Italian, by Anonymous.
  * Magic*:
  *   This song is a classical piece called "ESTUDIO" from M.A.Robira.
  */
@@ -373,6 +375,21 @@ void tms36xx_device::device_start()
 		m_decay[0], m_decay[1], m_decay[2],
 		m_decay[3], m_decay[4], m_decay[5]));
 	LOG(("TMS36xx speed         %d\n", m_speed));
+
+	save_item(NAME(m_octave));
+	save_item(NAME(m_tune_counter));
+	save_item(NAME(m_note_counter));
+	save_item(NAME(m_voices));
+	save_item(NAME(m_shift));
+	save_item(NAME(m_vol));
+	save_item(NAME(m_vol_counter));
+	save_item(NAME(m_counter));
+	save_item(NAME(m_frequency));
+	save_item(NAME(m_output));
+	save_item(NAME(m_enable));
+	save_item(NAME(m_tune_num));
+	save_item(NAME(m_tune_ofs));
+	save_item(NAME(m_tune_max));
 }
 
 

@@ -1,21 +1,11 @@
+// license:BSD-3-Clause
+// copyright-holders:Steve Ellenoff,R. Belmont,Ryan Holtz
 /*****************************************************************************
  *
  *   arm7core.h
  *   Portable ARM7TDMI Core Emulator
  *
  *   Copyright Steve Ellenoff, all rights reserved.
- *
- *   - This source code is released as freeware for non-commercial purposes.
- *   - You are free to use and redistribute this code in modified or
- *     unmodified form, provided you list me in the credits.
- *   - If you modify this source code, you must add a notice to each modified
- *     source file that it has been changed.  If you're a nice person, you
- *     will clearly mark each change too.  :)
- *   - If you wish to use this for commercial purposes, please contact me at
- *     sellenoff@hotmail.com
- *   - The author of this copywritten work reserves the right to change the
- *     terms of its usage and license at any time, including retroactively
- *   - This entire notice must remain in the source code.
  *
  *  This work is based on:
  *  #1) 'Atmel Corporation ARM7TDMI (Thumb) Datasheet - January 1999'
@@ -158,7 +148,7 @@ enum
 	eARM_ARCHFLAGS_MMU  = 8,        // has on-board MMU (traditional ARM style like the SA1110)
 	eARM_ARCHFLAGS_SA   = 16,       // StrongARM extensions (enhanced TLB)
 	eARM_ARCHFLAGS_XSCALE   = 32,       // XScale extensions (CP14, enhanced TLB)
-	eARM_ARCHFLAGS_MODE26   = 64,       // supports 26-bit backwards compatibility mode
+	eARM_ARCHFLAGS_MODE26   = 64        // supports 26-bit backwards compatibility mode
 };
 
 

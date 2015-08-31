@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Raphael Nabet
 /*
 
 Driver for a PDP1 emulator.
@@ -164,7 +166,7 @@ static INPUT_PORTS_START( pdp1 )
 	    rightmost one: maybe they were used to set the margin (I don't have the
 	    manual for the typewriter). */
 
-	PORT_START("TWR0")      /* 6: typewriter codes 00-17 */
+	PORT_START("TWR.0")      /* 6: typewriter codes 00-17 */
 	PORT_BIT(0x0001, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("(Space)") PORT_CODE(KEYCODE_SPACE)
 	PORT_BIT(0x0002, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("1 \"") PORT_CODE(KEYCODE_1)
 	PORT_BIT(0x0004, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("2 '") PORT_CODE(KEYCODE_2)
@@ -176,7 +178,7 @@ static INPUT_PORTS_START( pdp1 )
 	PORT_BIT(0x0100, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("8 >") PORT_CODE(KEYCODE_8)
 	PORT_BIT(0x0200, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("9 (up arrow)") PORT_CODE(KEYCODE_9)
 
-	PORT_START("TWR1")      /* 7: typewriter codes 20-37 */
+	PORT_START("TWR.1")      /* 7: typewriter codes 20-37 */
 	PORT_BIT(0x0001, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("0 (right arrow)") PORT_CODE(KEYCODE_0)
 	PORT_BIT(0x0002, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("/ ?") PORT_CODE(KEYCODE_SLASH)
 	PORT_BIT(0x0004, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("S") PORT_CODE(KEYCODE_S)
@@ -190,7 +192,7 @@ static INPUT_PORTS_START( pdp1 )
 	PORT_BIT(0x0800, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME(", =") PORT_CODE(KEYCODE_COMMA)
 	PORT_BIT(0x4000, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("Tab Key") PORT_CODE(KEYCODE_TAB)
 
-	PORT_START("TWR2")      /* 8: typewriter codes 40-57 */
+	PORT_START("TWR.2")      /* 8: typewriter codes 40-57 */
 	PORT_BIT(0x0001, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("(non-spacing middle dot) _") PORT_CODE(KEYCODE_QUOTE)
 	PORT_BIT(0x0002, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("J") PORT_CODE(KEYCODE_J)
 	PORT_BIT(0x0004, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("K") PORT_CODE(KEYCODE_K)
@@ -206,7 +208,7 @@ static INPUT_PORTS_START( pdp1 )
 	PORT_BIT(0x4000, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("(non-spacing overstrike) |") PORT_CODE(KEYCODE_OPENBRACE)
 	PORT_BIT(0x8000, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("( [") PORT_CODE(KEYCODE_MINUS)
 
-	PORT_START("TWR3")      /* 9: typewriter codes 60-77 */
+	PORT_START("TWR.3")      /* 9: typewriter codes 60-77 */
 	PORT_BIT(0x0002, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("A") PORT_CODE(KEYCODE_A)
 	PORT_BIT(0x0004, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("B") PORT_CODE(KEYCODE_B)
 	PORT_BIT(0x0008, IP_ACTIVE_HIGH, IPT_KEYBOARD) PORT_NAME("C") PORT_CODE(KEYCODE_C)
@@ -405,7 +407,7 @@ static void iot_cks(device_t *device, int op2, int nac, int mb, int *io, int ac)
 
 
 /*
-    devices which are known to generate a completion pulse (source: maintainance manual 9-??,
+    devices which are known to generate a completion pulse (source: maintenance manual 9-??,
     and 9-20, 9-21):
     emulated:
     * perforated tape reader
@@ -451,8 +453,8 @@ static pdp1_reset_param_t pdp1_reset_param =
 {
 	{   /* external iot handlers.  NULL means that the iot is unimplemented, unless there are
         parentheses around the iot name, in which case the iot is internal to the cpu core. */
-		/* I put a ? when the source is the handbook, since a) I have used the maintainance manual
-		as the primary source (as it goes more into details) b) the handbook and the maintainance
+		/* I put a ? when the source is the handbook, since a) I have used the maintenance manual
+		as the primary source (as it goes more into details) b) the handbook and the maintenance
 		manual occasionnally contradict each other. */
 		/* dia, dba, dcc, dra are documented in MIT PDP-1 COMPUTER MODIFICATION
 		BULLETIN no. 2 (drumInstrWriteup.bin/drumInstrWriteup.txt), and are
@@ -483,9 +485,8 @@ static pdp1_reset_param_t pdp1_reset_param =
 
 void pdp1_state::machine_reset()
 {
-	int cfg;
+	int cfg = m_cfg->read();
 
-	cfg = ioport("CFG")->read();
 	pdp1_reset_param.extend_support = (cfg >> pdp1_config_extend_bit) & pdp1_config_extend_mask;
 	pdp1_reset_param.hw_mul_div = (cfg >> pdp1_config_hw_mul_div_bit) & pdp1_config_hw_mul_div_mask;
 	pdp1_reset_param.type_20_sbs = (cfg >> pdp1_config_type_20_sbs_bit) & pdp1_config_type_20_sbs_mask;
@@ -1303,7 +1304,7 @@ static void iot_tyo(device_t *device, int op2, int nac, int mb, int *io, int ac)
 	state->typewriter_out(ch);
 	state->m_io_status &= ~io_st_tyo;
 
-	/* compute completion delay (source: maintainance manual 9-12, 9-13 and 9-14) */
+	/* compute completion delay (source: maintenance manual 9-12, 9-13 and 9-14) */
 	switch (ch)
 	{
 	case 072:   /* lower-case */
@@ -1596,7 +1597,7 @@ static void iot_dra(device_t *device, int op2, int nac, int mb, int *io, int ac)
 {
 	pdp1_state *state = device->machine().driver_data<pdp1_state>();
 	(*io) = (state->m_parallel_drum.rotation_timer->elapsed() *
-		(ATTOSECONDS_PER_SECOND / (PARALLEL_DRUM_WORD_TIME.as_attoseconds()))).seconds & 0007777;
+		(ATTOSECONDS_PER_SECOND / (PARALLEL_DRUM_WORD_TIME.as_attoseconds()))).seconds() & 0007777;
 
 	/* set parity error and timing error... */
 }
@@ -1616,7 +1617,7 @@ static void iot_dra(device_t *device, int op2, int nac, int mb, int *io, int ac)
 */
 static void iot_011(device_t *device, int op2, int nac, int mb, int *io, int ac)
 {
-	int key_state = device->machine().root_device().ioport("SPACEWAR")->read();
+	int key_state = device->machine().driver_data<pdp1_state>()->read_spacewar();
 	int reply;
 
 
@@ -1699,12 +1700,11 @@ void pdp1_state::pdp1_keyboard()
 	int typewriter_keys[4];
 
 	int typewriter_transitions;
-	static const char *const twrnames[] = { "TWR0", "TWR1", "TWR2", "TWR3" };
 
 
 	for (i=0; i<4; i++)
 	{
-		typewriter_keys[i] = ioport(twrnames[i])->read();
+		typewriter_keys[i] = m_twr[i]->read();
 	}
 
 	for (i=0; i<4; i++)
@@ -1732,11 +1732,9 @@ void pdp1_state::pdp1_keyboard()
 void pdp1_state::pdp1_lightpen()
 {
 	int x_delta, y_delta;
-	int current_state;
+	int current_state = m_io_lightpen->read();
 
-	m_lightpen.active = (ioport("CFG")->read() >> pdp1_config_lightpen_bit) & pdp1_config_lightpen_mask;
-
-	current_state = ioport("LIGHTPEN")->read();
+	m_lightpen.active = (m_cfg->read() >> pdp1_config_lightpen_bit) & pdp1_config_lightpen_mask;
 
 	/* update pen down state */
 	m_lightpen.down = m_lightpen.active && (current_state & pdp1_lightpen_down);
@@ -1758,8 +1756,8 @@ void pdp1_state::pdp1_lightpen()
 	m_old_lightpen = current_state;
 
 	/* update pen position */
-	x_delta = ioport("LIGHTX")->read();
-	y_delta = ioport("LIGHTY")->read();
+	x_delta = m_lightx->read();
+	y_delta = m_lighty->read();
 
 	if (x_delta >= 0x80)
 		x_delta -= 0x100;
@@ -1795,10 +1793,10 @@ INTERRUPT_GEN_MEMBER(pdp1_state::pdp1_interrupt)
 	int ta_transitions;
 
 
-	m_maincpu->set_state_int(PDP1_SS, ioport("SENSE")->read());
+	m_maincpu->set_state_int(PDP1_SS, m_sense->read());
 
 	/* read new state of control keys */
-	control_keys = ioport("CSW")->read();
+	control_keys = m_csw->read();
 
 	if (control_keys & pdp1_control)
 	{
@@ -1890,7 +1888,7 @@ INTERRUPT_GEN_MEMBER(pdp1_state::pdp1_interrupt)
 
 
 		/* handle test word keys */
-		tw_keys = (ioport("TWDMSB")->read() << 16) | ioport("TWDLSB")->read();
+		tw_keys = (m_twdmsb->read() << 16) | m_twdlsb->read();
 
 		/* compute transitions */
 		tw_transitions = tw_keys & (~ m_old_tw_keys);
@@ -1903,7 +1901,7 @@ INTERRUPT_GEN_MEMBER(pdp1_state::pdp1_interrupt)
 
 
 		/* handle address keys */
-		ta_keys = ioport("TSTADD")->read();
+		ta_keys = m_tstadd->read();
 
 		/* compute transitions */
 		ta_transitions = ta_keys & (~ m_old_ta_keys);
@@ -1978,4 +1976,4 @@ ROM_END
 ***************************************************************************/
 
 /*    YEAR  NAME      PARENT    COMPAT  MACHINE   INPUT CLASS         INIT    COMPANY                        FULLNAME */
-COMP( 1961, pdp1,     0,        0,      pdp1,     pdp1, driver_device,  0,  "Digital Equipment Corporation",  "PDP-1" , GAME_NO_SOUND_HW )
+COMP( 1961, pdp1,     0,        0,      pdp1,     pdp1, driver_device,  0,  "Digital Equipment Corporation",  "PDP-1" , MACHINE_NO_SOUND_HW )

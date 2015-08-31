@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Dirk Best
 /****************************************************************************
 
     amiga.c
@@ -19,7 +21,6 @@
 #include "imgtool.h"
 #include "iflopimg.h"
 #include "formats/imageutl.h"
-#include "formats/ami_dsk.h"
 
 
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #include "microdisc.h"
 #include "formats/oric_dsk.h"
 
@@ -17,7 +19,7 @@ static SLOT_INTERFACE_START( microdisc_floppies )
 SLOT_INTERFACE_END
 
 static MACHINE_CONFIG_FRAGMENT( microdisc )
-	MCFG_FD1793x_ADD("fdc", XTAL_8MHz/8)
+	MCFG_FD1793_ADD("fdc", XTAL_8MHz/8)
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(microdisc_device, fdc_irq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(microdisc_device, fdc_drq_w))
 	MCFG_WD_FDC_HLD_CALLBACK(WRITELINE(microdisc_device, fdc_hld_w))
@@ -48,8 +50,7 @@ microdisc_device::~microdisc_device()
 void microdisc_device::device_start()
 {
 	oricext_device::device_start();
-	astring tempstring;
-	microdisc_rom = device().machine().root_device().memregion(this->subtag(tempstring, "microdisc"))->base();
+	microdisc_rom = device().machine().root_device().memregion(this->subtag("microdisc").c_str())->base();
 	cpu->space(AS_PROGRAM).install_device(0x0000, 0xffff, *this, &microdisc_device::map);
 
 	for(int i=0; i<4; i++) {

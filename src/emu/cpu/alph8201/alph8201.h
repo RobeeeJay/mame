@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Tatsuyuki Satoh
 	/**************************************************************************\
 	*                      Alpha8201 Emulator                                  *
 	*                                                                          *
@@ -61,7 +63,7 @@ protected:
 	// device_state_interface overrides
 	virtual void state_import(const device_state_entry &entry);
 	virtual void state_export(const device_state_entry &entry);
-	void state_string_export(const device_state_entry &entry, astring &string);
+	void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// device_disasm_interface overrides
 	virtual UINT32 disasm_min_opcode_bytes() const { return 1; }
@@ -70,8 +72,8 @@ protected:
 
 	UINT8 M_RDMEM(UINT16 A) { return m_program->read_byte(A); }
 	void M_WRMEM(UINT16 A,UINT8 V) { m_program->write_byte(A, V); }
-	UINT8 M_RDOP(UINT16 A) { return m_direct->read_decrypted_byte(A); }
-	UINT8 M_RDOP_ARG(UINT16 A) { return m_direct->read_raw_byte(A); }
+	UINT8 M_RDOP(UINT16 A) { return m_direct->read_byte(A); }
+	UINT8 M_RDOP_ARG(UINT16 A) { return m_direct->read_byte(A); }
 	UINT8 RD_REG(UINT8 x) { return m_RAM[(m_regPtr<<3)+(x)]; }
 	void WR_REG(UINT8 x, UINT8 d) { m_RAM[(m_regPtr<<3)+(x)]=(d); }
 

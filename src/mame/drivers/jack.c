@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Brad Oliver
 /***************************************************************************
 
 Jack the Giant Killer memory map (preliminary)
@@ -184,10 +186,14 @@ static ADDRESS_MAP_START( jack_map, AS_PROGRAM, 8, jack_state )
 	AM_RANGE(0xb504, 0xb504) AM_READ_PORT("IN2")
 	AM_RANGE(0xb505, 0xb505) AM_READ_PORT("IN3")
 	AM_RANGE(0xb506, 0xb507) AM_READWRITE(jack_flipscreen_r, jack_flipscreen_w)
-	AM_RANGE(0xb600, 0xb61f) AM_WRITE(jack_paletteram_w) AM_SHARE("palette")
+	AM_RANGE(0xb600, 0xb61f) AM_DEVWRITE("palette", palette_device, write) AM_SHARE("palette")
 	AM_RANGE(0xb800, 0xbbff) AM_RAM_WRITE(jack_videoram_w) AM_SHARE("videoram")
 	AM_RANGE(0xbc00, 0xbfff) AM_RAM_WRITE(jack_colorram_w) AM_SHARE("colorram")
 	AM_RANGE(0xc000, 0xffff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( decrypted_opcodes_map, AS_DECRYPTED_OPCODES, 8, jack_state )
+	AM_RANGE(0x0000, 0x3fff) AM_ROM AM_SHARE("decrypted_opcodes")
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( striv_map, AS_PROGRAM, 8, jack_state )
@@ -916,7 +922,7 @@ static MACHINE_CONFIG_START( jack, jack_state )
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", jack)
 
 	MCFG_PALETTE_ADD("palette", 32)
-	MCFG_PALETTE_FORMAT(BBGGGRRR)
+	MCFG_PALETTE_FORMAT(BBGGGRRR_inverted)
 
 	/* sound hardware */
 	MCFG_SPEAKER_STANDARD_MONO("mono")
@@ -925,6 +931,11 @@ static MACHINE_CONFIG_START( jack, jack_state )
 	MCFG_AY8910_PORT_A_READ_CB(READ8(driver_device, soundlatch_byte_r))
 	MCFG_AY8910_PORT_B_READ_CB(READ8(jack_state, timer_r))
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_CONFIG_END
+
+static MACHINE_CONFIG_DERIVED( treahunt, jack )
+	MCFG_CPU_MODIFY("maincpu")
+	MCFG_CPU_DECRYPTED_OPCODES_MAP(decrypted_opcodes_map)
 MACHINE_CONFIG_END
 
 
@@ -968,10 +979,9 @@ static MACHINE_CONFIG_DERIVED( joinem, jack )
 
 	MCFG_GFXDECODE_MODIFY("gfxdecode", joinem)
 
-	MCFG_PALETTE_MODIFY("palette")
-	MCFG_PALETTE_ENTRIES(0x40)
-	MCFG_PALETTE_INIT_OWNER(jack_state,joinem)
-	MCFG_PALETTE_FORMAT(BBGGGRRR)
+	MCFG_DEVICE_REMOVE("palette")
+	MCFG_PALETTE_ADD("palette", 64)
+	MCFG_PALETTE_INIT_OWNER(jack_state, joinem)
 
 	MCFG_VIDEO_START_OVERRIDE(jack_state,joinem)
 MACHINE_CONFIG_END
@@ -988,7 +998,7 @@ static MACHINE_CONFIG_DERIVED( unclepoo, joinem )
 	MCFG_SCREEN_VISIBLE_AREA(0*8, 32*8-1, 1*8, 31*8-1)
 
 	MCFG_PALETTE_MODIFY("palette")
-	MCFG_PALETTE_ENTRIES(0x100)
+	MCFG_PALETTE_ENTRIES(256)
 MACHINE_CONFIG_END
 
 
@@ -1440,23 +1450,17 @@ DRIVER_INIT_MEMBER(jack_state,zzyzzyxx)
 
 void jack_state::treahunt_decode(  )
 {
-	int A;
-	address_space &space = m_maincpu->space(AS_PROGRAM);
 	UINT8 *rom = memregion("maincpu")->base();
-	UINT8 *decrypt = auto_alloc_array(machine(), UINT8, 0x4000);
-	int data;
-
-	space.set_decrypted_region(0x0000, 0x3fff, decrypt);
 
 	/* Thanks to Mike Balfour for helping out with the decryption */
-	for (A = 0; A < 0x4000; A++)
+	for (int A = 0; A < 0x4000; A++)
 	{
-		data = rom[A];
+		UINT8 data = rom[A];
 
 		if (A & 0x1000)
 		{
 			/* unencrypted = D0 D2 D5 D1 D3 D6 D4 D7 */
-			decrypt[A] =
+			m_decrypted_opcodes[A] =
 					((data & 0x01) << 7) |
 					((data & 0x02) << 3) |
 					((data & 0x04) << 4) |
@@ -1467,12 +1471,12 @@ void jack_state::treahunt_decode(  )
 
 			if ((A & 0x04) == 0)
 			/* unencrypted = !D0 D2 D5 D1 D3 D6 D4 !D7 */
-				decrypt[A] ^= 0x81;
+				m_decrypted_opcodes[A] ^= 0x81;
 		}
 		else
 		{
 			/* unencrypted = !D7 D2 D5 D1 D3 D6 D4 !D0 */
-			decrypt[A] =
+			m_decrypted_opcodes[A] =
 					(~data & 0x81) |
 					((data & 0x02) << 3) |
 					((data & 0x04) << 4) |
@@ -1550,18 +1554,18 @@ DRIVER_INIT_MEMBER(jack_state,striv)
  *
  *************************************/
 
-GAME( 1982, jack,      0,        jack,     jack,     jack_state, jack,     ROT90,  "Hara Industries (Cinematronics license)", "Jack the Giantkiller (set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1982, jack2,     jack,     jack,     jack2,    jack_state, jack,     ROT90,  "Hara Industries (Cinematronics license)", "Jack the Giantkiller (set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1982, jack3,     jack,     jack,     jack3,    jack_state, jack,     ROT90,  "Hara Industries (Cinematronics license)", "Jack the Giantkiller (set 3)", GAME_SUPPORTS_SAVE )
-GAME( 1982, treahunt,  jack,     jack,     treahunt, jack_state, treahunt, ROT90,  "Hara Industries", "Treasure Hunt", GAME_SUPPORTS_SAVE )
-GAME( 1982, zzyzzyxx,  0,        jack,     zzyzzyxx, jack_state, zzyzzyxx, ROT90,  "Cinematronics / Advanced Microcomputer Systems", "Zzyzzyxx (set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1982, zzyzzyxx2, zzyzzyxx, jack,     zzyzzyxx, jack_state, zzyzzyxx, ROT90,  "Cinematronics / Advanced Microcomputer Systems", "Zzyzzyxx (set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1982, brix,      zzyzzyxx, jack,     zzyzzyxx, jack_state, zzyzzyxx, ROT90,  "Cinematronics / Advanced Microcomputer Systems", "Brix", GAME_SUPPORTS_SAVE )
-GAME( 1984, freeze,    0,        jack,     freeze,   jack_state, jack,     ROT90,  "Cinematronics", "Freeze", GAME_SUPPORTS_SAVE | GAME_NO_COCKTAIL )
-GAME( 1981, tripool,   0,        jack,     tripool,  jack_state, jack,     ROT90,  "Noma (Casino Tech license)", "Tri-Pool (Casino Tech)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME( 1981, tripoola,  tripool,  jack,     tripool,  jack_state, jack,     ROT90,  "Noma (Costal Games license)", "Tri-Pool (Costal Games)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME( 1984, sucasino,  0,        jack,     sucasino, jack_state, jack,     ROT90,  "Data Amusement", "Super Casino", GAME_SUPPORTS_SAVE )
-GAME( 1985, striv,     0,        striv,    striv,    jack_state, striv,    ROT270, "Nova du Canada", "Super Triv", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE ) // Hara Industries PCB
-GAME( 1983, joinem,    0,        joinem,   joinem,   jack_state, zzyzzyxx, ROT90,  "Global Corporation", "Joinem", GAME_SUPPORTS_SAVE )
-GAME( 1983, unclepoo,  0,        unclepoo, unclepoo, jack_state, zzyzzyxx, ROT90,  "Diatec", "Uncle Poo", GAME_SUPPORTS_SAVE ) // based on Joinem?
-GAME( 1983, loverboy,  0,        joinem,   loverboy, jack_state, loverboy, ROT90,  "G.T Enterprise Inc.", "Lover Boy", GAME_SUPPORTS_SAVE )
+GAME( 1982, jack,      0,        jack,     jack,     jack_state, jack,     ROT90,  "Hara Industries (Cinematronics license)", "Jack the Giantkiller (set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, jack2,     jack,     jack,     jack2,    jack_state, jack,     ROT90,  "Hara Industries (Cinematronics license)", "Jack the Giantkiller (set 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, jack3,     jack,     jack,     jack3,    jack_state, jack,     ROT90,  "Hara Industries (Cinematronics license)", "Jack the Giantkiller (set 3)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, treahunt,  jack,     treahunt, treahunt, jack_state, treahunt, ROT90,  "Hara Industries", "Treasure Hunt", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, zzyzzyxx,  0,        jack,     zzyzzyxx, jack_state, zzyzzyxx, ROT90,  "Cinematronics / Advanced Microcomputer Systems", "Zzyzzyxx (set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, zzyzzyxx2, zzyzzyxx, jack,     zzyzzyxx, jack_state, zzyzzyxx, ROT90,  "Cinematronics / Advanced Microcomputer Systems", "Zzyzzyxx (set 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1982, brix,      zzyzzyxx, jack,     zzyzzyxx, jack_state, zzyzzyxx, ROT90,  "Cinematronics / Advanced Microcomputer Systems", "Brix", MACHINE_SUPPORTS_SAVE )
+GAME( 1984, freeze,    0,        jack,     freeze,   jack_state, jack,     ROT90,  "Cinematronics", "Freeze", MACHINE_SUPPORTS_SAVE | MACHINE_NO_COCKTAIL )
+GAME( 1981, tripool,   0,        jack,     tripool,  jack_state, jack,     ROT90,  "Noma (Casino Tech license)", "Tri-Pool (Casino Tech)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1981, tripoola,  tripool,  jack,     tripool,  jack_state, jack,     ROT90,  "Noma (Costal Games license)", "Tri-Pool (Costal Games)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1984, sucasino,  0,        jack,     sucasino, jack_state, jack,     ROT90,  "Data Amusement", "Super Casino", MACHINE_SUPPORTS_SAVE )
+GAME( 1985, striv,     0,        striv,    striv,    jack_state, striv,    ROT270, "Nova du Canada", "Super Triv", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE ) // Hara Industries PCB
+GAME( 1983, joinem,    0,        joinem,   joinem,   jack_state, zzyzzyxx, ROT90,  "Global Corporation", "Joinem", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, unclepoo,  0,        unclepoo, unclepoo, jack_state, zzyzzyxx, ROT90,  "Diatec", "Uncle Poo", MACHINE_SUPPORTS_SAVE ) // based on Joinem?
+GAME( 1983, loverboy,  0,        joinem,   loverboy, jack_state, loverboy, ROT90,  "G.T Enterprise Inc.", "Lover Boy", MACHINE_SUPPORTS_SAVE )

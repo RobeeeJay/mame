@@ -1,7 +1,9 @@
+// license:???
+// copyright-holders:Jarek Burczynski, Tomasz Slanina
 /***************************************************************************
 Big Event Golf (c) Taito 1986
 
-driver by Jaroslaw Burczynski
+driver by Jarek Burczynski
           Tomasz Slanina
 
 
@@ -604,5 +606,5 @@ DRIVER_INIT_MEMBER(bigevglf_state,bigevglf)
 	membank("bank1")->configure_entries(0, 0xff, &ROM[0x10000], 0x800);
 }
 
-GAME( 1986, bigevglf,  0,        bigevglf, bigevglf, bigevglf_state, bigevglf, ROT270, "Taito America Corporation", "Big Event Golf (US)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
-GAME( 1986, bigevglfj, bigevglf, bigevglf, bigevglfj, bigevglf_state,bigevglf, ROT270, "Taito Corporation", "Big Event Golf (Japan)", GAME_NO_COCKTAIL | GAME_SUPPORTS_SAVE )
+GAME( 1986, bigevglf,  0,        bigevglf, bigevglf, bigevglf_state, bigevglf, ROT270, "Taito America Corporation", "Big Event Golf (US)", MACHINE_NO_COCKTAIL | MACHINE_SUPPORTS_SAVE )
+GAME( 1986, bigevglfj, bigevglf, bigevglf, bigevglfj, bigevglf_state,bigevglf, ROT270, "Taito Corporation", "Big Event Golf (Japan)", MACHINE_NO_COCKTAIL | MACHINE_SUPPORTS_SAVE )

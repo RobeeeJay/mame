@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /**********************************************************************
 
     Nintendo Super Famicom & SNES SuperScope
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 **********************************************************************/
 
@@ -41,7 +40,7 @@ protected:
 	virtual UINT8 read_pin4();
 	virtual void write_strobe(UINT8 data);
 	virtual void port_poll();
-	
+
 private:
 	required_ioport m_buttons;
 	required_ioport m_xaxis;

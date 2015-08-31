@@ -203,10 +203,10 @@ void kinst_state::machine_start()
 	/* set the fastest DRC options */
 	m_maincpu->mips3drc_set_options(MIPS3DRC_FASTEST_OPTIONS);
 
-	/* configure fast RAM regions for DRC */
-	m_maincpu->mips3drc_add_fastram(0x08000000, 0x087fffff, FALSE, m_rambase2);
-	m_maincpu->mips3drc_add_fastram(0x00000000, 0x0007ffff, FALSE, m_rambase);
-	m_maincpu->mips3drc_add_fastram(0x1fc00000, 0x1fc7ffff, TRUE,  m_rombase);
+	/* configure fast RAM regions */
+	m_maincpu->add_fastram(0x08000000, 0x087fffff, FALSE, m_rambase2);
+	m_maincpu->add_fastram(0x00000000, 0x0007ffff, FALSE, m_rambase);
+	m_maincpu->add_fastram(0x1fc00000, 0x1fc7ffff, TRUE,  m_rombase);
 }
 
 
@@ -935,14 +935,14 @@ DRIVER_INIT_MEMBER(kinst_state,kinst2)
  *
  *************************************/
 
-GAME( 1994, kinst,    0,      kinst, kinst, kinst_state,  kinst,   ROT0, "Rare", "Killer Instinct (v1.5d)", GAME_SUPPORTS_SAVE )
-GAME( 1994, kinst14,  kinst,  kinst, kinst2, kinst_state, kinst,   ROT0, "Rare", "Killer Instinct (v1.4)", GAME_SUPPORTS_SAVE )
-GAME( 1994, kinst13,  kinst,  kinst, kinst2, kinst_state, kinst,   ROT0, "Rare", "Killer Instinct (v1.3)", GAME_SUPPORTS_SAVE )
-GAME( 1994, kinstp,   kinst,  kinst, kinst2, kinst_state, kinst,   ROT0, "Rare", "Killer Instinct (proto v4.7)", GAME_SUPPORTS_SAVE )
+GAME( 1994, kinst,    0,      kinst, kinst, kinst_state,  kinst,   ROT0, "Rare", "Killer Instinct (v1.5d)", MACHINE_SUPPORTS_SAVE )
+GAME( 1994, kinst14,  kinst,  kinst, kinst2, kinst_state, kinst,   ROT0, "Rare", "Killer Instinct (v1.4)", MACHINE_SUPPORTS_SAVE )
+GAME( 1994, kinst13,  kinst,  kinst, kinst2, kinst_state, kinst,   ROT0, "Rare", "Killer Instinct (v1.3)", MACHINE_SUPPORTS_SAVE )
+GAME( 1994, kinstp,   kinst,  kinst, kinst2, kinst_state, kinst,   ROT0, "Rare", "Killer Instinct (proto v4.7)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1995, kinst2,   0,      kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.4)", GAME_SUPPORTS_SAVE )
-GAME( 1995, kinst2k4, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.4k, upgrade kit)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
-GAME( 1995, kinst213, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.3)", GAME_SUPPORTS_SAVE )
-GAME( 1995, kinst2k3, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.3k, upgrade kit)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
-GAME( 1995, kinst211, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.1)", GAME_SUPPORTS_SAVE )
-GAME( 1995, kinst210, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.0)", GAME_SUPPORTS_SAVE )
+GAME( 1995, kinst2,   0,      kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.4)", MACHINE_SUPPORTS_SAVE )
+GAME( 1995, kinst2k4, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.4k, upgrade kit)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1995, kinst213, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.3)", MACHINE_SUPPORTS_SAVE )
+GAME( 1995, kinst2k3, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.3k, upgrade kit)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1995, kinst211, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1995, kinst210, kinst2, kinst, kinst2, kinst_state, kinst2,  ROT0, "Rare", "Killer Instinct 2 (v1.0)", MACHINE_SUPPORTS_SAVE )

@@ -101,7 +101,7 @@ public:
 	DECLARE_WRITE8_MEMBER( write );
 
 	// mapping helpers
-	void map_as_rom(UINT32 offset, UINT32 length, offs_t mirror, const char *bank_name, offs_t rgnoffset, write16_delegate whandler);
+	void map_as_rom(UINT32 offset, UINT32 length, offs_t mirror, const char *bank_name, const char *decrypted_bank_name, offs_t rgnoffset, write16_delegate whandler);
 	void map_as_ram(UINT32 offset, UINT32 length, offs_t mirror, const char *bank_share_name, write16_delegate whandler);
 	void map_as_handler(UINT32 offset, UINT32 length, offs_t mirror, read16_delegate rhandler, write16_delegate whandler);
 
@@ -135,22 +135,23 @@ private:
 		// configuration
 		void set_decrypt(fd1089_base_device *fd1089);
 		void set_decrypt(fd1094_device *fd1094);
-		void clear() { set(NULL, 0, 0, ~0, NULL); }
-		void set(memory_bank *bank, offs_t start, offs_t end, offs_t rgnoffs, UINT8 *src);
+		void clear() { set(NULL, NULL, 0, 0, ~0, NULL); }
+		void set(memory_bank *bank, memory_bank *decrypted_bank, offs_t start, offs_t end, offs_t rgnoffs, UINT8 *src);
 
 		// updating
 		void update();
-		void reset() { m_fd1089_decrypted.reset(); if (m_fd1094_cache != NULL) m_fd1094_cache->reset(); }
+		void reset() { m_fd1089_decrypted.clear(); if (m_fd1094_cache != NULL) m_fd1094_cache->reset(); }
 
 	private:
 		// internal state
 		memory_bank *           m_bank;
+		memory_bank *           m_decrypted_bank;
 		offs_t                  m_start;
 		offs_t                  m_end;
 		offs_t                  m_rgnoffs;
 		UINT8 *                 m_srcptr;
 		fd1089_base_device *    m_fd1089;
-		dynamic_array<UINT16>   m_fd1089_decrypted;
+		std::vector<UINT16>   m_fd1089_decrypted;
 		auto_pointer<fd1094_decryption_cache> m_fd1094_cache;
 	};
 
@@ -168,6 +169,7 @@ private:
 	// internal state
 	m68000_device *             m_cpu;
 	address_space *             m_space;
+	address_space *             m_decrypted_space;
 	UINT8                       m_regs[0x20];
 	UINT8                       m_curregion;
 	decrypt_bank                m_banks[8];

@@ -4,9 +4,6 @@
 
     Intel 8255(A) Programmable Peripheral Interface emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 #include "i8255.h"
@@ -47,7 +44,7 @@ enum
 enum
 {
 	MODE_OUTPUT = 0,
-	MODE_INPUT,
+	MODE_INPUT
 };
 
 

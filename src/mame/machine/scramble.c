@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 /***************************************************************************
 
   machine.c
@@ -376,7 +378,7 @@ DRIVER_INIT_MEMBER(scramble_state,rescue)
 
 	dynamic_buffer scratch(len);
 
-	memcpy(scratch, RAM, len);
+	memcpy(&scratch[0], RAM, len);
 
 	for (i = 0; i < len; i++)
 	{
@@ -409,7 +411,7 @@ DRIVER_INIT_MEMBER(scramble_state,minefld)
 
 	dynamic_buffer scratch(len);
 
-	memcpy(scratch, RAM, len);
+	memcpy(&scratch[0], RAM, len);
 
 	for (i = 0; i < len; i++)
 	{
@@ -622,7 +624,7 @@ WRITE8_MEMBER(scramble_state::harem_decrypt_clk_w)
 		}
 
 		membank("rombank")->set_base            (m_harem_decrypted_data     + 0x2000 * bank);
-		membank("rombank")->set_base_decrypted  (m_harem_decrypted_opcodes  + 0x2000 * bank);
+		membank("rombank_decrypted")->set_base  (m_harem_decrypted_opcodes  + 0x2000 * bank);
 
 //      logerror("%s: decrypt mode = %02x (bank %x) active\n", machine().describe_context(), m_harem_decrypt_mode, bank);
 
@@ -672,5 +674,10 @@ DRIVER_INIT_MEMBER(scramble_state,harem)
 	}
 
 	membank("rombank")->set_base            (m_harem_decrypted_data);
-	membank("rombank")->set_base_decrypted  (m_harem_decrypted_opcodes);
+	membank("rombank_decrypted")->set_base  (m_harem_decrypted_opcodes);
+
+	save_item(NAME(m_harem_decrypt_mode));
+	save_item(NAME(m_harem_decrypt_bit));
+	save_item(NAME(m_harem_decrypt_clk));
+	save_item(NAME(m_harem_decrypt_count));
 }

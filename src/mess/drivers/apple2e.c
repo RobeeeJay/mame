@@ -143,6 +143,7 @@ Address bus A0-A11 is Y0-Y11
 #include "bus/a2bus/a2dx1.h"
 #include "bus/a2bus/timemasterho.h"
 #include "bus/a2bus/mouse.h"
+#include "bus/a2bus/ezcgi.h"
 #include "bus/a2bus/a2eauxslot.h"
 #include "bus/a2bus/a2estd80col.h"
 #include "bus/a2bus/a2eext80col.h"
@@ -609,8 +610,11 @@ void apple2e_state::machine_start()
 	if (m_a2eauxslot)
 	{
 		m_auxslotdevice = m_a2eauxslot->get_a2eauxslot_card();
-		m_aux_ptr = m_auxslotdevice->get_vram_ptr();
-		m_aux_bank_ptr = m_auxslotdevice->get_auxbank_ptr();
+		if (m_auxslotdevice)
+		{
+			m_aux_ptr = m_auxslotdevice->get_vram_ptr();
+			m_aux_bank_ptr = m_auxslotdevice->get_auxbank_ptr();
+		}
 	}
 	else    // IIc has 128K right on the motherboard
 	{
@@ -821,7 +825,7 @@ UINT32 apple2e_state::screen_update(screen_device &screen, bitmap_ind16 &bitmap,
 	}
 
 	// always update the flash timer here so it's smooth regardless of mode switches
-	m_video->m_flash = ((machine().time() * 4).seconds & 1) ? true : false;
+	m_video->m_flash = ((machine().time() * 4).seconds() & 1) ? true : false;
 
 	if (m_video->m_graphics)
 	{
@@ -2972,30 +2976,6 @@ INPUT_PORTS_START( apple2ep )
 	PORT_INCLUDE(apple2_sysconfig)
 INPUT_PORTS_END
 
-/* according to Steve Nickolas (author of Dapple), our original palette would
- * have been more appropriate for an Apple IIgs.  So we've substituted in the
- * Robert Munafo palette instead, which is more accurate on 8-bit Apples
- */
-static const rgb_t apple2_palette[] =
-{
-	rgb_t::black,
-	rgb_t(0xE3, 0x1E, 0x60), /* Dark Red */
-	rgb_t(0x60, 0x4E, 0xBD), /* Dark Blue */
-	rgb_t(0xFF, 0x44, 0xFD), /* Purple */
-	rgb_t(0x00, 0xA3, 0x60), /* Dark Green */
-	rgb_t(0x9C, 0x9C, 0x9C), /* Dark Gray */
-	rgb_t(0x14, 0xCF, 0xFD), /* Medium Blue */
-	rgb_t(0xD0, 0xC3, 0xFF), /* Light Blue */
-	rgb_t(0x60, 0x72, 0x03), /* Brown */
-	rgb_t(0xFF, 0x6A, 0x3C), /* Orange */
-	rgb_t(0x9C, 0x9C, 0x9C), /* Light Grey */
-	rgb_t(0xFF, 0xA0, 0xD0), /* Pink */
-	rgb_t(0x14, 0xF5, 0x3C), /* Light Green */
-	rgb_t(0xD0, 0xDD, 0x8D), /* Yellow */
-	rgb_t(0x72, 0xFF, 0xD0), /* Aquamarine */
-	rgb_t(0xFF, 0xFF, 0xFF)  /* White */
-};
-
 static SLOT_INTERFACE_START(apple2_cards)
 	SLOT_INTERFACE("diskii", A2BUS_DISKII)  /* Disk II Controller Card */
 	SLOT_INTERFACE("diskiing", A2BUS_DISKIING)  /* Disk II Controller Card, cycle-accurate version */
@@ -3035,6 +3015,9 @@ static SLOT_INTERFACE_START(apple2_cards)
 	SLOT_INTERFACE("dx1", A2BUS_DX1)    /* Decillonix DX-1 sampler card */
 	SLOT_INTERFACE("tm2ho", A2BUS_TIMEMASTERHO) /* Applied Engineering TimeMaster II H.O. */
 	SLOT_INTERFACE("mouse", A2BUS_MOUSE)    /* Apple II Mouse Card */
+	SLOT_INTERFACE("ezcgi", A2BUS_EZCGI)    /* E-Z Color Graphics Interface */
+	SLOT_INTERFACE("ezcgi9938", A2BUS_EZCGI_9938)   /* E-Z Color Graphics Interface (TMS9938) */
+	SLOT_INTERFACE("ezcgi9958", A2BUS_EZCGI_9958)   /* E-Z Color Graphics Interface (TMS9958) */
 //  SLOT_INTERFACE("magicmusician", A2BUS_MAGICMUSICIAN)    /* Magic Musician Card */
 SLOT_INTERFACE_END
 
@@ -3584,19 +3567,19 @@ ROM_START(apple2cp)
 ROM_END
 
 /*    YEAR  NAME      PARENT    COMPAT    MACHINE      INPUT     INIT      COMPANY            FULLNAME */
-COMP( 1983, apple2e,  0,        apple2,   apple2e,     apple2e, driver_device,  0,        "Apple Computer",    "Apple //e", GAME_SUPPORTS_SAVE )
-COMP( 1983, apple2euk,apple2e,  0,        apple2e,     apple2euk,driver_device, 0,        "Apple Computer",    "Apple //e (UK)", GAME_SUPPORTS_SAVE )
-COMP( 1983, mprof3,   apple2e,  0,        mprof3,      apple2e, driver_device,  0,        "Multitech",         "Microprofessor III", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
-COMP( 1985, apple2ee, apple2e,  0,        apple2ee,    apple2e, driver_device,  0,        "Apple Computer",    "Apple //e (enhanced)", GAME_SUPPORTS_SAVE )
-COMP( 1985, apple2eeuk,apple2e, 0,        apple2ee,    apple2euk, driver_device,0,        "Apple Computer",    "Apple //e (enhanced, UK)", GAME_SUPPORTS_SAVE )
-COMP( 1987, apple2ep, apple2e,  0,        apple2ep,    apple2ep, driver_device, 0,        "Apple Computer",    "Apple //e (Platinum)", GAME_SUPPORTS_SAVE )
-COMP( 1984, apple2c,  0,        apple2,   apple2c,     apple2c, driver_device,  0,        "Apple Computer",    "Apple //c" , GAME_SUPPORTS_SAVE )
-COMP( 1986, tk3000,   apple2c,  0,        tk3000,      apple2e, driver_device,  0,        "Microdigital",      "TK3000//e" , GAME_SUPPORTS_SAVE )
-COMP( 1989, prav8c,   apple2e,  0,        apple2e,     apple2e, driver_device,  0,        "Pravetz",           "Pravetz 8C", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
-COMP( 1987, laser128, apple2c,  0,        laser128,    apple2e, driver_device,  0,        "Video Technology",  "Laser 128 (version 4.2)", GAME_SUPPORTS_SAVE )
-COMP( 1988, las128ex, apple2c,  0,        laser128,    apple2e, driver_device,  0,        "Video Technology",  "Laser 128ex (version 4.5)", GAME_SUPPORTS_SAVE )
-COMP( 1988, las128e2, apple2c,  0,        laser128ex2, apple2e, driver_device,  0,        "Video Technology",  "Laser 128ex2 (version 6.1)", GAME_SUPPORTS_SAVE )
-COMP( 1985, apple2c0, apple2c,  0,        apple2c_iwm, apple2c, driver_device,  0,        "Apple Computer",    "Apple //c (UniDisk 3.5)", GAME_SUPPORTS_SAVE )
-COMP( 1986, apple2c3, apple2c,  0,        apple2c_mem, apple2c, driver_device,  0,        "Apple Computer",    "Apple //c (Original Memory Expansion)", GAME_SUPPORTS_SAVE )
-COMP( 1986, apple2c4, apple2c,  0,        apple2c_mem, apple2c, driver_device,  0,        "Apple Computer",    "Apple //c (rev 4)", GAME_SUPPORTS_SAVE )
-COMP( 1988, apple2cp, apple2c,  0,        apple2cp,    apple2c, driver_device,  0,        "Apple Computer",    "Apple //c Plus", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
+COMP( 1983, apple2e,  0,        apple2,   apple2e,     apple2e, driver_device,  0,        "Apple Computer",    "Apple //e", MACHINE_SUPPORTS_SAVE )
+COMP( 1983, apple2euk,apple2e,  0,        apple2e,     apple2euk,driver_device, 0,        "Apple Computer",    "Apple //e (UK)", MACHINE_SUPPORTS_SAVE )
+COMP( 1983, mprof3,   apple2e,  0,        mprof3,      apple2e, driver_device,  0,        "Multitech",         "Microprofessor III", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+COMP( 1985, apple2ee, apple2e,  0,        apple2ee,    apple2e, driver_device,  0,        "Apple Computer",    "Apple //e (enhanced)", MACHINE_SUPPORTS_SAVE )
+COMP( 1985, apple2eeuk,apple2e, 0,        apple2ee,    apple2euk, driver_device,0,        "Apple Computer",    "Apple //e (enhanced, UK)", MACHINE_SUPPORTS_SAVE )
+COMP( 1987, apple2ep, apple2e,  0,        apple2ep,    apple2ep, driver_device, 0,        "Apple Computer",    "Apple //e (Platinum)", MACHINE_SUPPORTS_SAVE )
+COMP( 1984, apple2c,  0,        apple2,   apple2c,     apple2c, driver_device,  0,        "Apple Computer",    "Apple //c" , MACHINE_SUPPORTS_SAVE )
+COMP( 1986, tk3000,   apple2c,  0,        tk3000,      apple2e, driver_device,  0,        "Microdigital",      "TK3000//e" , MACHINE_SUPPORTS_SAVE )
+COMP( 1989, prav8c,   apple2e,  0,        apple2e,     apple2e, driver_device,  0,        "Pravetz",           "Pravetz 8C", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+COMP( 1987, laser128, apple2c,  0,        laser128,    apple2e, driver_device,  0,        "Video Technology",  "Laser 128 (version 4.2)", MACHINE_SUPPORTS_SAVE )
+COMP( 1988, las128ex, apple2c,  0,        laser128,    apple2e, driver_device,  0,        "Video Technology",  "Laser 128ex (version 4.5)", MACHINE_SUPPORTS_SAVE )
+COMP( 1988, las128e2, apple2c,  0,        laser128ex2, apple2e, driver_device,  0,        "Video Technology",  "Laser 128ex2 (version 6.1)", MACHINE_SUPPORTS_SAVE )
+COMP( 1985, apple2c0, apple2c,  0,        apple2c_iwm, apple2c, driver_device,  0,        "Apple Computer",    "Apple //c (UniDisk 3.5)", MACHINE_SUPPORTS_SAVE )
+COMP( 1986, apple2c3, apple2c,  0,        apple2c_mem, apple2c, driver_device,  0,        "Apple Computer",    "Apple //c (Original Memory Expansion)", MACHINE_SUPPORTS_SAVE )
+COMP( 1986, apple2c4, apple2c,  0,        apple2c_mem, apple2c, driver_device,  0,        "Apple Computer",    "Apple //c (rev 4)", MACHINE_SUPPORTS_SAVE )
+COMP( 1988, apple2cp, apple2c,  0,        apple2cp,    apple2c, driver_device,  0,        "Apple Computer",    "Apple //c Plus", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )

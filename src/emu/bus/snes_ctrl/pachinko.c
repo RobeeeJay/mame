@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /**********************************************************************
 
     Nintendo Super Famicom - Sunsoft Pachinko Controller
-
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
 
 **********************************************************************/
 
@@ -83,7 +82,7 @@ void snes_pachinko_device::device_reset()
 void snes_pachinko_device::port_poll()
 {
 	UINT8 dial = BITSWAP8(m_dial->read() ^ 0xff,7,6,5,4,3,2,1,0);
-	m_latch = m_button->read() | (dial << 25) | 0xee7000;	// add ID
+	m_latch = m_button->read() | (dial << 25) | 0xee7000;   // add ID
 }
 
 //-------------------------------------------------
@@ -105,7 +104,7 @@ void snes_pachinko_device::write_strobe(UINT8 data)
 {
 	int old = m_strobe;
 	m_strobe = data & 0x01;
-	
-	if (m_strobe < old)	// 1 -> 0 transition
+
+	if (m_strobe < old) // 1 -> 0 transition
 		port_poll();
 }

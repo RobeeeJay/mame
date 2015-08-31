@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail
 /*****************************************************************************
 
     6280dasm.c Hudsonsoft Hu6280 (HuC6280/Hu6280a) disassembler
@@ -15,6 +17,11 @@
     The data windows show 'physical' memory, as defined in the memory map
 
 ******************************************************************************/
+
+#ifdef __OS2__
+/* To avoid name clash of _brk */
+#define __STRICT_ANSI__
+#endif
 
 #include "emu.h"
 

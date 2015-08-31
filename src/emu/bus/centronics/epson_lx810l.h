@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Ramiro Polla, Felipe Sanches
 /*
  * Epson LX-810L dot matrix printer emulation
  *
- * Copyright: 2014 Ramiro Polla
- *                 Felipe Sanches
- * License: BSD-3-Clause
  */
 
 #pragma once
@@ -117,7 +116,7 @@ private:
 	UINT8 m_fakemem;
 
 	enum {
-		TIMER_CR,
+		TIMER_CR
 	};
 };
 

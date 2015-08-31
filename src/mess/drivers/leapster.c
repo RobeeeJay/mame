@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*
     LeapFrog - Leapster
 
@@ -269,8 +271,8 @@ DEVICE_IMAGE_LOAD_MEMBER( leapster_state, leapster_cart )
 
 void leapster_state::machine_start()
 {
-	astring region_tag;
-	m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
+	std::string region_tag;
+	m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
 
 	if (m_cart_rom)
 	{
@@ -334,5 +336,5 @@ DRIVER_INIT_MEMBER(leapster_state,leapster)
 {
 }
 
-CONS(2003,  leapster,    0,         0,  leapster,    leapster, leapster_state, leapster,    "LeapFrog",   "Leapster (Germany)",    GAME_NOT_WORKING | GAME_NO_SOUND | GAME_IS_SKELETON )
-CONS(2005,  leapstertv,  leapster,  0,  leapster,    leapster, leapster_state, leapster,    "LeapFrog",   "Leapster TV (Germany)", GAME_NOT_WORKING | GAME_NO_SOUND | GAME_IS_SKELETON )
+CONS(2003,  leapster,    0,         0,  leapster,    leapster, leapster_state, leapster,    "LeapFrog",   "Leapster (Germany)",    MACHINE_NOT_WORKING | MACHINE_NO_SOUND | MACHINE_IS_SKELETON )
+CONS(2005,  leapstertv,  leapster,  0,  leapster,    leapster, leapster_state, leapster,    "LeapFrog",   "Leapster TV (Germany)", MACHINE_NOT_WORKING | MACHINE_NO_SOUND | MACHINE_IS_SKELETON )

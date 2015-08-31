@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /*************************************************************************
 
     Bishi Bashi Champ Mini Game Senshuken
@@ -28,7 +30,6 @@ public:
 
 	/* memory pointers */
 	UINT8 *    m_ram;
-//  UINT8 *    m_paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	int        m_layer_colorbase[4];

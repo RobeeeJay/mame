@@ -1,4 +1,4 @@
-// license:MAME|GPL-2.0+
+// license:GPL-2.0+
 // copyright-holders: Felipe Sanches
 /***************************************************************************
 
@@ -130,4 +130,4 @@ ROM_START( tecnbras )
 ROM_END
 
 /*    YEAR  NAME      PARENT  COMPAT  MACHINE     INPUT     CLASS         INIT    COMPANY  FULLNAME                       FLAGS */
-COMP( 200?, tecnbras,   0,      0,      tecnbras,     0,   tecnbras_state, tecnbras, "Tecnbras", "Dot Matrix Display (70x7 pixels)",    GAME_IMPERFECT_GRAPHICS | GAME_NO_SOUND)
+COMP( 200?, tecnbras,   0,      0,      tecnbras,     0,   tecnbras_state, tecnbras, "Tecnbras", "Dot Matrix Display (70x7 pixels)",    MACHINE_IMPERFECT_GRAPHICS | MACHINE_NO_SOUND)

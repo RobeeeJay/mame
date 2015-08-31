@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Chris Hardy
 /***************************************************************************
 
 Namco early 8080-based games
@@ -133,6 +135,13 @@ Notes:
 
 #define MASTER_CLOCK        XTAL_18_432MHz
 
+void warpwarp_state::machine_start()
+{
+	save_item(NAME(m_geebee_bgw));
+	save_item(NAME(m_ball_on));
+	save_item(NAME(m_ball_h));
+	save_item(NAME(m_ball_v));
+}
 
 /* Interrupt Gen */
 INTERRUPT_GEN_MEMBER(warpwarp_state::vblank_irq)
@@ -141,18 +150,18 @@ INTERRUPT_GEN_MEMBER(warpwarp_state::vblank_irq)
 		device.execute().set_input_line(0, ASSERT_LINE);
 }
 
+IOPORT_ARRAY_MEMBER(warpwarp_state::portnames) { "SW0", "SW1", "DSW2", "PLACEHOLDER" }; // "IN1" & "IN2" are read separately when offset==3
 
 /* B&W Games I/O */
 READ8_MEMBER(warpwarp_state::geebee_in_r)
 {
 	int res;
-	static const char *const portnames[] = { "SW0", "SW1", "DSW2", "PLACEHOLDER" }; // "IN1" & "IN2" are read separately when offset==3
 
 	offset &= 3;
-	res = ioport(portnames[offset])->read_safe(0);
+	res = m_ports[offset] ? m_ports[offset]->read() : 0;
 	if (offset == 3)
 	{
-		res = ioport((flip_screen() & 1) ? "IN2" : "IN1")->read();  // read player 2 input in cocktail mode
+		res = (flip_screen() & 1) ? m_in2->read() : m_in1->read();  // read player 2 input in cocktail mode
 		if (m_handle_joystick)
 		{
 			/* map digital two-way joystick to two fixed VOLIN values */
@@ -225,13 +234,13 @@ WRITE8_MEMBER(warpwarp_state::geebee_out7_w)
 /* Read Switch Inputs */
 READ8_MEMBER(warpwarp_state::warpwarp_sw_r)
 {
-	return (ioport("IN0")->read() >> (offset & 7)) & 1;
+	return (m_in0->read() >> (offset & 7)) & 1;
 }
 
 /* Read Dipswitches */
 READ8_MEMBER(warpwarp_state::warpwarp_dsw1_r)
 {
-	return (ioport("DSW1")->read() >> (offset & 7)) & 1;
+	return (m_dsw1->read() >> (offset & 7)) & 1;
 }
 
 /* Read mux Controller Inputs */
@@ -239,7 +248,7 @@ READ8_MEMBER(warpwarp_state::warpwarp_vol_r)
 {
 	int res;
 
-	res = ioport((flip_screen() & 1) ? "VOLIN2" : "VOLIN1")->read();
+	res = (flip_screen() & 1) ?  m_volin2->read() : m_volin1->read();
 	if (m_handle_joystick)
 	{
 		if (res & 1) return 0x0f;
@@ -731,7 +740,7 @@ static MACHINE_CONFIG_START( geebee, warpwarp_state )
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
 	MCFG_SCREEN_RAW_PARAMS(MASTER_CLOCK/3, 384, 0, 272, 264, 0, 224)
-	MCFG_SCREEN_UPDATE_DRIVER(warpwarp_state, screen_update_geebee)
+	MCFG_SCREEN_UPDATE_DRIVER(warpwarp_state, screen_update)
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", 1k)
@@ -768,7 +777,7 @@ static MACHINE_CONFIG_START( bombbee, warpwarp_state )
 	/* video hardware */
 	MCFG_SCREEN_ADD("screen", RASTER)
 	MCFG_SCREEN_RAW_PARAMS(MASTER_CLOCK/3, 384, 0, 272, 264, 0, 224)
-	MCFG_SCREEN_UPDATE_DRIVER(warpwarp_state, screen_update_geebee)
+	MCFG_SCREEN_UPDATE_DRIVER(warpwarp_state, screen_update)
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", color)
@@ -984,18 +993,18 @@ DRIVER_INIT_MEMBER(warpwarp_state,warpwarp)
 
 
 /* B & W games */
-GAMEL(1978, geebee,     0,        geebee,   geebee,    warpwarp_state, geebee,   ROT90, "Namco", "Gee Bee (Japan)", 0, layout_geebee )
-GAMEL(1978, geebeeb,    geebee,   geebee,   geebeeb,   warpwarp_state, geebee,   ROT90, "Namco (F.lli Bertolino license)", "Gee Bee (Europe)", 0, layout_geebee ) // Fratelli Bertolino
-GAMEL(1978, geebeeg,    geebee,   geebee,   geebee,    warpwarp_state, geebee,   ROT90, "Namco (Gremlin license)", "Gee Bee (US)", 0, layout_geebee )
+GAMEL(1978, geebee,     0,        geebee,   geebee,    warpwarp_state, geebee,   ROT90, "Namco", "Gee Bee (Japan)", MACHINE_SUPPORTS_SAVE, layout_geebee )
+GAMEL(1978, geebeeb,    geebee,   geebee,   geebeeb,   warpwarp_state, geebee,   ROT90, "Namco (F.lli Bertolino license)", "Gee Bee (Europe)", MACHINE_SUPPORTS_SAVE, layout_geebee ) // Fratelli Bertolino
+GAMEL(1978, geebeeg,    geebee,   geebee,   geebee,    warpwarp_state, geebee,   ROT90, "Namco (Gremlin license)", "Gee Bee (US)", MACHINE_SUPPORTS_SAVE, layout_geebee )
 
-GAMEL(1980, navarone,   0,        navarone, navarone,  warpwarp_state, navarone, ROT90, "Namco", "Navarone", GAME_IMPERFECT_SOUND, layout_navarone )
-GAME( 1980, kaitein,    kaitei,   navarone, kaitein,   warpwarp_state, kaitein,  ROT90, "K.K. Tokki (Namco license)", "Kaitei Takara Sagashi (Namco license)", 0 ) // pretty sure it didn't have a color overlay
-GAME( 1980, kaitei,     0,        navarone, kaitei,    warpwarp_state, kaitei,   ROT90, "K.K. Tokki", "Kaitei Takara Sagashi", 0 ) // "
-GAME( 1980, sos,        0,        navarone, sos,       warpwarp_state, sos,      ROT90, "Namco", "SOS", GAME_IMPERFECT_SOUND ) // developed by Shoei?
+GAMEL(1980, navarone,   0,        navarone, navarone,  warpwarp_state, navarone, ROT90, "Namco", "Navarone", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE, layout_navarone )
+GAME( 1980, kaitein,    kaitei,   navarone, kaitein,   warpwarp_state, kaitein,  ROT90, "K.K. Tokki (Namco license)", "Kaitei Takara Sagashi (Namco license)", MACHINE_SUPPORTS_SAVE ) // pretty sure it didn't have a color overlay
+GAME( 1980, kaitei,     0,        navarone, kaitei,    warpwarp_state, kaitei,   ROT90, "K.K. Tokki", "Kaitei Takara Sagashi", MACHINE_SUPPORTS_SAVE ) // "
+GAME( 1980, sos,        0,        navarone, sos,       warpwarp_state, sos,      ROT90, "Namco", "SOS", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE ) // developed by Shoei?
 
 /* Color games */
-GAME( 1979, bombbee,    0,        bombbee,  bombbee,   warpwarp_state, bombbee,  ROT90, "Namco", "Bomb Bee", 0 )
-GAME( 1979, cutieq,     0,        bombbee,  cutieq,    warpwarp_state, bombbee,  ROT90, "Namco", "Cutie Q", 0 )
-GAME( 1981, warpwarp,   0,        warpwarp, warpwarp,  warpwarp_state, warpwarp, ROT90, "Namco", "Warp & Warp", 0 )
-GAME( 1981, warpwarpr,  warpwarp, warpwarp, warpwarpr, warpwarp_state, warpwarp, ROT90, "Namco (Rock-Ola license)", "Warp Warp (Rock-Ola set 1)", 0 )
-GAME( 1981, warpwarpr2, warpwarp, warpwarp, warpwarpr, warpwarp_state, warpwarp, ROT90, "Namco (Rock-Ola license)", "Warp Warp (Rock-Ola set 2)", 0 )
+GAME( 1979, bombbee,    0,        bombbee,  bombbee,   warpwarp_state, bombbee,  ROT90, "Namco", "Bomb Bee", MACHINE_SUPPORTS_SAVE )
+GAME( 1979, cutieq,     0,        bombbee,  cutieq,    warpwarp_state, bombbee,  ROT90, "Namco", "Cutie Q", MACHINE_SUPPORTS_SAVE )
+GAME( 1981, warpwarp,   0,        warpwarp, warpwarp,  warpwarp_state, warpwarp, ROT90, "Namco", "Warp & Warp", MACHINE_SUPPORTS_SAVE )
+GAME( 1981, warpwarpr,  warpwarp, warpwarp, warpwarpr, warpwarp_state, warpwarp, ROT90, "Namco (Rock-Ola license)", "Warp Warp (Rock-Ola set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1981, warpwarpr2, warpwarp, warpwarp, warpwarpr, warpwarp_state, warpwarp, ROT90, "Namco (Rock-Ola license)", "Warp Warp (Rock-Ola set 2)", MACHINE_SUPPORTS_SAVE )

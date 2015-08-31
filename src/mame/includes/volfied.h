@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail, Nicola Salmoria
 /*************************************************************************
 
     Volfied
@@ -24,7 +26,6 @@ public:
 	/* memory pointers */
 	UINT16 *    m_video_ram;
 	UINT8  *    m_cchip_ram;
-//  UINT16 *    paletteram; // this currently uses generic palette handlers
 
 	/* video-related */
 	UINT16      m_video_ctrl;

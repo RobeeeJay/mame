@@ -1,10 +1,12 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #include "emu.h"
 #include "includes/dooyong.h"
 
 
 inline void dooyong_state::scroll8_w(offs_t offset, UINT8 data, UINT8 *scroll, tilemap_t *map)
 {
-	UINT8 old = scroll[offset];
+	UINT8 const old = scroll[offset];
 	if (old != data)
 	{
 		scroll[offset] = data;
@@ -132,9 +134,8 @@ WRITE8_MEMBER(dooyong_z80_state::paletteram_flytiger_w)
 {
 	if (m_flytiger_palette_bank)
 	{
-		UINT16 value;
 		m_paletteram_flytiger[offset] = data;
-		value = m_paletteram_flytiger[offset & ~1] | (m_paletteram_flytiger[offset | 1] << 8);
+		UINT16 const value = m_paletteram_flytiger[offset & ~1] | (m_paletteram_flytiger[offset | 1] << 8);
 		m_palette->set_pen_color(offset/2, pal5bit(value >> 10), pal5bit(value >> 5), pal5bit(value >> 0));
 	}
 }
@@ -345,6 +346,12 @@ UINT32 dooyong_z80_ym2203_state::screen_update_lastday(screen_device &screen, bi
 	bitmap.fill(m_palette->black_pen(), cliprect);
 	screen.priority().fill(0, cliprect);
 
+	/* Text layer is offset on this machine */
+	if (!flip_screen())
+		m_tx_tilemap->set_scrolly(0, 8);
+	else
+		m_tx_tilemap->set_scrolly(0, -8);
+
 	m_bg_tilemap->draw(screen, bitmap, cliprect, 0, 1);
 	m_fg_tilemap->draw(screen, bitmap, cliprect, 0, 2);
 	m_tx_tilemap->draw(screen, bitmap, cliprect, 0, 4);
@@ -359,6 +366,12 @@ UINT32 dooyong_z80_ym2203_state::screen_update_gulfstrm(screen_device &screen, b
 {
 	bitmap.fill(m_palette->black_pen(), cliprect);
 	screen.priority().fill(0, cliprect);
+
+	/* Text layer is offset on this machine */
+	if (!flip_screen())
+		m_tx_tilemap->set_scrolly(0, 8);
+	else
+		m_tx_tilemap->set_scrolly(0, -8);
 
 	m_bg_tilemap->draw(screen, bitmap, cliprect, 0, 1);
 	m_fg_tilemap->draw(screen, bitmap, cliprect, 0, 2);
@@ -454,9 +467,6 @@ VIDEO_START_MEMBER(dooyong_z80_ym2203_state, lastday)
 	m_fg_tilemap->set_transparent_pen(15);
 	m_tx_tilemap->set_transparent_pen(15);
 
-	/* Text layer is offset on this machine */
-	m_tx_tilemap->set_scrolly(0, 8);
-
 	memset(m_bgscroll8, 0, 0x10);
 	memset(m_bg2scroll8, 0, 0x10);
 	memset(m_fgscroll8, 0, 0x10);
@@ -490,9 +500,6 @@ VIDEO_START_MEMBER(dooyong_z80_ym2203_state, gulfstrm)
 	/* Configure tilemap transparency */
 	m_fg_tilemap->set_transparent_pen(15);
 	m_tx_tilemap->set_transparent_pen(15);
-
-	/* Text layer is offset on this machine */
-	m_tx_tilemap->set_scrolly(0, 8);
 
 	memset(m_bgscroll8, 0, 0x10);
 	memset(m_bg2scroll8, 0, 0x10);

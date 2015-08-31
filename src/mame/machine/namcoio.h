@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #ifndef __NAMCOIO_H__
 #define __NAMCOIO_H__
 
@@ -35,7 +37,7 @@ protected:
 	enum {
 			TYPE_NAMCO56XX,
 			TYPE_NAMCO58XX,
-			TYPE_NAMCO59XX,
+			TYPE_NAMCO59XX
 	};
 
 	// internal state

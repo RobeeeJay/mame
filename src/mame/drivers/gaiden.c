@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino
 /***************************************************************************
 
 Ninja Gaiden memory map (preliminary)
@@ -1561,7 +1563,7 @@ void gaiden_state::descramble_drgnbowl(int descramble_cpu)
 	{
 		dynamic_buffer buffer(size);
 
-		memcpy(buffer, ROM, size);
+		memcpy(&buffer[0], ROM, size);
 		for( i = 0; i < size; i++ )
 		{
 			ROM[i] = buffer[BITSWAP24(i,23,22,21,20,
@@ -1578,7 +1580,7 @@ void gaiden_state::descramble_drgnbowl(int descramble_cpu)
 	{
 		dynamic_buffer buffer(size);
 
-		memcpy(buffer,ROM,size);
+		memcpy(&buffer[0],ROM,size);
 		for( i = 0; i < size; i++ )
 		{
 			ROM[i] = buffer[BITSWAP24(i,23,22,21,20,
@@ -1623,7 +1625,7 @@ void gaiden_state::descramble_mastninj_gfx(UINT8* src)
 			7,6,4,
 			3,2,1,0)];
 		}
-		memcpy(src, buffer, len);
+		memcpy(src, &buffer[0], len);
 	}
 
 	{
@@ -1639,7 +1641,7 @@ void gaiden_state::descramble_mastninj_gfx(UINT8* src)
 			7,5,4,
 			3,2,1,0)];
 		}
-		memcpy(src, buffer, len);
+		memcpy(src, &buffer[0], len);
 	}
 }
 
@@ -1652,18 +1654,18 @@ DRIVER_INIT_MEMBER(gaiden_state,mastninj)
 }
 
 //    YEAR, NAME,      PARENT,   MACHINE,  INPUT,    INIT,     MONITOR,COMPANY,FULLNAME,FLAGS
-GAME( 1988, shadoww,   0,        shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Shadow Warriors (World, set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1988, shadowwa,  shadoww,  shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Shadow Warriors (World, set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1988, gaiden,    shadoww,  shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Ninja Gaiden (US)", GAME_SUPPORTS_SAVE )
-GAME( 1989, ryukendn,  shadoww,  shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Ninja Ryukenden (Japan, set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1989, ryukendna, shadoww,  shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Ninja Ryukenden (Japan, set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1989, mastninj,  shadoww,  mastninj, common, gaiden_state,   mastninj, ROT0,   "bootleg", "Master Ninja (bootleg of Shadow Warriors / Ninja Gaiden)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE ) // sprites need fixing, sound and yscroll too. - it is confirmed the curtains don't scroll on the pcb
-GAME( 1992, drgnbowl,  0,        drgnbowl, drgnbowl, gaiden_state, drgnbowl, ROT0,   "Nics",  "Dragon Bowl (set 1, encrypted program)", GAME_SUPPORTS_SAVE ) // Draogn Bowl is based on Ninja Gaiden code
-GAME( 1992, drgnbowla, drgnbowl, drgnbowl, drgnbowl, gaiden_state, drgnbowla,ROT0,   "Nics",  "Dragon Bowl (set 2, unencrypted program)", GAME_SUPPORTS_SAVE )
+GAME( 1988, shadoww,   0,        shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Shadow Warriors (World, set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, shadowwa,  shadoww,  shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Shadow Warriors (World, set 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, gaiden,    shadoww,  shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Ninja Gaiden (US)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, ryukendn,  shadoww,  shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Ninja Ryukenden (Japan, set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, ryukendna, shadoww,  shadoww,  common, gaiden_state,   shadoww,  ROT0,   "Tecmo", "Ninja Ryukenden (Japan, set 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, mastninj,  shadoww,  mastninj, common, gaiden_state,   mastninj, ROT0,   "bootleg", "Master Ninja (bootleg of Shadow Warriors / Ninja Gaiden)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE ) // sprites need fixing, sound and yscroll too. - it is confirmed the curtains don't scroll on the pcb
+GAME( 1992, drgnbowl,  0,        drgnbowl, drgnbowl, gaiden_state, drgnbowl, ROT0,   "Nics",  "Dragon Bowl (set 1, encrypted program)", MACHINE_SUPPORTS_SAVE ) // Draogn Bowl is based on Ninja Gaiden code
+GAME( 1992, drgnbowla, drgnbowl, drgnbowl, drgnbowl, gaiden_state, drgnbowla,ROT0,   "Nics",  "Dragon Bowl (set 2, unencrypted program)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1989, wildfang,  0,        shadoww,  wildfang, gaiden_state, wildfang, ROT0,   "Tecmo", "Wild Fang / Tecmo Knight", GAME_SUPPORTS_SAVE )
-GAME( 1989, wildfangs, wildfang, shadoww,  tknight, gaiden_state,  wildfang, ROT0,   "Tecmo", "Wild Fang", GAME_SUPPORTS_SAVE )
-GAME( 1989, tknight,   wildfang, shadoww,  tknight, gaiden_state,  wildfang, ROT0,   "Tecmo", "Tecmo Knight", GAME_SUPPORTS_SAVE )
+GAME( 1989, wildfang,  0,        shadoww,  wildfang, gaiden_state, wildfang, ROT0,   "Tecmo", "Wild Fang / Tecmo Knight", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, wildfangs, wildfang, shadoww,  tknight, gaiden_state,  wildfang, ROT0,   "Tecmo", "Wild Fang", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, tknight,   wildfang, shadoww,  tknight, gaiden_state,  wildfang, ROT0,   "Tecmo", "Tecmo Knight", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1991, stratof,   0,        raiga,    raiga, gaiden_state,    raiga,    ROT0,   "Tecmo", "Raiga - Strato Fighter (US)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
-GAME( 1991, raiga,     stratof,  raiga,    raiga, gaiden_state,    raiga,    ROT0,   "Tecmo", "Raiga - Strato Fighter (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
+GAME( 1991, stratof,   0,        raiga,    raiga, gaiden_state,    raiga,    ROT0,   "Tecmo", "Raiga - Strato Fighter (US)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
+GAME( 1991, raiga,     stratof,  raiga,    raiga, gaiden_state,    raiga,    ROT0,   "Tecmo", "Raiga - Strato Fighter (Japan)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )

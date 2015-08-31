@@ -1,4 +1,4 @@
-// licenses: MAME, BSD
+// license:BSD-3-Clause
 // copyright-holders:R. Belmont
 /***************************************************************************
 
@@ -325,7 +325,7 @@ Notes:
                 MB4393
                 MB14324
                 MB14323
-      %       - Unknown 20-pin Ceramic DIP chip with heat-sink
+      %       - Unknown 20-pin Ceramic DIP chip with heat-sink (likely to be Intel 8288 Bus Controller)
       CNA     - 50-pin flat cable joining to Sub PCB
       CNB     - 50-pin flat cable joining to Sub PCB
       CNC     - 6-pin power cable joining to Sub PCB
@@ -421,7 +421,7 @@ Notes:
                 MB4393
                 MB14324
                 MB14323
-      %       - Unknown 20-pin Ceramic DIP chip with heat-sink
+      %       - Unknown 20-pin Ceramic DIP chip with heat-sink (likely to be Intel 8288 Bus Controller)
       CN1     - 25-pin Female D-type connector. (for RS232 external peripherals \  CNC Machine,
       CN2     - 25-pin Female D-type connector. (for RS232 external peripherals  | PPR Unit, X-Y Plotter,
       CN3     - 25-pin Female D-type connector. (for RS232 external peripherals  | Tablet,
@@ -1007,5 +1007,5 @@ ROM_END
 
 /* Driver */
 /*    YEAR  NAME       PARENT       COMPAT   MACHINE    INPUT      CLASS           INIT       COMPANY  FULLNAME            FLAGS */
-COMP( 1983, fanucspg,  0,             0,    fanucspmg,  fanucspmg, fanucspmg_state, fanucspmg, "Fanuc", "System P Model G", GAME_NOT_WORKING | GAME_NO_SOUND)
-COMP( 1983, fanucspgm, fanucspg,      0,    fanucspmgm, fanucspmg, fanucspmg_state, fanucspmg, "Fanuc", "System P Model G (monochrome)", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1983, fanucspg,  0,             0,    fanucspmg,  fanucspmg, fanucspmg_state, fanucspmg, "Fanuc", "System P Model G", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)
+COMP( 1983, fanucspgm, fanucspg,      0,    fanucspmgm, fanucspmg, fanucspmg_state, fanucspmg, "Fanuc", "System P Model G (monochrome)", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

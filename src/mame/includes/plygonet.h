@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Andrew Gardner
 #include "machine/eepromser.h"
 #include "video/k053936.h"
 #include "cpu/dsp56k/dsp56k.h"
@@ -23,8 +25,7 @@ public:
 		m_dsp56k_p_mirror(*this, "dsp56k_p_mirror"),
 		m_dsp56k_p_8000(*this, "dsp56k_p_8000"),
 		m_gfxdecode(*this, "gfxdecode"),
-		m_palette(*this, "palette"),
-		m_generic_paletteram_32(*this, "paletteram")
+		m_palette(*this, "palette")
 	{ }
 
 	required_device<cpu_device> m_maincpu;
@@ -40,13 +41,10 @@ public:
 	required_shared_ptr<UINT16> m_dsp56k_p_8000;
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
-	required_shared_ptr<UINT32> m_generic_paletteram_32;
 
 	ioport_port *m_inputs[4];
 	UINT8 m_sys0;
 	UINT8 m_sys1;
-
-	direct_update_delegate m_dsp56k_update_handler;
 
 	/* TTL text plane stuff */
 	int m_ttl_gfx_index;
@@ -76,7 +74,6 @@ public:
 	DECLARE_WRITE32_MEMBER(dsp_w_lines);
 	DECLARE_WRITE32_MEMBER(dsp_host_interface_w);
 	DECLARE_READ32_MEMBER(network_r);
-	DECLARE_WRITE32_MEMBER(plygonet_palette_w);
 	DECLARE_READ16_MEMBER(dsp56k_bootload_r);
 	DECLARE_READ16_MEMBER(dsp56k_ram_bank00_read);
 	DECLARE_WRITE16_MEMBER(dsp56k_ram_bank00_write);
@@ -93,7 +90,6 @@ public:
 	DECLARE_WRITE32_MEMBER(polygonet_ttl_ram_w);
 	DECLARE_READ32_MEMBER(polygonet_roz_ram_r);
 	DECLARE_WRITE32_MEMBER(polygonet_roz_ram_w);
-	DIRECT_UPDATE_MEMBER(plygonet_dsp56k_direct_handler);
 	DECLARE_DRIVER_INIT(polygonet);
 	TILE_GET_INFO_MEMBER(ttl_get_tile_info);
 	TILE_GET_INFO_MEMBER(roz_get_tile_info);

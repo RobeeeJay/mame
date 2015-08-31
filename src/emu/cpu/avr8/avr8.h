@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ryan Holtz
 /*
     Atmel 8-bit AVR simulator
 
@@ -132,7 +134,7 @@ protected:
 	virtual offs_t disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options);
 
 	// device_state_interface overrides
-	virtual void state_string_export(const device_state_entry &entry, astring &string);
+	virtual void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// address spaces
 	const address_space_config m_program_config;
@@ -160,6 +162,7 @@ protected:
 	UINT8 m_timer_increment[6];
 	UINT16 m_timer_prescale[6];
 	UINT16 m_timer_prescale_count[6];
+	bool m_ocr2_not_reached_yet;
 
 	// SPI
 	bool m_spi_active;
@@ -351,7 +354,7 @@ enum
 	AVR8_Y,
 	AVR8_Z,
 	AVR8_SPH,
-	AVR8_SPL,
+	AVR8_SPL
 };
 
 enum
@@ -411,7 +414,7 @@ enum
 	ATMEGA644_INT_EE_RDY,
 	ATMEGA644_INT_ANALOG_COMP,
 	ATMEGA644_INT_TWI,
-	ATMEGA644_INT_SPM_RDY,
+	ATMEGA644_INT_SPM_RDY
 };
 
 // Used by I/O register handling
@@ -706,11 +709,11 @@ enum
 	//0x11D: Reserved
 	//0x11E: Reserved
 	//0x11F: Reserved
-	AVR8_REGIDX_TCCR5A,
+	AVR8_REGIDX_TCCR5A = 0x120,
 	AVR8_REGIDX_TCCR5B,
 	AVR8_REGIDX_TCCR5C,
 	//0x123: Reserved
-	AVR8_REGIDX_TCNT5L,
+	AVR8_REGIDX_TCNT5L = 0x124,
 	AVR8_REGIDX_TCNT5H,
 	AVR8_REGIDX_ICR5L,
 	AVR8_REGIDX_ICR5H,
@@ -722,13 +725,13 @@ enum
 	AVR8_REGIDX_OCR5CH,
 	//0x12E: Reserved
 	//0x12F: Reserved
-	AVR8_REGIDX_UCSR3A,
+	AVR8_REGIDX_UCSR3A = 0x130,
 	AVR8_REGIDX_UCSR3B,
 	AVR8_REGIDX_UCSR3C,
 	//0x133: Reserved
-	AVR8_REGIDX_UBRR3L,
+	AVR8_REGIDX_UBRR3L = 0x134,
 	AVR8_REGIDX_UBRR3H,
-	AVR8_REGIDX_UDR3,
+	AVR8_REGIDX_UDR3
 	//0x137: Reserved
 	//  .
 	//  . up to
@@ -763,7 +766,7 @@ enum
 	AVR8_REG_H,
 	AVR8_REG_J,
 	AVR8_REG_K,
-	AVR8_REG_L,
+	AVR8_REG_L
 };
 
 enum
@@ -798,7 +801,7 @@ enum
 	AVR8_INTIDX_TOV5,
 //---------------------------------
 
-	AVR8_INTIDX_COUNT,
+	AVR8_INTIDX_COUNT
 };
 
 //lock bit masks
@@ -809,7 +812,7 @@ enum
 	BLB01 = (1 << 2),
 	BLB02 = (1 << 3),
 	BLB11 = (1 << 4),
-	BLB12 = (1 << 5),
+	BLB12 = (1 << 5)
 };
 
 //extended fuses bit masks
@@ -817,7 +820,7 @@ enum
 {
 	BODLEVEL0 = (1 << 0),
 	BODLEVEL1 = (1 << 1),
-	BODLEVEL2 = (1 << 2),
+	BODLEVEL2 = (1 << 2)
 };
 
 //high fuses bit masks
@@ -830,7 +833,7 @@ enum
 	WDTON = (1 << 4),
 	SPIEN = (1 << 5),
 	JTAGEN = (1 << 6),
-	OCDEN = (1 << 7),
+	OCDEN = (1 << 7)
 };
 
 //low fuses bit masks
@@ -843,7 +846,7 @@ enum
 	SUT0 = (1 << 4),
 	SUT1 = (1 << 5),
 	CKOUT = (1 << 6),
-	CKDIV8 = (1 << 7),
+	CKDIV8 = (1 << 7)
 };
 
 #define AVR8_EEARH_MASK         0x01

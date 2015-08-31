@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*
 
 PCB# -   ANIMAL-01  Cosmo Electronics Corporation
@@ -340,4 +342,4 @@ ROM_START( pkscram )
 ROM_END
 
 
-GAME( 1993, pkscram, 0, pkscramble, pkscramble, driver_device, 0, ROT0, "Cosmo Electronics Corporation", "PK Scramble", GAME_SUPPORTS_SAVE)
+GAME( 1993, pkscram, 0, pkscramble, pkscramble, driver_device, 0, ROT0, "Cosmo Electronics Corporation", "PK Scramble", MACHINE_SUPPORTS_SAVE)

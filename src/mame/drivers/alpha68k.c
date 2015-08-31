@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli, Bryan McPhail
 /***************************************************************************
 
     SNK/Alpha 68000 based games:
@@ -110,17 +112,6 @@ Stephh's additional notes (based on the games M68000 code and some tests) :
   - There is no Dip Switch to determine if you are allowed to continue a game
     or not, so you ALWAYS have the possibility to continue a game.
 
- 9)  'sbasebal'
-
-  - IMO, there must exist a Japan version of this game which is currently
-    undumped ! Set the SBASEBAL_HACK to 1 and you'll notice the following
-    differences :
-
-      * different manufacturer (no more SNK license)
-      * different coinage (check code at 0x00035c) and additional COIN2
-      * different game time (check code at 0x001d20)
-      * different table for "Unknown" Dip Switch
-
 
 Stephh's log (2002.06.19) :
 
@@ -204,7 +195,7 @@ DIP locations verified from manuals for:
 #include "sound/2203intf.h"
 #include "includes/alpha68k.h"
 
-#define SBASEBAL_HACK   0
+
 
 
 /******************************************************************************/
@@ -1457,11 +1448,8 @@ static INPUT_PORTS_START( sbasebal )
 
 	PORT_START("IN2")  /* Coin input to microcontroller */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
-#if SBASEBAL_HACK
-	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 )
-#else
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED ) // COIN2 - unused due to code at 0x0002b4
-#endif
+
 
 	PORT_START("IN3")  /* Service + dip */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_SERVICE1 )
@@ -1481,17 +1469,11 @@ static INPUT_PORTS_START( sbasebal )
 	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_DIPNAME( 0xc0, 0x80, DEF_STR( Game_Time ) )
-#if SBASEBAL_HACK
-	PORT_DIPSETTING(    0x00, "4:30" )
-	PORT_DIPSETTING(    0x80, "4:00" )
-	PORT_DIPSETTING(    0x40, "3:30" )
-	PORT_DIPSETTING(    0xc0, "3:00" )
-#else
 	PORT_DIPSETTING(    0x00, "3:30" )
 	PORT_DIPSETTING(    0x80, "3:00" )
 	PORT_DIPSETTING(    0x40, "2:30" )
 	PORT_DIPSETTING(    0xc0, "2:00" )
-#endif
+
 
 	PORT_START("IN4") /* A 6 way dip switch */
 	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) )   // Check code at 0x009d3a
@@ -1499,9 +1481,6 @@ static INPUT_PORTS_START( sbasebal )
 	PORT_DIPSETTING(    0x03, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x01, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-#if SBASEBAL_HACK
-	ALPHA68K_COINAGE_BITS_2TO4
-#else
 	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Coinage ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( 2C_1C ) )
 	PORT_DIPSETTING(    0x0c, DEF_STR( 1C_1C ) )
@@ -1510,12 +1489,66 @@ static INPUT_PORTS_START( sbasebal )
 	PORT_DIPNAME( 0x10, 0x00, "Price to Continue" )
 	PORT_DIPSETTING(    0x10, DEF_STR( 1C_1C ) )
 	PORT_DIPSETTING(    0x00, "Same as Start" )
-#endif
+
 	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNUSED )
 INPUT_PORTS_END
+
+
+
+static INPUT_PORTS_START( sbasebalj )
+	PORT_START("IN0")
+	ALPHA68K_PLAYER_INPUT_LSB( 1, IPT_BUTTON3, IPT_START1, IP_ACTIVE_LOW )
+
+	PORT_START("IN1")
+	ALPHA68K_PLAYER_INPUT_LSB( 2, IPT_BUTTON3, IPT_START2, IP_ACTIVE_LOW )
+
+	PORT_START("IN2")  /* Coin input to microcontroller */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 )
+
+
+	PORT_START("IN3")  /* Service + dip */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_SERVICE_NO_TOGGLE(0x02, IP_ACTIVE_LOW)
+
+	/* 2 physical sets of _6_ dip switches */
+	PORT_DIPNAME( 0x04, 0x04, "Freeze" )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )  // Check code at 0x0089e6
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xc0, 0x80, DEF_STR( Game_Time ) )
+	PORT_DIPSETTING(    0x00, "4:30" )
+	PORT_DIPSETTING(    0x80, "4:00" )
+	PORT_DIPSETTING(    0x40, "3:30" )
+	PORT_DIPSETTING(    0xc0, "3:00" )
+
+
+	PORT_START("IN4") /* A 6 way dip switch */
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) )   // Check code at 0x009d3a
+	PORT_DIPSETTING(    0x02, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	ALPHA68K_COINAGE_BITS_2TO4
+
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNUSED )
+INPUT_PORTS_END
+
+
 
 static INPUT_PORTS_START( tnextspc )
 	PORT_START("P1")
@@ -1891,7 +1924,7 @@ static MACHINE_CONFIG_START( sstingry, alpha68k_state )
 	MCFG_CPU_ADD("audiocpu", Z80, 3579545)
 	MCFG_CPU_PROGRAM_MAP(sstingry_sound_map)
 	MCFG_CPU_IO_MAP(kyros_sound_portmap)
-	MCFG_CPU_PERIODIC_INT_DRIVER(alpha68k_state, irq0_line_hold,  2*60)
+	MCFG_CPU_VBLANK_INT_DRIVER("screen", alpha68k_state, irq0_line_hold)
 	MCFG_CPU_PERIODIC_INT_DRIVER(alpha68k_state, nmi_line_pulse,  4000)
 
 	MCFG_CPU_ADD("mcu", I8748, 9263750)     /* 9.263750 MHz oscillator, divided by 3*5 internally */
@@ -1945,7 +1978,7 @@ static MACHINE_CONFIG_START( kyros, alpha68k_state )
 	MCFG_CPU_ADD("audiocpu", Z80, XTAL_24MHz/6) /* Verified on bootleg PCB */
 	MCFG_CPU_PROGRAM_MAP(kyros_sound_map)
 	MCFG_CPU_IO_MAP(kyros_sound_portmap)
-	MCFG_CPU_PERIODIC_INT_DRIVER(alpha68k_state, irq0_line_hold,  2*60)
+	MCFG_CPU_VBLANK_INT_DRIVER("screen", alpha68k_state, irq0_line_hold)
 	MCFG_CPU_PERIODIC_INT_DRIVER(alpha68k_state, nmi_line_pulse,  4000)
 
 	MCFG_MACHINE_START_OVERRIDE(alpha68k_state,common)
@@ -3135,27 +3168,52 @@ ROM_END
 
 ROM_START( sbasebal )
 	ROM_REGION( 0x40000, "maincpu", 0 )
-	ROM_LOAD16_BYTE( "snksb1.bin", 0x00000, 0x20000, CRC(304fef2d) SHA1(03154e590807f7fd009068b403e1ea039272029d) )
-	ROM_LOAD16_BYTE( "snksb2.bin", 0x00001, 0x20000, CRC(35821339) SHA1(2c4303bf799de7cb364cadac44ff28306088e2f4) )
+	ROM_LOAD16_BYTE( "snksb1.c19", 0x00000, 0x20000, CRC(304fef2d) SHA1(03154e590807f7fd009068b403e1ea039272029d) )
+	ROM_LOAD16_BYTE( "snksb2.e19", 0x00001, 0x20000, CRC(35821339) SHA1(2c4303bf799de7cb364cadac44ff28306088e2f4) )
 
-	ROM_REGION( 0x90000, "audiocpu", 0 )   /* Sound CPU */
-	ROM_LOAD( "snksb3.bin",      0x00000, 0x08000, CRC(89e12f25) SHA1(1c569958a7f5a91b54f1316c1d5ee027be8618d6) )
-	ROM_CONTINUE(                0x18000, 0x08000 )
-	ROM_LOAD( "snksb4.bin",      0x30000, 0x10000, CRC(cca2555d) SHA1(13c672331e8e5e5dd8fc3aa7829d46de6b8271f3) )
-	ROM_LOAD( "snksb5.bin",      0x50000, 0x10000, CRC(f45ee36f) SHA1(cdfdf696e9fcd2827ab1dd6adc2a45085911333d) )
-	ROM_LOAD( "snksb6.bin",      0x70000, 0x10000, CRC(651c9472) SHA1(bcff6679e22143cd6816c441c5a67b4956ee7ee0) )
+	ROM_REGION( 0x90000, "audiocpu", 0 ) /* Sound CPU */
+	ROM_LOAD( "sb-3.g9", 0x00000, 0x08000, CRC(89e12f25) SHA1(1c569958a7f5a91b54f1316c1d5ee027be8618d6) )
+	ROM_CONTINUE( 0x18000, 0x08000 )
+	ROM_LOAD( "sb-4.g11", 0x30000, 0x10000, CRC(cca2555d) SHA1(13c672331e8e5e5dd8fc3aa7829d46de6b8271f3) )
+	ROM_LOAD( "sb-5.g13", 0x50000, 0x10000, CRC(f45ee36f) SHA1(cdfdf696e9fcd2827ab1dd6adc2a45085911333d) )
+	ROM_LOAD( "sb-6.g15", 0x70000, 0x10000, CRC(651c9472) SHA1(bcff6679e22143cd6816c441c5a67b4956ee7ee0) )
 
 	ROM_REGION( 0x10000, "mcu", 0 )
 	ROM_LOAD( "alpha.mcu", 0x000, 0x1000, NO_DUMP )
 
-	ROM_REGION( 0x10000, "gfx1", 0 )  /* chars */
-	ROM_LOAD( "snksb7.bin",      0x000000, 0x10000, CRC(8f3c2e25) SHA1(a5b3880f3079cce607678fd4ea5971560ce9ed8d) )
+	ROM_REGION( 0x10000, "gfx1", 0 ) /* chars */
+	ROM_LOAD( "sb-7.l3", 0x000000, 0x10000, CRC(8f3c2e25) SHA1(a5b3880f3079cce607678fd4ea5971560ce9ed8d) )
 
-	ROM_REGION( 0x280000, "gfx2", 0 )  /* sprites */
-	ROM_LOAD( "kcbchr3.bin",     0x000000, 0x80000, CRC(719071c7) SHA1(47eded73eae25af04cf369f1a8ee657fd06b6480) )
-	ROM_LOAD( "kcbchr2.bin",     0x0a0000, 0x80000, CRC(014f0f90) SHA1(e80594f06faf303c4034a711fe55dad046ebf9aa) )
-	ROM_LOAD( "kcbchr1.bin",     0x140000, 0x80000, CRC(a5ce1e10) SHA1(c91cad45a918166155be3f93f4ed299389579f4a) )
-	ROM_LOAD( "kcbchr0.bin",     0x1e0000, 0x80000, CRC(b8a1a088) SHA1(cb21a04387431b1810130abd86a2ebf78cf09a3b) )
+	ROM_REGION( 0x280000, "gfx2", 0 ) /* sprites */
+	ROM_LOAD( "kcb-chr3.h21", 0x000000, 0x80000, CRC(719071c7) SHA1(47eded73eae25af04cf369f1a8ee657fd06b6480) )
+	ROM_LOAD( "kcb-chr2.h19", 0x0a0000, 0x80000, CRC(014f0f90) SHA1(e80594f06faf303c4034a711fe55dad046ebf9aa) )
+	ROM_LOAD( "kcb-chr1.h18", 0x140000, 0x80000, CRC(a5ce1e10) SHA1(c91cad45a918166155be3f93f4ed299389579f4a) )
+	ROM_LOAD( "kcb-chr0.h16", 0x1e0000, 0x80000, CRC(b8a1a088) SHA1(cb21a04387431b1810130abd86a2ebf78cf09a3b) )
+ROM_END
+
+ROM_START( sbasebalj )
+	ROM_REGION( 0x40000, "maincpu", 0 )
+	ROM_LOAD16_BYTE( "sb-j-1.c19", 0x00000, 0x20000, CRC(c46a3c03) SHA1(51d22f2873e45ae64453f3003940b3871d065c5b) )
+	ROM_LOAD16_BYTE( "sb-j-2.e19", 0x00001, 0x20000, CRC(a8ec2287) SHA1(9c873f3388a00babc1cd38188ef1fe6e2741fd67) )
+
+	ROM_REGION( 0x90000, "audiocpu", 0 ) /* Sound CPU */
+	ROM_LOAD( "sb-3.g9", 0x00000, 0x08000, CRC(89e12f25) SHA1(1c569958a7f5a91b54f1316c1d5ee027be8618d6) )
+	ROM_CONTINUE( 0x18000, 0x08000 )
+	ROM_LOAD( "sb-4.g11", 0x30000, 0x10000, CRC(cca2555d) SHA1(13c672331e8e5e5dd8fc3aa7829d46de6b8271f3) )
+	ROM_LOAD( "sb-5.g13", 0x50000, 0x10000, CRC(f45ee36f) SHA1(cdfdf696e9fcd2827ab1dd6adc2a45085911333d) )
+	ROM_LOAD( "sb-6.g15", 0x70000, 0x10000, CRC(651c9472) SHA1(bcff6679e22143cd6816c441c5a67b4956ee7ee0) )
+
+	ROM_REGION( 0x10000, "mcu", 0 )
+	ROM_LOAD( "alpha.mcu", 0x000, 0x1000, NO_DUMP )
+
+	ROM_REGION( 0x10000, "gfx1", 0 ) /* chars */
+	ROM_LOAD( "sb-7.l3", 0x000000, 0x10000, CRC(8f3c2e25) SHA1(a5b3880f3079cce607678fd4ea5971560ce9ed8d) )
+
+	ROM_REGION( 0x280000, "gfx2", 0 ) /* sprites */
+	ROM_LOAD( "kcb-chr3.h21", 0x000000, 0x80000, CRC(719071c7) SHA1(47eded73eae25af04cf369f1a8ee657fd06b6480) )
+	ROM_LOAD( "kcb-chr2.h19", 0x0a0000, 0x80000, CRC(014f0f90) SHA1(e80594f06faf303c4034a711fe55dad046ebf9aa) )
+	ROM_LOAD( "kcb-chr1.h18", 0x140000, 0x80000, CRC(a5ce1e10) SHA1(c91cad45a918166155be3f93f4ed299389579f4a) )
+	ROM_LOAD( "kcb-chr0.h16", 0x1e0000, 0x80000, CRC(b8a1a088) SHA1(cb21a04387431b1810130abd86a2ebf78cf09a3b) )
 ROM_END
 
 ROM_START( tnextspc ) /* MASKROM for gfx */
@@ -3375,11 +3433,14 @@ DRIVER_INIT_MEMBER(alpha68k_state,sbasebal)
 	rom[0x458/2] = 0x4e71;
 	rom[0x45a/2] = 0x4e71;
 
-#if SBASEBAL_HACK
-	rom[0x2b4/2] = 0x4e71;
-	rom[0x2b6/2] = 0x4e71;
-#endif
+	m_invert_controls = 0;
+	m_microcontroller_id = 0x8512;  // Same as 'gangwars' ?
+	m_coin_id = 0x23 | (0x24 << 8);
+	m_game_id = 0;
+}
 
+DRIVER_INIT_MEMBER(alpha68k_state,sbasebalj)
+{
 	m_invert_controls = 0;
 	m_microcontroller_id = 0x8512;  // Same as 'gangwars' ?
 	m_coin_id = 0x23 | (0x24 << 8);
@@ -3396,40 +3457,41 @@ DRIVER_INIT_MEMBER(alpha68k_state,tnextspc)
 
 /******************************************************************************/
 
-GAME( 1986, sstingry,  0,        sstingry,       sstingry, alpha68k_state, sstingry, ROT90, "Alpha Denshi Co.",                                  "Super Stingray (Japan)", GAME_SUPPORTS_SAVE | GAME_UNEMULATED_PROTECTION )
+GAME( 1986, sstingry,  0,        sstingry,       sstingry, alpha68k_state, sstingry, ROT90, "Alpha Denshi Co.",                                  "Super Stingray (Japan)", MACHINE_SUPPORTS_SAVE | MACHINE_UNEMULATED_PROTECTION )
 
-GAME( 1987, kyros,     0,        kyros,          kyros, alpha68k_state,    kyros,    ROT90, "Alpha Denshi Co. (World Games Inc. license)",       "Kyros", GAME_SUPPORTS_SAVE )
-GAME( 1986, kyrosj,    kyros,    kyros,          kyros, alpha68k_state,    kyros,    ROT90, "Alpha Denshi Co.",                                  "Kyros No Yakata (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1987, kyros,     0,        kyros,          kyros, alpha68k_state,    kyros,    ROT90, "Alpha Denshi Co. (World Games Inc. license)",       "Kyros", MACHINE_SUPPORTS_SAVE )
+GAME( 1986, kyrosj,    kyros,    kyros,          kyros, alpha68k_state,    kyros,    ROT90, "Alpha Denshi Co.",                                  "Kyros No Yakata (Japan)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1987, jongbou,   0,        jongbou,        jongbou, alpha68k_state,  jongbou,  ROT90, "SNK",                                               "Mahjong Block Jongbou (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1987, jongbou,   0,        jongbou,        jongbou, alpha68k_state,  jongbou,  ROT90, "SNK",                                               "Mahjong Block Jongbou (Japan)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1988, paddlema,  0,        alpha68k_I,     paddlema, alpha68k_state, paddlema, ROT90, "SNK",                                               "Paddle Mania", GAME_SUPPORTS_SAVE )
+GAME( 1988, paddlema,  0,        alpha68k_I,     paddlema, alpha68k_state, paddlema, ROT90, "SNK",                                               "Paddle Mania", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1987, timesold,  0,        alpha68k_II,    timesold, alpha68k_state, timesold, ROT90, "Alpha Denshi Co. (SNK/Romstar license)",            "Time Soldiers (US Rev 3)", GAME_SUPPORTS_SAVE )
-GAME( 1987, timesold1, timesold, alpha68k_II,    timesold, alpha68k_state, timesold1,ROT90, "Alpha Denshi Co. (SNK/Romstar license)",            "Time Soldiers (US Rev 1)", GAME_SUPPORTS_SAVE )
+GAME( 1987, timesold,  0,        alpha68k_II,    timesold, alpha68k_state, timesold, ROT90, "Alpha Denshi Co. (SNK/Romstar license)",            "Time Soldiers (US Rev 3)", MACHINE_SUPPORTS_SAVE )
+GAME( 1987, timesold1, timesold, alpha68k_II,    timesold, alpha68k_state, timesold1,ROT90, "Alpha Denshi Co. (SNK/Romstar license)",            "Time Soldiers (US Rev 1)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1987, btlfield,  timesold, alpha68k_II,    btlfield, alpha68k_state, btlfield, ROT90, "Alpha Denshi Co. (SNK license)",                    "Battle Field (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1987, btlfieldb, timesold, btlfieldb,      btlfieldb, alpha68k_state,btlfieldb,ROT90, "bootleg",                                           "Battle Field (bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1987, btlfield,  timesold, alpha68k_II,    btlfield, alpha68k_state, btlfield, ROT90, "Alpha Denshi Co. (SNK license)",                    "Battle Field (Japan)", MACHINE_SUPPORTS_SAVE )
+GAME( 1987, btlfieldb, timesold, btlfieldb,      btlfieldb, alpha68k_state,btlfieldb,ROT90, "bootleg",                                           "Battle Field (bootleg)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1988, skysoldr,  0,        alpha68k_II,    skysoldr, alpha68k_state, skysoldr, ROT90, "Alpha Denshi Co. (SNK of America/Romstar license)", "Sky Soldiers (US)", GAME_SUPPORTS_SAVE )
-GAME( 1988, skysoldrbl,skysoldr, alpha68k_II,    skysoldr, alpha68k_state, skysoldr, ROT90, "bootleg",                                           "Sky Soldiers (bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1988, skysoldr,  0,        alpha68k_II,    skysoldr, alpha68k_state, skysoldr, ROT90, "Alpha Denshi Co. (SNK of America/Romstar license)", "Sky Soldiers (US)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, skysoldrbl,skysoldr, alpha68k_II,    skysoldr, alpha68k_state, skysoldr, ROT90, "bootleg",                                           "Sky Soldiers (bootleg)", MACHINE_SUPPORTS_SAVE )
 
 
-GAME( 1988, goldmedl,  0,        alpha68k_II_gm, goldmedl, alpha68k_state, goldmedl, ROT0,  "SNK",                                               "Gold Medalist (set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1988, goldmedla, goldmedl, alpha68k_II_gm, goldmedl, alpha68k_state, goldmedla,ROT0,  "SNK",                                               "Gold Medalist (set 2)", GAME_SUPPORTS_SAVE )
-GAME( 1988, goldmedlb, goldmedl, alpha68k_II_gm, goldmedl, alpha68k_state, goldmedla,ROT0,  "bootleg",                                           "Gold Medalist (bootleg)", GAME_NOT_WORKING )
+GAME( 1988, goldmedl,  0,        alpha68k_II_gm, goldmedl, alpha68k_state, goldmedl, ROT0,  "SNK",                                               "Gold Medalist (set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, goldmedla, goldmedl, alpha68k_II_gm, goldmedl, alpha68k_state, goldmedla,ROT0,  "SNK",                                               "Gold Medalist (set 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1988, goldmedlb, goldmedl, alpha68k_II_gm, goldmedl, alpha68k_state, goldmedla,ROT0,  "bootleg",                                           "Gold Medalist (bootleg)", MACHINE_NOT_WORKING )
 
-GAME( 1989, skyadvnt,  0,        alpha68k_V,     skyadvnt, alpha68k_state, skyadvnt, ROT90, "Alpha Denshi Co.",                                  "Sky Adventure (World)", GAME_SUPPORTS_SAVE )
-GAME( 1989, skyadvntu, skyadvnt, alpha68k_V,     skyadvntu, alpha68k_state,skyadvntu,ROT90, "Alpha Denshi Co. (SNK of America license)",         "Sky Adventure (US)", GAME_SUPPORTS_SAVE )
-GAME( 1989, skyadvntj, skyadvnt, alpha68k_V,     skyadvnt, alpha68k_state, skyadvnt, ROT90, "Alpha Denshi Co.",                                  "Sky Adventure (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1989, skyadvnt,  0,        alpha68k_V,     skyadvnt, alpha68k_state, skyadvnt, ROT90, "Alpha Denshi Co.",                                  "Sky Adventure (World)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, skyadvntu, skyadvnt, alpha68k_V,     skyadvntu, alpha68k_state,skyadvntu,ROT90, "Alpha Denshi Co. (SNK of America license)",         "Sky Adventure (US)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, skyadvntj, skyadvnt, alpha68k_V,     skyadvnt, alpha68k_state, skyadvnt, ROT90, "Alpha Denshi Co.",                                  "Sky Adventure (Japan)", MACHINE_SUPPORTS_SAVE )
 
-GAME( 1989, gangwars,  0,        alpha68k_V,     gangwars, alpha68k_state, gangwars, ROT0,  "Alpha Denshi Co.",                                  "Gang Wars", GAME_SUPPORTS_SAVE )
-GAME( 1989, gangwarsj, gangwars, alpha68k_V,     gangwars, alpha68k_state, gangwars, ROT0,  "Alpha Denshi Co.",                                  "Gang Wars (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1989, gangwarsu, gangwars, alpha68k_V,     gangwarsu, alpha68k_state,gangwarsu,ROT0,  "Alpha Denshi Co.",                                  "Gang Wars (US)", GAME_SUPPORTS_SAVE )
-GAME( 1989, gangwarsb, gangwars, alpha68k_V,     gangwars, alpha68k_state, gangwars, ROT0,  "bootleg",                                           "Gang Wars (bootleg)", GAME_SUPPORTS_SAVE ) // has (undumped) 68705 MCU in place of Alpha MCU, otherwise the same as 'gangwars'
+GAME( 1989, gangwars,  0,        alpha68k_V,     gangwars, alpha68k_state, gangwars, ROT0,  "Alpha Denshi Co.",                                  "Gang Wars", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, gangwarsj, gangwars, alpha68k_V,     gangwars, alpha68k_state, gangwars, ROT0,  "Alpha Denshi Co.",                                  "Gang Wars (Japan)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, gangwarsu, gangwars, alpha68k_V,     gangwarsu, alpha68k_state,gangwarsu,ROT0,  "Alpha Denshi Co.",                                  "Gang Wars (US)", MACHINE_SUPPORTS_SAVE )
+GAME( 1989, gangwarsb, gangwars, alpha68k_V,     gangwars, alpha68k_state, gangwars, ROT0,  "bootleg",                                           "Gang Wars (bootleg)", MACHINE_SUPPORTS_SAVE ) // has (undumped) 68705 MCU in place of Alpha MCU, otherwise the same as 'gangwars'
 
-GAME( 1989, sbasebal,  0,        alpha68k_V_sb,  sbasebal, alpha68k_state, sbasebal, ROT0,  "Alpha Denshi Co. (SNK of America license)",         "Super Champion Baseball (US)", GAME_SUPPORTS_SAVE | GAME_UNEMULATED_PROTECTION )
+GAME( 1989, sbasebal,  0,        alpha68k_V_sb,  sbasebal, alpha68k_state, sbasebal, ROT0,  "Alpha Denshi Co. (SNK of America license)",         "Super Champion Baseball (US)", MACHINE_SUPPORTS_SAVE | MACHINE_UNEMULATED_PROTECTION )
+GAME( 1989, sbasebalj, sbasebal, alpha68k_V_sb,  sbasebalj,alpha68k_state, sbasebalj,ROT0,  "Alpha Denshi Co.",                                  "Super Champion Baseball (Japan)", MACHINE_SUPPORTS_SAVE | MACHINE_UNEMULATED_PROTECTION | MACHINE_NOT_WORKING )
 
-GAME( 1989, tnextspc,  0,        tnextspc,       tnextspc, alpha68k_state, tnextspc, ROT90, "SNK",                                               "The Next Space (set 1)", GAME_SUPPORTS_SAVE | GAME_NO_COCKTAIL )
-GAME( 1989, tnextspc2, tnextspc, tnextspc,       tnextspc, alpha68k_state, tnextspc, ROT90, "SNK",                                               "The Next Space (set 2)", GAME_SUPPORTS_SAVE | GAME_NO_COCKTAIL )
-GAME( 1989, tnextspcj, tnextspc, tnextspc,       tnextspc, alpha68k_state, tnextspc, ROT90, "SNK (Pasadena International Corp. license)",        "The Next Space (Japan)", GAME_SUPPORTS_SAVE | GAME_NO_COCKTAIL )
+GAME( 1989, tnextspc,  0,        tnextspc,       tnextspc, alpha68k_state, tnextspc, ROT90, "SNK",                                               "The Next Space (set 1)", MACHINE_SUPPORTS_SAVE | MACHINE_NO_COCKTAIL )
+GAME( 1989, tnextspc2, tnextspc, tnextspc,       tnextspc, alpha68k_state, tnextspc, ROT90, "SNK",                                               "The Next Space (set 2)", MACHINE_SUPPORTS_SAVE | MACHINE_NO_COCKTAIL )
+GAME( 1989, tnextspcj, tnextspc, tnextspc,       tnextspc, alpha68k_state, tnextspc, ROT90, "SNK (Pasadena International Corp. license)",        "The Next Space (Japan)", MACHINE_SUPPORTS_SAVE | MACHINE_NO_COCKTAIL )

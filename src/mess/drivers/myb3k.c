@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Angelo Salese
 /***************************************************************************
 
@@ -269,7 +269,7 @@ static MACHINE_CONFIG_START( myb3k, myb3k_state )
 	MCFG_MC6845_SHOW_BORDER_AREA(false)
 	MCFG_MC6845_CHAR_WIDTH(8)
 
-	MCFG_DEVICE_ADD("fdc", MB8877x, 2000000)    // unknown type
+	MCFG_DEVICE_ADD("fdc", MB8877, 2000000)    // unknown type
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", myb3k_floppies, "8dsdd", floppy_image_device::default_floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD("fdc:1", myb3k_floppies, "8dsdd", floppy_image_device::default_floppy_formats)
 MACHINE_CONFIG_END
@@ -283,4 +283,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY           FULLNAME       FLAGS */
-COMP( 1982, myb3k,  0,      0,       myb3k,     myb3k, driver_device,    0,     "Panasonic",   "MyBrain 3000", GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( 1982, myb3k,  0,      0,       myb3k,     myb3k, driver_device,    0,     "Panasonic",   "MyBrain 3000", MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

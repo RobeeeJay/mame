@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Aaron Giles
 /*** m6805: Portable 6805 emulator ******************************************
 
     m6805.c (Also supports hd68705 and hd63705 variants)
@@ -51,14 +53,14 @@
 /* opcodes. In case of system with memory mapped I/O, this function can be  */
 /* used to greatly speed up emulation                                       */
 /****************************************************************************/
-#define M6805_RDOP(addr) ((unsigned)m_direct->read_decrypted_byte(addr))
+#define M6805_RDOP(addr) ((unsigned)m_direct->read_byte(addr))
 
 /****************************************************************************/
 /* M6805_RDOP_ARG() is identical to M6805_RDOP() but it's used for reading  */
 /* opcode arguments. This difference can be used to support systems that    */
 /* use different encoding mechanisms for opcodes and opcode arguments       */
 /****************************************************************************/
-#define M6805_RDOP_ARG(addr) ((unsigned)m_direct->read_raw_byte(addr))
+#define M6805_RDOP_ARG(addr) ((unsigned)m_direct->read_byte(addr))
 
 #define SP_MASK m_sp_mask   /* stack pointer mask */
 #define SP_LOW  m_sp_low    /* stack pointer low water mark */
@@ -422,7 +424,7 @@ void m6805_base_device::device_start()
 	m_icountptr = &m_icount;
 
 	// register our state for the debugger
-	astring tempstr;
+	std::string tempstr;
 	state_add(STATE_GENPC,     "GENPC",     m_pc.w.l).noshow();
 	state_add(STATE_GENFLAGS,  "GENFLAGS",  m_cc).callimport().callexport().formatstr("%8s").noshow();
 	state_add(M6805_A,         "A",         m_a).mask(0xff);
@@ -492,12 +494,12 @@ const address_space_config *m6805_base_device::memory_space_config(address_space
 //  for the debugger
 //-------------------------------------------------
 
-void m6805_base_device::state_string_export(const device_state_entry &entry, astring &string)
+void m6805_base_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c%c%c%c",
+			strprintf(str, "%c%c%c%c%c%c%c%c",
 				(m_cc & 0x80) ? '?' : '.',
 				(m_cc & 0x40) ? '?' : '.',
 				(m_cc & 0x20) ? '?' : '.',

@@ -1,12 +1,11 @@
+// license:BSD-3-Clause
+// copyright-holders:Hans Ostermeyer,R. Belmont
 /*
  * 3c505.c - 3COM 3C505 ethernet controller (for Apollo DN3x00)
  *
  *  Created on: August 27, 2010
  *      Author: Hans Ostermeyer
  *      ISA conversion by R. Belmont
- *
- *  Released for general non-commercial use under the MAME license
- *  Visit http://mamedev.org for licensing and usage restrictions.
  *
  *  see also:
  *  - http://lxr.free-electrons.com/source/drivers/net/3c505.h
@@ -186,6 +185,12 @@ enum
 #define INT_LOOPBACK    0x08
 #define EXT_LOOPBACK    0x10
 
+ROM_START( threecom3c505 )
+	ROM_REGION( 0x02000, "threecom3c505", 0 )
+	ROM_LOAD_OPTIONAL( "3000_3c505_010728-00.bin", 0x00000, 0x02000, CRC(69b77ec6) SHA1(7ac36cc6fc90b90ddfc56c45303b514cbe18ae58) )
+	// see http://www.bitsavers.org/bits/Apollo/firmware/
+ROM_END
+
 static INPUT_PORTS_START( tc3c505_port )
 	PORT_START("IO_BASE")
 	PORT_DIPNAME( 0x3f0, 0x300, "3C505 I/O base")
@@ -267,12 +272,23 @@ static INPUT_PORTS_START( tc3c505_port )
 	PORT_DIPSETTING(    0x0e, "IRQ 14" )
 	PORT_DIPSETTING(    0x0f, "IRQ 15" )
 
-	PORT_DIPNAME( 0x70, 0x00, "3C505 DMA")
+	PORT_DIPNAME( 0x70, 0x60, "3C505 DMA")
+	PORT_DIPSETTING(    0x00, "none" )
 	PORT_DIPSETTING(    0x10, "DRQ 1" )
 	PORT_DIPSETTING(    0x30, "DRQ 3" )
 	PORT_DIPSETTING(    0x50, "DRQ 5" )
 	PORT_DIPSETTING(    0x60, "DRQ 6" )
 	PORT_DIPSETTING(    0x70, "DRQ 7" )
+
+	PORT_START("ROM_OPTS")
+	PORT_DIPNAME( 0x01, 0x01, "ROM control")
+	PORT_DIPSETTING(    0x00, "Disabled" )
+	PORT_DIPSETTING(    0x01, "Enabled" )
+	PORT_DIPNAME( 0x06, 0x00, "ROM base")
+	PORT_DIPSETTING(    0x00, "80000h" )
+	PORT_DIPSETTING(    0x02, "82000h" )
+	PORT_DIPSETTING(    0x04, "84000h" )
+	PORT_DIPSETTING(    0x06, "86000h" )
 
 INPUT_PORTS_END
 
@@ -292,7 +308,8 @@ threecom3c505_device::threecom3c505_device(const machine_config &mconfig, const 
 	device_network_interface(mconfig, *this, 10.0f),
 	device_isa16_card_interface(mconfig, *this),
 	m_iobase(*this, "IO_BASE"),
-	m_irqdrq(*this, "IRQ_DRQ")
+	m_irqdrq(*this, "IRQ_DRQ"),
+	m_romopts(*this, "ROM_OPTS")
 {
 }
 
@@ -301,13 +318,19 @@ threecom3c505_device::threecom3c505_device(const machine_config &mconfig, device
 	device_network_interface(mconfig, *this, 10.0f),
 	device_isa16_card_interface(mconfig, *this),
 	m_iobase(*this, "IO_BASE"),
-	m_irqdrq(*this, "IRQ_DRQ")
+	m_irqdrq(*this, "IRQ_DRQ"),
+	m_romopts(*this, "ROM_OPTS")
 {
 }
 
 ioport_constructor threecom3c505_device::device_input_ports() const
 {
 	return INPUT_PORTS_NAME( tc3c505_port );
+}
+
+const rom_entry *threecom3c505_device::device_rom_region() const
+{
+	return ROM_NAME( threecom3c505 );
 }
 
 //-------------------------------------------------
@@ -381,6 +404,14 @@ void threecom3c505_device::device_reset()
 
 		m_isa->install16_device(base, base + ELP_IO_EXTENT - 1, 0, 0, read16_delegate(FUNC(threecom3c505_device::read), this), write16_delegate(FUNC(threecom3c505_device::write), this));
 
+		if (m_romopts->read() & 1)
+		{
+			// host ROM is enabled, get base address
+			static const int rom_bases[4] = { 0x0000, 0x2000, 0x4000, 0x6000 };
+			int rom_base = rom_bases[(m_romopts->read() >> 1) & 3];
+			m_isa->install_rom(this, rom_base, rom_base + 0x01fff, 0, 0, "threecom3c505", "threecom3c505");
+		}
+
 		m_installed = true;
 	}
 }
@@ -435,14 +466,14 @@ void threecom3c505_device::data_buffer::reset()
 
 void threecom3c505_device::data_buffer::copy(data_buffer *db) const
 {
-	db->m_data.resize(m_data.count());
+	db->m_data.resize(m_data.size());
 	db->m_length = m_length;
-	memcpy(db->m_data, m_data, m_data.count());
+	memcpy(&db->m_data[0], &m_data[0], m_data.size());
 }
 
 int threecom3c505_device::data_buffer::append(UINT8 data)
 {
-	if (m_length >= m_data.count())
+	if (m_length >= m_data.size())
 	{
 		return 0;
 	}
@@ -532,7 +563,7 @@ int threecom3c505_device::data_buffer_fifo::put(const UINT8 data[], const int le
 	}
 	else
 	{
-		memcpy(m_db[m_put_index]->m_data, data, length);
+		memcpy(&m_db[m_put_index]->m_data[0], data, length);
 		m_db[m_put_index]->m_length = length;
 		m_put_index = next_index;
 		m_count++;

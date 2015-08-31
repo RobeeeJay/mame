@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /*****************************************************************************
  *
  * includes/macpci.h
@@ -64,7 +66,7 @@ enum model_t
 	PCIMODEL_MAC_PBG3WALLST1,
 	PCIMODEL_MAC_PBG3WALLST2,
 
-	PCIMODEL_MAC_PIPPIN,    // Apple/Bandai Pippin
+	PCIMODEL_MAC_PIPPIN    // Apple/Bandai Pippin
 
 };
 

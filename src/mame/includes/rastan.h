@@ -1,3 +1,5 @@
+// license:???
+// copyright-holders:Jarek Burczynski
 /*************************************************************************
 
     Rastan
@@ -17,9 +19,6 @@ public:
 		m_msm(*this, "msm"),
 		m_pc080sn(*this, "pc080sn"),
 		m_pc090oj(*this, "pc090oj") { }
-
-	/* memory pointers */
-//  UINT16 *    paletteram; // this currently uses generic palette handlers
 
 	/* video-related */
 	UINT16      m_sprite_ctrl;

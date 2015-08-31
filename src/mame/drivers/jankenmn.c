@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Fresca
 /***************************************************************************
 
   JANKENMAN UNIT
@@ -33,6 +35,16 @@
   * Janken Man Big,                                      (c) 19??, Sunwise.
   * Janken Man Lucky!,                                   (c) 199?, Sunwise.
 
+
+****************************************************************************
+
+  General Notes...
+
+  For better experience, use the hi-res external artwork I made.
+
+  Preview: http://www.robertofresca.com/imagenes/jankenmn_full.png
+  Artwork: http://mrdo.mameworld.info/artwork/jankenmn.zip
+  (mirror) http://www.progettoemma.net/mw/jankenmn.zip
 
 ****************************************************************************
 
@@ -106,27 +118,27 @@
 
   lamps:
 
-    0 = Multiplier 1 "attarii" (pays x1)
-    1 = Multiplier 2 "ooatari" (pays x2)
+    00 = Multiplier 1 "attarii" (pays x1)
+    01 = Multiplier 2 "ooatari" (pays x2)
 
-    2 = Rock button LED
-    3 = Scissors button LED
-    4 = Paper button LED
+    02 = Rock button LED
+    03 = Scissors button LED
+    04 = Paper button LED
 
-    5 = Lose
-    6 = Draw
-    7 = Win
+    05 = Lose
+    06 = Draw
+    07 = Win
 
-    8 = Base Hand
-    9 = Paper components
-    10 = Paper/Scissors components
+    08 = Base Hand
+    09 = Paper components
+    10 = Paper/Scissors common components
     11 = Rock components
     12 = Scissors components
-    13 = Rock/Scissors components
+    13 = Rock/Scissors common components
 
     14 = Payout error LED
 
-  Not implemented in internal .lay:
+  Not implemented in the internal layout/artwork:
 
     15 = Rotating blue lamp
 
@@ -152,11 +164,13 @@ public:
 		: driver_device(mconfig, type, tag),
 		m_maincpu(*this, "maincpu") { }
 
-	DECLARE_CUSTOM_INPUT_MEMBER(jankenmn_hopper_status_r);
-	DECLARE_WRITE8_MEMBER(jankenmn_lamps1_w);
-	DECLARE_WRITE8_MEMBER(jankenmn_lamps2_w);
-	DECLARE_WRITE8_MEMBER(jankenmn_lamps3_w);
 	required_device<cpu_device> m_maincpu;
+
+	DECLARE_WRITE8_MEMBER(lamps1_w);
+	DECLARE_WRITE8_MEMBER(lamps2_w);
+	DECLARE_WRITE8_MEMBER(lamps3_w);
+
+	DECLARE_CUSTOM_INPUT_MEMBER(hopper_status_r);
 };
 
 
@@ -165,9 +179,9 @@ public:
 *********************************************/
 
 static const UINT8 led_map[16] = // 7748 IC?
-	{ 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7c,0x07,0x7f,0x67,0x58,0x4c,0x62,0x69,0x78,0x00 };
+	{ 0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7c, 0x07, 0x7f, 0x67, 0x58, 0x4c, 0x62, 0x69, 0x78, 0x00 };
 
-WRITE8_MEMBER(jankenmn_state::jankenmn_lamps1_w)
+WRITE8_MEMBER(jankenmn_state::lamps1_w)
 {
 	// hand state: d0: rock, d1: scissors, d2: paper
 	output_set_lamp_value(8, (data & 7) != 0);
@@ -178,12 +192,12 @@ WRITE8_MEMBER(jankenmn_state::jankenmn_lamps1_w)
 	output_set_lamp_value(13, (data & 3) != 0);
 
 	// d4-d7: led7seg (remaining credits) right digit
-	output_set_digit_value(1, led_map[data >> 4 & 0xf]);
+	output_set_digit_value(1, led_map[data >> 4 & 0x0f]);
 
 	// d3: ? (only set if game is over)
 }
 
-WRITE8_MEMBER(jankenmn_state::jankenmn_lamps2_w)
+WRITE8_MEMBER(jankenmn_state::lamps2_w)
 {
 	// button LEDs: d1: paper, d2: scissors, d3: rock
 	output_set_lamp_value(2, data >> 3 & 1);
@@ -202,7 +216,7 @@ WRITE8_MEMBER(jankenmn_state::jankenmn_lamps2_w)
 	output_set_digit_value(0, led_map[data & 1]);
 }
 
-WRITE8_MEMBER(jankenmn_state::jankenmn_lamps3_w)
+WRITE8_MEMBER(jankenmn_state::lamps3_w)
 {
 	// d1: blue rotating lamp on top of cab
 	output_set_lamp_value(15, data >> 1 & 1);
@@ -218,9 +232,11 @@ WRITE8_MEMBER(jankenmn_state::jankenmn_lamps3_w)
 	coin_lockout_global_w(machine(), ~data & 0x20);
 
 	// d0, d6, d7: N/C?
+	if (data & 0x04)
+		logerror("payout: %02X\n", (data & 0x04));
 }
 
-CUSTOM_INPUT_MEMBER(jankenmn_state::jankenmn_hopper_status_r)
+CUSTOM_INPUT_MEMBER(jankenmn_state::hopper_status_r)
 {
 	// temp workaround, needs hopper
 	return machine().rand();
@@ -245,6 +261,46 @@ static ADDRESS_MAP_START( jankenmn_port_map, AS_IO, 8, jankenmn_state )
 	AM_RANGE(0x30, 0x30) AM_WRITENOP // ???
 ADDRESS_MAP_END
 
+/*
+  Writes to port 30h....
+
+  They are coming from different code chunks, but seems that at least
+  they have different functions. Writes from 00B6h are unknown, whilst
+  others coming from 00D6h are counters. Sometimes whilst one increase,
+  the other one decrease. Writes coming from 0103h seems to clear (00)
+  or just end whatever the command sent.
+
+  Other behaviours could point to be different counters.
+
+  Also when you win, and the multipliers start to run, a lot of data
+  is written to the port. Maybe is a leftover, or just a connector to
+  hook the multiplier's 'roulette style' matrix lamps for other Janken
+  Man games...
+
+  ':maincpu' (00B6): unmapped io memory write to 0030 = 01 & FF
+  ':maincpu' (00D6): unmapped io memory write to 0030 = 2F & FF
+  ':maincpu' (0103): unmapped io memory write to 0030 = 00 & FF
+
+  ':maincpu' (00B6): unmapped io memory write to 0030 = F4 & FF
+  ':maincpu' (00D6): unmapped io memory write to 0030 = 30 & FF
+  ':maincpu' (0103): unmapped io memory write to 0030 = 00 & FF
+
+  ':maincpu' (00B6): unmapped io memory write to 0030 = E7 & FF
+  ':maincpu' (00D6): unmapped io memory write to 0030 = 31 & FF
+  ':maincpu' (0103): unmapped io memory write to 0030 = 00 & FF
+
+  ':maincpu' (00B6): unmapped io memory write to 0030 = DA & FF
+  ':maincpu' (00D6): unmapped io memory write to 0030 = 32 & FF
+  ':maincpu' (0103): unmapped io memory write to 0030 = 00 & FF
+
+  ':maincpu' (00B6): unmapped io memory write to 0030 = CD & FF
+  ':maincpu' (00D6): unmapped io memory write to 0030 = 33 & FF
+  ':maincpu' (0103): unmapped io memory write to 0030 = 00 & FF
+
+
+  Need more analysis...
+
+*/
 
 /*********************************************
 *          Input Ports Definitions           *
@@ -252,12 +308,12 @@ ADDRESS_MAP_END
 
 static INPUT_PORTS_START( jankenmn )
 	PORT_START("IN0")
-	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("Guu (Rock)")
-	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_NAME("Choki (Scissors)")
-	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_NAME("Paa (Paper)")
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_CODE(KEYCODE_Z) PORT_NAME("Guu (Rock)")
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_CODE(KEYCODE_X) PORT_NAME("Choki (Scissors)")
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_CODE(KEYCODE_C) PORT_NAME("Paa (Paper)")
 	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_COIN3 ) // 100 yen coin
-	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM_MEMBER(DEVICE_SELF, jankenmn_state,jankenmn_hopper_status_r, NULL)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_SPECIAL ) PORT_CUSTOM_MEMBER(DEVICE_SELF, jankenmn_state, hopper_status_r, NULL)
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_COIN2 ) // 10 yen coin
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_COIN1 ) // 10 yen coin
 
@@ -315,13 +371,13 @@ static MACHINE_CONFIG_START( jankenmn, jankenmn_state )
 	/* (10-13) Mode 0 - Ports A & B set as input, high C & low C as output. */
 	MCFG_I8255_IN_PORTA_CB(IOPORT("DSW"))
 	MCFG_I8255_IN_PORTB_CB(IOPORT("IN0"))
-	MCFG_I8255_OUT_PORTC_CB(WRITE8(jankenmn_state, jankenmn_lamps3_w))
+	MCFG_I8255_OUT_PORTC_CB(WRITE8(jankenmn_state, lamps3_w))
 
 	MCFG_DEVICE_ADD("ppi8255_1", I8255, 0)
 	/* (20-23) Mode 0 - Ports A, B, high C & low C set as output. */
 	MCFG_I8255_OUT_PORTA_CB(DEVWRITE8("dac", dac_device, write_unsigned8))
-	MCFG_I8255_OUT_PORTB_CB(WRITE8(jankenmn_state, jankenmn_lamps1_w))
-	MCFG_I8255_OUT_PORTC_CB(WRITE8(jankenmn_state, jankenmn_lamps2_w))
+	MCFG_I8255_OUT_PORTB_CB(WRITE8(jankenmn_state, lamps1_w))
+	MCFG_I8255_OUT_PORTC_CB(WRITE8(jankenmn_state, lamps2_w))
 
 	MCFG_DEVICE_ADD("ctc", Z80CTC, MASTER_CLOCK)
 	MCFG_Z80CTC_INTR_CB(INPUTLINE("maincpu", INPUT_LINE_IRQ0))
@@ -358,5 +414,5 @@ ROM_END
 *                Game Drivers                *
 *********************************************/
 
-/*     YEAR  NAME      PARENT  MACHINE   INPUT     INIT                 ROT    COMPANY    FULLNAME                   FLAGS...  LAYOUT */
-GAMEL( 1991, jankenmn, 0,      jankenmn, jankenmn, driver_device, 0,    ROT0, "Sunwise", "Janken Man Kattara Ageru", 0,        layout_jankenmn )
+/*     YEAR  NAME      PARENT  MACHINE   INPUT     STATE          INIT  ROT    COMPANY    FULLNAME                   FLAGS...            LAYOUT */
+GAMEL( 1991, jankenmn, 0,      jankenmn, jankenmn, driver_device, 0,    ROT0, "Sunwise", "Janken Man Kattara Ageru", MACHINE_SUPPORTS_SAVE, layout_jankenmn )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nathan Woods
 /**********************************************************************
 
     Motorola 6821 PIA interface and emulation
@@ -12,7 +14,7 @@
 //  MACROS
 //**************************************************************************
 
-#define VERBOSE 0
+#define VERBOSE 1
 
 #define LOG(x)  do { if (VERBOSE) logerror x; } while (0)
 

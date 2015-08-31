@@ -1,15 +1,16 @@
+// license:BSD-3-Clause
+// copyright-holders:Andrew Gardner
 //============================================================
 //
 //  debugqt.c - SDL/QT debug window handling
-//
-//  Copyright (c) 1996-2014, Nicola Salmoria and the MAME Team.
-//  Visit http://mamedev.org for licensing and usage restrictions.
 //
 //  SDLMAME by Olivier Galibert and R. Belmont
 //
 //============================================================
 
+#if (!defined(NO_MEM_TRACKING))
 #define NO_MEM_TRACKING
+#endif
 
 #include "debug_module.h"
 #include "modules/osdmodule.h"
@@ -26,13 +27,13 @@
 #include "debugger.h"
 #include "modules/lib/osdobj_common.h"
 
-#include "qt/debugqtlogwindow.h"
-#include "qt/debugqtmainwindow.h"
-#include "qt/debugqtdasmwindow.h"
-#include "qt/debugqtmemorywindow.h"
-#include "qt/debugqtbreakpointswindow.h"
-#include "qt/debugqtdeviceswindow.h"
-#include "qt/debugqtdeviceinformationwindow.h"
+#include "qt/logwindow.h"
+#include "qt/mainwindow.h"
+#include "qt/dasmwindow.h"
+#include "qt/memorywindow.h"
+#include "qt/breakpointswindow.h"
+#include "qt/deviceswindow.h"
+#include "qt/deviceinformationwindow.h"
 
 class debug_qt : public osd_module, public debug_module
 {
@@ -45,7 +46,7 @@ public:
 
 	virtual ~debug_qt() { }
 
-	virtual int init() { return 0;}
+	virtual int init(const osd_options &options) { return 0; }
 	virtual void exit() { }
 
 	virtual void init_debugger(running_machine &machine);

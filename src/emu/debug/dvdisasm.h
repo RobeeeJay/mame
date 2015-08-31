@@ -51,6 +51,7 @@ private:
 	device_t &          m_device;               // underlying device
 	device_disasm_interface *m_disasmintf;      // disassembly interface
 	address_space &     m_space;                // address space to display
+	address_space &     m_decrypted_space;      // address space to display for decrypted opcodes
 };
 
 
@@ -104,8 +105,8 @@ private:
 	int                 m_divider1, m_divider2; // left and right divider columns
 	int                 m_divider3;             // comment divider column
 	debug_view_expression m_expression;         // expression-related information
-	dynamic_array<offs_t> m_byteaddress;        // addresses of the instructions
-	dynamic_array<char> m_dasm;                 // disassembled instructions
+	std::vector<offs_t> m_byteaddress;               // addresses of the instructions
+	std::vector<char> m_dasm;                        // disassembled instructions
 
 	// constants
 	static const int DEFAULT_DASM_LINES = 1000;

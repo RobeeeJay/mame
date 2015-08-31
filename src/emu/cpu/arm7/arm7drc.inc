@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Steve Ellenoff,R. Belmont,Ryan Holtz
 /*****************************************************************************
  *
  *   arm7drc.inc
@@ -6,18 +8,6 @@
  *   Copyright Steve Ellenoff, all rights reserved.
  *   Thumb, DSP, and MMU support and many bugfixes by R. Belmont and Ryan Holtz.
  *   Dyanmic Recompiler (DRC) / Just In Time Compiler (JIT) by Ryan Holtz.
- *
- *   - This source code is released as freeware for non-commercial purposes.
- *   - You are free to use and redistribute this code in modified or
- *     unmodified form, provided you list me in the credits.
- *   - If you modify this source code, you must add a notice to each modified
- *     source file that it has been changed.  If you're a nice person, you
- *     will clearly mark each change too.  :)
- *   - If you wish to use this for commercial purposes, please contact me at
- *     sellenoff@hotmail.com
- *   - The author of this copywritten work reserves the right to change the
- *     terms of its usage and license at any time, including retroactively
- *   - This entire notice must remain in the source code.
  *
  *  This work is based on:
  *  #1) 'Atmel Corporation ARM7TDMI (Thumb) Datasheet - January 1999'
@@ -681,7 +671,7 @@ void arm7_cpu_device::static_generate_check_irq()
 	UML_LABEL(block, done);                                             // done:
 
 	block->end();
-};
+}
 
 /*-------------------------------------------------
     static_generate_nocode_handler - generate an
@@ -1213,12 +1203,12 @@ void arm7_cpu_device::generate_checksum_block(drcuml_block *block, compiler_stat
 		if (!(seqhead->flags & OPFLAG_VIRTUAL_NOOP))
 		{
 			UINT32 sum = seqhead->opptr.l[0];
-			void *base = m_direct->read_decrypted_ptr(seqhead->physpc);
+			void *base = m_direct->read_ptr(seqhead->physpc);
 			UML_LOAD(block, uml::I0, base, 0, uml::SIZE_DWORD, uml::SCALE_x4);             // load    i0,base,0,dword
 
 			if (seqhead->delay.first() != NULL && seqhead->physpc != seqhead->delay.first()->physpc)
 			{
-				base = m_direct->read_decrypted_ptr(seqhead->delay.first()->physpc);
+				base = m_direct->read_ptr(seqhead->delay.first()->physpc);
 				UML_LOAD(block, uml::I1, base, 0, uml::SIZE_DWORD, uml::SCALE_x4);         // load    i1,base,dword
 				UML_ADD(block, uml::I0, uml::I0, uml::I1);                                 // add     i0,i0,i1
 
@@ -1234,20 +1224,20 @@ void arm7_cpu_device::generate_checksum_block(drcuml_block *block, compiler_stat
 	else
 	{
 		UINT32 sum = 0;
-		void *base = m_direct->read_decrypted_ptr(seqhead->physpc);
+		void *base = m_direct->read_ptr(seqhead->physpc);
 		UML_LOAD(block, uml::I0, base, 0, uml::SIZE_DWORD, uml::SCALE_x4);                 // load    i0,base,0,dword
 		sum += seqhead->opptr.l[0];
 		for (curdesc = seqhead->next(); curdesc != seqlast->next(); curdesc = curdesc->next())
 			if (!(curdesc->flags & OPFLAG_VIRTUAL_NOOP))
 			{
-				base = m_direct->read_decrypted_ptr(curdesc->physpc);
+				base = m_direct->read_ptr(curdesc->physpc);
 				UML_LOAD(block, uml::I1, base, 0, uml::SIZE_DWORD, uml::SCALE_x4);         // load    i1,base,dword
 				UML_ADD(block, uml::I0, uml::I0, uml::I1);                                 // add     i0,i0,i1
 				sum += curdesc->opptr.l[0];
 
 				if (curdesc->delay.first() != NULL && (curdesc == seqlast || (curdesc->next() != NULL && curdesc->next()->physpc != curdesc->delay.first()->physpc)))
 				{
-					base = m_direct->read_decrypted_ptr(curdesc->delay.first()->physpc);
+					base = m_direct->read_ptr(curdesc->delay.first()->physpc);
 					UML_LOAD(block, uml::I1, base, 0, uml::SIZE_DWORD, uml::SCALE_x4);     // load    i1,base,dword
 					UML_ADD(block, uml::I0, uml::I0, uml::I1);                             // add     i0,i0,i1
 					sum += curdesc->delay.first()->opptr.l[0];

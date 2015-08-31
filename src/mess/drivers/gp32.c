@@ -1,7 +1,9 @@
+// license:BSD-3-Clause
+// copyright-holders:Tim Schuerewegen
 /**************************************************************************
  *
  * gp32.c - Game Park GP32
- * Skeleton by R. Belmont
+ * Driver by Tim Schuerewegen
  *
  * CPU: Samsung S3C2400X01 SoC
  * S3C2400X01 consists of:
@@ -1721,4 +1723,4 @@ ROM_START( gp32 )
 #endif
 ROM_END
 
-CONS(2001, gp32, 0, 0, gp32, gp32, driver_device, 0, "Game Park Holdings", "GP32", ROT270|GAME_NOT_WORKING|GAME_NO_SOUND)
+CONS(2001, gp32, 0, 0, gp32, gp32, driver_device, 0, "Game Park Holdings", "GP32", ROT270|MACHINE_NOT_WORKING|MACHINE_NO_SOUND)

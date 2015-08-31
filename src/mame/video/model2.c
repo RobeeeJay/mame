@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Olivier Galibert, ElSemi, Angelo Salese
 /*********************************************************************************************************************************
 
     Sega Model 2 Geometry Engine and 3D Rasterizer Emulation
@@ -137,7 +139,7 @@ struct quad_m2
 	UINT8               luma;
 };
 
-struct poly_extra_data
+struct m2_poly_extra_data
 {
 	model2_state *  state;
 	UINT32      lumabase;
@@ -925,7 +927,7 @@ static const poly_draw_scanline_func render_funcs[8] =
 static void model2_3d_render( model2_state *state, bitmap_rgb32 &bitmap, triangle *tri, const rectangle &cliprect )
 {
 	legacy_poly_manager *poly = state->m_poly;
-	poly_extra_data *extra = (poly_extra_data *)poly_get_extra_data(poly);
+	m2_poly_extra_data *extra = (m2_poly_extra_data *)poly_get_extra_data(poly);
 	UINT8       renderer;
 
 	/* select renderer based on attributes (bit15 = checker, bit14 = textured, bit13 = transparent */
@@ -2705,7 +2707,7 @@ VIDEO_START_MEMBER(model2_state,model2)
 
 	m_sys24_bitmap.allocate(width, height+4);
 
-	m_poly = poly_alloc(machine(), 4000, sizeof(poly_extra_data), 0);
+	m_poly = poly_alloc(machine(), 4000, sizeof(m2_poly_extra_data), 0);
 	machine().add_notifier(MACHINE_NOTIFY_EXIT, machine_notify_delegate(FUNC(model2_state::model2_exit), this));
 
 	/* initialize the hardware rasterizer */

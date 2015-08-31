@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert, R. Belmont
 //============================================================
 //
 //  sdlsync.c - SDL core synchronization functions
-//
-//  Copyright (c) 1996-2011, Nicola Salmoria and the MAME Team.
-//  Visit http://mamedev.org for licensing and usage restrictions.
 //
 //  SDLMAME by Olivier Galibert and R. Belmont
 //
@@ -31,7 +30,6 @@
 
 // MAME headers
 #include "osdcore.h"
-#include "osinline.h"
 #include "osdsync.h"
 
 #include "eminline.h"

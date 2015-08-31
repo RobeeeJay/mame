@@ -505,7 +505,7 @@ static MACHINE_CONFIG_START( super6, super6_state )
 	MCFG_DEVICE_ADD(Z80PIO_TAG, Z80PIO, XTAL_24MHz/4)
 	MCFG_Z80PIO_OUT_INT_CB(INPUTLINE(Z80_TAG, INPUT_LINE_IRQ0))
 
-	MCFG_WD2793x_ADD(WD2793_TAG, 1000000)
+	MCFG_WD2793_ADD(WD2793_TAG, 1000000)
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(super6_state, fdc_intrq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(super6_state, fdc_drq_w))
 
@@ -570,4 +570,4 @@ ROM_END
 //**************************************************************************
 
 //    YEAR  NAME     PARENT  COMPAT  MACHINE  INPUT    INIT    COMPANY                          FULLNAME        FLAGS
-COMP( 1983, super6,  0,      0,      super6,  super6, driver_device,  0,      "Advanced Digital Corporation",   "Super Six",    GAME_NOT_WORKING | GAME_NO_SOUND_HW )
+COMP( 1983, super6,  0,      0,      super6,  super6, driver_device,  0,      "Advanced Digital Corporation",   "Super Six",    MACHINE_NOT_WORKING | MACHINE_NO_SOUND_HW )

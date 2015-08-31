@@ -1,9 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert, R. Belmont
 //============================================================
 //
 //  sdlsync.c - SDL core synchronization functions
-//
-//  Copyright (c) 1996-2010, Nicola Salmoria and the MAME Team.
-//  Visit http://mamedev.org for licensing and usage restrictions.
 //
 //  SDLMAME by Olivier Galibert and R. Belmont
 //
@@ -21,7 +20,6 @@
 
 // MAME headers
 #include "osdcore.h"
-#include "osinline.h"
 #include "osdsync.h"
 
 #include "eminline.h"
@@ -478,16 +476,4 @@ void osd_thread_wait_free(osd_thread *thread)
 
 	DosWaitThread(&tid, 0);
 	free(thread);
-}
-
-//============================================================
-//  osd_process_kill
-//============================================================
-
-void osd_process_kill(void)
-{
-	PPIB ppib;
-
-	DosGetInfoBlocks(NULL, &ppib);
-	DosKillProcess(DKP_PROCESSTREE, ppib->pib_ulpid);
 }

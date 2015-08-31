@@ -1,8 +1,10 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail, David Graves
 #include "machine/eepromser.h"
 #include "video/tc0480scp.h"
 
 
-struct tempsprite
+struct schs_tempsprite
 {
 	int gfx;
 	int code,color;
@@ -32,7 +34,7 @@ public:
 	required_shared_ptr<UINT32> m_spriteram;
 	required_shared_ptr<UINT32> m_shared_ram;
 
-	struct tempsprite *m_spritelist;
+	struct schs_tempsprite *m_spritelist;
 	UINT32 m_mem[2];
 
 	DECLARE_READ16_MEMBER(shared_ram_r);

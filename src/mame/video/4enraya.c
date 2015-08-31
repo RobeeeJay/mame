@@ -1,3 +1,5 @@
+// license:LGPL-2.1+
+// copyright-holders:Tomasz Slanina, Roberto Fresca
 /***************************************************************************
 
   IDSA 4 En Raya
@@ -14,13 +16,6 @@ WRITE8_MEMBER(_4enraya_state::fenraya_videoram_w)
 	m_videoram[(offset & 0x3ff) * 2] = data;
 	m_videoram[(offset & 0x3ff) * 2 + 1] = (offset & 0xc00) >> 10;
 	m_bg_tilemap->mark_tile_dirty(offset & 0x3ff);
-}
-
-PALETTE_INIT_MEMBER(_4enraya_state, _4enraya)
-{
-	/* RGB format */
-	for (int i = 0; i < 8; i++)
-		m_palette->set_pen_color(i, rgb_t(pal1bit(i >> 0),pal1bit(i >> 1),pal1bit(i >> 2)));
 }
 
 TILE_GET_INFO_MEMBER(_4enraya_state::get_tile_info)

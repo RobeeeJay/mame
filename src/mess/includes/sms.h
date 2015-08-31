@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol, Charles MacDonald,Mathis Rosenhauer,Brad Oliver,Michael Luong,Fabio Priuli,Enik Land
 /*****************************************************************************
  *
  * includes/sms.h
@@ -19,10 +21,10 @@
 #define CONTROL1_TAG   "ctrl1"
 #define CONTROL2_TAG   "ctrl2"
 
-#include "bus/gamegear/ggext.h"
-#include "bus/sms_ctrl/smsctrl.h"
-#include "bus/sms_exp/smsexp.h"
 #include "bus/sega8/sega8_slot.h"
+#include "bus/sms_exp/smsexp.h"
+#include "bus/sms_ctrl/smsctrl.h"
+#include "bus/gamegear/ggext.h"
 
 
 class sms_state : public driver_device
@@ -32,9 +34,10 @@ public:
 		: driver_device(mconfig, type, tag),
 		m_maincpu(*this, "maincpu"),
 		m_vdp(*this, "sms_vdp"),
-		m_ym(*this, "ym2413"),
 		m_main_scr(*this, "screen"),
-		m_region_maincpu(*this, "maincpu"),
+		m_psg_sms(*this, "segapsg"),
+		m_psg_gg(*this, "gamegear"),
+		m_ym(*this, "ym2413"),
 		m_port_ctrl1(*this, CONTROL1_TAG),
 		m_port_ctrl2(*this, CONTROL2_TAG),
 		m_port_gg_ext(*this, "ext"),
@@ -45,6 +48,7 @@ public:
 		m_port_scope(*this, "SEGASCOPE"),
 		m_port_scope_binocular(*this, "SSCOPE_BINOCULAR"),
 		m_port_persist(*this, "PERSISTENCE"),
+		m_region_maincpu(*this, "maincpu"),
 		m_mainram(NULL),
 		m_is_gamegear(0),
 		m_is_gg_region_japan(0),
@@ -61,12 +65,14 @@ public:
 	// devices
 	required_device<cpu_device> m_maincpu;
 	required_device<sega315_5124_device> m_vdp;
-	optional_device<ym2413_device> m_ym;
 	required_device<screen_device> m_main_scr;
-	required_memory_region m_region_maincpu;
+	optional_device<segapsg_device> m_psg_sms;
+	optional_device<gamegear_device> m_psg_gg;
+	optional_device<ym2413_device> m_ym;
 	optional_device<sms_control_port_device> m_port_ctrl1;
 	optional_device<sms_control_port_device> m_port_ctrl2;
 	optional_device<gg_ext_port_device> m_port_gg_ext;
+
 	optional_ioport m_port_gg_dc;
 	optional_ioport m_port_pause;
 	optional_ioport m_port_reset;
@@ -75,6 +81,7 @@ public:
 	optional_ioport m_port_scope_binocular;
 	optional_ioport m_port_persist;
 
+	required_memory_region m_region_maincpu;
 	address_space *m_space;
 	UINT8 *m_mainram;
 	UINT8 *m_BIOS;
@@ -115,17 +122,18 @@ public:
 	UINT8 m_io_ctrl_reg;
 	UINT8 m_mem_ctrl_reg;
 	UINT8 m_mem_device_enabled;
-	UINT8 m_fm_detect;
+	UINT8 m_audio_control;
 	UINT8 m_port_dc_reg;
 	UINT8 m_port_dd_reg;
 	UINT8 m_gg_sio[5];
 	int m_paused;
 
-	// Data needed for Light Phaser
 	UINT8 m_ctrl1_th_state;
 	UINT8 m_ctrl2_th_state;
 	UINT8 m_ctrl1_th_latch;
 	UINT8 m_ctrl2_th_latch;
+
+	// Data needed for Light Phaser
 	int m_lphaser_x_offs;   /* Needed to 'calibrate' lphaser; set at cart loading */
 
 	// Data needed for SegaScope (3D glasses)
@@ -160,10 +168,13 @@ public:
 	DECLARE_READ8_MEMBER(sms_input_port_dc_r);
 	DECLARE_READ8_MEMBER(sms_input_port_dd_r);
 	DECLARE_READ8_MEMBER(gg_input_port_00_r);
-	DECLARE_WRITE8_MEMBER(gg_sio_w);
 	DECLARE_READ8_MEMBER(gg_sio_r);
-	DECLARE_WRITE8_MEMBER(sms_fm_detect_w);
-	DECLARE_READ8_MEMBER(sms_fm_detect_r);
+	DECLARE_WRITE8_MEMBER(gg_sio_w);
+	DECLARE_WRITE8_MEMBER(gg_psg_stereo_w);
+	DECLARE_WRITE8_MEMBER(gg_psg_w);
+	DECLARE_WRITE8_MEMBER(sms_psg_w);
+	DECLARE_READ8_MEMBER(sms_audio_control_r);
+	DECLARE_WRITE8_MEMBER(sms_audio_control_w);
 	DECLARE_WRITE8_MEMBER(sms_ym2413_register_port_w);
 	DECLARE_WRITE8_MEMBER(sms_ym2413_data_port_w);
 	DECLARE_READ8_MEMBER(sms_sscope_r);
@@ -173,6 +184,7 @@ public:
 	DECLARE_WRITE_LINE_MEMBER(sms_pause_callback);
 	DECLARE_WRITE_LINE_MEMBER(sms_ctrl1_th_input);
 	DECLARE_WRITE_LINE_MEMBER(sms_ctrl2_th_input);
+	DECLARE_WRITE_LINE_MEMBER(gg_ext_th_input);
 	DECLARE_READ32_MEMBER(sms_pixel_color);
 
 	DECLARE_DRIVER_INIT(sg1000m3);

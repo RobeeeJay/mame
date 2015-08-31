@@ -134,8 +134,8 @@ private:
 	// internal helpers
 	bool query_system_for_address(FPTR address);
 	void scan_file_for_address(FPTR address, bool create_cache);
-	bool parse_sym_line(const char *line, FPTR &address, astring &symbol);
-	bool parse_map_line(const char *line, FPTR &address, astring &symbol);
+	bool parse_sym_line(const char *line, FPTR &address, std::string &symbol);
+	bool parse_map_line(const char *line, FPTR &address, std::string &symbol);
 	void scan_cache_for_address(FPTR address);
 	void format_symbol(const char *name, UINT32 displacement, const char *filename = NULL, int linenumber = 0);
 
@@ -149,13 +149,13 @@ private:
 
 		cache_entry *   m_next;
 		FPTR            m_address;
-		astring         m_name;
+		std::string     m_name;
 	};
 	simple_list<cache_entry> m_cache;
 
-	astring         m_mapfile;
-	astring         m_symfile;
-	astring         m_buffer;
+	std::string     m_mapfile;
+	std::string     m_symfile;
+	std::string     m_buffer;
 	HANDLE          m_process;
 	FPTR            m_last_base;
 	FPTR            m_text_base;
@@ -192,10 +192,34 @@ private:
 
 	UINT8           m_stack_depth;
 	UINT8           m_entry_stride;
-	UINT32          m_max_seconds;
-	dynamic_array<FPTR> m_buffer;
+	std::vector<FPTR>    m_buffer;
 	FPTR *          m_buffer_ptr;
 	FPTR *          m_buffer_end;
+};
+
+//============================================================
+//  winui_output_error
+//============================================================
+
+class winui_output_error : public osd_output
+{
+public:
+	virtual void output_callback(osd_output_channel channel, const char *msg, va_list args)
+	{
+		if (channel == OSD_OUTPUT_CHANNEL_ERROR)
+		{
+			char buffer[1024];
+
+			// if we are in fullscreen mode, go to windowed mode
+			if ((video_config.windowed == 0) && (win_window_list != NULL))
+				winwindow_toggle_full_screen();
+
+			vsnprintf(buffer, ARRAY_LENGTH(buffer), msg, args);
+			win_message_box_utf8(win_window_list ? win_window_list->m_hwnd : NULL, buffer, emulator_info::get_appname(), MB_OK);
+		}
+		else
+			chain_output(channel, msg, args);
+	}
 };
 
 
@@ -237,7 +261,6 @@ static BOOL WINAPI control_handler(DWORD type);
 static int is_double_click_start(int argc);
 static DWORD WINAPI watchdog_thread_entry(LPVOID lpParameter);
 static LONG WINAPI exception_filter(struct _EXCEPTION_POINTERS *info);
-static void winui_output_error(delegate_late_bind *__dummy, const char *format, va_list argptr);
 
 
 
@@ -248,11 +271,6 @@ static void winui_output_error(delegate_late_bind *__dummy, const char *format, 
 // struct definitions
 const options_entry windows_options::s_option_entries[] =
 {
-	// debugging options
-	{ NULL,                                           NULL,       OPTION_HEADER,     "WINDOWS DEBUGGING OPTIONS" },
-	{ WINOPTION_DEBUGGER_FONT ";dfont",               "Lucida Console", OPTION_STRING,"specifies the font to use for debugging; defaults to Lucida Console" },
-	{ WINOPTION_DEBUGGER_FONT_SIZE ";dfontsize",      "9",        OPTION_FLOAT,      "specifies the font size to use for debugging; defaults to 9 pt" },
-
 	// performance options
 	{ NULL,                                           NULL,       OPTION_HEADER,     "WINDOWS PERFORMANCE OPTIONS" },
 	{ WINOPTION_PRIORITY "(-15-1)",                   "0",        OPTION_INTEGER,    "thread priority for the main game thread; range from -15 to 1" },
@@ -260,16 +278,11 @@ const options_entry windows_options::s_option_entries[] =
 
 	// video options
 	{ NULL,                                           NULL,       OPTION_HEADER,     "WINDOWS VIDEO OPTIONS" },
-	{ WINOPTION_PRESCALE,                             "1",        OPTION_INTEGER,    "scale screen rendering by this amount in software" },
 	{ WINOPTION_MENU,                                 "0",        OPTION_BOOLEAN,    "enable menu bar if available by UI implementation" },
 
 	// DirectDraw-specific options
 	{ NULL,                                           NULL,       OPTION_HEADER,     "DIRECTDRAW-SPECIFIC OPTIONS" },
 	{ WINOPTION_HWSTRETCH ";hws",                     "1",        OPTION_BOOLEAN,    "enable hardware stretching" },
-
-	// Direct3D-specific options
-	{ NULL,                                           NULL,       OPTION_HEADER,     "DIRECT3D-SPECIFIC OPTIONS" },
-	{ WINOPTION_FILTER ";d3dfilter;flt",              "1",        OPTION_BOOLEAN,    "enable bilinear filtering on screen output" },
 
 	// post-processing options
 	{ NULL,                                                     NULL,        OPTION_HEADER,     "DIRECT3D POST-PROCESSING OPTIONS" },
@@ -283,13 +296,17 @@ const options_entry windows_options::s_option_entries[] =
 	{ WINOPTION_HLSL_SNAP_HEIGHT,                               "1536",      OPTION_STRING,     "HLSL upscaled-snapshot height" },
 	{ WINOPTION_SHADOW_MASK_ALPHA";fs_shadwa(0.0-1.0)",         "0.0",       OPTION_FLOAT,      "shadow mask alpha-blend value (1.0 is fully blended, 0.0 is no mask)" },
 	{ WINOPTION_SHADOW_MASK_TEXTURE";fs_shadwt(0.0-1.0)",       "aperture.png", OPTION_STRING,  "shadow mask texture name" },
-	{ WINOPTION_SHADOW_MASK_COUNT_X";fs_shadww",                "320",       OPTION_INTEGER,    "shadow mask width, in phosphor dots" },
-	{ WINOPTION_SHADOW_MASK_COUNT_Y";fs_shadwh",                "240",       OPTION_INTEGER,    "shadow mask height, in phosphor dots" },
-	{ WINOPTION_SHADOW_MASK_USIZE";fs_shadwu(0.0-1.0)",         "0.09375",   OPTION_FLOAT,      "shadow mask texture size in U direction" },
-	{ WINOPTION_SHADOW_MASK_VSIZE";fs_shadwv(0.0-1.0)",         "0.109375",  OPTION_FLOAT,      "shadow mask texture size in V direction" },
-	{ WINOPTION_CURVATURE";fs_curv(0.0-4.0)",                   "0.03",      OPTION_FLOAT,      "screen curvature amount" },
+	{ WINOPTION_SHADOW_MASK_COUNT_X";fs_shadww",                "6",         OPTION_INTEGER,    "shadow mask width, in phosphor dots" },
+	{ WINOPTION_SHADOW_MASK_COUNT_Y";fs_shadwh",                "6",         OPTION_INTEGER,    "shadow mask height, in phosphor dots" },
+	{ WINOPTION_SHADOW_MASK_USIZE";fs_shadwu(0.0-1.0)",         "0.1875",    OPTION_FLOAT,      "shadow mask texture size in U direction" },
+	{ WINOPTION_SHADOW_MASK_VSIZE";fs_shadwv(0.0-1.0)",         "0.1875",    OPTION_FLOAT,      "shadow mask texture size in V direction" },
+	{ WINOPTION_SHADOW_MASK_UOFFSET";fs_shadwou(-1.0-1.0)",     "0.0",       OPTION_FLOAT,      "shadow mask texture offset in U direction" },
+	{ WINOPTION_SHADOW_MASK_VOFFSET";fs_shadwov(-1.0-1.0)",     "0.0",       OPTION_FLOAT,      "shadow mask texture offset in V direction" },
+	{ WINOPTION_CURVATURE";fs_curv(0.0-1.0)",                   "0.03",      OPTION_FLOAT,      "screen curvature amount" },
+	{ WINOPTION_ROUND_CORNER";fs_rndc(0.0-1.0)",                "0.03",      OPTION_FLOAT,      "screen round corner amount" },
+	{ WINOPTION_REFLECTION";fs_ref(0.0-1.0)",                   "0.03",      OPTION_FLOAT,      "screen reflection amount" },
+	{ WINOPTION_VIGNETTING";fs_vig(0.0-1.0)",                   "0.03",      OPTION_FLOAT,      "image vignetting amount" },
 	/* Beam-related values below this line*/
-	{ WINOPTION_PINCUSHION";fs_pin(0.0-4.0)",                   "0.03",      OPTION_FLOAT,      "pincushion amount" },
 	{ WINOPTION_SCANLINE_AMOUNT";fs_scanam(0.0-4.0)",           "1.0",       OPTION_FLOAT,      "overall alpha scaling value for scanlines" },
 	{ WINOPTION_SCANLINE_SCALE";fs_scansc(0.0-4.0)",            "1.0",       OPTION_FLOAT,      "overall height scaling value for scanlines" },
 	{ WINOPTION_SCANLINE_HEIGHT";fs_scanh(0.0-4.0)",            "1.0",       OPTION_FLOAT,      "individual height scaling value for scanlines" },
@@ -396,24 +413,27 @@ int main(int argc, char *argv[])
 	extern void (*s_debugger_stack_crawler)();
 	s_debugger_stack_crawler = winmain_dump_stack;
 
-	// if we're a GUI app, out errors to message boxes
-	if (win_is_gui_application() || is_double_click_start(argc))
-	{
-		// if we are a GUI app, output errors to message boxes
-		osd_set_output_channel(OSD_OUTPUT_CHANNEL_ERROR, output_delegate(FUNC(winui_output_error), (delegate_late_bind *)0));
-
-		// make sure any console window that opened on our behalf is nuked
-		FreeConsole();
-	}
 
 	// parse config and cmdline options
 	DWORD result = 0;
 	{
 		windows_options options;
 		windows_osd_interface osd(options);
+		// if we're a GUI app, out errors to message boxes
+		// Initialize this after the osd interface so that we are first in the
+		// output order
+		winui_output_error winerror;
+		if (win_is_gui_application() || is_double_click_start(argc))
+		{
+			// if we are a GUI app, output errors to message boxes
+			osd_output::push(&winerror);
+			// make sure any console window that opened on our behalf is nuked
+			FreeConsole();
+		}
 		osd.register_options();
 		cli_frontend frontend(options, osd);
 		result = frontend.execute(argc, argv);
+		osd_output::pop(&winerror);
 	}
 	// free symbols
 	symbols = NULL;
@@ -469,22 +489,6 @@ static BOOL WINAPI control_handler(DWORD type)
 }
 
 
-//============================================================
-//  winui_output_error
-//============================================================
-
-static void winui_output_error(delegate_late_bind *param, const char *format, va_list argptr)
-{
-	char buffer[1024];
-
-	// if we are in fullscreen mode, go to windowed mode
-	if ((video_config.windowed == 0) && (win_window_list != NULL))
-		winwindow_toggle_full_screen();
-
-	vsnprintf(buffer, ARRAY_LENGTH(buffer), format, argptr);
-	win_message_box_utf8(win_window_list ? win_window_list->m_hwnd : NULL, buffer, emulator_info::get_appname(), MB_OK);
-}
-
 
 
 //============================================================
@@ -503,7 +507,7 @@ static void output_oslog(running_machine &machine, const char *buffer)
 //============================================================
 
 windows_osd_interface::windows_osd_interface(windows_options &options)
-: osd_common_t(options)
+: osd_common_t(options), m_options(options)
 {
 }
 
@@ -526,6 +530,7 @@ void windows_osd_interface::video_register()
 	video_options_add("gdi", NULL);
 	video_options_add("ddraw", NULL);
 	video_options_add("d3d", NULL);
+	video_options_add("bgfx", NULL);
 	//video_options_add("auto", NULL); // making d3d video default one
 }
 
@@ -543,14 +548,14 @@ void windows_osd_interface::init(running_machine &machine)
 
 	// determine if we are benchmarking, and adjust options appropriately
 	int bench = options.bench();
-	astring error_string;
+	std::string error_string;
 	if (bench > 0)
 	{
 		options.set_value(OPTION_THROTTLE, false, OPTION_PRIORITY_MAXIMUM, error_string);
 		options.set_value(OSDOPTION_SOUND, "none", OPTION_PRIORITY_MAXIMUM, error_string);
 		options.set_value(OSDOPTION_VIDEO, "none", OPTION_PRIORITY_MAXIMUM, error_string);
 		options.set_value(OPTION_SECONDS_TO_RUN, bench, OPTION_PRIORITY_MAXIMUM, error_string);
-		assert(!error_string);
+		assert(error_string.empty());
 	}
 
 	// determine if we are profiling, and adjust options appropriately
@@ -560,7 +565,7 @@ void windows_osd_interface::init(running_machine &machine)
 		options.set_value(OPTION_THROTTLE, false, OPTION_PRIORITY_MAXIMUM, error_string);
 		options.set_value(OSDOPTION_MULTITHREADING, false, OPTION_PRIORITY_MAXIMUM, error_string);
 		options.set_value(OSDOPTION_NUMPROCESSORS, 1, OPTION_PRIORITY_MAXIMUM, error_string);
-		assert(!error_string);
+		assert(error_string.empty());
 	}
 
 	// thread priority
@@ -586,13 +591,11 @@ void windows_osd_interface::init(running_machine &machine)
 	osd_common_t::init_subsystems();
 
 	// notify listeners of screen configuration
-	astring tempstring;
+	std::string tempstring;
 	for (win_window_info *info = win_window_list; info != NULL; info = info->m_next)
 	{
-		char *tmp = utf8_from_tstring(info->m_monitor->info.szDevice);
-		tempstring.printf("Orientation(%s)", tmp);
-		output_set_value(tempstring, info->m_targetorient);
-		osd_free(tmp);
+		strprintf(tempstring, "Orientation(%s)", info->m_monitor->devicename());
+		output_set_value(tempstring.c_str(), info->m_targetorient);
 	}
 
 	// hook up the debugger log
@@ -1011,23 +1014,23 @@ symbol_manager::symbol_manager(const char *argv0)
 {
 #ifdef __GNUC__
 	// compute the name of the mapfile
-	int extoffs = m_mapfile.rchr(0, '.');
+	int extoffs = m_mapfile.find_last_of('.');
 	if (extoffs != -1)
 		m_mapfile.substr(0, extoffs);
-	m_mapfile.cat(".map");
+	m_mapfile.append(".map");
 
 	// and the name of the symfile
-	extoffs = m_symfile.rchr(0, '.');
+	extoffs = m_symfile.find_last_of('.');
 	if (extoffs != -1)
-		m_symfile.substr(0, extoffs);
-	m_symfile.cat(".sym");
+		m_symfile = m_symfile.substr(0, extoffs);
+	m_symfile.append(".sym");
 
 	// figure out the base of the .text section
 	m_text_base = get_text_section_base();
 #endif
 
 	// expand the buffer to be decently large up front
-	m_buffer.printf("%500s", "");
+	strprintf(m_buffer,"%500s", "");
 }
 
 
@@ -1049,7 +1052,7 @@ symbol_manager::~symbol_manager()
 const char *symbol_manager::symbol_for_address(FPTR address)
 {
 	// default the buffer
-	m_buffer.cpy(" (not found)");
+	m_buffer.assign(" (not found)");
 	m_last_base = 0;
 
 	// first try to do it using system APIs
@@ -1063,7 +1066,7 @@ const char *symbol_manager::symbol_for_address(FPTR address)
 		else
 			scan_file_for_address(address, false);
 	}
-	return m_buffer;
+	return m_buffer.c_str();
 }
 
 
@@ -1117,24 +1120,24 @@ void symbol_manager::scan_file_for_address(FPTR address, bool create_cache)
 
 #ifdef __GNUC__
 	// see if we have a symbol file (gcc only)
-	srcfile = fopen(m_symfile, "r");
+	srcfile = fopen(m_symfile.c_str(), "r");
 	is_symfile = (srcfile != NULL);
 #endif
 
 	// if not, see if we have a map file
 	if (srcfile == NULL)
-		srcfile = fopen(m_mapfile, "r");
+		srcfile = fopen(m_mapfile.c_str(), "r");
 
 	// if not, fail
 	if (srcfile == NULL)
 		return;
 
 	// reset the best info
-	astring best_symbol;
+	std::string best_symbol;
 	FPTR best_addr = 0;
 
 	// parse the file, looking for valid entries
-	astring symbol;
+	std::string symbol;
 	char line[1024];
 	while (fgets(line, sizeof(line) - 1, srcfile))
 	{
@@ -1154,7 +1157,7 @@ void symbol_manager::scan_file_for_address(FPTR address, bool create_cache)
 
 			// also create a cache entry if we can
 			if (create_cache)
-				m_cache.append(*global_alloc(cache_entry(addr, symbol)));
+				m_cache.append(*global_alloc(cache_entry(addr, symbol.c_str())));
 		}
 	}
 
@@ -1162,7 +1165,7 @@ void symbol_manager::scan_file_for_address(FPTR address, bool create_cache)
 	fclose(srcfile);
 
 	// format the symbol and remember the last base
-	format_symbol(best_symbol, address - best_addr);
+	format_symbol(best_symbol.c_str(), address - best_addr);
 	m_last_base = best_addr;
 }
 
@@ -1175,7 +1178,7 @@ void symbol_manager::scan_file_for_address(FPTR address, bool create_cache)
 void symbol_manager::scan_cache_for_address(FPTR address)
 {
 	// reset the best info
-	astring best_symbol;
+	std::string best_symbol;
 	FPTR best_addr = 0;
 
 	// walk the cache, looking for valid entries
@@ -1189,7 +1192,7 @@ void symbol_manager::scan_cache_for_address(FPTR address)
 		}
 
 	// format the symbol and remember the last base
-	format_symbol(best_symbol, address - best_addr);
+	format_symbol(best_symbol.c_str(), address - best_addr);
 	m_last_base = best_addr;
 }
 
@@ -1199,7 +1202,7 @@ void symbol_manager::scan_cache_for_address(FPTR address)
 //  which is just the output of objdump
 //-------------------------------------------------
 
-bool symbol_manager::parse_sym_line(const char *line, FPTR &address, astring &symbol)
+bool symbol_manager::parse_sym_line(const char *line, FPTR &address, std::string &symbol)
 {
 #ifdef __GNUC__
 /*
@@ -1239,8 +1242,8 @@ bool symbol_manager::parse_sym_line(const char *line, FPTR &address, astring &sy
 				chptr++;
 
 			// extract the symbol name
-			symbol.cpy(chptr).trimspace();
-			return (symbol.len() > 0);
+			strtrimspace(symbol.assign(chptr));
+			return (symbol.length() > 0);
 		}
 	}
 #endif
@@ -1253,7 +1256,7 @@ bool symbol_manager::parse_sym_line(const char *line, FPTR &address, astring &sy
 //  generated map file
 //-------------------------------------------------
 
-bool symbol_manager::parse_map_line(const char *line, FPTR &address, astring &symbol)
+bool symbol_manager::parse_map_line(const char *line, FPTR &address, std::string &symbol)
 {
 #ifdef __GNUC__
 /*
@@ -1279,8 +1282,8 @@ bool symbol_manager::parse_map_line(const char *line, FPTR &address, astring &sy
 			chptr++;
 
 		// extract the symbol name
-		symbol.cpy(chptr).trimspace();
-		return (symbol.len() > 0);
+		strtrimspace(symbol.assign(chptr));
+		return (symbol.length() > 0);
 	}
 #endif
 	return false;
@@ -1294,16 +1297,16 @@ bool symbol_manager::parse_map_line(const char *line, FPTR &address, astring &sy
 void symbol_manager::format_symbol(const char *name, UINT32 displacement, const char *filename, int linenumber)
 {
 	// start with the address and offset
-	m_buffer.printf(" (%s", name);
+	strprintf(m_buffer, " (%s", name);
 	if (displacement != 0)
-		m_buffer.catprintf("+0x%04x", (UINT32)displacement);
+		strcatprintf(m_buffer, "+0x%04x", (UINT32)displacement);
 
 	// append file/line if present
 	if (filename != NULL)
-		m_buffer.catprintf(", %s:%d", filename, linenumber);
+		strcatprintf(m_buffer, ", %s:%d", filename, linenumber);
 
 	// close up the string
-	m_buffer.cat(")");
+	m_buffer.append(")");
 }
 
 
@@ -1318,7 +1321,7 @@ FPTR symbol_manager::get_text_section_base()
 	dynamic_bind<PIMAGE_NT_HEADERS (WINAPI *)(PVOID)> image_nt_header(TEXT("dbghelp.dll"), "ImageNtHeader");
 
 	// start with the image base
-	PVOID base = reinterpret_cast<PVOID>(GetModuleHandle(NULL));
+	PVOID base = reinterpret_cast<PVOID>(GetModuleHandleUni());
 	assert(base != NULL);
 
 	// make sure we have the functions we need
@@ -1354,10 +1357,9 @@ sampling_profiler::sampling_profiler(UINT32 max_seconds, UINT8 stack_depth = 0)
 		m_thread_exit(false),
 		m_stack_depth(stack_depth),
 		m_entry_stride(stack_depth + 2),
-		m_max_seconds(max_seconds),
 		m_buffer(max_seconds * 1000 * m_entry_stride),
-		m_buffer_ptr(m_buffer),
-		m_buffer_end(m_buffer + max_seconds * 1000 * m_entry_stride)
+		m_buffer_ptr(&m_buffer[0]),
+		m_buffer_end(&m_buffer[0] + max_seconds * 1000 * m_entry_stride)
 {
 }
 
@@ -1457,7 +1459,7 @@ void sampling_profiler::print_results(symbol_manager &symbols)
 	symbols.cache_symbols();
 
 	// step 1: find the base of each entry
-	for (FPTR *current = m_buffer; current < m_buffer_ptr; current += m_entry_stride)
+	for (FPTR *current = &m_buffer[0]; current < m_buffer_ptr; current += m_entry_stride)
 	{
 		assert(current[0] >= 1 && current[0] < m_entry_stride);
 
@@ -1467,11 +1469,11 @@ void sampling_profiler::print_results(symbol_manager &symbols)
 	}
 
 	// step 2: sort the results
-	qsort(m_buffer, (m_buffer_ptr - m_buffer) / m_entry_stride, m_entry_stride * sizeof(FPTR), compare_address);
+	qsort(&m_buffer[0], (m_buffer_ptr - &m_buffer[0]) / m_entry_stride, m_entry_stride * sizeof(FPTR), compare_address);
 
 	// step 3: count and collapse unique entries
 	UINT32 total_count = 0;
-	for (FPTR *current = m_buffer; current < m_buffer_ptr; )
+	for (FPTR *current = &m_buffer[0]; current < m_buffer_ptr; )
 	{
 		int count = 1;
 		FPTR *scan;
@@ -1488,11 +1490,11 @@ void sampling_profiler::print_results(symbol_manager &symbols)
 	}
 
 	// step 4: sort the results again, this time by frequency
-	qsort(m_buffer, (m_buffer_ptr - m_buffer) / m_entry_stride, m_entry_stride * sizeof(FPTR), compare_frequency);
+	qsort(&m_buffer[0], (m_buffer_ptr - &m_buffer[0]) / m_entry_stride, m_entry_stride * sizeof(FPTR), compare_frequency);
 
 	// step 5: print the results
 	UINT32 num_printed = 0;
-	for (FPTR *current = m_buffer; current < m_buffer_ptr && num_printed < 30; current += m_entry_stride)
+	for (FPTR *current = &m_buffer[0]; current < m_buffer_ptr && num_printed < 30; current += m_entry_stride)
 	{
 		// once we hit 0 frequency, we're done
 		if (current[0] == 0)

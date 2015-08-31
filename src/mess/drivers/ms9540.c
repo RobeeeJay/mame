@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -103,4 +103,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT  MACHINE INPUT   CLASS         INIT    COMPANY          FULLNAME       FLAGS */
-COMP( 198?, ms9540, 0,       0,     ms9540, ms9540, driver_device, 0, "Millennium Systems", "ms9540", GAME_NOT_WORKING | GAME_NO_SOUND_HW )
+COMP( 198?, ms9540, 0,       0,     ms9540, ms9540, driver_device, 0, "Millennium Systems", "ms9540", MACHINE_NOT_WORKING | MACHINE_NO_SOUND_HW )

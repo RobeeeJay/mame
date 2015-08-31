@@ -1,4 +1,4 @@
-// license:MAME|LGPL-2.1+
+// license:LGPL-2.1+
 // copyright-holders:Michael Zapf
 /****************************************************************************
 
@@ -31,7 +31,6 @@
 #include "peribox.h"
 #include "machine/ataintf.h"
 #include "tn_ide.h"
-#include "machine/ti99_hd.h"
 
 #define CRU_BASE 0x1000
 

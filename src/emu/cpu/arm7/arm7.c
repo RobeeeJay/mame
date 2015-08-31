@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Steve Ellenoff,R. Belmont,Ryan Holtz
 /*****************************************************************************
  *
  *   arm7.c
@@ -5,18 +7,6 @@
  *
  *   Copyright Steve Ellenoff, all rights reserved.
  *   Thumb, DSP, and MMU support and many bugfixes by R. Belmont and Ryan Holtz.
- *
- *   - This source code is released as freeware for non-commercial purposes.
- *   - You are free to use and redistribute this code in modified or
- *     unmodified form, provided you list me in the credits.
- *   - If you modify this source code, you must add a notice to each modified
- *     source file that it has been changed.  If you're a nice person, you
- *     will clearly mark each change too.  :)
- *   - If you wish to use this for commercial purposes, please contact me at
- *     sellenoff@hotmail.com
- *   - The author of this copywritten work reserves the right to change the
- *     terms of its usage and license at any time, including retroactively
- *   - This entire notice must remain in the source code.
  *
  *  This work is based on:
  *  #1) 'Atmel Corporation ARM7TDMI (Thumb) Datasheet - January 1999'
@@ -178,14 +168,14 @@ void arm7_cpu_device::set_cpsr(UINT32 val)
 enum
 {
 	TLB_COARSE = 0,
-	TLB_FINE,
+	TLB_FINE
 };
 
 enum
 {
 	FAULT_NONE = 0,
 	FAULT_DOMAIN,
-	FAULT_PERMISSION,
+	FAULT_PERMISSION
 };
 
 
@@ -574,12 +564,12 @@ void arm7_cpu_device::state_export(const device_state_entry &entry)
 }
 
 
-void arm7_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void arm7_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c%c%c%c %s",
+			strprintf(str, "%c%c%c%c%c%c%c%c %s",
 				(ARM7REG(eCPSR) & N_MASK) ? 'N' : '-',
 				(ARM7REG(eCPSR) & Z_MASK) ? 'Z' : '-',
 				(ARM7REG(eCPSR) & C_MASK) ? 'C' : '-',
@@ -651,7 +641,7 @@ void arm7_cpu_device::execute_run()
 				}
 			}
 
-			insn = m_direct->read_decrypted_word(raddr);
+			insn = m_direct->read_word(raddr);
 			(this->*thumb_handler[(insn & 0xffc0) >> 6])(pc, insn);
 
 		}
@@ -682,7 +672,7 @@ void arm7_cpu_device::execute_run()
 			}
 #endif
 
-			insn = m_direct->read_decrypted_dword(raddr);
+			insn = m_direct->read_dword(raddr);
 
 			/* process condition codes for this instruction */
 			switch (insn >> INSN_COND_SHIFT)

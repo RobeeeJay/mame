@@ -1,13 +1,24 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli,Dave Widel, gregf
 /***************************************************************************
 
  Project Support Engineering Games
 
- Game Name                  DATA
- --------------------------------
- Maneater (1975)            YES
- Knights in Armor (1976)    YES
- Desert Patrol (1977)       YES
- Game Tree (1978)           YES
+ Game Name                       DATA
+ -------------------------------------
+ 1-2-4 Cocktail Table (197?)     UNKNOWN
+ Bazooka (1977)                  YES
+ Desert Patrol (1977)            YES
+ Espana (cabinet) (197?)         NO
+ Frenzy (1975)                   UNKNOWN
+ Game Tree (1978)                YES
+ Hodge Podge (197?)              UNKNOWN
+ Knights in Armor (1976)         YES
+ Maneater (1975)                 YES
+ Play Five (1975?)               UNKNOWN
+ Scandia (cabinet) (1975)        NO
+ Two Game (1974)                 UNKNOWN
+ U.N. Command (1977)             UNKNOWN
 
  ***************************************************************************/
 
@@ -158,6 +169,6 @@ ROM_END
 */
 
 
-GAME( 1977, dpatrol, 0, pse, 0, driver_device, 0, ROT0, "Project Support Engineering", "Desert Patrol [TTL]", GAME_IS_SKELETON )
-//GAME( 1976, knightar, 0, pse, 0, driver_device, 0, ROT0, "Project Support Engineering", "Knights in Armor [TTL]", GAME_IS_SKELETON )
-//GAME( 1978, gametree, 0, pse, 0, driver_device, 0, ROT0, "Project Support Engineering", "Game Tree [TTL]", GAME_IS_SKELETON )
+GAME( 1977, dpatrol, 0, pse, 0, driver_device, 0, ROT0, "Project Support Engineering", "Desert Patrol [TTL]", MACHINE_IS_SKELETON )
+//GAME( 1976, knightar, 0, pse, 0, driver_device, 0, ROT0, "Project Support Engineering", "Knights in Armor [TTL]", MACHINE_IS_SKELETON )
+//GAME( 1978, gametree, 0, pse, 0, driver_device, 0, ROT0, "Project Support Engineering", "Game Tree [TTL]", MACHINE_IS_SKELETON )

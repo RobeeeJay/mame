@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Gordon Jefferyes, Nigel Barnes
 /******************************************************************************
     BBC Model A,B
 
@@ -55,6 +57,7 @@
 
 /* Devices */
 #include "imagedev/flopdrv.h"
+#include "formats/bbc_dsk.h"
 #include "formats/basicdsk.h"
 #include "imagedev/cassette.h"
 #include "formats/uef_cas.h"
@@ -607,6 +610,19 @@ static const floppy_interface bbc_floppy_interface =
 	"floppy_5_25"
 };
 
+FLOPPY_FORMATS_MEMBER( bbc_state::floppy_formats )
+	FLOPPY_BBC_FORMAT
+FLOPPY_FORMATS_END
+
+static SLOT_INTERFACE_START( bbc_floppies )
+	SLOT_INTERFACE("sssd", FLOPPY_525_SSSD)
+	SLOT_INTERFACE("sd",   FLOPPY_525_SD)
+	SLOT_INTERFACE("ssdd", FLOPPY_525_SSDD)
+	SLOT_INTERFACE("dd",   FLOPPY_525_DD)
+	SLOT_INTERFACE("ssqd", FLOPPY_525_SSQD)
+	SLOT_INTERFACE("qd",   FLOPPY_525_QD)
+SLOT_INTERFACE_END
+
 WRITE_LINE_MEMBER(bbc_state::econet_clk_w)
 {
 	m_adlc->rxc_w(state);
@@ -758,12 +774,14 @@ static MACHINE_CONFIG_DERIVED( bbcb, bbca )
 	MCFG_I8271_IRQ_CALLBACK(WRITELINE(bbc_state, bbc_i8271_interrupt))
 	MCFG_I8271_FLOPPIES(FLOPPY_0, FLOPPY_1)
 
-	MCFG_DEVICE_ADD("wd177x", WD1770, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_drq_w))
-
 	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(bbc_floppy_interface)
+
+	MCFG_WD1770_ADD("wd177x", XTAL_16MHz / 2)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_drq_w))
+
+	MCFG_FLOPPY_DRIVE_ADD("wd177x:0", bbc_floppies, "qd", bbc_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("wd177x:1", bbc_floppies, "qd", bbc_state::floppy_formats)
 
 	/* software lists */
 	MCFG_DEVICE_REMOVE("cass_ls_a")
@@ -820,12 +838,14 @@ static MACHINE_CONFIG_DERIVED( bbcb_us, bbca )
 	MCFG_I8271_IRQ_CALLBACK(WRITELINE(bbc_state, bbc_i8271_interrupt))
 	MCFG_I8271_FLOPPIES(FLOPPY_0, FLOPPY_1)
 
-	MCFG_DEVICE_ADD("wd177x", WD1770, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_drq_w))
-
 	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(bbc_floppy_interface)
+
+	MCFG_WD1770_ADD("wd177x", XTAL_16MHz / 2)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_drq_w))
+
+	MCFG_FLOPPY_DRIVE_ADD("wd177x:0", bbc_floppies, "qd", bbc_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("wd177x:1", bbc_floppies, "qd", bbc_state::floppy_formats)
 
 	/* software lists */
 	MCFG_DEVICE_REMOVE("cass_ls_a")
@@ -850,6 +870,8 @@ static MACHINE_CONFIG_DERIVED( bbcbp, bbcb )
 
 	/* fdc */
 	MCFG_DEVICE_REMOVE("i8271")
+	MCFG_DEVICE_REMOVE(FLOPPY_0)
+	MCFG_DEVICE_REMOVE(FLOPPY_1)
 MACHINE_CONFIG_END
 
 
@@ -979,12 +1001,12 @@ static MACHINE_CONFIG_START( bbcm, bbc_state )
 	MCFG_VIA6522_IRQ_HANDLER(WRITELINE(bbc_state, bbcb_via_user_irq_w))
 
 	/* fdc */
-	MCFG_DEVICE_ADD("wd177x", WD1770, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_drq_w))
+	MCFG_WD1770_ADD("wd177x", XTAL_16MHz / 2)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_drq_w))
 
-	MCFG_LEGACY_FLOPPY_2_DRIVES_ADD(bbc_floppy_interface)
+	MCFG_FLOPPY_DRIVE_ADD("wd177x:0", bbc_floppies, "qd", bbc_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("wd177x:1", bbc_floppies, "qd", bbc_state::floppy_formats)
 
 	/* econet */
 	MCFG_DEVICE_ADD("mc6854", MC6854, 0)
@@ -1066,10 +1088,14 @@ static MACHINE_CONFIG_DERIVED( bbcmc, bbcm )
 
 	/* fdc */
 	MCFG_DEVICE_REMOVE("wd177x")
-	MCFG_DEVICE_ADD("wd177x", WD1772, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE2_TAGS
-	MCFG_WD17XX_INTRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_intrq_w))
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_drq_w))
+
+//  MCFG_WD1772_ADD("wd177x", XTAL_16MHz / 2)
+	MCFG_WD1770_ADD("wd177x", XTAL_16MHz / 2)
+	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_intrq_w))
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(bbc_state, bbc_wd177x_drq_w))
+
+	MCFG_FLOPPY_DRIVE_ADD("wd177x:0", bbc_floppies, "qd", bbc_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("wd177x:1", bbc_floppies, "qd", bbc_state::floppy_formats)
 
 	/* software lists */
 	MCFG_SOFTWARE_LIST_REMOVE("cart_ls_m")
@@ -1641,10 +1667,10 @@ COMP ( 1981, bbcb_de,  bbcb,     0,     bbcb,     bbcb, bbc_state,   bbc,     "A
 COMP ( 1985, bbcbp,    0,        bbcb,  bbcbp,    bbcb, bbc_state,   bbc,     "Acorn", "BBC Micro Model B+ 64K", 0)
 COMP ( 1985, bbcbp128, bbcbp,    0,     bbcbp128, bbcb, bbc_state,   bbc,     "Acorn", "BBC Micro Model B+ 128K", 0)
 COMP ( 1986, bbcm,     0,        bbcb,  bbcm,     bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master 128", 0)
-COMP ( 1986, bbcmt,    bbcm,     0,     bbcmt,    bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master Turbo", GAME_NOT_WORKING)
-COMP ( 1986, bbcmaiv,  bbcm,     0,     bbcmaiv,  bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master AIV", GAME_NOT_WORKING)
+COMP ( 1986, bbcmt,    bbcm,     0,     bbcmt,    bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master Turbo", MACHINE_NOT_WORKING)
+COMP ( 1986, bbcmaiv,  bbcm,     0,     bbcmaiv,  bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master AIV", MACHINE_NOT_WORKING)
 COMP ( 1986, bbcmet,   bbcm,     0,     bbcmet,   bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master ET", 0)
-COMP ( 1986, bbcm512,  bbcm,     0,     bbcm512,  bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master 512", GAME_NOT_WORKING)
-COMP ( 1986, bbcmarm,  bbcm,     0,     bbcmarm,  bbcm, bbc_state,   bbcm,    "Acorn", "ARM Evaluation System", GAME_NOT_WORKING)
+COMP ( 1986, bbcm512,  bbcm,     0,     bbcm512,  bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master 512", MACHINE_NOT_WORKING)
+COMP ( 1986, bbcmarm,  bbcm,     0,     bbcmarm,  bbcm, bbc_state,   bbcm,    "Acorn", "ARM Evaluation System", MACHINE_NOT_WORKING)
 COMP ( 1986, bbcmc,    0,        bbcm,  bbcmc,    bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master Compact", 0)
 COMP ( 1986, bbcmc_ar, bbcmc,    0,     bbcmc,    bbcm, bbc_state,   bbcm,    "Acorn", "BBC Master Compact (Arabic)", 0)

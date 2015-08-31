@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 #include "sound/msm5205.h"
 
 class fantland_state : public driver_device
@@ -20,7 +22,6 @@ public:
 	/* memory pointers */
 //  UINT8 *    m_spriteram;   // currently directly used in a 16bit map...
 //  UINT8 *    m_spriteram_2; // currently directly used in a 16bit map...
-//  UINT8 *    m_paletteram;  // currently this uses generic palette handling
 
 	/* misc */
 	UINT8      m_nmi_enable;

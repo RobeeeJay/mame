@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Andrew Gardner
 // This file contains functions which handle the On-Chip peripheral Memory Map
 // as well as the Host Interface and the SSI0/SSI1 Serial Interfaces.
 
@@ -485,16 +487,6 @@ void dsp56k_io_reset(dsp56k_core* cpustate)
 
 } // namespace DSP56K
 
-
-READ16_MEMBER( dsp56k_device::program_r )
-{
-	return m_dsp56k_core.program_ram[offset];
-}
-
-WRITE16_MEMBER( dsp56k_device::program_w )
-{
-	m_dsp56k_core.program_ram[offset] = data;
-}
 
 /* Work */
 READ16_MEMBER( dsp56k_device::peripheral_register_r )

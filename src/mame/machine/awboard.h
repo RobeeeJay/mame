@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert,Andreas Naive
 #ifndef _AWBOARD_H_
 #define _AWBOARD_H_
 
@@ -22,8 +24,8 @@ public:
 	DECLARE_WRITE16_MEMBER(mpr_first_file_index_w); // 5f7010
 	DECLARE_WRITE16_MEMBER(mpr_file_offsetl_w);     // 5f7014
 	DECLARE_WRITE16_MEMBER(mpr_file_offseth_w);     // 5f7018
-	DECLARE_READ16_MEMBER(adj_offset_r);            // 5f7080
-	DECLARE_WRITE16_MEMBER(adj_offset_w);           // 5f7080
+	DECLARE_READ16_MEMBER(pio_r);                   // 5f7080
+	DECLARE_WRITE16_MEMBER(pio_w);                  // 5f7080
 
 protected:
 	virtual void device_start();
@@ -36,10 +38,11 @@ private:
 	enum { EPR, MPR_RECORD, MPR_FILE };
 
 	const char *keyregion;
-	bool region_is_decrypted;
-
+	UINT32 rombd_key;
+	UINT32 mpr_offset, mpr_bank;
 	UINT32 epr_offset, mpr_file_offset;
-	UINT16 mpr_record_index, mpr_first_file_index, adjust_off;
+	UINT16 mpr_record_index, mpr_first_file_index;
+	UINT16 decrypted_buf[16];
 
 	UINT32 dma_offset, dma_limit;
 
@@ -53,8 +56,9 @@ private:
 	static const int permutation_table[4][16];
 	static const sbox_set sboxes_table[4];
 	static UINT16 decrypt(UINT16 cipherText, UINT32 address, const UINT32 key);
+	UINT16 decrypt16(UINT32 address) { return decrypt(m_region->u16(address), address, rombd_key); }
 
-	void decrypt_region();
+	void set_key();
 	void recalc_dma_offset(int mode);
 };
 

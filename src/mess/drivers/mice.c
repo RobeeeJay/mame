@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Miodrag Milanovic, Robbbert
 /***************************************************************************
 
@@ -118,4 +118,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME   PARENT  COMPAT   MACHINE   INPUT CLASS          INIT     COMPANY                  FULLNAME       FLAGS */
-COMP( 1980, mice,  0,      0,       mice,     mice, driver_device,   0,  "Microtek International Inc", "Mice", GAME_IS_SKELETON )
+COMP( 1980, mice,  0,      0,       mice,     mice, driver_device,   0,  "Microtek International Inc", "Mice", MACHINE_IS_SKELETON )

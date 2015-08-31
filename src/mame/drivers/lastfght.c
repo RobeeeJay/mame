@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia
 /*********************************************************************************************************************
 
 Last Fighting  (C)2000 Subsino
@@ -608,4 +610,4 @@ DRIVER_INIT_MEMBER(lastfght_state,lastfght)
 	rom[0x01b86 / 2] = 0x5670;
 }
 
-GAME( 2000, lastfght, 0, lastfght, lastfght, lastfght_state, lastfght, ROT0, "Subsino", "Last Fighting", GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 2000, lastfght, 0, lastfght, lastfght, lastfght_state, lastfght, ROT0, "Subsino", "Last Fighting", MACHINE_NO_SOUND | MACHINE_SUPPORTS_SAVE )

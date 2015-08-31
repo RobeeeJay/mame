@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ernesto Corvi,Brad Oliver
 #include "emu.h"
 #include "video/ppu2c0x.h"
 #include "machine/nvram.h"
@@ -1074,7 +1076,7 @@ WRITE8_MEMBER(playch10_state::hboard_rom_switch_w)
 			}
 	};
 	gboard_rom_switch_w(space,offset,data);
-};
+}
 
 
 DRIVER_INIT_MEMBER(playch10_state,pchboard)

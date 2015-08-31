@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         Homebrew Z80 Computer by Kun-Szabo Marton
@@ -310,4 +312,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY   FULLNAME       FLAGS */
-COMP( 2008, homez80,  0,     0,      homez80,   homez80, driver_device, 0,    "Kun-Szabo Marton", "Homebrew Z80 Computer", GAME_NO_SOUND_HW)
+COMP( 2008, homez80,  0,     0,      homez80,   homez80, driver_device, 0,    "Kun-Szabo Marton", "Homebrew Z80 Computer", MACHINE_NO_SOUND_HW)

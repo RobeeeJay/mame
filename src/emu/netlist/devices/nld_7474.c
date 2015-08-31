@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Couriersud
 /*
  * nld_7474.c
  *
@@ -5,10 +7,12 @@
 
 #include "nld_7474.h"
 
+NETLIB_NAMESPACE_DEVICES_START()
+
 ATTR_HOT inline void NETLIB_NAME(7474sub)::newstate(const UINT8 stateQ, const UINT8 stateQQ)
 {
 	// 0: High-to-low 40 ns, 1: Low-to-high 25 ns
-	static const netlist_time delay[2] = { NLTIME_FROM_NS(40), NLTIME_FROM_NS(25) };
+	const netlist_time delay[2] = { NLTIME_FROM_NS(40), NLTIME_FROM_NS(25) };
 	OUTLOGIC(m_Q, stateQ, delay[stateQ]);
 	OUTLOGIC(m_QQ, stateQQ, delay[stateQQ]);
 }
@@ -52,7 +56,7 @@ NETLIB_UPDATE(7474)
 
 NETLIB_START(7474)
 {
-	register_sub(sub, "sub");
+	register_sub("sub", sub);
 
 	register_subalias("CLK",    sub.m_CLK);
 	register_input("D",         m_D);
@@ -81,18 +85,15 @@ NETLIB_START(7474sub)
 
 NETLIB_RESET(7474sub)
 {
-	m_CLK.set_state(netlist_input_t::STATE_INP_LH);
+	m_CLK.set_state(logic_t::STATE_INP_LH);
 
 	m_nextD = 0;
-	/* FIXME: required by pong doubles - need a mechanism to set this from netlist */
-	m_Q.initial(1);
-	m_QQ.initial(1);
 }
 
 NETLIB_START(7474_dip)
 {
-	register_sub(m_1, "1");
-	register_sub(m_2, "2");
+	register_sub("1", m_1);
+	register_sub("2", m_2);
 
 	register_subalias("1", m_1.m_CLRQ);
 	register_subalias("2", m_1.m_D);
@@ -122,3 +123,5 @@ NETLIB_UPDATE(7474_dip)
 	m_1.update_dev();
 	m_2.update_dev();
 }
+
+NETLIB_NAMESPACE_DEVICES_END()

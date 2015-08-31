@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett
 /***************************************************************************
 
     qs1000.h
@@ -106,7 +108,7 @@ public:
 	{
 		QS1000_KEYON   = 1,
 		QS1000_PLAYING = 2,
-		QS1000_ADPCM   = 4,
+		QS1000_ADPCM   = 4
 	};
 
 	void start_voice(int ch);

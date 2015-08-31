@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert, R. Belmont
 /***************************************************************************
 
@@ -397,12 +397,12 @@ static MACHINE_CONFIG_START( pt68k2, pt68k4_state )
 
 	MCFG_M48T02_ADD(TIMEKEEPER_TAG)
 
-	MCFG_WD1772x_ADD(WDFDC_TAG, XTAL_16MHz / 2)
+	MCFG_WD1772_ADD(WDFDC_TAG, XTAL_16MHz / 2)
 	MCFG_FLOPPY_DRIVE_ADD(WDFDC_TAG":0", pt68k_floppies, "525dd", pt68k4_state::floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD(WDFDC_TAG":1", pt68k_floppies, "525dd", pt68k4_state::floppy_formats)
 
 	MCFG_DEVICE_ADD(ISABUS_TAG, ISA8, 0)
-	MCFG_ISA8_CPU(":"M68K_TAG)
+	MCFG_ISA8_CPU(":" M68K_TAG)
 	MCFG_ISA8_BUS_CUSTOM_SPACES()
 	MCFG_ISA_OUT_IRQ5_CB(WRITELINE(pt68k4_state, irq5_w))
 	MCFG_ISA8_SLOT_ADD(ISABUS_TAG, "isa1", pt68k4_isa8_cards, "cga", false)
@@ -439,7 +439,7 @@ static MACHINE_CONFIG_START( pt68k4, pt68k4_state )
 	MCFG_M48T02_ADD(TIMEKEEPER_TAG)
 
 	MCFG_DEVICE_ADD(ISABUS_TAG, ISA8, 0)
-	MCFG_ISA8_CPU(":"M68K_TAG)
+	MCFG_ISA8_CPU(":" M68K_TAG)
 	MCFG_ISA8_BUS_CUSTOM_SPACES()
 	MCFG_ISA8_SLOT_ADD(ISABUS_TAG, "isa1", pt68k4_isa8_cards, "fdc_at", false)
 	MCFG_ISA8_SLOT_ADD(ISABUS_TAG, "isa2", pt68k4_isa8_cards, "cga", false)
@@ -487,5 +487,5 @@ ROM_END
 
 /* Driver */
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT   CLASS          INIT     COMPANY             FULLNAME       FLAGS */
-COMP( 1988, pt68k2,  0,       0,     pt68k2,    pt68k4, driver_device, 0,  "Peripheral Technology", "PT68K2", GAME_SUPPORTS_SAVE )
-COMP( 1990, pt68k4,  0,       0,     pt68k4,    pt68k4, driver_device, 0,  "Peripheral Technology", "PT68K4", GAME_SUPPORTS_SAVE )
+COMP( 1988, pt68k2,  0,       0,     pt68k2,    pt68k4, driver_device, 0,  "Peripheral Technology", "PT68K2", MACHINE_SUPPORTS_SAVE )
+COMP( 1990, pt68k4,  0,       0,     pt68k4,    pt68k4, driver_device, 0,  "Peripheral Technology", "PT68K4", MACHINE_SUPPORTS_SAVE )

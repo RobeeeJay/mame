@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Philip Bennett, James Wallace, David Haywood
 /***************************************************************************
 
     JPM System 5
@@ -51,7 +53,7 @@ enum int_levels
 	INT_6850ACIA   = 4,
 	INT_WATCHDOG   = 5,
 	INT_FLOPPYCTRL = 6,
-	INT_POWERFAIL  = 7,
+	INT_POWERFAIL  = 7
 };
 
 
@@ -295,8 +297,8 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( 68000_awp_map_saa, AS_PROGRAM, 16, jpmsys5_state )
 	JPM_SYS5_COMMON_MAP
-	AM_RANGE(0x0460a0, 0x0460a1) AM_DEVWRITE8("saa", saa1099_device, saa1099_data_w, 0x00ff)
-	AM_RANGE(0x0460a2, 0x0460a3) AM_DEVWRITE8("saa", saa1099_device, saa1099_control_w, 0x00ff)
+	AM_RANGE(0x0460a0, 0x0460a1) AM_DEVWRITE8("saa", saa1099_device, data_w, 0x00ff)
+	AM_RANGE(0x0460a2, 0x0460a3) AM_DEVWRITE8("saa", saa1099_device, control_w, 0x00ff)
 	AM_RANGE(0x04c100, 0x04c105) AM_READWRITE(jpm_upd7759_r, jpm_upd7759_w) // do the SAA boards have the UPD?
 ADDRESS_MAP_END
 
@@ -1028,4 +1030,4 @@ GAME( 1994, monopoly    , 0         , jpmsys5v, monopoly, driver_device, 0, ROT0
 GAME( 1994, monopolya   , monopoly  , jpmsys5v, monopoly, driver_device, 0, ROT0, "JPM", "Monopoly (JPM) (SYSTEM5 VIDEO, set 2)",         0 )
 GAME( 1995, monoplcl    , monopoly  , jpmsys5v, monopoly, driver_device, 0, ROT0, "JPM", "Monopoly Classic (JPM) (SYSTEM5 VIDEO)", 0 )
 GAME( 1995, monopldx    , 0         , jpmsys5v, monopoly, driver_device, 0, ROT0, "JPM", "Monopoly Deluxe (JPM) (SYSTEM5 VIDEO)",  0 )
-GAME( 199?, cashcade    , 0         , jpmsys5v, monopoly, driver_device, 0, ROT0, "JPM", "Cashcade (JPM) (SYSTEM5 VIDEO)", GAME_NOT_WORKING|GAME_NO_SOUND ) // shows a loading error.. is the set incomplete?
+GAME( 199?, cashcade    , 0         , jpmsys5v, monopoly, driver_device, 0, ROT0, "JPM", "Cashcade (JPM) (SYSTEM5 VIDEO)", MACHINE_NOT_WORKING|MACHINE_NO_SOUND ) // shows a loading error.. is the set incomplete?

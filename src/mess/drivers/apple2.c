@@ -79,6 +79,7 @@ II Plus: RAM options reduced to 16/32/48 KB.
 #include "bus/a2bus/mouse.h"
 #include "bus/a2bus/ramcard16k.h"
 #include "bus/a2bus/ramcard128k.h"
+#include "bus/a2bus/ezcgi.h"
 
 #define A2_CPU_TAG "maincpu"
 #define A2_KBDC_TAG "ay3600"
@@ -367,7 +368,7 @@ PALETTE_INIT_MEMBER(napple2_state, apple2)
 UINT32 napple2_state::screen_update(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)
 {
 	// always update the flash timer here so it's smooth regardless of mode switches
-	m_video->m_flash = ((machine().time() * 4).seconds & 1) ? true : false;
+	m_video->m_flash = ((machine().time() * 4).seconds() & 1) ? true : false;
 
 	if (m_video->m_graphics)
 	{
@@ -376,7 +377,14 @@ UINT32 napple2_state::screen_update(screen_device &screen, bitmap_ind16 &bitmap,
 			if (m_video->m_mix)
 			{
 				m_video->hgr_update(screen, bitmap, cliprect, 0, 159);
-				m_video->text_update_orig(screen, bitmap, cliprect, 160, 191);
+				if (!strcmp(machine().system().name, "ivelultr"))
+				{
+					m_video->text_update_ultr(screen, bitmap, cliprect, 160, 191);
+				}
+				else
+				{
+					m_video->text_update_orig(screen, bitmap, cliprect, 160, 191);
+				}
 			}
 			else
 			{
@@ -388,7 +396,14 @@ UINT32 napple2_state::screen_update(screen_device &screen, bitmap_ind16 &bitmap,
 			if (m_video->m_mix)
 			{
 				m_video->lores_update(screen, bitmap, cliprect, 0, 159);
-				m_video->text_update_orig(screen, bitmap, cliprect, 160, 191);
+				if (!strcmp(machine().system().name, "ivelultr"))
+				{
+					m_video->text_update_ultr(screen, bitmap, cliprect, 160, 191);
+				}
+				else
+				{
+					m_video->text_update_orig(screen, bitmap, cliprect, 160, 191);
+				}
 			}
 			else
 			{
@@ -398,7 +413,14 @@ UINT32 napple2_state::screen_update(screen_device &screen, bitmap_ind16 &bitmap,
 	}
 	else
 	{
-		m_video->text_update_orig(screen, bitmap, cliprect, 0, 191);
+		if (!strcmp(machine().system().name, "ivelultr"))
+		{
+			m_video->text_update_ultr(screen, bitmap, cliprect, 0, 191);
+		}
+		else
+		{
+			m_video->text_update_orig(screen, bitmap, cliprect, 0, 191);
+		}
 	}
 
 	return 0;
@@ -1228,6 +1250,9 @@ static SLOT_INTERFACE_START(apple2_cards)
 	SLOT_INTERFACE("dx1", A2BUS_DX1)    /* Decillonix DX-1 sampler card */
 	SLOT_INTERFACE("tm2ho", A2BUS_TIMEMASTERHO) /* Applied Engineering TimeMaster II H.O. */
 	SLOT_INTERFACE("mouse", A2BUS_MOUSE)    /* Apple II Mouse Card */
+	SLOT_INTERFACE("ezcgi", A2BUS_EZCGI)    /* E-Z Color Graphics Interface */
+	SLOT_INTERFACE("ezcgi9938", A2BUS_EZCGI_9938)   /* E-Z Color Graphics Interface (TMS9938) */
+	SLOT_INTERFACE("ezcgi9958", A2BUS_EZCGI_9958)   /* E-Z Color Graphics Interface (TMS9958) */
 //  SLOT_INTERFACE("magicmusician", A2BUS_MAGICMUSICIAN)    /* Magic Musician Card */
 SLOT_INTERFACE_END
 
@@ -1368,6 +1393,19 @@ ROM_START(apple2p) /* the autoboot apple2+ with applesoft (microsoft-written) ba
 	ROM_LOAD ( "341-0020-00.f8", 0x3800, 0x0800, CRC(079589c4) SHA1(a28852ff997b4790e53d8d0352112c4b1a395098)) /* 341-0020-00: Autostart Monitor/Applesoft Basic $f800; Was sometimes mounted on Language card; Label(from Apple Language Card - Front.jpg): S 8115 // C68018 // 341-0020-00 */
 ROM_END
 
+ROM_START(elppa)
+	ROM_REGION(0x0800,"gfx1",0)
+	ROM_LOAD ( "elppa.chr", 0x0000, 0x0800, BAD_DUMP CRC(64f415c6) SHA1(f9d312f128c9557d9d6ac03bfad6c3ddf83e5659)) // Taken from 341-0036.chr used in apple2p
+
+	ROM_REGION(0x4000,"maincpu",0)
+	ROM_LOAD ( "elppa.d0", 0x1000, 0x0800, CRC(ce5b0e7e) SHA1(2c1a0aa023ae6deb2bddb8937345ee354028aeef))
+	ROM_LOAD ( "elppa.d8", 0x1800, 0x0800, CRC(bd409bad) SHA1(5145d238042938efbb9b71e0a4ef9a980b0e38de))
+	ROM_LOAD ( "elppa.e0", 0x2000, 0x0800, CRC(4c997c88) SHA1(70b639d8cbafcd5367d2f9dfd6890e5d1c6890f0))
+	ROM_LOAD ( "elppa.e8", 0x2800, 0x0800, CRC(5719871a) SHA1(37501be96d36d041667c15d63e0c1eff2f7dd4e9))
+	ROM_LOAD ( "elppa.f0", 0x3000, 0x0800, CRC(9a04eecf) SHA1(e6bf91ed28464f42b807f798fc6422e5948bf581))
+	ROM_LOAD ( "elppa.f8", 0x3800, 0x0800, CRC(62c0c761) SHA1(19f28544fd5021a2d72e6015b3183c462c0e86f8))
+ROM_END
+
 ROM_START(prav82)
 	ROM_REGION(0x0800,"gfx1",0)
 	ROM_LOAD ( "pravetz82.chr", 0x0000, 0x0800, BAD_DUMP CRC(8c55c984) SHA1(5a5a202000576b88b4ae2e180dd2d1b9b337b594)) // Taken from Agat computer
@@ -1393,6 +1431,26 @@ ROM_START(prav8m)
 	ROM_LOAD ( "pravetz8m.f8", 0x3800, 0x0800, CRC(5bab0a46) SHA1(f6c0817ce37d2e2c43f482c339acaede0a73359b))
 ROM_END
 
+ROM_START(uniap2pt)
+	ROM_REGION(0x1000,"gfx1",0)
+	ROM_LOAD ( "unitron.chr", 0x0000, 0x1000, CRC(7fdd1af6) SHA1(2f4f90d90f2f3a8c1fbea304e1072780fb22e698))
+
+	ROM_REGION(0x4000,"maincpu",0)
+	ROM_LOAD ( "unitron_pt.d0", 0x1000, 0x1000, CRC(311beae6) SHA1(f6379aba9ac982850edc314c93a393844a3349ef))
+	ROM_LOAD ( "unitron.e0"   , 0x2000, 0x1000, CRC(0d494efd) SHA1(a2fd1223a3ca0cfee24a6afe66ea3c4c144dd98e))
+	ROM_LOAD ( "unitron.f0"   , 0x3000, 0x1000, CRC(8e047c4a) SHA1(78c57c0e00dfce7fdec9437fe2b4c25def447e5d))
+ROM_END
+
+ROM_START(uniap2en)
+	ROM_REGION(0x1000,"gfx1",0)
+	ROM_LOAD ( "unitron.chr", 0x0000, 0x1000, CRC(7fdd1af6) SHA1(2f4f90d90f2f3a8c1fbea304e1072780fb22e698))
+
+	ROM_REGION(0x4000,"maincpu",0)
+	ROM_LOAD ( "unitron_en.d0", 0x1000, 0x1000, CRC(24d73c7b) SHA1(d17a15868dc875c67061c95ec53a6b2699d3a425))
+	ROM_LOAD ( "unitron.e0"   , 0x2000, 0x1000, CRC(0d494efd) SHA1(a2fd1223a3ca0cfee24a6afe66ea3c4c144dd98e))
+	ROM_LOAD ( "unitron.f0"   , 0x3000, 0x1000, CRC(8e047c4a) SHA1(78c57c0e00dfce7fdec9437fe2b4c25def447e5d))
+ROM_END
+
 /*
     J-Plus ROM numbers confirmed by:
     http://mirrors.apple2.org.za/Apple%20II%20Documentation%20Project/Computers/Apple%20II/Apple%20II%20j-plus/Photos/Apple%20II%20j-plus%20-%20Motherboard.jpg
@@ -1409,6 +1467,19 @@ ROM_START(apple2jp)
 	ROM_LOAD ( "341-0014.e8", 0x2800, 0x0800, BAD_DUMP CRC(5719871a) SHA1(37501be96d36d041667c15d63e0c1eff2f7dd4e9))
 	ROM_LOAD ( "341-0015.f0", 0x3000, 0x0800, BAD_DUMP CRC(9a04eecf) SHA1(e6bf91ed28464f42b807f798fc6422e5948bf581))
 	ROM_LOAD ( "341-0047.f8", 0x3800, 0x0800, CRC(6ea8379b) SHA1(00a75ae3b58e1917ad640249366f654608589cf4))
+ROM_END
+
+ROM_START(maxxi)
+	ROM_REGION(0x0800,"gfx1",0)
+	ROM_LOAD ( "maxxi.chr", 0x0000, 0x0800, BAD_DUMP CRC(64f415c6) SHA1(f9d312f128c9557d9d6ac03bfad6c3ddf83e5659)) // Taken from 341-0036.chr used in apple2p
+
+	ROM_REGION(0x4000,"maincpu",0)
+	ROM_LOAD ( "maxxi.d0", 0x1000, 0x1000, CRC(7831f025) SHA1(0eb4161e5223c0dde2d140fcbace80d292ff9dc6))
+	ROM_LOAD ( "maxxi.e0", 0x2000, 0x1000, CRC(0d494efd) SHA1(a2fd1223a3ca0cfee24a6afe66ea3c4c144dd98e))
+	ROM_LOAD ( "maxxi.f0", 0x3000, 0x1000, CRC(34e4d01b) SHA1(44853b2d59ddd234db76c1a0d529180fb1e008ef))
+
+	ROM_REGION(0x0800,"keyboard",0)
+	ROM_LOAD ( "maxxi_teclado.rom", 0x0000, 0x0800, CRC(10c2d5b6) SHA1(226036d2f6f8fa5675303640ee1e5f0bab1135c6))
 ROM_END
 
 ROM_START(ace100)
@@ -1512,16 +1583,20 @@ ROM_END
 #endif
 
 /*    YEAR  NAME      PARENT    COMPAT    MACHINE      INPUT     INIT      COMPANY            FULLNAME */
-COMP( 1977, apple2,   0,        0,        apple2,      apple2,  driver_device,   0,        "Apple Computer",    "Apple ][", GAME_SUPPORTS_SAVE )
-COMP( 1979, apple2p,  apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Apple Computer",    "Apple ][+", GAME_SUPPORTS_SAVE )
-COMP( 1980, apple2jp, apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Apple Computer",    "Apple ][ J-Plus", GAME_SUPPORTS_SAVE )
-COMP( 1982, prav82,   apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Pravetz",           "Pravetz 82", GAME_SUPPORTS_SAVE )
-COMP( 1982, ace100,   apple2,   0,        apple2,      apple2p, driver_device,  0,        "Franklin Computer", "Franklin Ace 100", GAME_SUPPORTS_SAVE )
-COMP( 1983, agat7,    apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Agat",              "Agat-7", GAME_NOT_WORKING) // disk controller ROM JSRs to $FCA8 which is a delay on apple II, illegal instruction crash here :(
+COMP( 1977, apple2,   0,        0,        apple2,      apple2,  driver_device,   0,        "Apple Computer",    "Apple ][", MACHINE_SUPPORTS_SAVE )
+COMP( 1979, apple2p,  apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Apple Computer",    "Apple ][+", MACHINE_SUPPORTS_SAVE )
+COMP( 1980, apple2jp, apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Apple Computer",    "Apple ][ J-Plus", MACHINE_SUPPORTS_SAVE )
+COMP( 198?, elppa,    apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Victor do Brasil",  "Elppa II+", MACHINE_SUPPORTS_SAVE )
+COMP( 1982, maxxi,    apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Polymax",  "Maxxi", MACHINE_SUPPORTS_SAVE )
+COMP( 1982, prav82,   apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Pravetz",           "Pravetz 82", MACHINE_SUPPORTS_SAVE )
+COMP( 1982, ace100,   apple2,   0,        apple2,      apple2p, driver_device,  0,        "Franklin Computer", "Franklin Ace 100", MACHINE_SUPPORTS_SAVE )
+COMP( 1982, uniap2en, apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Unitron Eletr??nica", "Unitron AP II (in English)", MACHINE_SUPPORTS_SAVE )
+COMP( 1982, uniap2pt, apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Unitron Eletr??nica", "Unitron AP II (in Brazilian Portuguese)", MACHINE_SUPPORTS_SAVE )
+COMP( 1983, agat7,    apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Agat",              "Agat-7", MACHINE_NOT_WORKING) // disk controller ROM JSRs to $FCA8 which is a delay on apple II, illegal instruction crash here :(
 // reverse font direction -\/
-COMP( 1984, ivelultr, apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Ivasim",            "Ivel Ultra", GAME_SUPPORTS_SAVE )
-COMP( 1984, agat9,    apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Agat",              "Agat-9", GAME_NOT_WORKING)
-COMP( 1985, prav8m,   apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Pravetz",           "Pravetz 8M", GAME_SUPPORTS_SAVE )
-COMP( 1985, space84,  apple2,   0,        space84,     apple2p, driver_device,  0,        "ComputerTechnik/IBS",  "Space 84",   GAME_NOT_WORKING )
-COMP( 1985, am64,     apple2,   0,        space84,     apple2p, driver_device,  0,        "ASEM",              "AM 64", GAME_SUPPORTS_SAVE )
-//COMP( 19??, laba2p,   apple2,   0,        laba2p,      apple2p, driver_device,  0,        "<unknown>",         "Lab equipment Apple II Plus clone", GAME_SUPPORTS_SAVE )
+COMP( 1984, ivelultr, apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Ivasim",            "Ivel Ultra", MACHINE_SUPPORTS_SAVE )
+COMP( 1984, agat9,    apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Agat",              "Agat-9", MACHINE_NOT_WORKING)
+COMP( 1985, prav8m,   apple2,   0,        apple2p,     apple2p, driver_device,  0,        "Pravetz",           "Pravetz 8M", MACHINE_SUPPORTS_SAVE )
+COMP( 1985, space84,  apple2,   0,        space84,     apple2p, driver_device,  0,        "ComputerTechnik/IBS",  "Space 84",   MACHINE_NOT_WORKING )
+COMP( 1985, am64,     apple2,   0,        space84,     apple2p, driver_device,  0,        "ASEM",              "AM 64", MACHINE_SUPPORTS_SAVE )
+//COMP( 19??, laba2p,   apple2,   0,        laba2p,      apple2p, driver_device,  0,        "<unknown>",         "Lab equipment Apple II Plus clone", MACHINE_SUPPORTS_SAVE )

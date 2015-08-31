@@ -1,3 +1,5 @@
+// license:???
+// copyright-holders:Marco Cassili,Ernesto Corvi,Tim Lindquist,Carlos A. Lozano,Bryan McPhail,Jarek Parchanski,Nicola Salmoria,Tomasz Slanina,Phil Stroffolino,Acho A. Tang,Victor Trucco
 /*
 
 snk.c
@@ -3976,12 +3978,6 @@ static MACHINE_CONFIG_DERIVED( chopper1, bermudat )
 
 	MCFG_CPU_MODIFY("audiocpu")
 	MCFG_CPU_PROGRAM_MAP(YM3812_Y8950_sound_map)
-
-	/* video hardware */
-	MCFG_SCREEN_MODIFY("screen")
-	// this visible area matches the flyer
-	MCFG_SCREEN_SIZE(51*8, 28*8)
-	MCFG_SCREEN_VISIBLE_AREA(1*8, 50*8-1, 0*8, 28*8-1)
 
 	/* sound hardware */
 	MCFG_SOUND_REPLACE("ym1", YM3812, 4000000)

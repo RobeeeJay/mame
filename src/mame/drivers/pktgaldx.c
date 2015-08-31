@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Bryan McPhail
 /*
 
 Pocket Gal Deluxe
@@ -105,6 +107,10 @@ static ADDRESS_MAP_START( pktgaldx_map, AS_PROGRAM, 16, pktgaldx_state )
 	AM_RANGE(0x167800, 0x167fff) AM_READWRITE(pktgaldx_protection_region_f_104_r,pktgaldx_protection_region_f_104_w) AM_SHARE("prot16ram") /* Protection device */
 
 	AM_RANGE(0x170000, 0x17ffff) AM_RAM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( decrypted_opcodes_map, AS_DECRYPTED_OPCODES, 16, pktgaldx_state )
+	AM_RANGE(0x000000, 0x07ffff) AM_ROM AM_SHARE("decrypted_opcodes")
 ADDRESS_MAP_END
 
 
@@ -318,6 +324,7 @@ static MACHINE_CONFIG_START( pktgaldx, pktgaldx_state )
 	/* basic machine hardware */
 	MCFG_CPU_ADD("maincpu", M68000, 14000000)
 	MCFG_CPU_PROGRAM_MAP(pktgaldx_map)
+	MCFG_CPU_DECRYPTED_OPCODES_MAP(decrypted_opcodes_map)
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", pktgaldx_state,  irq6_line_hold)
 
 
@@ -472,9 +479,9 @@ ROM_END
 DRIVER_INIT_MEMBER(pktgaldx_state,pktgaldx)
 {
 	deco56_decrypt_gfx(machine(), "gfx1");
-	deco102_decrypt_cpu(machine(), "maincpu", 0x42ba, 0x00, 0x00);
+	deco102_decrypt_cpu((UINT16 *)memregion("maincpu")->base(), m_decrypted_opcodes, 0x80000, 0x42ba, 0x00, 0x00);
 }
 
-GAME( 1992, pktgaldx,  0,        pktgaldx, pktgaldx, pktgaldx_state, pktgaldx,  ROT0, "Data East Corporation", "Pocket Gal Deluxe (Euro v3.00)", GAME_SUPPORTS_SAVE )
-GAME( 1993, pktgaldxj, pktgaldx, pktgaldx, pktgaldx, pktgaldx_state, pktgaldx,  ROT0, "Data East Corporation (Nihon System license)", "Pocket Gal Deluxe (Japan v3.00)", GAME_SUPPORTS_SAVE )
-GAME( 1992, pktgaldxb, pktgaldx, pktgaldb, pktgaldx, driver_device, 0,         ROT0, "bootleg",               "Pocket Gal Deluxe (Euro v3.00, bootleg)", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
+GAME( 1992, pktgaldx,  0,        pktgaldx, pktgaldx, pktgaldx_state, pktgaldx,  ROT0, "Data East Corporation", "Pocket Gal Deluxe (Euro v3.00)", MACHINE_SUPPORTS_SAVE )
+GAME( 1993, pktgaldxj, pktgaldx, pktgaldx, pktgaldx, pktgaldx_state, pktgaldx,  ROT0, "Data East Corporation (Nihon System license)", "Pocket Gal Deluxe (Japan v3.00)", MACHINE_SUPPORTS_SAVE )
+GAME( 1992, pktgaldxb, pktgaldx, pktgaldb, pktgaldx, driver_device, 0,         ROT0, "bootleg",               "Pocket Gal Deluxe (Euro v3.00, bootleg)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )

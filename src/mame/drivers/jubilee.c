@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Fresca
 /****************************************************************************************
 
   Jubilee Double-Up Poker
@@ -570,7 +572,7 @@ ADDRESS_MAP_END
 
 /* I/O byte R/W
 
-   0x080  R    ; Input port? polled once at begining.
+   0x080  R    ; Input port? Polled once at beginning.
    0x0C8  R    ; Input port.
 
    Can't see more inputs. There is a multiplexion with the following offsets as selectors:
@@ -705,4 +707,4 @@ ROM_END
 *************************/
 
 /*    YEAR  NAME      PARENT  MACHINE   INPUT     STATE          INIT  ROT    COMPANY    FULLNAME                    FLAGS */
-GAME( 1985, jubileep, 0,      jubileep, jubileep, driver_device, 0,    ROT0, "Jubilee", "Double-Up Poker (Jubilee)", GAME_NO_SOUND )
+GAME( 1985, jubileep, 0,      jubileep, jubileep, driver_device, 0,    ROT0, "Jubilee", "Double-Up Poker (Jubilee)", MACHINE_NO_SOUND )

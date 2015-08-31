@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #include "video/vsystem_spr.h"
 #include "video/vsystem_spr2.h"
 #include "sound/okim6295.h"
@@ -33,7 +35,6 @@ public:
 	optional_shared_ptr<UINT16> m_spriteram2;
 	required_shared_ptr<UINT16> m_spriteram3;
 	optional_shared_ptr<UINT16> m_tx_tilemap_ram;
-//  UINT16 *  m_paletteram;   // currently this uses generic palette handling
 
 	/* devices referenced above */
 	optional_device<vsystem_spr_device> m_spr; // only the aerofgt parent uses this chip

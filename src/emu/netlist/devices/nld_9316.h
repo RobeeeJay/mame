@@ -49,10 +49,10 @@
 #ifndef NLD_9316_H_
 #define NLD_9316_H_
 
-#include "../nl_base.h"
+#include "nl_base.h"
 
 #define TTL_9316(_name, _CLK, _ENP, _ENT, _CLRQ, _LOADQ, _A, _B, _C, _D)            \
-		NET_REGISTER_DEV(9316, _name)                                               \
+		NET_REGISTER_DEV(TTL_9316, _name)                                               \
 		NET_CONNECT(_name, CLK, _CLK)                                               \
 		NET_CONNECT(_name, ENP,  _ENP)                                              \
 		NET_CONNECT(_name, ENT,  _ENT)                                              \
@@ -64,45 +64,53 @@
 		NET_CONNECT(_name, D,    _D)
 
 #define TTL_9316_DIP(_name)                                                         \
-		NET_REGISTER_DEV(9316_dip, _name)
+		NET_REGISTER_DEV(TTL_9316_DIP, _name)
+
+NETLIB_NAMESPACE_DEVICES_START()
 
 NETLIB_SUBDEVICE(9316_subABCD,
-	netlist_ttl_input_t m_A;
-	netlist_ttl_input_t m_B;
-	netlist_ttl_input_t m_C;
-	netlist_ttl_input_t m_D;
+	logic_input_t m_A;
+	logic_input_t m_B;
+	logic_input_t m_C;
+	logic_input_t m_D;
 
-	ATTR_HOT inline UINT8 read_ABCD();
+	ATTR_HOT inline UINT8 read_ABCD() const
+	{
+		//return (INPLOGIC_PASSIVE(m_D) << 3) | (INPLOGIC_PASSIVE(m_C) << 2) | (INPLOGIC_PASSIVE(m_B) << 1) | (INPLOGIC_PASSIVE(m_A) << 0);
+		return (INPLOGIC(m_D) << 3) | (INPLOGIC(m_C) << 2) | (INPLOGIC(m_B) << 1) | (INPLOGIC(m_A) << 0);
+	}
 );
 
 NETLIB_SUBDEVICE(9316_sub,
-	ATTR_HOT void update_outputs_all(const UINT8 cnt);
-	ATTR_HOT void update_outputs(const UINT8 cnt);
+	ATTR_HOT inline void update_outputs_all(const UINT8 cnt, const netlist_time out_delay);
+	ATTR_HOT inline void update_outputs(const UINT8 cnt);
 
-	netlist_ttl_input_t m_CLK;
+	logic_input_t m_CLK;
 
-	netlist_state_t<UINT8> m_cnt;
-	netlist_state_t<NETLIB_NAME(9316_subABCD) *> m_ABCD;
-	netlist_state_t<netlist_sig_t> m_loadq;
-	netlist_state_t<netlist_sig_t> m_ent;
+	logic_output_t m_QA;
+	logic_output_t m_QB;
+	logic_output_t m_QC;
+	logic_output_t m_QD;
+	logic_output_t m_RC;
 
-	netlist_ttl_output_t m_QA;
-	netlist_ttl_output_t m_QB;
-	netlist_ttl_output_t m_QC;
-	netlist_ttl_output_t m_QD;
-	netlist_ttl_output_t m_RC;
+	UINT8 m_cnt;
+	NETLIB_NAME(9316_subABCD) *m_ABCD;
+	netlist_sig_t m_loadq;
+	netlist_sig_t m_ent;
+
 );
 
 NETLIB_DEVICE(9316,
 	NETLIB_NAME(9316_sub) sub;
 	NETLIB_NAME(9316_subABCD) subABCD;
-	netlist_ttl_input_t m_ENP;
-	netlist_ttl_input_t m_ENT;
-	netlist_ttl_input_t m_CLRQ;
-	netlist_ttl_input_t m_LOADQ;
+	logic_input_t m_ENP;
+	logic_input_t m_ENT;
+	logic_input_t m_CLRQ;
+	logic_input_t m_LOADQ;
 );
 
-NETLIB_DEVICE_DERIVED(9316_dip, 9316,
-);
+NETLIB_DEVICE_DERIVED_PURE(9316_dip, 9316);
+
+NETLIB_NAMESPACE_DEVICES_END()
 
 #endif /* NLD_9316_H_ */

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Aaron Giles
 /***********************************************************************************************
 
     Sega System C (System 14)/C2 Driver
@@ -107,9 +109,6 @@ public:
 
 	required_shared_ptr<UINT16> m_paletteram;
 
-	/* internal states */
-	UINT8       m_misc_io_data[0x10];   /* holds values written to the I/O chip */
-
 	/* protection-related tracking */
 	segac2_prot_delegate m_prot_func;     /* emulation of protection chip */
 	UINT8       m_prot_write_buf;       /* remembers what was written */
@@ -170,10 +169,10 @@ public:
 	DECLARE_WRITE16_MEMBER( segac2_upd7759_w );
 	DECLARE_READ16_MEMBER( palette_r );
 	DECLARE_WRITE16_MEMBER( palette_w );
-	DECLARE_WRITE16_MEMBER( control_w );
-	DECLARE_READ16_MEMBER( prot_r );
-	DECLARE_WRITE16_MEMBER( prot_w );
-	DECLARE_WRITE16_MEMBER( counter_timer_w );
+	DECLARE_WRITE8_MEMBER( control_w );
+	DECLARE_READ8_MEMBER( prot_r );
+	DECLARE_WRITE8_MEMBER( prot_w );
+	DECLARE_WRITE8_MEMBER( counter_timer_w );
 	DECLARE_READ16_MEMBER( printer_r );
 	DECLARE_WRITE16_MEMBER( print_club_camera_w );
 	DECLARE_READ16_MEMBER(ichirjbl_prot_r);
@@ -218,7 +217,6 @@ public:
 
 MACHINE_START_MEMBER(segac2_state,segac2)
 {
-	save_item(NAME(m_misc_io_data));
 	save_item(NAME(m_prot_write_buf));
 	save_item(NAME(m_prot_read_buf));
 
@@ -474,11 +472,8 @@ WRITE8_MEMBER(segac2_state::io_porth_w)
 
 ******************************************************************************/
 
-WRITE16_MEMBER(segac2_state::control_w )
+WRITE8_MEMBER(segac2_state::control_w)
 {
-	/* skip if not LSB */
-	if (!ACCESSING_BITS_0_7)
-		return;
 	data &= 0x0f;
 
 	/* bit 0 controls display enable */
@@ -509,7 +504,7 @@ WRITE16_MEMBER(segac2_state::control_w )
 ******************************************************************************/
 
 /* protection chip reads */
-READ16_MEMBER(segac2_state::prot_r )
+READ8_MEMBER(segac2_state::prot_r)
 {
 	if (LOG_PROTECTION) logerror("%06X:protection r=%02X\n", space.device().safe_pcbase(), m_prot_read_buf);
 	return m_prot_read_buf | 0xf0;
@@ -517,15 +512,11 @@ READ16_MEMBER(segac2_state::prot_r )
 
 
 /* protection chip writes */
-WRITE16_MEMBER(segac2_state::prot_w )
+WRITE8_MEMBER(segac2_state::prot_w)
 {
 	int new_sp_palbase = (data >> 2) & 3;
 	int new_bg_palbase = data & 3;
 	int table_index;
-
-	/* only works for the LSB */
-	if (!ACCESSING_BITS_0_7)
-		return;
 
 	/* compute the table index */
 	table_index = (m_prot_write_buf << 4) | m_prot_read_buf;
@@ -560,42 +551,38 @@ WRITE16_MEMBER(segac2_state::prot_w )
 
 ******************************************************************************/
 
-WRITE16_MEMBER(segac2_state::counter_timer_w )
+WRITE8_MEMBER(segac2_state::counter_timer_w)
 {
-	/* only LSB matters */
-	if (ACCESSING_BITS_0_7)
+	/*int value = data & 1;*/
+	switch (data & 0x1e)
 	{
-		/*int value = data & 1;*/
-		switch (data & 0x1e)
-		{
-			case 0x00:  /* player 1 start/stop */
-			case 0x02:  /* player 2 start/stop */
-			case 0x04:  /* ??? */
-			case 0x06:  /* ??? */
-			case 0x08:  /* player 1 game timer? */
-			case 0x0a:  /* player 2 game timer? */
-			case 0x0c:  /* ??? */
-			case 0x0e:  /* ??? */
-				break;
+		case 0x00:  /* player 1 start/stop */
+		case 0x02:  /* player 2 start/stop */
+		case 0x04:  /* ??? */
+		case 0x06:  /* ??? */
+		case 0x08:  /* player 1 game timer? */
+		case 0x0a:  /* player 2 game timer? */
+		case 0x0c:  /* ??? */
+		case 0x0e:  /* ??? */
+			break;
 
-			case 0x10:  /* coin counter */
-//              coin_counter_w(space.machine(), 0,1);
-//              coin_counter_w(space.machine(), 0,0);
-				break;
+		case 0x10:  /* coin counter */
+//          coin_counter_w(space.machine(), 0,1);
+//          coin_counter_w(space.machine(), 0,0);
+			break;
 
-			case 0x12:  /* set coinage info -- followed by two 4-bit values */
-				break;
+		case 0x12:  /* set coinage info -- followed by two 4-bit values */
+			break;
 
-			case 0x14:  /* game timer? (see Tant-R) */
-			case 0x16:  /* intro timer? (see Tant-R) */
-			case 0x18:  /* ??? */
-			case 0x1a:  /* ??? */
-			case 0x1c:  /* ??? */
-				break;
+		case 0x14:  /* game timer? (see Tant-R) */
+		case 0x16:  /* intro timer? (see Tant-R) */
+		case 0x18:  /* ??? */
+		case 0x1a:  /* ??? */
+		case 0x1c:  /* ??? */
+			break;
 
-			case 0x1e:  /* reset */
-				break;
-		}
+		case 0x1e:  /* reset */
+			break;
 	}
 }
 
@@ -608,12 +595,12 @@ WRITE16_MEMBER(segac2_state::counter_timer_w )
 
 ******************************************************************************/
 
-READ16_MEMBER(segac2_state::printer_r )
+READ16_MEMBER(segac2_state::printer_r)
 {
 	return m_cam_data;
 }
 
-WRITE16_MEMBER(segac2_state::print_club_camera_w )
+WRITE16_MEMBER(segac2_state::print_club_camera_w)
 {
 	m_cam_data = data;
 }
@@ -631,11 +618,11 @@ WRITE16_MEMBER(segac2_state::print_club_camera_w )
 
 static ADDRESS_MAP_START( main_map, AS_PROGRAM, 16, segac2_state )
 	AM_RANGE(0x000000, 0x1fffff) AM_ROM
-	AM_RANGE(0x800000, 0x800001) AM_MIRROR(0x13fdfe) AM_READWRITE(prot_r, prot_w)
-	AM_RANGE(0x800200, 0x800201) AM_MIRROR(0x13fdfe) AM_WRITE(control_w)
+	AM_RANGE(0x800000, 0x800001) AM_MIRROR(0x13fdfe) AM_READWRITE8(prot_r, prot_w, 0x00ff)
+	AM_RANGE(0x800200, 0x800201) AM_MIRROR(0x13fdfe) AM_WRITE8(control_w, 0x00ff)
 	AM_RANGE(0x840000, 0x84001f) AM_MIRROR(0x13fee0) AM_DEVREADWRITE8("io", sega_315_5296_device, read, write, 0x00ff)
 	AM_RANGE(0x840100, 0x840107) AM_MIRROR(0x13fef8) AM_DEVREADWRITE8("ymsnd", ym3438_device, read, write, 0x00ff)
-	AM_RANGE(0x880100, 0x880101) AM_MIRROR(0x13fefe) AM_WRITE(counter_timer_w)
+	AM_RANGE(0x880100, 0x880101) AM_MIRROR(0x13fefe) AM_WRITE8(counter_timer_w, 0x00ff)
 	AM_RANGE(0x8c0000, 0x8c0fff) AM_MIRROR(0x13f000) AM_READWRITE(palette_r, palette_w) AM_SHARE("paletteram")
 	AM_RANGE(0xc00000, 0xc0001f) AM_MIRROR(0x18ff00) AM_DEVREADWRITE("gen_vdp", sega315_5313_device, vdp_r, vdp_w)
 	AM_RANGE(0xe00000, 0xe0ffff) AM_MIRROR(0x1f0000) AM_RAM AM_SHARE("nvram")
@@ -2321,7 +2308,7 @@ GAME( 1994, puyopuy2,  0,        segac2, puyopuy2, segac2_state, puyopuy2, ROT0,
 GAME( 1994, zunkyou,   0,        segac2, zunkyou, segac2_state,  zunkyou,  ROT0,   "Sega", "Zunzunkyou No Yabou (Japan)", 0 )
 
 /* Atlus Print Club 'Games' (C-2 Hardware, might not be possible to support them because they use camera + printer, really just put here for reference) */
-GAME( 1995, pclubj,    0,        segac2, pclub, segac2_state,    pclub,    ROT0,   "Atlus", "Print Club (Japan Vol.1)", GAME_NOT_WORKING )
-GAME( 1995, pclubjv2,  pclubj,   segac2, pclubjv2, segac2_state, pclubjv2, ROT0,   "Atlus", "Print Club (Japan Vol.2)", GAME_NOT_WORKING )
-GAME( 1996, pclubjv4,  pclubj,   segac2, pclubjv2, segac2_state, pclubjv4, ROT0,   "Atlus", "Print Club (Japan Vol.4)", GAME_NOT_WORKING )
-GAME( 1996, pclubjv5,  pclubj,   segac2, pclubjv2, segac2_state, pclubjv5, ROT0,   "Atlus", "Print Club (Japan Vol.5)", GAME_NOT_WORKING )
+GAME( 1995, pclubj,    0,        segac2, pclub, segac2_state,    pclub,    ROT0,   "Atlus", "Print Club (Japan Vol.1)", MACHINE_NOT_WORKING )
+GAME( 1995, pclubjv2,  pclubj,   segac2, pclubjv2, segac2_state, pclubjv2, ROT0,   "Atlus", "Print Club (Japan Vol.2)", MACHINE_NOT_WORKING )
+GAME( 1996, pclubjv4,  pclubj,   segac2, pclubjv2, segac2_state, pclubjv4, ROT0,   "Atlus", "Print Club (Japan Vol.4)", MACHINE_NOT_WORKING )
+GAME( 1996, pclubjv5,  pclubj,   segac2, pclubjv2, segac2_state, pclubjv5, ROT0,   "Atlus", "Print Club (Japan Vol.5)", MACHINE_NOT_WORKING )

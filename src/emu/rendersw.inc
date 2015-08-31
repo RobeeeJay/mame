@@ -130,7 +130,7 @@ private:
 
 	static inline UINT32 get_texel_palette16(const render_texinfo &texture, INT32 curu, INT32 curv)
 	{
-		const rgb_t *palbase = texture.palette();
+		const rgb_t *palbase = texture.palette;
 		if (_BilinearFilter)
 		{
 			INT32 u0 = curu >> 16;
@@ -149,7 +149,7 @@ private:
 			UINT32 pix01 = palbase[texbase[u1]];
 			UINT32 pix10 = palbase[texbase[v1]];
 			UINT32 pix11 = palbase[texbase[u1 + v1]];
-			return rgb_bilinear_filter(pix00, pix01, pix10, pix11, curu >> 8, curv >> 8);
+			return rgbaint_t::bilinear_filter(pix00, pix01, pix10, pix11, curu >> 8, curv >> 8);
 		}
 		else
 		{
@@ -166,7 +166,7 @@ private:
 
 	static inline UINT32 get_texel_palette16a(const render_texinfo &texture, INT32 curu, INT32 curv)
 	{
-		const rgb_t *palbase = texture.palette();
+		const rgb_t *palbase = texture.palette;
 		if (_BilinearFilter)
 		{
 			INT32 u0 = curu >> 16;
@@ -181,11 +181,7 @@ private:
 			const UINT16 *texbase = reinterpret_cast<const UINT16 *>(texture.base);
 			texbase += v0 * texture.rowpixels + u0;
 
-			UINT32 pix00 = palbase[texbase[0]];
-			UINT32 pix01 = palbase[texbase[u1]];
-			UINT32 pix10 = palbase[texbase[v1]];
-			UINT32 pix11 = palbase[texbase[u1 + v1]];
-			return rgba_bilinear_filter(pix00, pix01, pix10, pix11, curu >> 8, curv >> 8);
+			return rgbaint_t::bilinear_filter(palbase[texbase[0]], palbase[texbase[u1]], palbase[texbase[v1]], palbase[texbase[u1 + v1]], curu >> 8, curv >> 8);
 		}
 		else
 		{
@@ -247,7 +243,7 @@ private:
 				else
 					pix11 = pix10;
 			}
-			return rgb_bilinear_filter(pix00, pix01, pix10, pix11, curu >> 8, curv >> 8);
+			return rgbaint_t::bilinear_filter(pix00, pix01, pix10, pix11, curu >> 8, curv >> 8);
 		}
 		else
 		{
@@ -278,11 +274,7 @@ private:
 			const UINT32 *texbase = reinterpret_cast<const UINT32 *>(texture.base);
 			texbase += v0 * texture.rowpixels + u0;
 
-			UINT32 pix00 = texbase[0];
-			UINT32 pix01 = texbase[u1];
-			UINT32 pix10 = texbase[v1];
-			UINT32 pix11 = texbase[u1 + v1];
-			return rgb_bilinear_filter(pix00, pix01, pix10, pix11, curu >> 8, curv >> 8);
+			return rgbaint_t::bilinear_filter(texbase[0], texbase[u1], texbase[v1], texbase[u1 + v1], curu >> 8, curv >> 8);
 		}
 		else
 		{
@@ -313,11 +305,7 @@ private:
 			const UINT32 *texbase = reinterpret_cast<const UINT32 *>(texture.base);
 			texbase += v0 * texture.rowpixels + u0;
 
-			UINT32 pix00 = texbase[0];
-			UINT32 pix01 = texbase[u1];
-			UINT32 pix10 = texbase[v1];
-			UINT32 pix11 = texbase[u1 + v1];
-			return rgba_bilinear_filter(pix00, pix01, pix10, pix11, curu >> 8, curv >> 8);
+			return rgbaint_t::bilinear_filter(texbase[0], texbase[u1], texbase[v1], texbase[u1 + v1], curu >> 8, curv >> 8);
 		}
 		else
 		{
@@ -622,7 +610,7 @@ private:
 		INT32 endx = setup.endx;
 
 		// ensure all parameters are valid
-		assert(prim.texture.palette() != NULL);
+		assert(prim.texture.palette != NULL);
 
 		// fast case: no coloring, no alpha
 		if (prim.color.r >= 1.0f && prim.color.g >= 1.0f && prim.color.b >= 1.0f && is_opaque(prim.color.a))
@@ -730,7 +718,7 @@ private:
 		INT32 endx = setup.endx;
 
 		// ensure all parameters are valid
-		assert(prim.texture.palette() != NULL);
+		assert(prim.texture.palette != NULL);
 
 		// fast case: no coloring, no alpha
 		if (prim.color.r >= 1.0f && prim.color.g >= 1.0f && prim.color.b >= 1.0f && is_opaque(prim.color.a))
@@ -823,7 +811,7 @@ private:
 		INT32 endx = setup.endx;
 
 		// ensure all parameters are valid
-		assert(prim.texture.palette() != NULL);
+		assert(prim.texture.palette != NULL);
 
 		// fast case: no coloring, no alpha
 		if (prim.color.r >= 1.0f && prim.color.g >= 1.0f && prim.color.b >= 1.0f && is_opaque(prim.color.a))
@@ -914,7 +902,7 @@ private:
 
 	static void draw_quad_yuy16_none(const render_primitive &prim, _PixelType *dstdata, UINT32 pitch, quad_setup_data &setup)
 	{
-		const rgb_t *palbase = prim.texture.palette();
+		const rgb_t *palbase = prim.texture.palette;
 		INT32 dudx = setup.dudx;
 		INT32 dvdx = setup.dvdx;
 		INT32 endx = setup.endx;
@@ -1084,7 +1072,7 @@ private:
 
 	static void draw_quad_rgb32(const render_primitive &prim, _PixelType *dstdata, UINT32 pitch, quad_setup_data &setup)
 	{
-		const rgb_t *palbase = prim.texture.palette();
+		const rgb_t *palbase = prim.texture.palette;
 		INT32 dudx = setup.dudx;
 		INT32 dvdx = setup.dvdx;
 		INT32 endx = setup.endx;
@@ -1254,7 +1242,7 @@ private:
 
 	static void draw_quad_rgb32_add(const render_primitive &prim, _PixelType *dstdata, UINT32 pitch, quad_setup_data &setup)
 	{
-		const rgb_t *palbase = prim.texture.palette();
+		const rgb_t *palbase = prim.texture.palette;
 		INT32 dudx = setup.dudx;
 		INT32 dvdx = setup.dvdx;
 		INT32 endx = setup.endx;
@@ -1392,7 +1380,7 @@ private:
 
 	static void draw_quad_argb32_alpha(const render_primitive &prim, _PixelType *dstdata, UINT32 pitch, quad_setup_data &setup)
 	{
-		const rgb_t *palbase = prim.texture.palette();
+		const rgb_t *palbase = prim.texture.palette;
 		INT32 dudx = setup.dudx;
 		INT32 dvdx = setup.dvdx;
 		INT32 endx = setup.endx;
@@ -1538,7 +1526,7 @@ private:
 
 	static void draw_quad_argb32_multiply(const render_primitive &prim, _PixelType *dstdata, UINT32 pitch, quad_setup_data &setup)
 	{
-		const rgb_t *palbase = prim.texture.palette();
+		const rgb_t *palbase = prim.texture.palette;
 		INT32 dudx = setup.dudx;
 		INT32 dvdx = setup.dvdx;
 		INT32 endx = setup.endx;
@@ -1657,7 +1645,7 @@ private:
 
 	static void draw_quad_argb32_add(const render_primitive &prim, _PixelType *dstdata, UINT32 pitch, quad_setup_data &setup)
 	{
-		const rgb_t *palbase = prim.texture.palette();
+		const rgb_t *palbase = prim.texture.palette;
 		INT32 dudx = setup.dudx;
 		INT32 dvdx = setup.dvdx;
 		INT32 endx = setup.endx;

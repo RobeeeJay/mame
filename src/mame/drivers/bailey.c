@@ -1,8 +1,13 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /***************************************************************************
 
  Bailey International discrete hardware games
 
+ Fighter Squadron (1976)
  Fun Four (1976)
+ Missile Command (1976)
+ Sebring (1976)
 
 ***************************************************************************/
 
@@ -12,7 +17,6 @@
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied by Pong, not accurate for this driver!
 // start
@@ -148,5 +152,5 @@ ROM_START( fun4a )
 ROM_END
 
 
-GAME( 1976, fun4,  0,    bailey, 0, driver_device,  0, ROT0, "Bailey International", "Fun Four (set 1) [TTL]", GAME_IS_SKELETON )
-GAME( 1976, fun4a, fun4, bailey, 0, driver_device,  0, ROT0, "Bailey International", "Fun Four (set 2) [TTL]", GAME_IS_SKELETON )
+GAME( 1976, fun4,  0,    bailey, 0, driver_device,  0, ROT0, "Bailey International", "Fun Four (set 1) [TTL]", MACHINE_IS_SKELETON )
+GAME( 1976, fun4a, fun4, bailey, 0, driver_device,  0, ROT0, "Bailey International", "Fun Four (set 2) [TTL]", MACHINE_IS_SKELETON )

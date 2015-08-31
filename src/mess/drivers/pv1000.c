@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 /***************************************************************************
 
     Driver for Casio PV-1000
@@ -173,7 +175,6 @@ public:
 	required_shared_ptr<UINT8> m_p_videoram;
 	virtual void machine_start();
 	virtual void machine_reset();
-	DECLARE_PALETTE_INIT(pv1000);
 	UINT32 screen_update_pv1000(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	TIMER_CALLBACK_MEMBER(d65010_irq_on_cb);
 	TIMER_CALLBACK_MEMBER(d65010_irq_off_cb);
@@ -302,13 +303,6 @@ static INPUT_PORTS_START( pv1000 )
 INPUT_PORTS_END
 
 
-PALETTE_INIT_MEMBER(pv1000_state, pv1000)
-{
-	for (int i = 0; i < 8; i++)
-		palette.set_pen_color(i, pal1bit(i >> 2), pal1bit(i >> 1), pal1bit(i >> 0));
-}
-
-
 DEVICE_IMAGE_LOAD_MEMBER( pv1000_state, pv1000_cart )
 {
 	UINT32 size = m_cart->common_get_size("rom");
@@ -405,8 +399,8 @@ void pv1000_state::machine_start()
 		m_maincpu->space(AS_PROGRAM).install_read_handler(0x0000, 0x7fff, read8_delegate(FUNC(generic_slot_device::read_rom),(generic_slot_device*)m_cart));
 
 		// FIXME: this is needed for gfx decoding, but there is probably a cleaner solution!
-		astring region_tag;
-		memcpy(memregion("gfxrom")->base(), memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG))->base(), m_cart->get_rom_size());
+		std::string region_tag;
+		memcpy(memregion("gfxrom")->base(), memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str())->base(), m_cart->get_rom_size());
 	}
 
 	save_item(NAME(m_io_regs));
@@ -460,8 +454,7 @@ static MACHINE_CONFIG_START( pv1000, pv1000_state )
 	MCFG_SCREEN_UPDATE_DRIVER(pv1000_state, screen_update_pv1000)
 	MCFG_SCREEN_PALETTE("palette")
 
-	MCFG_PALETTE_ADD( "palette", 8 )
-	MCFG_PALETTE_INIT_OWNER(pv1000_state, pv1000)
+	MCFG_PALETTE_ADD_3BIT_BGR("palette")
 
 	MCFG_GFXDECODE_ADD("gfxdecode", "palette", pv1000 )
 
@@ -486,4 +479,4 @@ ROM_END
 
 
 /*    YEAR  NAME     PARENT  COMPAT  MACHINE  INPUT  INIT    COMPANY   FULLNAME    FLAGS */
-CONS( 1983, pv1000,  0,      0,      pv1000,  pv1000, driver_device,   0,   "Casio",  "PV-1000",  GAME_SUPPORTS_SAVE )
+CONS( 1983, pv1000,  0,      0,      pv1000,  pv1000, driver_device,   0,   "Casio",  "PV-1000",  MACHINE_SUPPORTS_SAVE )

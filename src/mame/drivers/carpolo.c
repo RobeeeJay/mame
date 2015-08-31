@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari
 /***************************************************************************
 
     Exidy Car Polo hardware
@@ -352,4 +354,4 @@ DRIVER_INIT_MEMBER(carpolo_state,carpolo)
 		ROM[i] ^= 0x0f;
 }
 
-GAME( 1977, carpolo, 0, carpolo, carpolo, carpolo_state, carpolo, ROT0, "Exidy", "Car Polo", GAME_SUPPORTS_SAVE | GAME_NO_SOUND )
+GAME( 1977, carpolo, 0, carpolo, carpolo, carpolo_state, carpolo, ROT0, "Exidy", "Car Polo", MACHINE_SUPPORTS_SAVE | MACHINE_NO_SOUND )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Phil Stroffolino, Acho A. Tang
 /*
 Halley's Comet, 1986 Taito
 
@@ -246,7 +248,7 @@ public:
 	emu_timer *m_blitter_reset_timer;
 	offs_t m_collision_detection;
 	int m_latch_delay;
-	dynamic_array<UINT8> m_paletteram;
+	std::vector<UINT8> m_paletteram;
 
 	DECLARE_WRITE8_MEMBER(bgtile_w);
 	DECLARE_READ8_MEMBER(blitter_status_r);
@@ -1191,7 +1193,7 @@ void halleys_state::halleys_decode_rgb(UINT32 *r, UINT32 *g, UINT32 *b, int addr
 	int bit0, bit1, bit2, bit3, bit4;
 
 	// the four 16x4-bit SN74S189 SRAM chips are assumed be the game's 32-byte palette RAM
-	sram_189 = m_paletteram;
+	sram_189 = &m_paletteram[0];
 
 	// each of the three 32-byte 6330 PROM is wired to an RGB component output
 	prom_6330 = memregion("proms")->base();
@@ -2269,8 +2271,8 @@ DRIVER_INIT_MEMBER(halleys_state,halley87)
 //**************************************************************************
 // Game Definitions
 
-GAME( 1984, benberob, 0,       benberob, benberob, halleys_state, benberob,  ROT0,  "Taito", "Ben Bero Beh (Japan)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_COLORS | GAME_NO_COCKTAIL )
-GAME( 1986, halleys,  0,       halleys,  halleys, halleys_state,  halleys,   ROT90, "Taito America Corporation (Coin-It license)", "Halley's Comet (US)", GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
-GAME( 1986, halleysc, halleys, halleys,  halleys, halleys_state,  halleys,   ROT90, "Taito Corporation", "Halley's Comet (Japan, Newer)", GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
-GAME( 1986, halleycj, halleys, halleys,  halleys, halleys_state,  halleys,   ROT90, "Taito Corporation", "Halley's Comet (Japan, Older)", GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
-GAME( 1986, halley87, halleys, halleys,  halleys, halleys_state,  halley87,  ROT90, "Taito Corporation", "Halley's Comet '87", GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
+GAME( 1984, benberob, 0,       benberob, benberob, halleys_state, benberob,  ROT0,  "Taito", "Ben Bero Beh (Japan)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_COLORS | MACHINE_NO_COCKTAIL )
+GAME( 1986, halleys,  0,       halleys,  halleys, halleys_state,  halleys,   ROT90, "Taito America Corporation (Coin-It license)", "Halley's Comet (US)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_NO_COCKTAIL )
+GAME( 1986, halleysc, halleys, halleys,  halleys, halleys_state,  halleys,   ROT90, "Taito Corporation", "Halley's Comet (Japan, Newer)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_NO_COCKTAIL )
+GAME( 1986, halleycj, halleys, halleys,  halleys, halleys_state,  halleys,   ROT90, "Taito Corporation", "Halley's Comet (Japan, Older)", MACHINE_IMPERFECT_GRAPHICS | MACHINE_NO_COCKTAIL )
+GAME( 1986, halley87, halleys, halleys,  halleys, halleys_state,  halley87,  ROT90, "Taito Corporation", "Halley's Comet '87", MACHINE_IMPERFECT_GRAPHICS | MACHINE_NO_COCKTAIL )

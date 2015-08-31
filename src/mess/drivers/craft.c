@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Ryan Holtz
 /*\
 * * Linus Akesson's "Craft"
@@ -266,4 +266,4 @@ ROM_START( craft )
 ROM_END
 
 /*   YEAR  NAME      PARENT    COMPAT    MACHINE   INPUT     INIT      COMPANY          FULLNAME */
-CONS(2008, craft,    0,        0,        craft,    craft, craft_state,    craft,    "Linus Akesson", "Craft", GAME_NOT_WORKING)
+CONS(2008, craft,    0,        0,        craft,    craft, craft_state,    craft,    "Linus Akesson", "Craft", MACHINE_NOT_WORKING)

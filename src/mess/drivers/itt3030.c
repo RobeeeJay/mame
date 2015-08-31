@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Olivier Galibert
 /***************************************************************************
 
     ITT 3030
@@ -775,7 +777,7 @@ static MACHINE_CONFIG_START( itt3030, itt3030_state )
 	MCFG_DEVICE_ADD("crt5027", CRT5027, XTAL_6MHz)
 	MCFG_TMS9927_CHAR_WIDTH(16)
 
-	MCFG_FD1791x_ADD("fdc", XTAL_20MHz / 20)
+	MCFG_FD1791_ADD("fdc", XTAL_20MHz / 20)
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(itt3030_state, fdcirq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(itt3030_state, fdcdrq_w))
 	MCFG_WD_FDC_HLD_CALLBACK(WRITELINE(itt3030_state, fdchld_w))
@@ -814,4 +816,4 @@ ROM_START( itt3030 )
 	ROM_LOAD( "8741ad.bin", 0x0000, 0x0400, CRC(cabf4394) SHA1(e5d1416b568efa32b578ca295a29b7b5d20c0def))
 ROM_END
 
-COMP( 1982, itt3030,  0,   0,  itt3030,  itt3030,  driver_device, 0,  "ITT RFA",      "ITT3030", GAME_NOT_WORKING | GAME_NO_SOUND )
+COMP( 1982, itt3030,  0,   0,  itt3030,  itt3030,  driver_device, 0,  "ITT RFA",      "ITT3030", MACHINE_NOT_WORKING | MACHINE_NO_SOUND )

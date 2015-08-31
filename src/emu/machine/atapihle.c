@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:smf
 #include "atapihle.h"
 
@@ -32,7 +32,7 @@ void atapi_hle_device::process_buffer()
 
 		m_error = 0; // HACK: This might not be the right place, but firebeat needs this cleared at some point
 
-		SetCommand(m_buffer, m_buffer_size);
+		SetCommand(&m_buffer[0], m_buffer_size);
 		ExecCommand();
 		GetLength(&m_data_size);
 
@@ -79,7 +79,7 @@ void atapi_hle_device::process_buffer()
 		switch (m_command)
 		{
 		case IDE_COMMAND_PACKET:
-			WriteData( m_buffer, m_buffer_size );
+			WriteData( &m_buffer[0], m_buffer_size );
 			m_data_size -= m_buffer_size;
 
 			wait_buffer();
@@ -107,7 +107,7 @@ void atapi_hle_device::fill_buffer()
 
 		if (m_buffer_size > 0)
 		{
-			ReadData( m_buffer, m_buffer_size );
+			ReadData( &m_buffer[0], m_buffer_size );
 			m_data_size -= m_buffer_size;
 
 			m_status |= IDE_STATUS_DRQ;
@@ -241,6 +241,12 @@ void atapi_hle_device::process_command()
 		signature();
 		m_status |= IDE_STATUS_ERR;
 		m_error = IDE_ERROR_ABRT;
+		set_irq(ASSERT_LINE);
+		break;
+
+	case IDE_COMMAND_CHECK_POWER_MODE:
+		m_status = IDE_STATUS_DRDY;
+		m_sector_count = 0xff;      // Power mode: 0x00 = Standby, 0x80 = Idle mode, 0xff = Active mode or Idle mode
 		set_irq(ASSERT_LINE);
 		break;
 

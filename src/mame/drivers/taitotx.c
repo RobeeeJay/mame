@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Taito Type X Skeleton
  - PC based platforms
 
@@ -23,58 +25,81 @@
  - Taito's NESiCA Live platform probably comes after this, but as it's likely
    impossible to ever emulate it.
 
- - Prelim game lists (system16.com)
+ - Preliminary game lists (mainly from system16.com)
 
     Taito Type X games
 
     Chaos Breaker / Dark Awake
     Datacarddass Dragon Ball Z
-    Dinoking III
+    Dinoking III Allosaurus
     Dinomax
-    Dragon Quest Monster: Battle Road
+    Dragon Quest - Monster Battle Road
+    Dragon Quest - Monster Battle Road II Legends
     Gigawing Generations
+    Goketsuji Ichizoku: Matsuri Senzo Kuyou
     Harakari Professional Baseball
     Homura
     King Of Jurassic
+    KOF Sky Stage
+    Matrimelee Matsuri / Power Instinct V
     Raiden III
     Raiden IV
     Shikigami No Shiro III / The Castle of Shikigami III
     Spica Adventure
     Taisen Hot Gimmick 5
     Taisen Hot Gimmick Mix Party
-    Tetris The Grand Master 3 : Terror Instinct
+    Tetris The Grand Master 3 - Terror-Instinct
     The King of Fighters 98 Ultimate Match
-    Trouble Witches
+    Trouble Witches AC
     Usagi Online
+    Valve Limit R
     Zoids Card Colosseum
 
     Taito Type X+ games
+
     Battle Gear 4
     Battle Gear 4 Tuned
     Half Life 2 Survivor
+    Mobile Suit Gundam - Spirits of Zeon Senshi no Kioku
     War Of The Grail
-
 
     Taito Type X2 games
 
     Battle Fantasia
     BlazBlue: Calamity Trigger
+    BlazBlue: Chrono Phantasma
     BlazBlue: Continuum Shift
     BlazBlue: Continuum Shift Extend
     BlazBlue: Continuum Shift II
     Chase H.Q. 2 / Chase H. Q. : Nancy Yori Kinkyuu Renraku
+    Chou Chabudai Gaeshi!
+    Chou Chabudai Gaeshi! 2
+    Chou Chabudai Gaeshi! Kyojin No Hoshi
+    Cyber Diver
     D1GP Arcade
-    Dariusburst AC
+    Dariusburst - Another Chronicle
+    Dariusburst - Another Chronicle EX
     Elevator Action Death Parade
+    Gunslinger Stratos
     Half Life 2: Survivor Ver. 2.0
+    Haunted Museum / Panic Museum
+    Haunted Museum II / Panic Museum II
+    Hopping Kids
+    Hopping Road
     KOF Maximum Impact: Regulation A
     KOF Maximum Impact: Regulation A2
+    Lord Of Vermilion Re:2
     Matrimelee Matsuri / Power Instinct V
+    P4U - Persona 4 The Ultimate In Mayonaka Arena
+    P4U - Persona 4 The Ultimax Ultra Suplex Hold
     Samurai Spirits Sen / Samurai Shodown: Edge of Destiny
+    Senko no Ronde DUO : Dis-United Order
     Street Fighter IV
     Super Street Fighter IV Arcade Edition
     The King of Fighters XII
     The King of Fighters XIII
+    The King Of Fighters XIII Climax
+    Top Speed
     Wacky Races
 
     Taito Type X2 satellite terminal games
@@ -82,7 +107,7 @@
     Aquarian Age Alternative
     Eternal Wheel
     Lord of Vermilion
-
+    Lord of Vermilion II
 
     Taito Type X Zero games
 
@@ -282,18 +307,18 @@ ROM_START( trbwtchs )
 ROM_END
 
 
-GAME( 2004, chaosbrk,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Taito Corporation", "Chaos Breaker (v2.02J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2004, gwinggen,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Takumi Corporation", "Giga Wing Generations (v2.02J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2005, homura,    0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "SKonec Entertainment", "Homura (v2.04J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2005, hotgmkmp,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "XNauts", "Taisen Hot Gimmick Mix Party",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2005, raiden3,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "MOSS / Seibu Kaihatsu", "Raiden III (v2.01J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2005, spicaadv,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Taito Corporation", "Spica Adventure (v2.03J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2005, usagiol,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Taito Corporation/Warashi", "Usagi Online (v2.04J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2006, shikiga3,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Alfa System/SKonec Entertainment", "Shikigami no Shiro III (v2.06J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2007, raiden4,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "MOSS / Seibu Kaihatsu", "Raiden IV (v1.00J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2008, kof98um,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "SNK", "The King of Fighters '98: Ultimate Match (v1.00)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2008, trbwtchs,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Adventure Planning Service/Studio SiestA", "Trouble Witches AC (v1.00J)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2009, goketsuj,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Atlus", "Goketsuji Ichizoku: Matsuri Senzo Kuyou (v200906230)",  GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 2004, chaosbrk,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Taito Corporation", "Chaos Breaker (v2.02J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2004, gwinggen,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Takumi Corporation", "Giga Wing Generations (v2.02J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2005, homura,    0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "SKonec Entertainment", "Homura (v2.04J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2005, hotgmkmp,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "XNauts", "Taisen Hot Gimmick Mix Party",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2005, raiden3,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "MOSS / Seibu Kaihatsu", "Raiden III (v2.01J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2005, spicaadv,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Taito Corporation", "Spica Adventure (v2.03J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2005, usagiol,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Taito Corporation/Warashi", "Usagi Online (v2.04J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2006, shikiga3,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Alfa System/SKonec Entertainment", "Shikigami no Shiro III (v2.06J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2007, raiden4,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "MOSS / Seibu Kaihatsu", "Raiden IV (v1.00J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2008, kof98um,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "SNK", "The King of Fighters '98: Ultimate Match (v1.00)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2008, trbwtchs,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Adventure Planning Service/Studio SiestA", "Trouble Witches AC (v1.00J)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2009, goketsuj,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Atlus", "Goketsuji Ichizoku: Matsuri Senzo Kuyou (v200906230)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
 
 
 // Type X+
@@ -314,7 +339,7 @@ ROM_START( wontmuch )
 ROM_END
 
 
-GAME( 2006, wontmuch,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Capcom", "Won!Tertainment Music Channel (v1.00)",  GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 2006, wontmuch,   0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Capcom", "Won!Tertainment Music Channel (v1.00)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
 
 
 // Type X2
@@ -340,5 +365,5 @@ ROM_START( samspsen )
 ROM_END
 
 
-GAME( 2006, chasehq2,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Taito Corporation", "Chase H.Q. 2 (v2.0.6.JP)",  GAME_NOT_WORKING | GAME_NO_SOUND )
-GAME( 2008, samspsen,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "SNK Playmore", "Samurai Spirits Sen (v1.00)",  GAME_NOT_WORKING | GAME_NO_SOUND )
+GAME( 2006, chasehq2,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "Taito Corporation", "Chase H.Q. 2 (v2.0.6.JP)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )
+GAME( 2008, samspsen,  0,    taito_type_x, taito_type_x, driver_device,  0, ROT0, "SNK Playmore", "Samurai Spirits Sen (v1.00)",  MACHINE_NOT_WORKING | MACHINE_NO_SOUND )

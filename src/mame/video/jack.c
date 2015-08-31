@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Brad Oliver
 /***************************************************************************
 
   video/jack.c
@@ -21,12 +23,6 @@ WRITE8_MEMBER(jack_state::jack_colorram_w)
 {
 	m_colorram[offset] = data;
 	m_bg_tilemap->mark_tile_dirty(offset);
-}
-
-WRITE8_MEMBER(jack_state::jack_paletteram_w)
-{
-	/* RGB output is inverted */
-	m_palette->write(space, offset, UINT8(~data));
 }
 
 READ8_MEMBER(jack_state::jack_flipscreen_r)

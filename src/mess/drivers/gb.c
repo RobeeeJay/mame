@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Anthony Kruize,Wilbert Pol
 /***************************************************************************
 
   gb.c
@@ -638,7 +640,7 @@ INPUT_PORTS_END
 static SLOT_INTERFACE_START(gb_cart)
 	SLOT_INTERFACE_INTERNAL("rom",         GB_STD_ROM)
 	SLOT_INTERFACE_INTERNAL("rom_mbc1",    GB_ROM_MBC1)
-	SLOT_INTERFACE_INTERNAL("rom_mbc1col", GB_ROM_MBC1_COL)
+	SLOT_INTERFACE_INTERNAL("rom_mbc1col", GB_ROM_MBC1)
 	SLOT_INTERFACE_INTERNAL("rom_mbc2",    GB_ROM_MBC2)
 	SLOT_INTERFACE_INTERNAL("rom_mbc3",    GB_ROM_MBC3)
 	SLOT_INTERFACE_INTERNAL("rom_huc1",    GB_ROM_MBC3)
@@ -648,6 +650,9 @@ static SLOT_INTERFACE_START(gb_cart)
 	SLOT_INTERFACE_INTERNAL("rom_mbc7",    GB_ROM_MBC7)
 	SLOT_INTERFACE_INTERNAL("rom_tama5",   GB_ROM_TAMA5)
 	SLOT_INTERFACE_INTERNAL("rom_mmm01",   GB_ROM_MMM01)
+	SLOT_INTERFACE_INTERNAL("rom_m161_m12",GB_ROM_M161_M12)
+	SLOT_INTERFACE_INTERNAL("rom_sachen1", GB_ROM_SACHEN1)
+	SLOT_INTERFACE_INTERNAL("rom_sachen2", GB_ROM_SACHEN2)
 	SLOT_INTERFACE_INTERNAL("rom_wisdom",  GB_ROM_WISDOM)
 	SLOT_INTERFACE_INTERNAL("rom_yong",    GB_ROM_YONG)
 	SLOT_INTERFACE_INTERNAL("rom_lasama",  GB_ROM_LASAMA)
@@ -937,10 +942,10 @@ ROM_START( megaduck )
 ROM_END
 
 /*    YEAR  NAME      PARENT   COMPAT   MACHINE   INPUT    INIT  COMPANY     FULLNAME */
-CONS( 1990, gameboy,  0,       0,       gameboy,  gameboy, driver_device, 0,    "Nintendo", "Game Boy", GAME_SUPPORTS_SAVE )
-CONS( 1994, supergb,  gameboy, 0,       supergb,  gameboy, driver_device, 0,    "Nintendo", "Super Game Boy", GAME_SUPPORTS_SAVE )
-CONS( 1996, gbpocket, gameboy, 0,       gbpocket, gameboy, driver_device, 0,    "Nintendo", "Game Boy Pocket", GAME_SUPPORTS_SAVE )
-CONS( 1998, gbcolor,  0,       0,       gbcolor,  gameboy, driver_device, 0,    "Nintendo", "Game Boy Color", GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
+CONS( 1990, gameboy,  0,       0,       gameboy,  gameboy, driver_device, 0,    "Nintendo", "Game Boy", MACHINE_SUPPORTS_SAVE )
+CONS( 1994, supergb,  gameboy, 0,       supergb,  gameboy, driver_device, 0,    "Nintendo", "Super Game Boy", MACHINE_SUPPORTS_SAVE )
+CONS( 1996, gbpocket, gameboy, 0,       gbpocket, gameboy, driver_device, 0,    "Nintendo", "Game Boy Pocket", MACHINE_SUPPORTS_SAVE )
+CONS( 1998, gbcolor,  0,       0,       gbcolor,  gameboy, driver_device, 0,    "Nintendo", "Game Boy Color", MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE )
 
 // Sound is not 100% yet, it generates some sounds which could be ok. Since we're lacking a real system there's no way to verify.
-CONS( 1993, megaduck, 0,       0,       megaduck, gameboy, driver_device, 0,    "Welback Holdings (Timlex International) / Creatronic / Videojet / Cougar USA", "Mega Duck / Cougar Boy", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+CONS( 1993, megaduck, 0,       0,       megaduck, gameboy, driver_device, 0,    "Welback Holdings (Timlex International) / Creatronic / Videojet / Cougar USA", "Mega Duck / Cougar Boy", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )

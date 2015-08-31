@@ -58,6 +58,8 @@
 
 ***************************************************************************/
 
+#include <assert.h>
+
 #include "avhuff.h"
 #include "huffman.h"
 #include "chd.h"
@@ -141,7 +143,6 @@ inline void avhuff_encoder::deltarle_encoder::encode_one(bitstream_out &bitbuf, 
 //-------------------------------------------------
 //  decode_one - decode data
 //-------------------------------------------------
-
 inline UINT32 avhuff_decoder::deltarle_decoder::decode_one(bitstream_in &bitbuf)
 {
 	// return RLE data if we still have some
@@ -172,9 +173,13 @@ inline UINT32 avhuff_decoder::deltarle_decoder::decode_one(bitstream_in &bitbuf)
 //  AVHUFF ENCODER
 //**************************************************************************
 
-//-------------------------------------------------
-//  avhuff_encoder - constructor
-//-------------------------------------------------
+/**
+ * @fn  avhuff_encoder::avhuff_encoder()
+ *
+ * @brief   -------------------------------------------------
+ *            avhuff_encoder - constructor
+ *          -------------------------------------------------.
+ */
 
 avhuff_encoder::avhuff_encoder()
 {
@@ -183,11 +188,19 @@ m_flac_encoder.set_num_channels(1);
 m_flac_encoder.set_strip_metadata(true);
 }
 
-
-//-------------------------------------------------
-//  encode_data - encode a block of data into a
-//  compressed data stream
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_encoder::encode_data(const UINT8 *source, UINT8 *dest, UINT32 &complength)
+ *
+ * @brief   -------------------------------------------------
+ *            encode_data - encode a block of data into a compressed data stream
+ *          -------------------------------------------------.
+ *
+ * @param   source              Source for the.
+ * @param [in,out]  dest        If non-null, destination for the.
+ * @param [in,out]  complength  The complength.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_encoder::encode_data(const UINT8 *source, UINT8 *dest, UINT32 &complength)
 {
@@ -264,11 +277,17 @@ avhuff_error avhuff_encoder::encode_data(const UINT8 *source, UINT8 *dest, UINT3
 	return AVHERR_NONE;
 }
 
-
-//-------------------------------------------------
-//  raw_data_size - return the raw data size of
-//  a raw stream based on the header
-//-------------------------------------------------
+/**
+ * @fn  UINT32 avhuff_encoder::raw_data_size(const UINT8 *data)
+ *
+ * @brief   -------------------------------------------------
+ *            raw_data_size - return the raw data size of a raw stream based on the header
+ *          -------------------------------------------------.
+ *
+ * @param   data    The data.
+ *
+ * @return  An UINT32.
+ */
 
 UINT32 avhuff_encoder::raw_data_size(const UINT8 *data)
 {
@@ -288,11 +307,23 @@ UINT32 avhuff_encoder::raw_data_size(const UINT8 *data)
 	return size;
 }
 
-
-//-------------------------------------------------
-//  assemble_data - assemble a datastream from raw
-//  bits
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_encoder::assemble_data(dynamic_buffer &buffer, bitmap_yuy16 &bitmap, UINT8 channels, UINT32 numsamples, INT16 **samples, UINT8 *metadata, UINT32 metadatasize)
+ *
+ * @brief   -------------------------------------------------
+ *            assemble_data - assemble a datastream from raw bits
+ *          -------------------------------------------------.
+ *
+ * @param [in,out]  buffer      The buffer.
+ * @param [in,out]  bitmap      The bitmap.
+ * @param   channels            The channels.
+ * @param   numsamples          The numsamples.
+ * @param [in,out]  samples     If non-null, the samples.
+ * @param [in,out]  metadata    If non-null, the metadata.
+ * @param   metadatasize        The metadatasize.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_encoder::assemble_data(dynamic_buffer &buffer, bitmap_yuy16 &bitmap, UINT8 channels, UINT32 numsamples, INT16 **samples, UINT8 *metadata, UINT32 metadatasize)
 {
@@ -306,7 +337,7 @@ avhuff_error avhuff_encoder::assemble_data(dynamic_buffer &buffer, bitmap_yuy16 
 
 	// fill in the header
 	buffer.resize(12 + metadatasize + numsamples * channels * 2 + bitmap.width() * bitmap.height() * 2);
-	UINT8 *dest = buffer;
+	UINT8 *dest = &buffer[0];
 	*dest++ = 'c';
 	*dest++ = 'h';
 	*dest++ = 'a';
@@ -346,11 +377,21 @@ avhuff_error avhuff_encoder::assemble_data(dynamic_buffer &buffer, bitmap_yuy16 
 	return AVHERR_NONE;
 }
 
-
-//-------------------------------------------------
-//  encode_audio - encode raw audio data to the
-//  destination
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_encoder::encode_audio(const UINT8 *source, int channels, int samples, UINT8 *dest, UINT8 *sizes)
+ *
+ * @brief   -------------------------------------------------
+ *            encode_audio - encode raw audio data to the destination
+ *          -------------------------------------------------.
+ *
+ * @param   source          Source for the.
+ * @param   channels        The channels.
+ * @param   samples         The samples.
+ * @param [in,out]  dest    If non-null, destination for the.
+ * @param [in,out]  sizes   If non-null, the sizes.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_encoder::encode_audio(const UINT8 *source, int channels, int samples, UINT8 *dest, UINT8 *sizes)
 {
@@ -469,11 +510,21 @@ avhuff_error avhuff_encoder::encode_audio(const UINT8 *source, int channels, int
 	return AVHERR_NONE;
 }
 
-
-//-------------------------------------------------
-//  encode_video - encode raw video data to the
-//  destination
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_encoder::encode_video(const UINT8 *source, int width, int height, UINT8 *dest, UINT32 &complength)
+ *
+ * @brief   -------------------------------------------------
+ *            encode_video - encode raw video data to the destination
+ *          -------------------------------------------------.
+ *
+ * @param   source              Source for the.
+ * @param   width               The width.
+ * @param   height              The height.
+ * @param [in,out]  dest        If non-null, destination for the.
+ * @param [in,out]  complength  The complength.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_encoder::encode_video(const UINT8 *source, int width, int height, UINT8 *dest, UINT32 &complength)
 {
@@ -481,11 +532,22 @@ avhuff_error avhuff_encoder::encode_video(const UINT8 *source, int width, int he
 	return encode_video_lossless(source, width, height, dest, complength);
 }
 
-
-//-------------------------------------------------
-//  encode_video_lossless - do a lossless video
-//  encoding using deltas and huffman encoding
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_encoder::encode_video_lossless(const UINT8 *source, int width, int height, UINT8 *dest, UINT32 &complength)
+ *
+ * @brief   -------------------------------------------------
+ *            encode_video_lossless - do a lossless video encoding using deltas and huffman
+ *            encoding
+ *          -------------------------------------------------.
+ *
+ * @param   source              Source for the.
+ * @param   width               The width.
+ * @param   height              The height.
+ * @param [in,out]  dest        If non-null, destination for the.
+ * @param [in,out]  complength  The complength.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_encoder::encode_video_lossless(const UINT8 *source, int width, int height, UINT8 *dest, UINT32 &complength)
 {
@@ -538,16 +600,26 @@ avhuff_error avhuff_encoder::encode_video_lossless(const UINT8 *source, int widt
 //  DELTA-RLE ENCODER
 //**************************************************************************
 
-//-------------------------------------------------
-//  rle_and_histo_bitmap - RLE compress and
-//  histogram a bitmap's worth of data
-//-------------------------------------------------
+/**
+ * @fn  UINT16 *avhuff_encoder::deltarle_encoder::rle_and_histo_bitmap(const UINT8 *source, UINT32 items_per_row, UINT32 item_advance, UINT32 row_count)
+ *
+ * @brief   -------------------------------------------------
+ *            rle_and_histo_bitmap - RLE compress and histogram a bitmap's worth of data
+ *          -------------------------------------------------.
+ *
+ * @param   source          Source for the.
+ * @param   items_per_row   The items per row.
+ * @param   item_advance    The item advance.
+ * @param   row_count       Number of rows.
+ *
+ * @return  null if it fails, else an UINT16*.
+ */
 
 UINT16 *avhuff_encoder::deltarle_encoder::rle_and_histo_bitmap(const UINT8 *source, UINT32 items_per_row, UINT32 item_advance, UINT32 row_count)
 {
 	// resize our RLE buffer
 	m_rlebuffer.resize(items_per_row * row_count);
-	UINT16 *dest = m_rlebuffer;
+	UINT16 *dest = &m_rlebuffer[0];
 
 	// iterate over rows
 	m_encoder.histo_reset();
@@ -597,7 +669,7 @@ UINT16 *avhuff_encoder::deltarle_encoder::rle_and_histo_bitmap(const UINT8 *sour
 
 	// compute the tree for our histogram
 	m_encoder.compute_tree_from_histo();
-	return m_rlebuffer;
+	return &m_rlebuffer[0];
 }
 
 
@@ -606,18 +678,27 @@ UINT16 *avhuff_encoder::deltarle_encoder::rle_and_histo_bitmap(const UINT8 *sour
 //  AVHUFF DECODER
 //**************************************************************************
 
-//-------------------------------------------------
-//  avhuff_decoder - constructor
-//-------------------------------------------------
+/**
+ * @fn  avhuff_decoder::avhuff_decoder()
+ *
+ * @brief   -------------------------------------------------
+ *            avhuff_decoder - constructor
+ *          -------------------------------------------------.
+ */
 
 avhuff_decoder::avhuff_decoder()
 {
 }
 
-
-//-------------------------------------------------
-//  configure - configure decompression parameters
-//-------------------------------------------------
+/**
+ * @fn  void avhuff_decoder::configure(const avhuff_decompress_config &config)
+ *
+ * @brief   -------------------------------------------------
+ *            configure - configure decompression parameters
+ *          -------------------------------------------------.
+ *
+ * @param   config  The configuration.
+ */
 
 void avhuff_decoder::configure(const avhuff_decompress_config &config)
 {
@@ -630,11 +711,19 @@ void avhuff_decoder::configure(const avhuff_decompress_config &config)
 	m_config.metadata = config.metadata;
 }
 
-
-//-------------------------------------------------
-//  decode_data - decode both audio and video from
-//  a raw data stream
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_decoder::decode_data(const UINT8 *source, UINT32 complength, UINT8 *dest)
+ *
+ * @brief   -------------------------------------------------
+ *            decode_data - decode both audio and video from a raw data stream
+ *          -------------------------------------------------.
+ *
+ * @param   source          Source for the.
+ * @param   complength      The complength.
+ * @param [in,out]  dest    If non-null, destination for the.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_decoder::decode_data(const UINT8 *source, UINT32 complength, UINT8 *dest)
 {
@@ -763,11 +852,25 @@ avhuff_error avhuff_decoder::decode_data(const UINT8 *source, UINT32 complength,
 	return AVHERR_NONE;
 }
 
-
-//-------------------------------------------------
-//  decode_audio - decode audio from a compressed
-//  data stream
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_decoder::decode_audio(int channels, int samples, const UINT8 *source, UINT8 **dest, UINT32 dxor, const UINT8 *sizes)
+ *
+ * @brief   -------------------------------------------------
+ *            decode_audio - decode audio from a compressed data stream
+ *          -------------------------------------------------.
+ *
+ * @exception   CHDERR_DECOMPRESSION_ERROR  Thrown when a chderr decompression error error
+ *                                          condition occurs.
+ *
+ * @param   channels        The channels.
+ * @param   samples         The samples.
+ * @param   source          Source for the.
+ * @param [in,out]  dest    If non-null, destination for the.
+ * @param   dxor            The dxor.
+ * @param   sizes           The sizes.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_decoder::decode_audio(int channels, int samples, const UINT8 *source, UINT8 **dest, UINT32 dxor, const UINT8 *sizes)
 {
@@ -887,11 +990,23 @@ avhuff_error avhuff_decoder::decode_audio(int channels, int samples, const UINT8
 	return AVHERR_NONE;
 }
 
-
-//-------------------------------------------------
-//  decode_video - decode video from a compressed
-//  data stream
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_decoder::decode_video(int width, int height, const UINT8 *source, UINT32 complength, UINT8 *dest, UINT32 dstride, UINT32 dxor)
+ *
+ * @brief   -------------------------------------------------
+ *            decode_video - decode video from a compressed data stream
+ *          -------------------------------------------------.
+ *
+ * @param   width           The width.
+ * @param   height          The height.
+ * @param   source          Source for the.
+ * @param   complength      The complength.
+ * @param [in,out]  dest    If non-null, destination for the.
+ * @param   dstride         The dstride.
+ * @param   dxor            The dxor.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_decoder::decode_video(int width, int height, const UINT8 *source, UINT32 complength, UINT8 *dest, UINT32 dstride, UINT32 dxor)
 {
@@ -902,11 +1017,24 @@ avhuff_error avhuff_decoder::decode_video(int width, int height, const UINT8 *so
 		return AVHERR_INVALID_DATA;
 }
 
-
-//-------------------------------------------------
-//  decode_video_lossless - do a lossless video
-//  decoding using deltas and huffman encoding
-//-------------------------------------------------
+/**
+ * @fn  avhuff_error avhuff_decoder::decode_video_lossless(int width, int height, const UINT8 *source, UINT32 complength, UINT8 *dest, UINT32 dstride, UINT32 dxor)
+ *
+ * @brief   -------------------------------------------------
+ *            decode_video_lossless - do a lossless video decoding using deltas and huffman
+ *            encoding
+ *          -------------------------------------------------.
+ *
+ * @param   width           The width.
+ * @param   height          The height.
+ * @param   source          Source for the.
+ * @param   complength      The complength.
+ * @param [in,out]  dest    If non-null, destination for the.
+ * @param   dstride         The dstride.
+ * @param   dxor            The dxor.
+ *
+ * @return  An avhuff_error.
+ */
 
 avhuff_error avhuff_decoder::decode_video_lossless(int width, int height, const UINT8 *source, UINT32 complength, UINT8 *dest, UINT32 dstride, UINT32 dxor)
 {

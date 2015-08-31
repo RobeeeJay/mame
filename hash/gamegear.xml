@@ -648,7 +648,7 @@ A few games have been listed as rumored, but they might very well be fake (pleas
 		</part>
 	</software>
 
-	<software name="barbie">
+	<software name="barbiesm">
 		<description>Barbie Super Model (Prototype)</description>
 		<year>1993</year>
 		<publisher>Hi Tech Expressions</publisher>
@@ -3222,7 +3222,7 @@ a certain item) -->
 	</software>
 
 	<software name="hyokkohj">
-		<description>Hyokkori Hyoutanjima - Hyoutanjima no Daikoukai (Jpn)</description>
+		<description>Hyokkori Hyoutan-jima - Hyoutan-jima no Daikoukai (Jpn)</description>
 		<year>1992</year>
 		<publisher>Sega</publisher>
 		<info name="serial" value="G-3218"/>
@@ -3909,7 +3909,7 @@ a certain item) -->
 		<description>Lemmings 2 - The Tribes (Euro, Prototype)</description>
 		<year>1994</year>
 		<publisher>Psygnosis</publisher>
-		<part name="cart" interface="sms_cart">
+		<part name="cart" interface="gamegear_cart">
 			<dataarea name="rom" size="524288">
 				<rom name="lemmings 2 - the tribes [proto].bin" size="524288" crc="fbc807e1" sha1="ad0ce8fc8ce9e5ef9b68b76fb7f3eced4245d5c4" offset="000000" />
 			</dataarea>
@@ -5848,6 +5848,17 @@ a certain item) -->
 		<part name="cart" interface="gamegear_cart">
 			<dataarea name="rom" size="262144">
 				<rom name="paperboy ii (usa, europe).bin" size="262144" crc="8b2c454b" sha1="2fa97c21bfd9d3968c473b6fa4fb7485b6dfb35d" offset="000000" />
+			</dataarea>
+		</part>
+	</software>
+
+	<software name="paperbo2p" cloneof="paperbo2">
+		<description>Paperboy II (Prototype)</description>
+		<year>1992</year>
+		<publisher>Tengen</publisher>
+		<part name="cart" interface="gamegear_cart">
+			<dataarea name="rom" size="262144">
+				<rom name="paperboy 2 [proto].bin" size="262144" crc="0b271db6" sha1="54111b3c694699d4a7a80da39183c7e2d989a2e9" offset="000000" />
 			</dataarea>
 		</part>
 	</software>
@@ -9372,6 +9383,17 @@ a certain item) -->
 		<part name="cart" interface="gamegear_cart">
 			<dataarea name="rom" size="131072">
 				<rom name="wheel of fortune (usa).bin" size="131072" crc="e91cdb2a" sha1="5d3ce8b008e81bdda2e12b8036b4efb6dff69b9f" offset="000000" />
+			</dataarea>
+		</part>
+	</software>
+
+	<software name="wildsnak">
+		<description>WildSnake (Prototype)</description>
+		<year>1994</year>
+		<publisher>Bullet-Proof Software</publisher>
+		<part name="cart" interface="gamegear_cart">
+			<dataarea name="rom" size="131072">
+				<rom name="wildsnake [proto].bin" size="131072" crc="d460cc7f" sha1="77d368263934aa968a6b6876a3e252f3ee715c84" offset="000000" />
 			</dataarea>
 		</part>
 	</software>

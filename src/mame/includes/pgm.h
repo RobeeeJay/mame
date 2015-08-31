@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, ElSemi
 
 #include "machine/v3021.h"
 #include "cpu/z80/z80.h"
@@ -42,7 +44,6 @@ public:
 	UINT8  *      m_sprite_a_region;
 	size_t        m_sprite_a_region_size;
 	UINT16 *      m_spritebufferram; // buffered spriteram
-//  UINT16 *      m_paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t       *m_bg_tilemap;

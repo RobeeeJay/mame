@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /*************************************************************************
 
     Kick Goal - Action Hollywood
@@ -30,7 +32,6 @@ public:
 	required_shared_ptr<UINT16> m_bg2ram;
 	required_shared_ptr<UINT16> m_scrram;
 	required_shared_ptr<UINT16> m_spriteram;
-//      UINT16 *    m_paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t     *m_fgtm;

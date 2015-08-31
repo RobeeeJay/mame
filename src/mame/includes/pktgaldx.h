@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood, Bryan McPhail
 /*************************************************************************
 
     Pocket Gal Deluxe
@@ -26,7 +28,8 @@ public:
 		m_deco_tilegen1(*this, "tilegen1"),
 		m_decocomn(*this, "deco_common"),
 		m_gfxdecode(*this, "gfxdecode"),
-		m_palette(*this, "palette") { }
+		m_palette(*this, "palette"),
+		m_decrypted_opcodes(*this, "decrypted_opcodes") { }
 
 	optional_device<deco104_device> m_deco104;
 
@@ -34,8 +37,6 @@ public:
 	optional_shared_ptr<UINT16> m_pf1_rowscroll;
 	optional_shared_ptr<UINT16> m_pf2_rowscroll;
 	optional_shared_ptr<UINT16> m_spriteram;
-//  UINT16 *  paletteram;    // currently this uses generic palette handling (in decocomn.c)
-
 	optional_shared_ptr<UINT16> m_pktgaldb_fgram;
 	optional_shared_ptr<UINT16> m_pktgaldb_sprites;
 	optional_device<decospr_device> m_sprgen;
@@ -47,6 +48,7 @@ public:
 	optional_device<decocomn_device> m_decocomn;
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
+	optional_shared_ptr<UINT16> m_decrypted_opcodes;
 
 	DECLARE_READ16_MEMBER(pckgaldx_unknown_r);
 	DECLARE_READ16_MEMBER(pckgaldx_protection_r);

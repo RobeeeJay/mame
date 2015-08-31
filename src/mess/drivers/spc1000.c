@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Miodrag Milanovic, Robbbert
 /***************************************************************************
 
@@ -23,6 +23,15 @@ NOTE: 2014-09-13: added code from someone's modified MESS driver for floppy
 
 
 2014-10-11: Replaced above code with MESS-compliant code [Meeso Kim]
+
+2015-06-19: Added code for the centronics printer port
+
+IMPORTANT NOTE for tape usage: you *FIRST* press PLAY on the tape drive
+  (e.g. by pressing F2 in partial emulated keyboard mode) and *THEN* you
+  type LOAD on the BASIC prompt!
+  Otherwise, the system turns the tape motor ON but it does not receive any
+  data from tape, and it turns it OFF before the user can press PLAY.
+
 
 ****************************************************************************/
 /*
@@ -132,6 +141,7 @@ NOTE: 2014-09-13: added code from someone's modified MESS driver for floppy
 #include "video/mc6847.h"
 #include "imagedev/cassette.h"
 #include "formats/spc1000_cas.h"
+#include "bus/centronics/ctronics.h"
 
 #include "bus/spc1000/exp.h"
 #include "bus/spc1000/fdd.h"
@@ -143,6 +153,7 @@ class spc1000_state : public driver_device
 public:
 	spc1000_state(const machine_config &mconfig, device_type type, const char *tag)
 		: driver_device(mconfig, type, tag)
+		, m_motor(false)
 		, m_maincpu(*this, "maincpu")
 		, m_vdg(*this, "mc6847")
 		, m_cass(*this, "cassette")
@@ -150,6 +161,7 @@ public:
 		, m_p_videoram(*this, "videoram")
 		, m_io_kb(*this, "LINE")
 		, m_io_joy(*this, "JOY")
+		, m_centronics(*this, "centronics")
 	{}
 
 	DECLARE_WRITE8_MEMBER(iplk_w);
@@ -158,6 +170,7 @@ public:
 	DECLARE_WRITE8_MEMBER(gmode_w);
 	DECLARE_READ8_MEMBER(gmode_r);
 	DECLARE_READ8_MEMBER(porta_r);
+	DECLARE_WRITE_LINE_MEMBER( centronics_busy_w ) { m_centronics_busy = state; }
 	DECLARE_READ8_MEMBER(mc6847_videoram_r);
 	DECLARE_WRITE8_MEMBER(cass_w);
 	DECLARE_READ8_MEMBER(keyboard_r);
@@ -171,6 +184,8 @@ private:
 	UINT8 m_GMODE;
 	UINT16 m_page;
 	UINT8 *m_work_ram;
+	bool m_motor;
+	bool m_centronics_busy;
 	virtual void machine_start();
 	virtual void machine_reset();
 	required_device<z80_device> m_maincpu;
@@ -180,6 +195,7 @@ private:
 	required_shared_ptr<UINT8> m_p_videoram;
 	required_ioport_array<10> m_io_kb;
 	required_ioport m_io_joy;
+	required_device<centronics_device> m_centronics;
 };
 
 static ADDRESS_MAP_START(spc1000_mem, AS_PROGRAM, 8, spc1000_state )
@@ -206,7 +222,12 @@ READ8_MEMBER(spc1000_state::iplk_r)
 
 WRITE8_MEMBER( spc1000_state::cass_w )
 {
+	bool m = BIT(data, 1) ? true : false;
 	m_cass->output(BIT(data, 0) ? -1.0 : 1.0);
+	if (m && !m_motor)
+		m_cass->change_state(m_cass->get_state() & CASSETTE_MASK_MOTOR ? CASSETTE_MOTOR_ENABLED : CASSETTE_MOTOR_DISABLED, CASSETTE_MASK_MOTOR);
+	m_motor = m;
+	m_centronics->write_strobe(BIT(data, 2) ? true : false);
 }
 
 WRITE8_MEMBER(spc1000_state::gmode_w)
@@ -387,6 +408,7 @@ void spc1000_state::machine_reset()
 {
 	m_work_ram = auto_alloc_array_clear(machine(), UINT8, 0x10000);
 	m_IPLK = 1;
+	m_motor = false;
 }
 
 READ8_MEMBER(spc1000_state::mc6847_videoram_r)
@@ -414,9 +436,9 @@ READ8_MEMBER( spc1000_state::porta_r )
 {
 	UINT8 data = 0x3f;
 	data |= (m_cass->input() > 0.0038) ? 0x80 : 0;
-	data |= ((m_cass->get_state() & CASSETTE_MASK_UISTATE) == CASSETTE_PLAY) ? 0x00 : 0x40;
+	data |= ((m_cass->get_state() & CASSETTE_MASK_UISTATE) != CASSETTE_STOPPED) && ((m_cass->get_state() & CASSETTE_MASK_MOTOR) == CASSETTE_MOTOR_ENABLED)  ? 0x00 : 0x40;
 	data &= ~(m_io_joy->read() & 0x3f);
-
+	data &= ~((m_centronics_busy == 0)<< 5);
 	return data;
 }
 
@@ -455,6 +477,7 @@ static MACHINE_CONFIG_START( spc1000, spc1000_state )
 	MCFG_SPEAKER_STANDARD_MONO("mono")
 	MCFG_SOUND_ADD("ay8910", AY8910, XTAL_4MHz / 1)
 	MCFG_AY8910_PORT_A_READ_CB(READ8(spc1000_state, porta_r))
+	MCFG_AY8910_PORT_B_WRITE_CB(DEVWRITE8("cent_data_out", output_latch_device, write))
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.00)
 	MCFG_SOUND_WAVE_ADD(WAVE_TAG, "cassette")
 	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
@@ -462,9 +485,14 @@ static MACHINE_CONFIG_START( spc1000, spc1000_state )
 	MCFG_DEVICE_ADD("ext1", SPC1000_EXP_SLOT, 0)
 	MCFG_DEVICE_SLOT_INTERFACE(spc1000_exp, NULL, false)
 
+	MCFG_CENTRONICS_ADD("centronics", centronics_devices, "printer")
+	MCFG_CENTRONICS_BUSY_HANDLER(WRITELINE(spc1000_state, centronics_busy_w))
+	MCFG_CENTRONICS_OUTPUT_LATCH_ADD("cent_data_out", "centronics")
+	MCFG_DEVICE_ADD("cent_status_in", INPUT_BUFFER, 0)
+
 	MCFG_CASSETTE_ADD("cassette")
 	MCFG_CASSETTE_FORMATS(spc1000_cassette_formats)
-	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_STOPPED | CASSETTE_SPEAKER_ENABLED | CASSETTE_MOTOR_ENABLED)
+	MCFG_CASSETTE_DEFAULT_STATE(CASSETTE_STOPPED | CASSETTE_SPEAKER_ENABLED | CASSETTE_MOTOR_DISABLED)
 
 	MCFG_SOFTWARE_LIST_ADD("cass_list", "spc1000_cass")
 
@@ -491,4 +519,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME      PARENT  COMPAT   MACHINE    INPUT    CLASS         INIT    COMPANY    FULLNAME       FLAGS */
-COMP( 1982, spc1000,  0,      0,       spc1000,   spc1000, driver_device,  0,   "Samsung", "SPC-1000", GAME_NOT_WORKING )
+COMP( 1982, spc1000,  0,      0,       spc1000,   spc1000, driver_device,  0,   "Samsung", "SPC-1000", MACHINE_NOT_WORKING )

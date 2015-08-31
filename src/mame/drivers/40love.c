@@ -1,8 +1,10 @@
+// license:???
+// copyright-holders:Jarek Burczynski
 /****************************************************************************
 
     Forty-Love (c) Taito 1984
 
-    driver by Jaroslaw Burczynski
+    driver by Jarek Burczynski
 
 ****************************************************************************/
 
@@ -33,7 +35,7 @@ One GFX ROM is bad though.
 See A30-26.u23\A30-26.txt for details about the bad ROM.
 To summarise:
   Dumps from GFX ROM A30-26.u23 were inconsistent. Reads with checksums
-  41A3 and 415F occured a couple of times, and the difference is one byte
+  41A3 and 415F occurred a couple of times, and the difference is one byte
   at offset $0004 (data $CC or $88). Maybe one of these reads is correct
   or closest to the real ROM. We are using the one with checksum 415F,
   the other one makes one sprite looks worse.
@@ -1262,6 +1264,6 @@ ROM_START( undoukai )
 	ROM_LOAD( "a17-18.23v", 0x0c00, 0x0400, CRC(3023a1da) SHA1(08ce4c6e99d04b358d66f0588852311d07183619) )  /* ??? */
 ROM_END
 
-GAME( 1984, 40love,   0,        40love,   40love, fortyl_state,   40love,   ROT0, "Taito Corporation", "Forty-Love", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_GRAPHICS )
-GAME( 1984, fieldday, 0,        undoukai, undoukai, fortyl_state, undoukai, ROT0, "Taito Corporation", "Field Day", GAME_SUPPORTS_SAVE )
-GAME( 1984, undoukai, fieldday, undoukai, undoukai, fortyl_state, undoukai, ROT0, "Taito Corporation", "The Undoukai (Japan)", GAME_SUPPORTS_SAVE )
+GAME( 1984, 40love,   0,        40love,   40love, fortyl_state,   40love,   ROT0, "Taito Corporation", "Forty-Love", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_GRAPHICS )
+GAME( 1984, fieldday, 0,        undoukai, undoukai, fortyl_state, undoukai, ROT0, "Taito Corporation", "Field Day", MACHINE_SUPPORTS_SAVE )
+GAME( 1984, undoukai, fieldday, undoukai, undoukai, fortyl_state, undoukai, ROT0, "Taito Corporation", "The Undoukai (Japan)", MACHINE_SUPPORTS_SAVE )

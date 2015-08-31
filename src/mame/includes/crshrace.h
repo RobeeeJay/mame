@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #include "cpu/z80/z80.h"
 #include "video/bufsprite.h"
 #include "video/vsystem_spr.h"
@@ -31,8 +33,6 @@ public:
 	required_device<buffered_spriteram16_device> m_spriteram;
 	required_device<buffered_spriteram16_device> m_spriteram2;
 	required_device<vsystem_spr_device> m_spr;
-
-	//      UINT16 *  m_paletteram;   // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t   *m_tilemap1;

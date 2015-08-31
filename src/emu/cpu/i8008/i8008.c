@@ -42,7 +42,7 @@ i8008_device::i8008_device(const machine_config &mconfig, const char *tag, devic
 {
 	// set our instruction counter
 	m_icountptr = &m_icount;
-};
+}
 
 //-------------------------------------------------
 //  device_start - start up the device
@@ -92,9 +92,9 @@ void i8008_device::device_start()
 	state_add(I8008_H,        "H",        m_H);
 	state_add(I8008_L,        "L",        m_L);
 
-	astring tempstr;
+	std::string tempstr;
 	for (int addrnum = 0; addrnum < 8; addrnum++)
-		state_add(I8008_ADDR1 + addrnum, tempstr.format("ADDR%d", addrnum + 1), m_ADDR[addrnum].w.l).mask(0xfff);
+		state_add(I8008_ADDR1 + addrnum, strformat(tempstr, "ADDR%d", addrnum + 1).c_str(), m_ADDR[addrnum].w.l).mask(0xfff);
 
 	init_tables();
 }
@@ -187,12 +187,12 @@ void i8008_device::state_export(const device_state_entry &entry)
 //  for the debugger
 //-------------------------------------------------
 
-void i8008_device::state_string_export(const device_state_entry &entry, astring &string)
+void i8008_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c",
+			strprintf(str, "%c%c%c%c",
 				m_CF ? 'C':'.',
 				m_ZF ? 'Z':'.',
 				m_SF ? 'S':'.',
@@ -620,7 +620,7 @@ inline void i8008_device::pop_stack()
 
 inline UINT8 i8008_device::rop()
 {
-	UINT8 retVal = m_direct->read_decrypted_byte(GET_PC.w.l);
+	UINT8 retVal = m_direct->read_byte(GET_PC.w.l);
 	GET_PC.w.l = (GET_PC.w.l + 1) & 0x3fff;
 	m_PC = GET_PC;
 	return retVal;
@@ -658,7 +658,7 @@ inline void i8008_device::set_reg(UINT8 reg, UINT8 val)
 
 inline UINT8 i8008_device::arg()
 {
-	UINT8 retVal = m_direct->read_raw_byte(GET_PC.w.l);
+	UINT8 retVal = m_direct->read_byte(GET_PC.w.l);
 	GET_PC.w.l = (GET_PC.w.l + 1) & 0x3fff;
 	m_PC = GET_PC;
 	return retVal;

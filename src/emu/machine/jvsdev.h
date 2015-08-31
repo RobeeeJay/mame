@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Olivier Galibert
 #ifndef __JVSDEV_H__
 #define __JVSDEV_H__
 
@@ -21,7 +23,7 @@ public:
 protected:
 	UINT32 jvs_outputs;
 
-	void handle_output(const char *tag, UINT8 id, UINT8 val);
+	void handle_output(ioport_port *port, UINT8 id, UINT8 val);
 
 	// device-level overrides
 	virtual void device_start();

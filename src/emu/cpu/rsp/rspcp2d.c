@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Ryan Holtz
 /***************************************************************************
 
     rspcp2d.c
@@ -5,15 +7,10 @@
     Universal machine language-based Nintendo/SGI RSP COP2 emulator.
     Written by Harmony of the MESS team.
 
-    Copyright the MESS team.
-    Released for general non-commercial use under the MAME license
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 ***************************************************************************/
 
 #include "emu.h"
 #include "rsp.h"
-#include "rspdiv.h"
 #include "rspcp2.h"
 #include "rspcp2d.h"
 #include "cpu/drcfe.h"
@@ -96,7 +93,7 @@ static void cfunc_ctc2(void *param);
 #define CLEAR_CLIP2_FLAG(x)         { m_vflag[CLIP2][x & 7] = 0; }
 
 #define CACHE_VALUES() \
-	const int op = m_op;    \
+	const int op = m_rspcop2_state->op;    \
 	const int vdreg = VDREG;    \
 	const int vs1reg = VS1REG;  \
 	const int vs2reg = VS2REG;  \
@@ -139,10 +136,10 @@ void rsp_cop2_drc::cfunc_unimplemented_opcode()
 	if ((m_machine.debug_flags & DEBUG_FLAG_ENABLED) != 0)
 	{
 		char string[200];
-		rsp_dasm_one(string, ppc, m_op);
+		rsp_dasm_one(string, ppc, m_rspcop2_state->op);
 		osd_printf_debug("%08X: %s\n", ppc, string);
 	}
-	fatalerror("RSP: unknown opcode %02X (%08X) at %08X\n", m_op >> 26, m_op, ppc);
+	fatalerror("RSP: unknown opcode %02X (%08X) at %08X\n", m_rspcop2_state->op >> 26, m_rspcop2_state->op, ppc);
 }
 
 static void unimplemented_opcode(void *param)
@@ -150,105 +147,105 @@ static void unimplemented_opcode(void *param)
 	((rsp_cop2 *)param)->cfunc_unimplemented_opcode();
 }
 
-void rsp_cop2_drc::state_string_export(const int index, astring &string)
+void rsp_cop2_drc::state_string_export(const int index, std::string &str)
 {
 	switch (index)
 	{
 		case RSP_V0:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 0, 0), (UINT16)VREG_S( 0, 1), (UINT16)VREG_S( 0, 2), (UINT16)VREG_S( 0, 3), (UINT16)VREG_S( 0, 4), (UINT16)VREG_S( 0, 5), (UINT16)VREG_S( 0, 6), (UINT16)VREG_S( 0, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 0, 0), (UINT16)VREG_S( 0, 1), (UINT16)VREG_S( 0, 2), (UINT16)VREG_S( 0, 3), (UINT16)VREG_S( 0, 4), (UINT16)VREG_S( 0, 5), (UINT16)VREG_S( 0, 6), (UINT16)VREG_S( 0, 7));
 			break;
 		case RSP_V1:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 1, 0), (UINT16)VREG_S( 1, 1), (UINT16)VREG_S( 1, 2), (UINT16)VREG_S( 1, 3), (UINT16)VREG_S( 1, 4), (UINT16)VREG_S( 1, 5), (UINT16)VREG_S( 1, 6), (UINT16)VREG_S( 1, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 1, 0), (UINT16)VREG_S( 1, 1), (UINT16)VREG_S( 1, 2), (UINT16)VREG_S( 1, 3), (UINT16)VREG_S( 1, 4), (UINT16)VREG_S( 1, 5), (UINT16)VREG_S( 1, 6), (UINT16)VREG_S( 1, 7));
 			break;
 		case RSP_V2:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 2, 0), (UINT16)VREG_S( 2, 1), (UINT16)VREG_S( 2, 2), (UINT16)VREG_S( 2, 3), (UINT16)VREG_S( 2, 4), (UINT16)VREG_S( 2, 5), (UINT16)VREG_S( 2, 6), (UINT16)VREG_S( 2, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 2, 0), (UINT16)VREG_S( 2, 1), (UINT16)VREG_S( 2, 2), (UINT16)VREG_S( 2, 3), (UINT16)VREG_S( 2, 4), (UINT16)VREG_S( 2, 5), (UINT16)VREG_S( 2, 6), (UINT16)VREG_S( 2, 7));
 			break;
 		case RSP_V3:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 3, 0), (UINT16)VREG_S( 3, 1), (UINT16)VREG_S( 3, 2), (UINT16)VREG_S( 3, 3), (UINT16)VREG_S( 3, 4), (UINT16)VREG_S( 3, 5), (UINT16)VREG_S( 3, 6), (UINT16)VREG_S( 3, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 3, 0), (UINT16)VREG_S( 3, 1), (UINT16)VREG_S( 3, 2), (UINT16)VREG_S( 3, 3), (UINT16)VREG_S( 3, 4), (UINT16)VREG_S( 3, 5), (UINT16)VREG_S( 3, 6), (UINT16)VREG_S( 3, 7));
 			break;
 		case RSP_V4:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 4, 0), (UINT16)VREG_S( 4, 1), (UINT16)VREG_S( 4, 2), (UINT16)VREG_S( 4, 3), (UINT16)VREG_S( 4, 4), (UINT16)VREG_S( 4, 5), (UINT16)VREG_S( 4, 6), (UINT16)VREG_S( 4, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 4, 0), (UINT16)VREG_S( 4, 1), (UINT16)VREG_S( 4, 2), (UINT16)VREG_S( 4, 3), (UINT16)VREG_S( 4, 4), (UINT16)VREG_S( 4, 5), (UINT16)VREG_S( 4, 6), (UINT16)VREG_S( 4, 7));
 			break;
 		case RSP_V5:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 5, 0), (UINT16)VREG_S( 5, 1), (UINT16)VREG_S( 5, 2), (UINT16)VREG_S( 5, 3), (UINT16)VREG_S( 5, 4), (UINT16)VREG_S( 5, 5), (UINT16)VREG_S( 5, 6), (UINT16)VREG_S( 5, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 5, 0), (UINT16)VREG_S( 5, 1), (UINT16)VREG_S( 5, 2), (UINT16)VREG_S( 5, 3), (UINT16)VREG_S( 5, 4), (UINT16)VREG_S( 5, 5), (UINT16)VREG_S( 5, 6), (UINT16)VREG_S( 5, 7));
 			break;
 		case RSP_V6:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 6, 0), (UINT16)VREG_S( 6, 1), (UINT16)VREG_S( 6, 2), (UINT16)VREG_S( 6, 3), (UINT16)VREG_S( 6, 4), (UINT16)VREG_S( 6, 5), (UINT16)VREG_S( 6, 6), (UINT16)VREG_S( 6, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 6, 0), (UINT16)VREG_S( 6, 1), (UINT16)VREG_S( 6, 2), (UINT16)VREG_S( 6, 3), (UINT16)VREG_S( 6, 4), (UINT16)VREG_S( 6, 5), (UINT16)VREG_S( 6, 6), (UINT16)VREG_S( 6, 7));
 			break;
 		case RSP_V7:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 7, 0), (UINT16)VREG_S( 7, 1), (UINT16)VREG_S( 7, 2), (UINT16)VREG_S( 7, 3), (UINT16)VREG_S( 7, 4), (UINT16)VREG_S( 7, 5), (UINT16)VREG_S( 7, 6), (UINT16)VREG_S( 7, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 7, 0), (UINT16)VREG_S( 7, 1), (UINT16)VREG_S( 7, 2), (UINT16)VREG_S( 7, 3), (UINT16)VREG_S( 7, 4), (UINT16)VREG_S( 7, 5), (UINT16)VREG_S( 7, 6), (UINT16)VREG_S( 7, 7));
 			break;
 		case RSP_V8:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 8, 0), (UINT16)VREG_S( 8, 1), (UINT16)VREG_S( 8, 2), (UINT16)VREG_S( 8, 3), (UINT16)VREG_S( 8, 4), (UINT16)VREG_S( 8, 5), (UINT16)VREG_S( 8, 6), (UINT16)VREG_S( 8, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 8, 0), (UINT16)VREG_S( 8, 1), (UINT16)VREG_S( 8, 2), (UINT16)VREG_S( 8, 3), (UINT16)VREG_S( 8, 4), (UINT16)VREG_S( 8, 5), (UINT16)VREG_S( 8, 6), (UINT16)VREG_S( 8, 7));
 			break;
 		case RSP_V9:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 9, 0), (UINT16)VREG_S( 9, 1), (UINT16)VREG_S( 9, 2), (UINT16)VREG_S( 9, 3), (UINT16)VREG_S( 9, 4), (UINT16)VREG_S( 9, 5), (UINT16)VREG_S( 9, 6), (UINT16)VREG_S( 9, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S( 9, 0), (UINT16)VREG_S( 9, 1), (UINT16)VREG_S( 9, 2), (UINT16)VREG_S( 9, 3), (UINT16)VREG_S( 9, 4), (UINT16)VREG_S( 9, 5), (UINT16)VREG_S( 9, 6), (UINT16)VREG_S( 9, 7));
 			break;
 		case RSP_V10:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(10, 0), (UINT16)VREG_S(10, 1), (UINT16)VREG_S(10, 2), (UINT16)VREG_S(10, 3), (UINT16)VREG_S(10, 4), (UINT16)VREG_S(10, 5), (UINT16)VREG_S(10, 6), (UINT16)VREG_S(10, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(10, 0), (UINT16)VREG_S(10, 1), (UINT16)VREG_S(10, 2), (UINT16)VREG_S(10, 3), (UINT16)VREG_S(10, 4), (UINT16)VREG_S(10, 5), (UINT16)VREG_S(10, 6), (UINT16)VREG_S(10, 7));
 			break;
 		case RSP_V11:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(11, 0), (UINT16)VREG_S(11, 1), (UINT16)VREG_S(11, 2), (UINT16)VREG_S(11, 3), (UINT16)VREG_S(11, 4), (UINT16)VREG_S(11, 5), (UINT16)VREG_S(11, 6), (UINT16)VREG_S(11, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(11, 0), (UINT16)VREG_S(11, 1), (UINT16)VREG_S(11, 2), (UINT16)VREG_S(11, 3), (UINT16)VREG_S(11, 4), (UINT16)VREG_S(11, 5), (UINT16)VREG_S(11, 6), (UINT16)VREG_S(11, 7));
 			break;
 		case RSP_V12:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(12, 0), (UINT16)VREG_S(12, 1), (UINT16)VREG_S(12, 2), (UINT16)VREG_S(12, 3), (UINT16)VREG_S(12, 4), (UINT16)VREG_S(12, 5), (UINT16)VREG_S(12, 6), (UINT16)VREG_S(12, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(12, 0), (UINT16)VREG_S(12, 1), (UINT16)VREG_S(12, 2), (UINT16)VREG_S(12, 3), (UINT16)VREG_S(12, 4), (UINT16)VREG_S(12, 5), (UINT16)VREG_S(12, 6), (UINT16)VREG_S(12, 7));
 			break;
 		case RSP_V13:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(13, 0), (UINT16)VREG_S(13, 1), (UINT16)VREG_S(13, 2), (UINT16)VREG_S(13, 3), (UINT16)VREG_S(13, 4), (UINT16)VREG_S(13, 5), (UINT16)VREG_S(13, 6), (UINT16)VREG_S(13, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(13, 0), (UINT16)VREG_S(13, 1), (UINT16)VREG_S(13, 2), (UINT16)VREG_S(13, 3), (UINT16)VREG_S(13, 4), (UINT16)VREG_S(13, 5), (UINT16)VREG_S(13, 6), (UINT16)VREG_S(13, 7));
 			break;
 		case RSP_V14:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(14, 0), (UINT16)VREG_S(14, 1), (UINT16)VREG_S(14, 2), (UINT16)VREG_S(14, 3), (UINT16)VREG_S(14, 4), (UINT16)VREG_S(14, 5), (UINT16)VREG_S(14, 6), (UINT16)VREG_S(14, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(14, 0), (UINT16)VREG_S(14, 1), (UINT16)VREG_S(14, 2), (UINT16)VREG_S(14, 3), (UINT16)VREG_S(14, 4), (UINT16)VREG_S(14, 5), (UINT16)VREG_S(14, 6), (UINT16)VREG_S(14, 7));
 			break;
 		case RSP_V15:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(15, 0), (UINT16)VREG_S(15, 1), (UINT16)VREG_S(15, 2), (UINT16)VREG_S(15, 3), (UINT16)VREG_S(15, 4), (UINT16)VREG_S(15, 5), (UINT16)VREG_S(15, 6), (UINT16)VREG_S(15, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(15, 0), (UINT16)VREG_S(15, 1), (UINT16)VREG_S(15, 2), (UINT16)VREG_S(15, 3), (UINT16)VREG_S(15, 4), (UINT16)VREG_S(15, 5), (UINT16)VREG_S(15, 6), (UINT16)VREG_S(15, 7));
 			break;
 		case RSP_V16:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(16, 0), (UINT16)VREG_S(16, 1), (UINT16)VREG_S(16, 2), (UINT16)VREG_S(16, 3), (UINT16)VREG_S(16, 4), (UINT16)VREG_S(16, 5), (UINT16)VREG_S(16, 6), (UINT16)VREG_S(16, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(16, 0), (UINT16)VREG_S(16, 1), (UINT16)VREG_S(16, 2), (UINT16)VREG_S(16, 3), (UINT16)VREG_S(16, 4), (UINT16)VREG_S(16, 5), (UINT16)VREG_S(16, 6), (UINT16)VREG_S(16, 7));
 			break;
 		case RSP_V17:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(17, 0), (UINT16)VREG_S(17, 1), (UINT16)VREG_S(17, 2), (UINT16)VREG_S(17, 3), (UINT16)VREG_S(17, 4), (UINT16)VREG_S(17, 5), (UINT16)VREG_S(17, 6), (UINT16)VREG_S(17, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(17, 0), (UINT16)VREG_S(17, 1), (UINT16)VREG_S(17, 2), (UINT16)VREG_S(17, 3), (UINT16)VREG_S(17, 4), (UINT16)VREG_S(17, 5), (UINT16)VREG_S(17, 6), (UINT16)VREG_S(17, 7));
 			break;
 		case RSP_V18:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(18, 0), (UINT16)VREG_S(18, 1), (UINT16)VREG_S(18, 2), (UINT16)VREG_S(18, 3), (UINT16)VREG_S(18, 4), (UINT16)VREG_S(18, 5), (UINT16)VREG_S(18, 6), (UINT16)VREG_S(18, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(18, 0), (UINT16)VREG_S(18, 1), (UINT16)VREG_S(18, 2), (UINT16)VREG_S(18, 3), (UINT16)VREG_S(18, 4), (UINT16)VREG_S(18, 5), (UINT16)VREG_S(18, 6), (UINT16)VREG_S(18, 7));
 			break;
 		case RSP_V19:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(19, 0), (UINT16)VREG_S(19, 1), (UINT16)VREG_S(19, 2), (UINT16)VREG_S(19, 3), (UINT16)VREG_S(19, 4), (UINT16)VREG_S(19, 5), (UINT16)VREG_S(19, 6), (UINT16)VREG_S(19, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(19, 0), (UINT16)VREG_S(19, 1), (UINT16)VREG_S(19, 2), (UINT16)VREG_S(19, 3), (UINT16)VREG_S(19, 4), (UINT16)VREG_S(19, 5), (UINT16)VREG_S(19, 6), (UINT16)VREG_S(19, 7));
 			break;
 		case RSP_V20:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(20, 0), (UINT16)VREG_S(20, 1), (UINT16)VREG_S(20, 2), (UINT16)VREG_S(20, 3), (UINT16)VREG_S(20, 4), (UINT16)VREG_S(20, 5), (UINT16)VREG_S(20, 6), (UINT16)VREG_S(20, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(20, 0), (UINT16)VREG_S(20, 1), (UINT16)VREG_S(20, 2), (UINT16)VREG_S(20, 3), (UINT16)VREG_S(20, 4), (UINT16)VREG_S(20, 5), (UINT16)VREG_S(20, 6), (UINT16)VREG_S(20, 7));
 			break;
 		case RSP_V21:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(21, 0), (UINT16)VREG_S(21, 1), (UINT16)VREG_S(21, 2), (UINT16)VREG_S(21, 3), (UINT16)VREG_S(21, 4), (UINT16)VREG_S(21, 5), (UINT16)VREG_S(21, 6), (UINT16)VREG_S(21, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(21, 0), (UINT16)VREG_S(21, 1), (UINT16)VREG_S(21, 2), (UINT16)VREG_S(21, 3), (UINT16)VREG_S(21, 4), (UINT16)VREG_S(21, 5), (UINT16)VREG_S(21, 6), (UINT16)VREG_S(21, 7));
 			break;
 		case RSP_V22:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(22, 0), (UINT16)VREG_S(22, 1), (UINT16)VREG_S(22, 2), (UINT16)VREG_S(22, 3), (UINT16)VREG_S(22, 4), (UINT16)VREG_S(22, 5), (UINT16)VREG_S(22, 6), (UINT16)VREG_S(22, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(22, 0), (UINT16)VREG_S(22, 1), (UINT16)VREG_S(22, 2), (UINT16)VREG_S(22, 3), (UINT16)VREG_S(22, 4), (UINT16)VREG_S(22, 5), (UINT16)VREG_S(22, 6), (UINT16)VREG_S(22, 7));
 			break;
 		case RSP_V23:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(23, 0), (UINT16)VREG_S(23, 1), (UINT16)VREG_S(23, 2), (UINT16)VREG_S(23, 3), (UINT16)VREG_S(23, 4), (UINT16)VREG_S(23, 5), (UINT16)VREG_S(23, 6), (UINT16)VREG_S(23, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(23, 0), (UINT16)VREG_S(23, 1), (UINT16)VREG_S(23, 2), (UINT16)VREG_S(23, 3), (UINT16)VREG_S(23, 4), (UINT16)VREG_S(23, 5), (UINT16)VREG_S(23, 6), (UINT16)VREG_S(23, 7));
 			break;
 		case RSP_V24:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(24, 0), (UINT16)VREG_S(24, 1), (UINT16)VREG_S(24, 2), (UINT16)VREG_S(24, 3), (UINT16)VREG_S(24, 4), (UINT16)VREG_S(24, 5), (UINT16)VREG_S(24, 6), (UINT16)VREG_S(24, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(24, 0), (UINT16)VREG_S(24, 1), (UINT16)VREG_S(24, 2), (UINT16)VREG_S(24, 3), (UINT16)VREG_S(24, 4), (UINT16)VREG_S(24, 5), (UINT16)VREG_S(24, 6), (UINT16)VREG_S(24, 7));
 			break;
 		case RSP_V25:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(25, 0), (UINT16)VREG_S(25, 1), (UINT16)VREG_S(25, 2), (UINT16)VREG_S(25, 3), (UINT16)VREG_S(25, 4), (UINT16)VREG_S(25, 5), (UINT16)VREG_S(25, 6), (UINT16)VREG_S(25, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(25, 0), (UINT16)VREG_S(25, 1), (UINT16)VREG_S(25, 2), (UINT16)VREG_S(25, 3), (UINT16)VREG_S(25, 4), (UINT16)VREG_S(25, 5), (UINT16)VREG_S(25, 6), (UINT16)VREG_S(25, 7));
 			break;
 		case RSP_V26:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(26, 0), (UINT16)VREG_S(26, 1), (UINT16)VREG_S(26, 2), (UINT16)VREG_S(26, 3), (UINT16)VREG_S(26, 4), (UINT16)VREG_S(26, 5), (UINT16)VREG_S(26, 6), (UINT16)VREG_S(26, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(26, 0), (UINT16)VREG_S(26, 1), (UINT16)VREG_S(26, 2), (UINT16)VREG_S(26, 3), (UINT16)VREG_S(26, 4), (UINT16)VREG_S(26, 5), (UINT16)VREG_S(26, 6), (UINT16)VREG_S(26, 7));
 			break;
 		case RSP_V27:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(27, 0), (UINT16)VREG_S(27, 1), (UINT16)VREG_S(27, 2), (UINT16)VREG_S(27, 3), (UINT16)VREG_S(27, 4), (UINT16)VREG_S(27, 5), (UINT16)VREG_S(27, 6), (UINT16)VREG_S(27, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(27, 0), (UINT16)VREG_S(27, 1), (UINT16)VREG_S(27, 2), (UINT16)VREG_S(27, 3), (UINT16)VREG_S(27, 4), (UINT16)VREG_S(27, 5), (UINT16)VREG_S(27, 6), (UINT16)VREG_S(27, 7));
 			break;
 		case RSP_V28:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(28, 0), (UINT16)VREG_S(28, 1), (UINT16)VREG_S(28, 2), (UINT16)VREG_S(28, 3), (UINT16)VREG_S(28, 4), (UINT16)VREG_S(28, 5), (UINT16)VREG_S(28, 6), (UINT16)VREG_S(28, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(28, 0), (UINT16)VREG_S(28, 1), (UINT16)VREG_S(28, 2), (UINT16)VREG_S(28, 3), (UINT16)VREG_S(28, 4), (UINT16)VREG_S(28, 5), (UINT16)VREG_S(28, 6), (UINT16)VREG_S(28, 7));
 			break;
 		case RSP_V29:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(29, 0), (UINT16)VREG_S(29, 1), (UINT16)VREG_S(29, 2), (UINT16)VREG_S(29, 3), (UINT16)VREG_S(29, 4), (UINT16)VREG_S(29, 5), (UINT16)VREG_S(29, 6), (UINT16)VREG_S(29, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(29, 0), (UINT16)VREG_S(29, 1), (UINT16)VREG_S(29, 2), (UINT16)VREG_S(29, 3), (UINT16)VREG_S(29, 4), (UINT16)VREG_S(29, 5), (UINT16)VREG_S(29, 6), (UINT16)VREG_S(29, 7));
 			break;
 		case RSP_V30:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(30, 0), (UINT16)VREG_S(30, 1), (UINT16)VREG_S(30, 2), (UINT16)VREG_S(30, 3), (UINT16)VREG_S(30, 4), (UINT16)VREG_S(30, 5), (UINT16)VREG_S(30, 6), (UINT16)VREG_S(30, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(30, 0), (UINT16)VREG_S(30, 1), (UINT16)VREG_S(30, 2), (UINT16)VREG_S(30, 3), (UINT16)VREG_S(30, 4), (UINT16)VREG_S(30, 5), (UINT16)VREG_S(30, 6), (UINT16)VREG_S(30, 7));
 			break;
 		case RSP_V31:
-			string.printf("%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(31, 0), (UINT16)VREG_S(31, 1), (UINT16)VREG_S(31, 2), (UINT16)VREG_S(31, 3), (UINT16)VREG_S(31, 4), (UINT16)VREG_S(31, 5), (UINT16)VREG_S(31, 6), (UINT16)VREG_S(31, 7));
+			strprintf(str, "%04X|%04X|%04X|%04X|%04X|%04X|%04X|%04X", (UINT16)VREG_S(31, 0), (UINT16)VREG_S(31, 1), (UINT16)VREG_S(31, 2), (UINT16)VREG_S(31, 3), (UINT16)VREG_S(31, 4), (UINT16)VREG_S(31, 5), (UINT16)VREG_S(31, 6), (UINT16)VREG_S(31, 7));
 			break;
 	}
 }
@@ -269,7 +266,7 @@ void rsp_cop2_drc::state_string_export(const int index, astring &string)
 
 void rsp_cop2_drc::lbv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 
 	UINT32 ea = 0;
 	int dest = (op >> 16) & 0x1f;
@@ -302,7 +299,7 @@ static void cfunc_lbv(void *param)
 
 void rsp_cop2_drc::lsv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xe;
@@ -338,7 +335,7 @@ static void cfunc_lsv(void *param)
 
 void rsp_cop2_drc::llv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	UINT32 ea = 0;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
@@ -377,7 +374,7 @@ static void cfunc_llv(void *param)
 
 void rsp_cop2_drc::ldv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	UINT32 ea = 0;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
@@ -416,7 +413,7 @@ static void cfunc_ldv(void *param)
 
 void rsp_cop2_drc::lqv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int offset = (op & 0x7f);
@@ -454,7 +451,7 @@ static void cfunc_lqv(void *param)
 
 void rsp_cop2_drc::lrv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -493,7 +490,7 @@ static void cfunc_lrv(void *param)
 
 void rsp_cop2_drc::lpv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -528,7 +525,7 @@ static void cfunc_lpv(void *param)
 
 void rsp_cop2_drc::luv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -563,7 +560,7 @@ static void cfunc_luv(void *param)
 
 void rsp_cop2_drc::lhv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -597,7 +594,7 @@ static void cfunc_lhv(void *param)
 
 void rsp_cop2_drc::lfv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -638,7 +635,7 @@ static void cfunc_lfv(void *param)
 
 void rsp_cop2_drc::lwv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -675,7 +672,7 @@ static void cfunc_lwv(void *param)
 
 void rsp_cop2_drc::ltv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -722,62 +719,62 @@ int rsp_cop2_drc::generate_lwc2(drcuml_block *block, rsp_device::compiler_state 
 	switch ((op >> 11) & 0x1f)
 	{
 		case 0x00:      /* LBV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_lbv, this);
 			return TRUE;
 
 		case 0x01:      /* LSV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_lsv, this);
 			return TRUE;
 
 		case 0x02:      /* LLV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_llv, this);
 			return TRUE;
 
 		case 0x03:      /* LDV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_ldv, this);
 			return TRUE;
 
 		case 0x04:      /* LQV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_lqv, this);
 			return TRUE;
 
 		case 0x05:      /* LRV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_lrv, this);
 			return TRUE;
 
 		case 0x06:      /* LPV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_lpv, this);
 			return TRUE;
 
 		case 0x07:      /* LUV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_luv, this);
 			return TRUE;
 
 		case 0x08:      /* LHV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_lhv, this);
 			return TRUE;
 
 		case 0x09:      /* LFV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_lfv, this);
 			return TRUE;
 
 		case 0x0a:      /* LWV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_lwv, this);
 			return TRUE;
 
 		case 0x0b:      /* LTV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [m_op],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [m_rspcop2_state->op],desc->opptr.l
 			UML_CALLC(block, cfunc_ltv, this);
 			return TRUE;
 
@@ -802,7 +799,7 @@ int rsp_cop2_drc::generate_lwc2(drcuml_block *block, rsp_device::compiler_state 
 
 void rsp_cop2_drc::sbv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -833,7 +830,7 @@ static void cfunc_sbv(void *param)
 
 void rsp_cop2_drc::ssv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -870,7 +867,7 @@ static void cfunc_ssv(void *param)
 
 void rsp_cop2_drc::slv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -907,7 +904,7 @@ static void cfunc_slv(void *param)
 
 void rsp_cop2_drc::sdv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0x8;
@@ -943,7 +940,7 @@ static void cfunc_sdv(void *param)
 
 void rsp_cop2_drc::sqv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -979,7 +976,7 @@ static void cfunc_sqv(void *param)
 
 void rsp_cop2_drc::srv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -1019,7 +1016,7 @@ static void cfunc_srv(void *param)
 
 void rsp_cop2_drc::spv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -1062,7 +1059,7 @@ static void cfunc_spv(void *param)
 
 void rsp_cop2_drc::suv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -1105,7 +1102,7 @@ static void cfunc_suv(void *param)
 
 void rsp_cop2_drc::shv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -1143,7 +1140,7 @@ static void cfunc_shv(void *param)
 
 void rsp_cop2_drc::sfv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -1184,7 +1181,7 @@ static void cfunc_sfv(void *param)
 
 void rsp_cop2_drc::swv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -1223,7 +1220,7 @@ static void cfunc_swv(void *param)
 
 void rsp_cop2_drc::stv()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int dest = (op >> 16) & 0x1f;
 	int base = (op >> 21) & 0x1f;
 	int index = (op >> 7) & 0xf;
@@ -1272,62 +1269,62 @@ int rsp_cop2_drc::generate_swc2(drcuml_block *block, rsp_device::compiler_state 
 	switch ((op >> 11) & 0x1f)
 	{
 		case 0x00:      /* SBV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_sbv, this);
 			return TRUE;
 
 		case 0x01:      /* SSV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_ssv, this);
 			return TRUE;
 
 		case 0x02:      /* SLV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_slv, this);
 			return TRUE;
 
 		case 0x03:      /* SDV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_sdv, this);
 			return TRUE;
 
 		case 0x04:      /* SQV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_sqv, this);
 			return TRUE;
 
 		case 0x05:      /* SRV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_srv, this);
 			return TRUE;
 
 		case 0x06:      /* SPV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_spv, this);
 			return TRUE;
 
 		case 0x07:      /* SUV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_suv, this);
 			return TRUE;
 
 		case 0x08:      /* SHV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_shv, this);
 			return TRUE;
 
 		case 0x09:      /* SFV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_sfv, this);
 			return TRUE;
 
 		case 0x0a:      /* SWV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_swv, this);
 			return TRUE;
 
 		case 0x0b:      /* STV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_stv, this);
 			return TRUE;
 
@@ -2081,7 +2078,7 @@ static void cfunc_vaddb(void *param)
 
 void rsp_cop2_drc::vsaw()
 {
-	const int op = m_op;
+	const int op = m_rspcop2_state->op;
 	const int vdreg = VDREG;
 	const int el = EL;
 
@@ -3266,217 +3263,217 @@ int rsp_cop2_drc::generate_vector_opcode(drcuml_block *block, rsp_device::compil
 	switch (op & 0x3f)
 	{
 		case 0x00:      /* VMULF */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmulf, this);
 			return TRUE;
 
 		case 0x01:      /* VMULU */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmulu, this);
 			return TRUE;
 
 		case 0x04:      /* VMUDL */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmudl, this);
 			return TRUE;
 
 		case 0x05:      /* VMUDM */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmudm, this);
 			return TRUE;
 
 		case 0x06:      /* VMUDN */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmudn, this);
 			return TRUE;
 
 		case 0x07:      /* VMUDH */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmudh, this);
 			return TRUE;
 
 		case 0x08:      /* VMACF */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmacf, this);
 			return TRUE;
 
 		case 0x09:      /* VMACU */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmacu, this);
 			return TRUE;
 
 		case 0x0c:      /* VMADL */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmadl, this);
 			return TRUE;
 
 		case 0x0d:      /* VMADM */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmadm, this);
 			return TRUE;
 
 		case 0x0e:      /* VMADN */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmadn, this);
 			return TRUE;
 
 		case 0x0f:      /* VMADH */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmadh, this);
 			return TRUE;
 
 		case 0x10:      /* VADD */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vadd, this);
 			return TRUE;
 
 		case 0x11:      /* VSUB */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vsub, this);
 			return TRUE;
 
 		case 0x13:      /* VABS */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vabs, this);
 			return TRUE;
 
 		case 0x14:      /* VADDC */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vaddc, this);
 			return TRUE;
 
 		case 0x15:      /* VSUBC */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vsubc, this);
 			return TRUE;
 
 		case 0x16:      /* VADDB */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vaddb, this);
 			return TRUE;
 
 		case 0x17:      /* VSUBB (reserved, functionally identical to VADDB) */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vaddb, this);
 			return TRUE;
 
 		case 0x18:      /* VACCB (reserved, functionally identical to VADDB) */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vaddb, this);
 			return TRUE;
 
 		case 0x19:      /* VSUCB (reserved, functionally identical to VADDB) */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vaddb, this);
 			return TRUE;
 
 		case 0x1d:      /* VSAW */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vsaw, this);
 			return TRUE;
 
 		case 0x20:      /* VLT */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vlt, this);
 			return TRUE;
 
 		case 0x21:      /* VEQ */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_veq, this);
 			return TRUE;
 
 		case 0x22:      /* VNE */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vne, this);
 			return TRUE;
 
 		case 0x23:      /* VGE */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vge, this);
 			return TRUE;
 
 		case 0x24:      /* VCL */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vcl, this);
 			return TRUE;
 
 		case 0x25:      /* VCH */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vch, this);
 			return TRUE;
 
 		case 0x26:      /* VCR */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vcr, this);
 			return TRUE;
 
 		case 0x27:      /* VMRG */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmrg, this);
 			return TRUE;
 
 		case 0x28:      /* VAND */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vand, this);
 			return TRUE;
 
 		case 0x29:      /* VNAND */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vnand, this);
 			return TRUE;
 
 		case 0x2a:      /* VOR */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vor, this);
 			return TRUE;
 
 		case 0x2b:      /* VNOR */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vnor, this);
 			return TRUE;
 
 		case 0x2c:      /* VXOR */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vxor, this);
 			return TRUE;
 
 		case 0x2d:      /* VNXOR */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vnxor, this);
 			return TRUE;
 
 		case 0x30:      /* VRCP */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vrcp, this);
 			return TRUE;
 
 		case 0x31:      /* VRCPL */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vrcpl, this);
 			return TRUE;
 
 		case 0x32:      /* VRCPH */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vrcph, this);
 			return TRUE;
 
 		case 0x33:      /* VMOV */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vmov, this);
 			return TRUE;
 
 		case 0x34:      /* VRSQ */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);         // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);         // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vrsq, this);
 			return TRUE;
 
 		case 0x35:      /* VRSQL */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vrsql, this);
 			return TRUE;
 
 		case 0x36:      /* VRSQH */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_vrsqh, this);
 			return TRUE;
 
@@ -3485,7 +3482,7 @@ int rsp_cop2_drc::generate_vector_opcode(drcuml_block *block, rsp_device::compil
 			return TRUE;
 
 		default:
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);        // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, unimplemented_opcode, &m_rsp);
 			return FALSE;
 	}
@@ -3498,7 +3495,7 @@ int rsp_cop2_drc::generate_vector_opcode(drcuml_block *block, rsp_device::compil
 
 void rsp_cop2_drc::mfc2()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int el = (op >> 7) & 0xf;
 
 	UINT16 b1 = VREG_B(VS1REG, (el+0) & 0xf);
@@ -3513,7 +3510,7 @@ static void cfunc_mfc2(void *param)
 
 void rsp_cop2_drc::cfc2()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	if (RTREG)
 	{
 		switch(RDREG)
@@ -3578,7 +3575,7 @@ static void cfunc_cfc2(void *param)
 
 void rsp_cop2_drc::mtc2()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	int el = (op >> 7) & 0xf;
 	VREG_B(VS1REG, (el+0) & 0xf) = (RTVAL >> 8) & 0xff;
 	VREG_B(VS1REG, (el+1) & 0xf) = (RTVAL >> 0) & 0xff;
@@ -3592,7 +3589,7 @@ static void cfunc_mtc2(void *param)
 
 void rsp_cop2_drc::ctc2()
 {
-	UINT32 op = m_op;
+	UINT32 op = m_rspcop2_state->op;
 	switch(RDREG)
 	{
 		case 0:
@@ -3708,7 +3705,7 @@ int rsp_cop2_drc::generate_cop2(drcuml_block *block, rsp_device::compiler_state 
 		case 0x00:  /* MFCz */
 			if (RTREG != 0)
 			{
-				UML_MOV(block, mem(&m_op), desc->opptr.l[0]);   // mov     [arg0],desc->opptr.l
+				UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);   // mov     [arg0],desc->opptr.l
 				UML_CALLC(block, cfunc_mfc2, this);             // callc   mfc2
 			}
 			return TRUE;
@@ -3716,18 +3713,18 @@ int rsp_cop2_drc::generate_cop2(drcuml_block *block, rsp_device::compiler_state 
 		case 0x02:  /* CFCz */
 			if (RTREG != 0)
 			{
-				UML_MOV(block, mem(&m_op), desc->opptr.l[0]);   // mov     [arg0],desc->opptr.l
+				UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);   // mov     [arg0],desc->opptr.l
 				UML_CALLC(block, cfunc_cfc2, this);             // callc   cfc2
 			}
 			return TRUE;
 
 		case 0x04:  /* MTCz */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);   // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);   // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_mtc2, this);             // callc   mtc2
 			return TRUE;
 
 		case 0x06:  /* CTCz */
-			UML_MOV(block, mem(&m_op), desc->opptr.l[0]);   // mov     [arg0],desc->opptr.l
+			UML_MOV(block, mem(&m_rspcop2_state->op), desc->opptr.l[0]);   // mov     [arg0],desc->opptr.l
 			UML_CALLC(block, cfunc_ctc2, this);             // callc   ctc2
 			return TRUE;
 

@@ -22,7 +22,7 @@ const device_type CCPU = &device_creator<ccpu_cpu_device>;
     MACROS
 ***************************************************************************/
 
-#define READOP(a)         (m_direct->read_decrypted_byte(a))
+#define READOP(a)         (m_direct->read_byte(a))
 
 #define RDMEM(a)          (m_data->read_word((a) * 2) & 0xfff)
 #define WRMEM(a,v)        (m_data->write_word((a) * 2, (v)))
@@ -139,12 +139,12 @@ void ccpu_cpu_device::device_start()
 }
 
 
-void ccpu_cpu_device::state_string_export(const device_state_entry &entry, astring &string)
+void ccpu_cpu_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c%c",
+			strprintf(str, "%c%c%c%c%c%c",
 					TEST_A0 ? '0' : 'o',
 					TEST_NC ? 'N' : 'n',
 					TEST_LT ? 'L' : 'l',

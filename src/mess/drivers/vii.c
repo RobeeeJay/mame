@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Ryan Holtz, Robbbert
 /******************************************************************************
 
@@ -118,7 +118,7 @@ public:
 	required_shared_ptr<UINT16> m_p_palette;
 	required_shared_ptr<UINT16> m_p_spriteram;
 
-	dynamic_array<UINT16> m_p_cart;
+	std::vector<UINT16> m_p_cart;
 
 	UINT32 m_current_bank;
 
@@ -181,7 +181,7 @@ enum
 	SPG243_BATMAN,
 	SPG243_VSMILE,
 
-	SPG243_MODEL_COUNT,
+	SPG243_MODEL_COUNT
 };
 
 
@@ -585,9 +585,9 @@ void vii_state::switch_bank(UINT32 bank)
 	{
 		m_current_bank = bank;
 		if (m_cart_rom)
-			memcpy(m_p_cart, m_cart_rom->base() + 0x400000 * bank * 2, 0x400000 * 2);
+			memcpy(&m_p_cart[0], m_cart_rom->base() + 0x400000 * bank * 2, 0x400000 * 2);
 		else
-			memcpy(m_p_cart, m_bios_rom->base() + 0x400000 * bank * 2, 0x400000 * 2);
+			memcpy(&m_p_cart[0], m_bios_rom->base() + 0x400000 * bank * 2, 0x400000 * 2);
 	}
 }
 
@@ -1023,14 +1023,14 @@ void vii_state::machine_start()
 
 	if (m_cart && m_cart->exists())
 	{
-		astring region_tag;
-		m_cart_rom = memregion(region_tag.cpy(m_cart->tag()).cat(GENERIC_ROM_REGION_TAG));
-		memcpy(m_p_cart, m_cart_rom->base(), 0x400000 * 2);
+		std::string region_tag;
+		m_cart_rom = memregion(region_tag.assign(m_cart->tag()).append(GENERIC_ROM_REGION_TAG).c_str());
+		memcpy(&m_p_cart[0], m_cart_rom->base(), 0x400000 * 2);
 	}
 	else if (m_spg243_mode == SPG243_VII)   // Vii bios is banked
-		memcpy(m_p_cart, m_bios_rom->base(), 0x400000 * 2);
+		memcpy(&m_p_cart[0], m_bios_rom->base(), 0x400000 * 2);
 	else
-		memcpy(m_p_cart, memregion("maincpu")->base(), 0x400000 * 2);
+		memcpy(&m_p_cart[0], memregion("maincpu")->base(), 0x400000 * 2);
 
 	m_video_regs[0x36] = 0xffff;
 	m_video_regs[0x37] = 0xffff;
@@ -1227,8 +1227,8 @@ ROM_START( walle )
 ROM_END
 
 /*    YEAR  NAME      PARENT    COMPAT    MACHINE   INPUT     INIT      COMPANY                                              FULLNAME      FLAGS */
-CONS( 2004, batmantv, vii,      0,        batman,   batman, vii_state,   batman,   "JAKKS Pacific Inc / HotGen Ltd",                    "The Batman", GAME_NO_SOUND )
-CONS( 2005, vsmile,   0,        0,        vsmile,   vsmile, vii_state,   vsmile,   "V-Tech",                                            "V-Smile (Germany)",    GAME_NO_SOUND | GAME_NOT_WORKING )
-CONS( 2005, vsmilef,  vsmile,   0,        vsmile,   vsmile, vii_state,   vsmile,   "V-Tech",                                            "V-Smile (France)",    GAME_NO_SOUND | GAME_NOT_WORKING )
-CONS( 2007, vii,      0,        0,        vii,      vii, vii_state,      vii,      "Jungle Soft / KenSingTon / Chintendo / Siatronics", "Vii",        GAME_NO_SOUND )
-CONS( 2008, walle,    vii,      0,        batman,   walle, vii_state,    walle,    "JAKKS Pacific Inc",                                 "Wall-E",     GAME_NO_SOUND )
+CONS( 2004, batmantv, vii,      0,        batman,   batman, vii_state,   batman,   "JAKKS Pacific Inc / HotGen Ltd",                    "The Batman", MACHINE_NO_SOUND )
+CONS( 2005, vsmile,   0,        0,        vsmile,   vsmile, vii_state,   vsmile,   "V-Tech",                                            "V-Smile (Germany)",    MACHINE_NO_SOUND | MACHINE_NOT_WORKING )
+CONS( 2005, vsmilef,  vsmile,   0,        vsmile,   vsmile, vii_state,   vsmile,   "V-Tech",                                            "V-Smile (France)",    MACHINE_NO_SOUND | MACHINE_NOT_WORKING )
+CONS( 2007, vii,      0,        0,        vii,      vii, vii_state,      vii,      "Jungle Soft / KenSingTon / Chintendo / Siatronics", "Vii",        MACHINE_NO_SOUND )
+CONS( 2008, walle,    vii,      0,        batman,   walle, vii_state,    walle,    "JAKKS Pacific Inc",                                 "Wall-E",     MACHINE_NO_SOUND )

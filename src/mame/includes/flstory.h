@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Nicola Salmoria
 #include "sound/msm5232.h"
 
 class flstory_state : public driver_device
@@ -21,13 +23,11 @@ public:
 	required_shared_ptr<UINT8> m_spriteram;
 	required_shared_ptr<UINT8> m_scrlram;
 	optional_shared_ptr<UINT8> m_workram;
-//  UINT8 *  m_paletteram;    // currently this uses generic palette handling
-//  UINT8 *  m_paletteram_2;  // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t  *m_bg_tilemap;
-	dynamic_array<UINT8> m_paletteram;
-	dynamic_array<UINT8> m_paletteram_ext;
+	std::vector<UINT8> m_paletteram;
+	std::vector<UINT8> m_paletteram_ext;
 	UINT8    m_gfxctrl;
 	UINT8    m_char_bank;
 	UINT8    m_palette_bank;

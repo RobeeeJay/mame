@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         Elektronika MS-0515
@@ -132,16 +134,8 @@ void ms0515_state::machine_reset()
 /* Input ports */
 static INPUT_PORTS_START( ms0515 )
 INPUT_PORTS_END
-/*
-static LEGACY_FLOPPY_OPTIONS_START(ms0515)
-    LEGACY_FLOPPY_OPTION(ms0515, "dsk", "MS0515 disk image", basicdsk_identify_default, basicdsk_construct_default, NULL,
-        HEADS([1])
-        TRACKS([80])
-        SECTORS([10])
-        SECTOR_LENGTH([512])
-        FIRST_SECTOR_ID([0]))
-LEGACY_FLOPPY_OPTIONS_END
-*/
+
+// disk format: 80 tracks, 1 head, 10 sectors, 512 bytes sector length, first sector id 0
 
 static SLOT_INTERFACE_START( ms0515_floppies )
 	SLOT_INTERFACE( "525qd", FLOPPY_525_QD ) // 720 KB
@@ -226,7 +220,7 @@ static MACHINE_CONFIG_START( ms0515, ms0515_state )
 	MCFG_T11_INITIAL_MODE(0xf2ff)
 	MCFG_CPU_PROGRAM_MAP(ms0515_mem)
 
-	MCFG_DEVICE_ADD("vg93", FD1793x, 1000000)
+	MCFG_DEVICE_ADD("vg93", FD1793, 1000000)
 	MCFG_FLOPPY_DRIVE_ADD("vg93:0", ms0515_floppies, "525qd", floppy_image_device::default_floppy_formats)
 
 	/* video hardware */
@@ -261,4 +255,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT               COMPANY   FULLNAME       FLAGS */
-COMP( ????, ms0515,  0,       0,    ms0515,     ms0515,  driver_device, 0,      "Elektronika",   "MS-0515",     GAME_NOT_WORKING | GAME_NO_SOUND)
+COMP( ????, ms0515,  0,       0,    ms0515,     ms0515,  driver_device, 0,      "Elektronika",   "MS-0515",     MACHINE_NOT_WORKING | MACHINE_NO_SOUND)

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont, Andrew Gardner
 /*
     Polygonet Commanders (Konami, 1993)
     Poly-Net Warriors (Konami, 1993)
@@ -288,20 +290,6 @@ READ32_MEMBER(polygonet_state::network_r)
 }
 
 
-WRITE32_MEMBER(polygonet_state::plygonet_palette_w)
-{
-	int r,g,b;
-
-	COMBINE_DATA(&m_generic_paletteram_32[offset]);
-
-	r = (m_generic_paletteram_32[offset] >>16) & 0xff;
-	g = (m_generic_paletteram_32[offset] >> 8) & 0xff;
-	b = (m_generic_paletteram_32[offset] >> 0) & 0xff;
-
-	m_palette->set_pen_color(offset,rgb_t(r,g,b));
-}
-
-
 /**********************************************************************************/
 /*******                            DSP56k maps                             *******/
 /**********************************************************************************/
@@ -310,30 +298,6 @@ WRITE32_MEMBER(polygonet_state::plygonet_palette_w)
 READ16_MEMBER(polygonet_state::dsp56k_bootload_r)
 {
 	return 0x7fff;
-}
-
-DIRECT_UPDATE_MEMBER(polygonet_state::plygonet_dsp56k_direct_handler)
-{
-	/* Call the dsp's update handler first */
-	if (!m_dsp56k_update_handler.isnull())
-	{
-		if (m_dsp56k_update_handler(direct, address) == ~0)
-			return ~0;
-	}
-
-	/* If the requested region wasn't in there, see if it needs to be caught driver-side */
-	if (address >= (0x7000<<1) && address <= (0x7fff<<1))
-	{
-		direct.explicit_configure(0x7000<<1, 0x7fff<<1, (0xfff<<1) | 1, m_dsp56k_p_mirror);
-		return ~0;
-	}
-	else if (address >= (0x8000<<1) && address <= (0x87ff<<1))
-	{
-		direct.explicit_configure(0x8000<<1, 0x87ff<<1, (0x7ff<<1) | 1, m_dsp56k_p_8000);
-		return ~0;
-	}
-
-	return address;
 }
 
 /* The dsp56k's Port C Data register (0xffe3) :
@@ -501,7 +465,7 @@ WRITE16_MEMBER(polygonet_state::dsp56k_ram_bank04_write)
 
 static ADDRESS_MAP_START( main_map, AS_PROGRAM, 32, polygonet_state )
 	AM_RANGE(0x000000, 0x1fffff) AM_ROM
-	AM_RANGE(0x200000, 0x21ffff) AM_RAM_WRITE(plygonet_palette_w) AM_SHARE("paletteram")
+	AM_RANGE(0x200000, 0x21ffff) AM_RAM_DEVWRITE("palette", palette_device, write) AM_SHARE("palette")
 	AM_RANGE(0x400000, 0x40001f) AM_DEVREADWRITE16("k053936", k053936_device, ctrl_r, ctrl_w, 0xffffffff)
 	AM_RANGE(0x440000, 0x440fff) AM_READWRITE(polygonet_roz_ram_r, polygonet_roz_ram_w)
 	AM_RANGE(0x480000, 0x480003) AM_READ8(polygonet_inputs_r, 0xffffffff)
@@ -666,6 +630,7 @@ static MACHINE_CONFIG_START( plygonet, polygonet_state )
 	MCFG_SCREEN_PALETTE("palette")
 
 	MCFG_PALETTE_ADD("palette", 32768)
+	MCFG_PALETTE_FORMAT(XRGB)
 
 	MCFG_DEVICE_ADD("k053936", K053936, 0)
 
@@ -754,10 +719,6 @@ DRIVER_INIT_MEMBER(polygonet_state,polygonet)
 	memset(m_dsp56k_bank02_ram, 0, sizeof(m_dsp56k_bank02_ram));
 	memset(m_dsp56k_shared_ram_16, 0, sizeof(m_dsp56k_shared_ram_16));
 	memset(m_dsp56k_bank04_ram, 0, sizeof(m_dsp56k_bank04_ram));
-
-	/* The dsp56k occasionally executes out of mapped memory */
-	address_space &space = machine().device<dsp56k_device>("dsp")->space(AS_PROGRAM);
-	m_dsp56k_update_handler = space.set_direct_update_handler(direct_update_delegate(FUNC(polygonet_state::plygonet_dsp56k_direct_handler), this));
 }
 
 
@@ -810,5 +771,5 @@ ROM_START( polynetw )
 ROM_END
 
 /*          ROM       parent   machine   inp        init */
-GAME( 1993, plygonet, 0,       plygonet, polygonet, polygonet_state, polygonet, ROT90, "Konami", "Polygonet Commanders (ver UAA)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
-GAME( 1993, polynetw, 0,       plygonet, polynetw, polygonet_state,  polygonet, ROT90, "Konami", "Poly-Net Warriors (ver JAA)", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
+GAME( 1993, plygonet, 0,       plygonet, polygonet, polygonet_state, polygonet, ROT90, "Konami", "Polygonet Commanders (ver UAA)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )
+GAME( 1993, polynetw, 0,       plygonet, polynetw, polygonet_state,  polygonet, ROT90, "Konami", "Poly-Net Warriors (ver JAA)", MACHINE_NOT_WORKING | MACHINE_SUPPORTS_SAVE )

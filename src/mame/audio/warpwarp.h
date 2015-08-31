@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Allard van der Bas
 class geebee_sound_device : public device_t,
 									public device_sound_interface
 {
@@ -13,7 +15,6 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_config_complete();
 	virtual void device_start();
 
 	// sound stream update overrides
@@ -57,7 +58,6 @@ public:
 
 protected:
 	// device-level overrides
-	virtual void device_config_complete();
 	virtual void device_start();
 
 	// sound stream update overrides

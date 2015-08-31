@@ -1,45 +1,9 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 /*****************************************************************************
  *
  *   z180.c
  *   Portable Z180 emulator V0.3
- *
- *   Copyright Juergen Buchmueller, all rights reserved.
- *   You can contact me at juergen@mame.net or pullmoll@stop1984.com
- *
- *   - This source code is released as freeware for non-commercial purposes
- *     as part of the M.A.M.E. (Multiple Arcade Machine Emulator) project.
- *     The licensing terms of MAME apply to this piece of code for the MAME
- *     project and derviative works, as defined by the MAME license. You
- *     may opt to make modifications, improvements or derivative works under
- *     that same conditions, and the MAME project may opt to keep
- *     modifications, improvements or derivatives under their terms exclusively.
- *
- *   - Alternatively you can choose to apply the terms of the "GPL" (see
- *     below) to this - and only this - piece of code or your derivative works.
- *     Note that in no case your choice can have any impact on any other
- *     source code of the MAME project, or binary, or executable, be it closely
- *     or losely related to this piece of code.
- *
- *  -  At your choice you are also free to remove either licensing terms from
- *     this file and continue to use it under only one of the two licenses. Do this
- *     if you think that licenses are not compatible (enough) for you, or if you
- *     consider either license 'too restrictive' or 'too free'.
- *
- *  -  GPL (GNU General Public License)
- *     This program is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU General Public License
- *     as published by the Free Software Foundation; either version 2
- *     of the License, or (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program; if not, write to the Free Software
- *     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  *
  *****************************************************************************/
 
@@ -121,6 +85,7 @@ z180_device::z180_device(const machine_config &mconfig, const char *tag, device_
 	: cpu_device(mconfig, Z180, "Z180", tag, owner, clock, "z180", __FILE__)
 	, m_program_config("program", ENDIANNESS_LITTLE, 8, 20, 0)
 	, m_io_config("io", ENDIANNESS_LITTLE, 8, 16, 0)
+	, m_decrypted_opcodes_config("program", ENDIANNESS_LITTLE, 8, 20, 0)
 {
 }
 
@@ -802,6 +767,18 @@ static UINT8 *SZHVC_sub;
 #include "z180fd.inc"
 #include "z180ed.inc"
 #include "z180op.inc"
+
+
+const address_space_config *z180_device::memory_space_config(address_spacenum spacenum) const
+{
+	switch(spacenum)
+	{
+	case AS_PROGRAM:           return &m_program_config;
+	case AS_IO:                return &m_io_config;
+	case AS_DECRYPTED_OPCODES: return has_configured_map(AS_DECRYPTED_OPCODES) ? &m_decrypted_opcodes_config : NULL;
+	default:                   return NULL;
+	}
+}
 
 UINT8 z180_device::z180_readcontrol(offs_t port)
 {
@@ -1992,6 +1969,8 @@ void z180_device::device_start()
 
 	m_program = &space(AS_PROGRAM);
 	m_direct = &m_program->direct();
+	m_oprogram = has_space(AS_DECRYPTED_OPCODES) ? &space(AS_DECRYPTED_OPCODES) : m_program;
+	m_odirect = &m_oprogram->direct();
 	m_iospace = &space(AS_IO);
 
 	/* set up the state table */
@@ -2581,12 +2560,12 @@ void z180_device::state_export(const device_state_entry &entry)
 	}
 }
 
-void z180_device::state_string_export(const device_state_entry &entry, astring &string)
+void z180_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c%c%c%c",
+			strprintf(str, "%c%c%c%c%c%c%c%c",
 				m_AF.b.l & 0x80 ? 'S':'.',
 				m_AF.b.l & 0x40 ? 'Z':'.',
 				m_AF.b.l & 0x20 ? '5':'.',

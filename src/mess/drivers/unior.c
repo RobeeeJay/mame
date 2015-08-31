@@ -1,4 +1,4 @@
-// license:MAME
+// license:BSD-3-Clause
 // copyright-holders:Robbbert
 /***************************************************************************
 
@@ -460,4 +460,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT    COMPAT   MACHINE    INPUT  CLASS           INIT    COMPANY      FULLNAME       FLAGS */
-COMP( 19??, unior,  radio86,  0,       unior,     unior, driver_device,   0,    "<unknown>",   "Unior", GAME_NOT_WORKING )
+COMP( 19??, unior,  radio86,  0,       unior,     unior, driver_device,   0,    "<unknown>",   "Unior", MACHINE_NOT_WORKING )

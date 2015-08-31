@@ -34,11 +34,11 @@ tree.  The final class hierarchy is this:
                            |
         +------+--------+--+--+-------+-------+
         |      |        |     |       |       |
-      6510   deco16   6504   6509   n2a03   65c02 
+      6510   deco16   6504   6509   n2a03   65c02
         |                                     |
   +-----+-----+                            r65c02
   |     |     |                               |
-6510t  7501  8502                         +---+---+     
+6510t  7501  8502                         +---+---+
                                           |       |
                                        65ce02   65sc02
                                           |
@@ -170,7 +170,7 @@ An opcode description is a series of lines starting by an opcode entry
 by itself and followed by a series of indented lines with code
 executing the opcode.
 
-For instance the asl <absolute adress> opcode looks like this:
+For instance the asl <absolute address> opcode looks like this:
 
 asl_aba
     TMP = read_pc();
@@ -233,8 +233,8 @@ subclass has been created.  It's called memory_interface, declared in
 m6502_device, and provides the following accessors:
 
 - UINT8 read(UINT16 adr)                  - normal read
-- UINT8 read_direct(UINT16 adr)           - direct read
-- UINT8 read_decrypted(UINT16 adr)        - decrypted data read
+- UINT8 read_sync(UINT16 adr)             - opcode read with sync active (first byte of opcode)
+- UINT8 read_arg(UINT16 adr)              - opcode read with sync inactive (rest of opcode)
 - void write(UINT16 adr, UINT8 val)       - normal write
 
 - UINT8 read_9(UINT16 adr)                - special y-indexed 6509 read, defaults to read()

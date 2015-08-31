@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Couriersud
 /*
  * nld_4066.c
  *
@@ -5,79 +7,54 @@
 
 #include "nld_4066.h"
 
+NETLIB_NAMESPACE_DEVICES_START()
 
-NETLIB_START(4066)
+NETLIB_START(CD4066_GATE)
 {
 	register_input("CTL", m_control);
-	register_sub(m_R, "R");
+	register_sub("PS", m_supply);
+	register_sub("R", m_R);
+	register_param("BASER", m_base_r, 270.0);
 }
 
-NETLIB_RESET(4066)
+NETLIB_RESET(CD4066_GATE)
 {
 	m_R.do_reset();
 }
 
-NETLIB_UPDATE(4066)
+NETLIB_UPDATE(CD4066_GATE)
 {
-	nl_double sup = (m_supply.get()->vdd() - m_supply.get()->vss());
-	nl_double low = 0.45 * sup;
-	nl_double high = 0.55 * sup;
-	nl_double in = INPANALOG(m_control) - m_supply.get()->vss();
-	nl_double rON = 270.0 * 5.0 / sup;
+	nl_double sup = (m_supply.vdd() - m_supply.vss());
+	nl_double low = NL_FCONST(0.45) * sup;
+	nl_double high = NL_FCONST(0.55) * sup;
+	nl_double in = INPANALOG(m_control) - m_supply.vss();
+	nl_double rON = m_base_r * NL_FCONST(5.0) / sup;
+	nl_double R = -1.0;
 
 	if (in < low)
 	{
-		m_R.set_R(1.0 / netlist().gmin());
-		m_R.update_dev();
+		R = NL_FCONST(1.0) / netlist().gmin();
 	}
 	else if (in > high)
 	{
-		m_R.set_R(rON);
-		m_R.update_dev();
+		R = rON;
+	}
+	if (R > NL_FCONST(0.0))
+	{
+		// We only need to update the net first if this is a time stepping net
+		if (1) // m_R.m_P.net().as_analog().solver()->is_timestep())
+		{
+			m_R.update_dev();
+			m_R.set_R(R);
+			m_R.m_P.schedule_after(NLTIME_FROM_NS(1));
+		}
+		else
+		{
+			m_R.set_R(R);
+			m_R.update_dev();
+		}
 	}
 }
 
 
-NETLIB_START(4066_dip)
-{
-	register_sub(m_supply, "supply");
-	m_A.m_supply = m_B.m_supply = m_C.m_supply = m_D.m_supply = &m_supply;
-	register_sub(m_A, "A");
-	register_sub(m_B, "B");
-	register_sub(m_C, "C");
-	register_sub(m_D, "D");
-
-	register_subalias("1", m_A.m_R.m_P);
-	register_subalias("2", m_A.m_R.m_N);
-	register_subalias("3", m_B.m_R.m_P);
-	register_subalias("4", m_B.m_R.m_N);
-	register_subalias("5", m_B.m_control);
-	register_subalias("6", m_C.m_control);
-	register_subalias("7", m_supply.m_vss);
-
-	register_subalias("8", m_C.m_R.m_P);
-	register_subalias("9", m_C.m_R.m_N);
-	register_subalias("10", m_D.m_R.m_P);
-	register_subalias("11", m_D.m_R.m_N);
-	register_subalias("12", m_D.m_control);
-	register_subalias("13", m_A.m_control);
-	register_subalias("14", m_supply.m_vdd);
-
-}
-
-NETLIB_RESET(4066_dip)
-{
-	m_A.do_reset();
-	m_B.do_reset();
-	m_C.do_reset();
-	m_D.do_reset();
-}
-
-NETLIB_UPDATE(4066_dip)
-{
-	/* only called during startup */
-	m_A.update_dev();
-	m_B.update_dev();
-	m_C.update_dev();
-	m_D.update_dev();
-}
+NETLIB_NAMESPACE_DEVICES_END()

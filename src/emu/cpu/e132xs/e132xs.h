@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli
 #pragma once
 
 #ifndef __E132XS_H__
@@ -197,7 +199,7 @@ extern unsigned dasm_hyperstone(char *buffer, unsigned pc, const UINT8 *oprom, u
 #define IO_WRITE_W(addr, data)  m_io->write_dword(((addr) >> 11) & 0x7ffc, data)
 
 
-#define READ_OP(addr)          m_direct->read_decrypted_word((addr), m_opcodexor)
+#define READ_OP(addr)          m_direct->read_word((addr), m_opcodexor)
 
 //**************************************************************************
 //  TYPE DEFINITIONS
@@ -241,7 +243,7 @@ protected:
 	virtual offs_t disasm_disassemble(char *buffer, offs_t pc, const UINT8 *oprom, const UINT8 *opram, UINT32 options);
 
 	// device_state_interface overrides
-	virtual void state_string_export(const device_state_entry &entry, astring &string);
+	virtual void state_string_export(const device_state_entry &entry, std::string &str);
 
 	// address spaces
 	const address_space_config m_program_config;

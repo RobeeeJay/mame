@@ -1,10 +1,8 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller
 /*****************************************************************************
  *
  *   Xerox AltoII cursor task (CURT)
- *
- *   Copyright Juergen Buchmueller <pullmoll@t-online.de>
- *
- *   Licenses: MAME, GPLv2
  *
  *****************************************************************************/
 #ifdef  ALTO2_DEFINE_CONSTANTS
@@ -16,7 +14,7 @@
 //! F2 functions for cursor task
 enum {
 	f2_curt_load_xpreg  = f2_task_10,           //!< f2 10: load x position register
-	f2_curt_load_csr    = f2_task_11,           //!< f2 11: load cursor shift register
+	f2_curt_load_csr    = f2_task_11            //!< f2 11: load cursor shift register
 };
 
 void f1_early_curt_block();                     //!< f1_curt_block early: disable the cursor task and set the curt_blocks flag

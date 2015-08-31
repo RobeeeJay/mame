@@ -4,9 +4,6 @@
 
     Sandy Super Disk emulation
 
-    Copyright MESS Team.
-    Visit http://mamedev.org for licensing and usage restrictions.
-
 **********************************************************************/
 
 #include "sandy_superdisk.h"
@@ -84,7 +81,7 @@ WRITE_LINE_MEMBER( sandy_super_disk_t::busy_w )
 //-------------------------------------------------
 
 static MACHINE_CONFIG_FRAGMENT( sandy_super_disk )
-	MCFG_DEVICE_ADD(WD1772_TAG, WD1772x, 8000000)
+	MCFG_DEVICE_ADD(WD1772_TAG, WD1772, 8000000)
 	MCFG_FLOPPY_DRIVE_ADD(WD1772_TAG":0", sandy_super_disk_floppies, "35dd", sandy_super_disk_t::floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD(WD1772_TAG":1", sandy_super_disk_floppies, NULL, sandy_super_disk_t::floppy_formats)
 

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Andreas Naive, Olivier Galibert, David Haywood
 /*
   re: Tecmo World Cup '98 (ST-V) (from ANY)
 
@@ -19,7 +21,7 @@ extern const device_type SEGA315_5881_CRYPT = &device_creator<sega_315_5881_cryp
 
 
 sega_315_5881_crypt_device::sega_315_5881_crypt_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock)
-	: device_t(mconfig, SEGA315_5881_CRYPT, "Sega 315-5881 Encryption", tag, owner, clock, "SEGA315_5881", __FILE__)
+	: device_t(mconfig, SEGA315_5881_CRYPT, "Sega 315-5881 Encryption", tag, owner, clock, "sega315_5881", __FILE__)
 {
 }
 
@@ -45,9 +47,9 @@ void sega_315_5881_crypt_device::device_start()
 	save_item(NAME(line_buffer_pos));
 	save_item(NAME(line_buffer_size));
 
-	astring skey = parameter("key");
-	if(skey)
-		key = strtoll(skey.cstr(), 0, 16);
+	std::string skey = parameter("key").c_str();
+	if(!skey.empty())
+		key = strtoll(skey.c_str(), 0, 16);
 	else
 	{
 		logerror("%s: Warning: key not provided\n", tag());

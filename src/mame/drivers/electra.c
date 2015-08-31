@@ -1,14 +1,19 @@
+// license:BSD-3-Clause
+// copyright-holders:Fabio Priuli
 /***************************************************************************
 
  Electra discrete hardware games
 
  Game Name
- Avenger (1975)                EG-1020
+ Avenger (1975)                               EG-1020
+ Combo 3 (Tennis, Soccer, Hockey) (1975)
  Eliminator IV (1976)
- Flying Fortress (1976)        EG-1060  (Taito same name?)
- Pace Car Pro (1975)           EG-1000
- UFO Chase (1975)              EG-1010
- Wings (1976)
+ Flying Fortress (1976)                       EG-1060  (Taito same name?)
+ Knockout (1975)
+ Pace Car Pro (1975)                          EG-1000
+ Pace Race (1974?)
+ UFO Chase (1975)                             EG-1010
+ Wings / Wings Cocktail (1976)
 
 ***************************************************************************/
 
@@ -18,7 +23,6 @@
 #include "machine/netlist.h"
 #include "netlist/devices/net_lib.h"
 #include "video/fixfreq.h"
-#include "astring.h"
 
 // copied by Pong, not accurate for this driver!
 // start
@@ -123,4 +127,4 @@ ROM_START( avenger )
 ROM_END
 
 
-GAME( 1975, avenger,  0, electra, 0, driver_device,  0, ROT0, "Electra", "Avenger [TTL]", GAME_IS_SKELETON )
+GAME( 1975, avenger,  0, electra, 0, driver_device,  0, ROT0, "Electra", "Avenger [TTL]", MACHINE_IS_SKELETON )

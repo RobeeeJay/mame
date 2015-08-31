@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari
 /*
  *  Depth Charge audio routines
  */
@@ -43,7 +45,7 @@ enum
 	SND_LONGEXPL = 0,
 	SND_SHRTEXPL,
 	SND_SPRAY,
-	SND_SONAR,
+	SND_SONAR
 };
 
 

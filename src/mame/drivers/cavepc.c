@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /***************************************************************************
 
     CAVE PC hardware
@@ -172,4 +174,4 @@ ROM_END
 
 /*****************************************************************************/
 
-GAME(2009, deathsm2, 0,        cavepc, cavepc, cavepc_state, cavepc, ROT0, "Cave", "Deathsmiles II: Makai no Merry Christmas (2009/10/14 MASTER VER 4.00)", GAME_IS_SKELETON )
+GAME(2009, deathsm2, 0,        cavepc, cavepc, cavepc_state, cavepc, ROT0, "Cave", "Deathsmiles II: Makai no Merry Christmas (2009/10/14 MASTER VER 4.00)", MACHINE_IS_SKELETON )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood,Tomasz Slanina
 /****************************************************************
 
 Wheels & Fire
@@ -863,4 +865,4 @@ DRIVER_INIT_MEMBER(wheelfir_state,wheelfir)
 	RAM[0xdd3da/2] = 0x4e71; //hack
 }
 
-GAME( 199?, wheelfir,    0, wheelfir,    wheelfir, wheelfir_state,    wheelfir, ROT0,  "TCH", "Wheels & Fire", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 199?, wheelfir,    0, wheelfir,    wheelfir, wheelfir_state,    wheelfir, ROT0,  "TCH", "Wheels & Fire", MACHINE_NOT_WORKING|MACHINE_NO_SOUND )

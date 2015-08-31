@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Zsolt Vasvari
 /***************************************************************************
 
     Ambush Memory Map (preliminary)
@@ -331,7 +333,7 @@ ROM_END
  *
  *************************************/
 
-GAME( 1983, ambush,  0,      ambush,   ambusht, driver_device,  0, ROT0, "Tecfri",                            "Ambush", GAME_SUPPORTS_SAVE )
-GAME( 1983, ambushh, ambush, ambush,   ambusht, driver_device,  0, ROT0, "Tecfri",                            "Ambush (hack?)", GAME_SUPPORTS_SAVE )
-GAME( 1983, ambushj, ambush, ambush,   ambush, driver_device,   0, ROT0, "Tecfri (Nippon Amuse license)",     "Ambush (Japan)", GAME_SUPPORTS_SAVE )
-GAME( 1983, ambushv, ambush, ambush,   ambush, driver_device,   0, ROT0, "Tecfri (Volt Electronics license)", "Ambush (Volt Electronics)", GAME_SUPPORTS_SAVE )
+GAME( 1983, ambush,  0,      ambush,   ambusht, driver_device,  0, ROT0, "Tecfri",                            "Ambush", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, ambushh, ambush, ambush,   ambusht, driver_device,  0, ROT0, "Tecfri",                            "Ambush (hack?)", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, ambushj, ambush, ambush,   ambush, driver_device,   0, ROT0, "Tecfri (Nippon Amuse license)",     "Ambush (Japan)", MACHINE_SUPPORTS_SAVE )
+GAME( 1983, ambushv, ambush, ambush,   ambush, driver_device,   0, ROT0, "Tecfri (Volt Electronics license)", "Ambush (Volt Electronics)", MACHINE_SUPPORTS_SAVE )

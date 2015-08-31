@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Luca Elia, Mirko Buffoni, Takahiro Nogi
 #include "sound/dac.h"
 #include "sound/samples.h"
 #include "video/seta001.h"
@@ -25,19 +27,49 @@ class tnzs_state : public driver_device
 public:
 	tnzs_state(const machine_config &mconfig, device_type type, const char *tag)
 		: driver_device(mconfig, type, tag),
+		m_maincpu(*this, "maincpu"),
 		m_audiocpu(*this, "audiocpu"),
 		m_subcpu(*this, "sub"),
 		m_mcu(*this, "mcu"),
-		m_maincpu(*this, "maincpu"),
 		m_seta001(*this, "spritegen"),
 		m_dac(*this, "dac"),
 		m_samples(*this, "samples"),
 		m_palette(*this, "palette"),
-		m_mainbank(*this, "mainbank")
+		m_mainbank(*this, "mainbank"),
+		m_subbank(*this, "subbank"),
+		m_audiobank(*this, "audiobank"),
+		m_dswa(*this, "DSWA"),
+		m_dswb(*this, "DSWB"),
+		m_in0(*this, "IN0"),
+		m_in1(*this, "IN1"),
+		m_in2(*this, "IN2"),
+		m_coin1(*this, "COIN1"),
+		m_coin2(*this, "COIN2"),
+		m_an1(*this, "AN1"),
+		m_an2(*this, "AN2")
 		{ }
 
-	/* video-related */
-	int      m_screenflip;
+	/* devices */
+	required_device<cpu_device> m_maincpu;
+	optional_device<cpu_device> m_audiocpu;
+	optional_device<cpu_device> m_subcpu;
+	optional_device<upi41_cpu_device> m_mcu;
+	optional_device<seta001_device> m_seta001;
+	optional_device<dac_device> m_dac;
+	optional_device<samples_device> m_samples;
+	required_device<palette_device> m_palette;
+	optional_device<address_map_bank_device> m_mainbank;
+	optional_memory_bank m_subbank; /* optional because of reuse from cchance.c */
+	optional_memory_bank m_audiobank;
+	required_ioport m_dswa;
+	required_ioport m_dswb;
+	required_ioport m_in0;
+	required_ioport m_in1;
+	required_ioport m_in2;
+	optional_ioport m_coin1;
+	optional_ioport m_coin2;
+	optional_ioport m_an1;
+	optional_ioport m_an2;
 
 	/* sound-related */
 	INT16    *m_sampledata[MAX_SAMPLES];
@@ -59,12 +91,6 @@ public:
 	UINT8    m_mcu_credits;
 	int      m_bank2;
 
-	UINT8*   m_ROM;
-
-	/* devices */
-	optional_device<cpu_device> m_audiocpu;
-	optional_device<cpu_device> m_subcpu;
-	optional_device<upi41_cpu_device> m_mcu;
 	DECLARE_WRITE8_MEMBER(tnzsb_sound_command_w);
 	DECLARE_WRITE8_MEMBER(jpopnics_subbankswitch_w);
 	DECLARE_READ8_MEMBER(tnzs_port1_r);
@@ -86,6 +112,7 @@ public:
 	DECLARE_WRITE8_MEMBER(kageki_csport_w);
 	DECLARE_WRITE8_MEMBER(kabukiz_sound_bank_w);
 	DECLARE_WRITE8_MEMBER(kabukiz_sample_w);
+	DECLARE_WRITE_LINE_MEMBER(irqhandler);
 
 	SAMPLES_START_CB_MEMBER(kageki_init_samples);
 
@@ -104,18 +131,14 @@ public:
 	DECLARE_PALETTE_INIT(arknoid2);
 	DECLARE_MACHINE_START(tnzs_common);
 	DECLARE_MACHINE_RESET(jpopnics);
+
 	UINT32 screen_update_tnzs(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void screen_eof_tnzs(screen_device &screen, bool state);
+
 	INTERRUPT_GEN_MEMBER(arknoid2_interrupt);
 	TIMER_CALLBACK_MEMBER(kludge_callback);
+
 	void tnzs_postload();
-	void mcu_reset(  );
-	void mcu_handle_coins( int coin );
-	DECLARE_WRITE_LINE_MEMBER(irqhandler);
-	required_device<cpu_device> m_maincpu;
-	optional_device<seta001_device> m_seta001;
-	optional_device<dac_device> m_dac;
-	optional_device<samples_device> m_samples;
-	required_device<palette_device> m_palette;
-	optional_device<address_map_bank_device> m_mainbank;
+	void mcu_reset();
+	void mcu_handle_coins(int coin);
 };

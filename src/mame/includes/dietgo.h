@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Bryan McPhail, David Haywood
 /*************************************************************************
 
     Diet Go Go
@@ -22,7 +24,8 @@ public:
 		m_maincpu(*this, "maincpu"),
 		m_audiocpu(*this, "audiocpu"),
 		m_deco_tilegen1(*this, "tilegen1"),
-		m_decocomn(*this, "deco_common")
+		m_decocomn(*this, "deco_common"),
+		m_decrypted_opcodes(*this, "decrypted_opcodes")
 	{ }
 
 	optional_device<deco104_device> m_deco104;
@@ -31,13 +34,13 @@ public:
 	required_shared_ptr<UINT16> m_pf2_rowscroll;
 	required_shared_ptr<UINT16> m_spriteram;
 	optional_device<decospr_device> m_sprgen;
-//  UINT16 *  m_paletteram;    // currently this uses generic palette handling (in decocomn.c)
 
 	/* devices */
 	required_device<cpu_device> m_maincpu;
 	required_device<cpu_device> m_audiocpu;
 	required_device<deco16ic_device> m_deco_tilegen1;
 	required_device<decocomn_device> m_decocomn;
+	required_shared_ptr<UINT16> m_decrypted_opcodes;
 	DECLARE_DRIVER_INIT(dietgo);
 	virtual void machine_start();
 	UINT32 screen_update_dietgo(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);

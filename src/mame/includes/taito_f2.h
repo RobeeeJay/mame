@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Graves, Bryan McPhail, Brad Oliver, Andrew Prime, Brian Troha, Nicola Salmoria
 #include "machine/taitoio.h"
 #include "sound/okim6295.h"
 #include "video/tc0100scn.h"
@@ -51,8 +53,6 @@ public:
 	UINT16 *        m_spriteram_buffered;
 	UINT16 *        m_spriteram_delayed;
 	optional_shared_ptr<UINT16> m_cchip2_ram;           // for megablst only
-//  UINT16 *        m_paletteram;    // currently this uses generic palette handling
-
 
 	/* video-related */
 	struct f2_tempsprite *m_spritelist;
@@ -94,6 +94,7 @@ public:
 	int             m_nibble;
 	INT32           m_driveout_sound_latch;
 	INT32           m_oki_bank;
+	emu_timer       *m_int6_timer;
 
 	/* devices */
 	required_device<cpu_device> m_maincpu;

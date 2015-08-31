@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Juergen Buchmueller, Manuel Abadia
 /***************************************************************************
 
     Philips SAA1099 Sound driver
@@ -60,6 +62,13 @@
          |           |
     0x1c | ---- ---x | All channels enable (0 = off, 1 = on)
     0x1c | ---- --x- | Synch & Reset generators
+
+    Version History:
+    ================
+    ??-??-200? - First version of the driver submitted for MESS (GPL/MESS license)
+    ??-??-200? - Submitted to DOSBOX for Creative Music System/Game Blaster emulation
+    ??-??-201? - Driver relicensed to BSD 3 Clause (GPL+ compatible)
+    06-27-2015 - Applied clock divisor fix from DOSBOX SVN, http://www.vogons.org/viewtopic.php?p=344227#p344227
 
 ***************************************************************************/
 
@@ -157,10 +166,42 @@ saa1099_device::saa1099_device(const machine_config &mconfig, const char *tag, d
 void saa1099_device::device_start()
 {
 	/* copy global parameters */
+	m_master_clock = clock();
 	m_sample_rate = clock() / 256;
 
 	/* for each chip allocate one stream */
 	m_stream = stream_alloc(0, 2, m_sample_rate);
+
+	save_item(NAME(m_noise_params));
+	save_item(NAME(m_env_enable));
+	save_item(NAME(m_env_reverse_right));
+	save_item(NAME(m_env_mode));
+	save_item(NAME(m_env_bits));
+	save_item(NAME(m_env_clock));
+	save_item(NAME(m_env_step));
+	save_item(NAME(m_all_ch_enable));
+	save_item(NAME(m_sync_state));
+	save_item(NAME(m_selected_reg));
+
+	for (int i = 0; i < 6; i++)
+	{
+		save_item(NAME(m_channels[i].frequency), i);
+		save_item(NAME(m_channels[i].freq_enable), i);
+		save_item(NAME(m_channels[i].noise_enable), i);
+		save_item(NAME(m_channels[i].octave), i);
+		save_item(NAME(m_channels[i].amplitude), i);
+		save_item(NAME(m_channels[i].envelope), i);
+		save_item(NAME(m_channels[i].counter), i);
+		save_item(NAME(m_channels[i].freq), i);
+		save_item(NAME(m_channels[i].level), i);
+	}
+
+	for (int i = 0; i < 2; i++)
+	{
+		save_item(NAME(m_noise[i].counter), i);
+		save_item(NAME(m_noise[i].freq), i);
+		save_item(NAME(m_noise[i].level), i);
+	}
 }
 
 
@@ -171,7 +212,6 @@ void saa1099_device::device_start()
 void saa1099_device::sound_stream_update(sound_stream &stream, stream_sample_t **inputs, stream_sample_t **outputs, int samples)
 {
 	int j, ch;
-
 	/* if the channels are disabled we're done */
 	if (!m_all_ch_enable)
 	{
@@ -185,10 +225,10 @@ void saa1099_device::sound_stream_update(sound_stream &stream, stream_sample_t *
 	{
 		switch (m_noise_params[ch])
 		{
-		case 0: m_noise[ch].freq = 31250.0 * 2; break;
-		case 1: m_noise[ch].freq = 15625.0 * 2; break;
-		case 2: m_noise[ch].freq =  7812.5 * 2; break;
-		case 3: m_noise[ch].freq = m_channels[ch * 3].freq; break;
+		case 0: m_noise[ch].freq = m_master_clock/256.0 * 2; break;
+		case 1: m_noise[ch].freq = m_master_clock/512.0 * 2; break;
+		case 2: m_noise[ch].freq = m_master_clock/1024.0 * 2; break;
+		case 3: m_noise[ch].freq = m_channels[ch * 3].freq;   break;
 		}
 	}
 
@@ -201,7 +241,7 @@ void saa1099_device::sound_stream_update(sound_stream &stream, stream_sample_t *
 		for (ch = 0; ch < 6; ch++)
 		{
 			if (m_channels[ch].freq == 0.0)
-				m_channels[ch].freq = (double)((2 * 15625) << m_channels[ch].octave) /
+				m_channels[ch].freq = (double)((2 * m_master_clock / 512) << m_channels[ch].octave) /
 					(511.0 - (double)m_channels[ch].frequency);
 
 			/* check the actual position in the square wave */
@@ -209,7 +249,7 @@ void saa1099_device::sound_stream_update(sound_stream &stream, stream_sample_t *
 			while (m_channels[ch].counter < 0)
 			{
 				/* calculate new frequency now after the half wave is updated */
-				m_channels[ch].freq = (double)((2 * 15625) << m_channels[ch].octave) /
+				m_channels[ch].freq = (double)((2 * m_master_clock / 512) << m_channels[ch].octave) /
 					(511.0 - (double)m_channels[ch].frequency);
 
 				m_channels[ch].counter += m_sample_rate;
@@ -217,27 +257,26 @@ void saa1099_device::sound_stream_update(sound_stream &stream, stream_sample_t *
 
 				/* eventually clock the envelope counters */
 				if (ch == 1 && m_env_clock[0] == 0)
-					saa1099_envelope(0);
+					envelope_w(0);
 				if (ch == 4 && m_env_clock[1] == 0)
-					saa1099_envelope(1);
+					envelope_w(1);
 			}
 
-			/* if the noise is enabled */
+			// if the noise is enabled
 			if (m_channels[ch].noise_enable)
 			{
-				/* if the noise level is high (noise 0: chan 0-2, noise 1: chan 3-5) */
+				// if the noise level is high (noise 0: chan 0-2, noise 1: chan 3-5)
 				if (m_noise[ch/3].level & 1)
 				{
-					/* subtract to avoid overflows, also use only half amplitude */
+					// subtract to avoid overflows, also use only half amplitude
 					output_l -= m_channels[ch].amplitude[ LEFT] * m_channels[ch].envelope[ LEFT] / 16 / 2;
 					output_r -= m_channels[ch].amplitude[RIGHT] * m_channels[ch].envelope[RIGHT] / 16 / 2;
 				}
 			}
-
-			/* if the square wave is enabled */
+			// if the square wave is enabled
 			if (m_channels[ch].freq_enable)
 			{
-				/* if the channel level is high */
+				// if the channel level is high
 				if (m_channels[ch].level & 1)
 				{
 					output_l += m_channels[ch].amplitude[ LEFT] * m_channels[ch].envelope[ LEFT] / 16;
@@ -266,7 +305,7 @@ void saa1099_device::sound_stream_update(sound_stream &stream, stream_sample_t *
 }
 
 
-void saa1099_device::saa1099_envelope(int ch)
+void saa1099_device::envelope_w(int ch)
 {
 	if (m_env_enable[ch])
 	{
@@ -309,7 +348,7 @@ void saa1099_device::saa1099_envelope(int ch)
 }
 
 
-WRITE8_MEMBER( saa1099_device::saa1099_control_w )
+WRITE8_MEMBER( saa1099_device::control_w )
 {
 	if ((data & 0xff) > 0x1c)
 	{
@@ -322,14 +361,14 @@ WRITE8_MEMBER( saa1099_device::saa1099_control_w )
 	{
 		/* clock the envelope channels */
 		if (m_env_clock[0])
-			saa1099_envelope(0);
+			envelope_w(0);
 		if (m_env_clock[1])
-			saa1099_envelope(1);
+			envelope_w(1);
 	}
 }
 
 
-WRITE8_MEMBER( saa1099_device::saa1099_data_w )
+WRITE8_MEMBER( saa1099_device::data_w )
 {
 	int reg = m_selected_reg;
 	int ch;

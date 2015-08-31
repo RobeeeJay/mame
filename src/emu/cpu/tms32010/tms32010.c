@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Tony La Porta
 	/**************************************************************************\
 	*                 Texas Instruments TMS32010 DSP Emulator                  *
 	*                                                                          *
@@ -217,7 +219,7 @@ offs_t tms32010_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 
  *  used to greatly speed up emulation
  */
 
-#define TMS32010_RDOP(A) (m_direct->read_decrypted_word((A)<<1))
+#define TMS32010_RDOP(A) (m_direct->read_word((A)<<1))
 
 
 /****************************************************************************
@@ -226,7 +228,7 @@ offs_t tms32010_device::disasm_disassemble(char *buffer, offs_t pc, const UINT8 
  *  that use different encoding mechanisms for opcodes and opcode arguments
  */
 
-#define TMS32010_RDOP_ARG(A) (m_direct->read_raw_word((A)<<1))
+#define TMS32010_RDOP_ARG(A) (m_direct->read_word((A)<<1))
 
 
 /************************************************************************
@@ -893,12 +895,12 @@ void tms32010_device::device_reset()
 }
 
 
-void tms32010_device::state_string_export(const device_state_entry &entry, astring &string)
+void tms32010_device::state_string_export(const device_state_entry &entry, std::string &str)
 {
 	switch (entry.index())
 	{
 		case STATE_GENFLAGS:
-			string.printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+			strprintf(str, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
 				m_STR & 0x8000 ? 'O':'.',
 				m_STR & 0x4000 ? 'M':'.',
 				m_STR & 0x2000 ? 'I':'.',

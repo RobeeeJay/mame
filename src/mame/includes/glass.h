@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Manuel Abadia
 /*************************************************************************
 
     Glass
@@ -22,7 +24,6 @@ public:
 	required_shared_ptr<UINT16> m_vregs;
 	required_shared_ptr<UINT16> m_spriteram;
 	required_shared_ptr<UINT16> m_mainram;
-//      UINT16 *    m_paletteram;    // currently this uses generic palette handling
 
 	/* video-related */
 	tilemap_t     *m_pant[2];

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:R. Belmont
 /***************************************************************************
 
     esqkt.c - Ensoniq KT-76, KT-88, and E-Prime
@@ -179,7 +181,7 @@ READ16_MEMBER(esqkt_state::esq5506_read_adc)
 WRITE_LINE_MEMBER(esqkt_state::duart_irq_handler)
 {
 	m_maincpu->set_input_line(M68K_IRQ_3, state);
-};
+}
 
 WRITE8_MEMBER(esqkt_state::duart_output)
 {
@@ -267,4 +269,4 @@ DRIVER_INIT_MEMBER(esqkt_state, kt)
 	m_duart_io = 0;
 }
 
-CONS( 1996, kt76, 0, 0, kt, kt, esqkt_state, kt, "Ensoniq", "KT-76", GAME_IMPERFECT_SOUND )
+CONS( 1996, kt76, 0, 0, kt, kt, esqkt_state, kt, "Ensoniq", "KT-76", MACHINE_IMPERFECT_SOUND )

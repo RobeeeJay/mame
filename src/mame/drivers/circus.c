@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Mike Coates
 /***************************************************************************
 
 Exidy 'Universal' Game Board V1
@@ -6,10 +8,11 @@ name                 year  CPU    board/rom numbers
 
 Robot Bowl           1977  6502   4020-4027, 4010-4013
 Circus               1977  6502   9000-9003, 9004-9011
-Football         Aug,1978  6502   unknown
-Rip Cord         May,1979  6502   RC30-0014 (cpu) 0015 (snd)
+Trapeze          Jun 1978  6502   unknown
+Football         Aug 1978  6502   unknown
+Rip Cord         May 1979  6502   RC30-0014 (cpu) 0015 (snd)
                                   9023-9026, 9027-9034, 9035
-Crash           July,1979  6502   CR30-3162 (cpu) 3161 (snd)  9036 (?)
+Crash           July 1979  6502   CR30-3162 (cpu) 3161 (snd)  9036 (?)
 
 ***************************************************************************
 
@@ -575,9 +578,9 @@ DRIVER_INIT_MEMBER(circus_state,ripcord)
 }
 
 
-GAMEL(1977, circus,   0,      circus,   circus, circus_state,   circus,   ROT0, "Exidy / Taito", "Circus / Acrobat TV", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_SOUND, layout_circus )
-GAMEL(1977, springbd, circus, circus,   circus, circus_state,   circus,   ROT0, "bootleg (Sub-Electro)", "Springboard (bootleg of Circus)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_SOUND, layout_circus ) // looks like a text hack, but we've seen 2 identical copies so it's worth supporting
-GAME( 1977, robotbwl, 0,      robotbwl, robotbwl, circus_state, robotbwl, ROT0, "Exidy", "Robot Bowl", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_SOUND )
-GAMEL(1979, crash,    0,      crash,    crash, circus_state,    crash,    ROT0, "Exidy", "Crash", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_SOUND, layout_crash )
-GAMEL(1979, smash,    crash,  crash,    crash, circus_state,    crash,    ROT0, "bootleg", "Smash (Crash bootleg)", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_SOUND, layout_crash ) // looks like a text hack, but it also had a different bezel
-GAME( 1979, ripcord,  0,      ripcord,  ripcord, circus_state,  ripcord,  ROT0, "Exidy", "Rip Cord", GAME_SUPPORTS_SAVE | GAME_IMPERFECT_SOUND )
+GAMEL(1977, circus,   0,      circus,   circus, circus_state,   circus,   ROT0, "Exidy / Taito", "Circus / Acrobat TV", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_SOUND, layout_circus )
+GAMEL(1977, springbd, circus, circus,   circus, circus_state,   circus,   ROT0, "bootleg (Sub-Electro)", "Springboard (bootleg of Circus)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_SOUND, layout_circus ) // looks like a text hack, but we've seen 2 identical copies so it's worth supporting
+GAME( 1977, robotbwl, 0,      robotbwl, robotbwl, circus_state, robotbwl, ROT0, "Exidy", "Robot Bowl", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_SOUND )
+GAMEL(1979, crash,    0,      crash,    crash, circus_state,    crash,    ROT0, "Exidy", "Crash", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_SOUND, layout_crash )
+GAMEL(1979, smash,    crash,  crash,    crash, circus_state,    crash,    ROT0, "bootleg", "Smash (Crash bootleg)", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_SOUND, layout_crash ) // looks like a text hack, but it also had a different bezel
+GAME( 1979, ripcord,  0,      ripcord,  ripcord, circus_state,  ripcord,  ROT0, "Exidy", "Rip Cord", MACHINE_SUPPORTS_SAVE | MACHINE_IMPERFECT_SOUND )

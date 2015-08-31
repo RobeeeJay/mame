@@ -1,4 +1,4 @@
-// license:MAME
+// license:LGPL-2.1+
 // copyright-holders:Angelo Salese, Barry Rodewald
 /************************************************************************************************
 
@@ -206,6 +206,7 @@
 ************************************************************************************************/
 
 #include "includes/x1.h"
+#include "formats/2d_dsk.h"
 
 #define MAIN_CLOCK XTAL_16MHz
 #define VDP_CLOCK  XTAL_42_9545MHz
@@ -1021,10 +1022,12 @@ READ8_MEMBER( x1_state::x1_fdc_r )
 
 WRITE8_MEMBER( x1_state::x1_fdc_w )
 {
+	floppy_image_device *floppy = NULL;
+
 	switch(offset+0xff8)
 	{
 		case 0x0ff8:
-			m_fdc->command_w(space, offset,data);
+			m_fdc->cmd_w(space, offset,data);
 			break;
 		case 0x0ff9:
 			m_fdc->track_w(space, offset,data);
@@ -1035,12 +1038,25 @@ WRITE8_MEMBER( x1_state::x1_fdc_w )
 		case 0x0ffb:
 			m_fdc->data_w(space, offset,data);
 			break;
+
 		case 0x0ffc:
-			m_fdc->set_drive(data & 3);
-			floppy_get_device(machine(), data & 3)->floppy_mon_w(!BIT(data, 7));
-			floppy_get_device(machine(), data & 3)->floppy_drive_set_ready_state(data & 0x80,0);
-			m_fdc->set_side(BIT(data, 4));
+			switch (data & 0x03)
+			{
+			case 0: floppy = m_floppy0->get_device(); break;
+			case 1: floppy = m_floppy1->get_device(); break;
+			case 2: floppy = m_floppy2->get_device(); break;
+			case 3: floppy = m_floppy3->get_device(); break;
+			}
+
+			m_fdc->set_floppy(floppy);
+
+			if (floppy)
+			{
+				floppy->ss_w(BIT(data, 4));
+				floppy->mon_w(!BIT(data, 7));
+			}
 			break;
+
 		case 0x0ffd:
 		case 0x0ffe:
 		case 0x0fff:
@@ -2414,21 +2430,13 @@ PALETTE_INIT_MEMBER(x1_state,x1)
 		palette.set_pen_color(i,rgb_t(0x00,0x00,0x00));
 }
 
-static LEGACY_FLOPPY_OPTIONS_START( x1 )
-	LEGACY_FLOPPY_OPTION( img2d, "2d", "2D disk image", basicdsk_identify_default, basicdsk_construct_default, NULL,
-		HEADS([2])
-		TRACKS([40])
-		SECTORS([16])
-		SECTOR_LENGTH([256])
-		FIRST_SECTOR_ID([1]))
-LEGACY_FLOPPY_OPTIONS_END
+FLOPPY_FORMATS_MEMBER( x1_state::floppy_formats )
+	FLOPPY_2D_FORMAT
+FLOPPY_FORMATS_END
 
-static const floppy_interface x1_floppy_interface =
-{
-	FLOPPY_STANDARD_5_25_DSDD_40,
-	LEGACY_FLOPPY_OPTIONS_NAME(x1),
-	"floppy_5_25"
-};
+static SLOT_INTERFACE_START( x1_floppies )
+	SLOT_INTERFACE("dd", FLOPPY_525_DD)
+SLOT_INTERFACE_END
 
 static MACHINE_CONFIG_START( x1, x1_state )
 	/* basic machine hardware */
@@ -2475,8 +2483,14 @@ static MACHINE_CONFIG_START( x1, x1_state )
 
 	MCFG_VIDEO_START_OVERRIDE(x1_state,x1)
 
-	MCFG_DEVICE_ADD("fdc", MB8877, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE4_TAGS
+	MCFG_MB8877_ADD("fdc", MAIN_CLOCK / 16)
+
+	MCFG_FLOPPY_DRIVE_ADD("fdc:0", x1_floppies, "dd", x1_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("fdc:1", x1_floppies, "dd", x1_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("fdc:2", x1_floppies, "dd", x1_state::floppy_formats)
+	MCFG_FLOPPY_DRIVE_ADD("fdc:3", x1_floppies, "dd", x1_state::floppy_formats)
+
+	MCFG_SOFTWARE_LIST_ADD("flop_list","x1_flop")
 
 	MCFG_GENERIC_CARTSLOT_ADD("cartslot", generic_plain_slot, "x1_cart")
 	MCFG_GENERIC_EXTENSIONS("bin,rom")
@@ -2502,9 +2516,6 @@ static MACHINE_CONFIG_START( x1, x1_state )
 
 	MCFG_SOFTWARE_LIST_ADD("cass_list","x1_cass")
 
-	MCFG_LEGACY_FLOPPY_4_DRIVES_ADD(x1_floppy_interface)
-	MCFG_SOFTWARE_LIST_ADD("flop_list","x1_flop")
-
 	MCFG_TIMER_DRIVER_ADD_PERIODIC("keyboard_timer", x1_state, x1_keyboard_callback, attotime::from_hz(250))
 	MCFG_TIMER_DRIVER_ADD_PERIODIC("cmt_wind_timer", x1_state, x1_cmt_wind_timer, attotime::from_hz(16))
 MACHINE_CONFIG_END
@@ -2527,10 +2538,8 @@ static MACHINE_CONFIG_DERIVED( x1turbo, x1 )
 	MCFG_Z80DMA_IN_IORQ_CB(READ8(x1_state, io_read_byte))
 	MCFG_Z80DMA_OUT_IORQ_CB(WRITE8(x1_state, io_write_byte))
 
-	MCFG_DEVICE_REMOVE("fdc")
-	MCFG_DEVICE_ADD("fdc", MB8877, 0)
-	MCFG_WD17XX_DEFAULT_DRIVE4_TAGS
-	MCFG_WD17XX_DRQ_CALLBACK(WRITELINE(x1_state,fdc_drq_w))
+	MCFG_DEVICE_MODIFY("fdc")
+	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(x1_state, fdc_drq_w))
 
 	MCFG_YM2151_ADD("ym", MAIN_CLOCK/8) //option board
 	MCFG_SOUND_ROUTE(0, "lspeaker",  0.50)
@@ -2543,7 +2552,7 @@ MACHINE_CONFIG_END
  *
  *************************************/
 
-	ROM_START( x1 )
+ROM_START( x1 )
 	ROM_REGION( 0x8000, "ipl", ROMREGION_ERASEFF )
 	ROM_LOAD( "ipl.x1", 0x0000, 0x1000, CRC(7b28d9de) SHA1(c4db9a6e99873808c8022afd1c50fef556a8b44d) )
 
@@ -2635,6 +2644,6 @@ DRIVER_INIT_MEMBER(x1_state,x1_kanji)
 /*    YEAR  NAME       PARENT  COMPAT   MACHINE  INPUT       INIT      COMPANY    FULLNAME      FLAGS */
 COMP( 1982, x1,        0,      0,       x1,      x1, driver_device,         0,        "Sharp", "X1 (CZ-800C)", 0 )
 // x1twin in x1twin.c
-COMP( 1984, x1turbo,   x1,     0,       x1turbo, x1turbo, x1_state,    x1_kanji, "Sharp", "X1 Turbo (CZ-850C)", GAME_NOT_WORKING ) //model 10
+COMP( 1984, x1turbo,   x1,     0,       x1turbo, x1turbo, x1_state,    x1_kanji, "Sharp", "X1 Turbo (CZ-850C)", MACHINE_NOT_WORKING ) //model 10
 COMP( 1985, x1turbo40, x1,     0,       x1turbo, x1turbo, x1_state,    x1_kanji, "Sharp", "X1 Turbo (CZ-862C)", 0 ) //model 40
-//COMP( 1986, x1turboz, x1,     0,       x1turbo, x1turbo, x1_state,    x1_kanji, "Sharp", "X1 TurboZ", GAME_NOT_WORKING )
+//COMP( 1986, x1turboz, x1,     0,       x1turbo, x1turbo, x1_state,    x1_kanji, "Sharp", "X1 TurboZ", MACHINE_NOT_WORKING )

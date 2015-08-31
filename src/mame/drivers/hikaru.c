@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:David Haywood
 /* Sega Hikaru / 'Samurai' */
 
 /*
@@ -373,7 +375,7 @@ Notes:
     subroutines, after all.)
 
   - the serial device at 0080000(A|C) is not an EEPROM; it's likely some
-    weird device that is used to query the heirarchy of the attached
+    weird device that is used to query the hierarchy of the attached
     input/output devices. Probably the naomi has something similar, I
     haven't looked into it yet.
 
@@ -741,9 +743,9 @@ ROM_START( sgnascar )
 	ROM_PARAMETER( ":rom_board:key", "56dedf33" )
 ROM_END
 
-GAME( 2000, hikaru,   0,        hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Hikaru Bios", GAME_NO_SOUND|GAME_NOT_WORKING|GAME_IS_BIOS_ROOT )
-GAME( 1999, braveff,  hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Brave Fire Fighters", GAME_NO_SOUND|GAME_NOT_WORKING )
-GAME( 2000, airtrix,  hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Air Trix", GAME_NO_SOUND|GAME_NOT_WORKING )
-GAME( 2000, sgnascar, hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega / Electronic Arts", "NASCAR Racing", GAME_NO_SOUND|GAME_NOT_WORKING )
-GAME( 2001, pharrier, hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Planet Harriers", GAME_NO_SOUND|GAME_NOT_WORKING )
-GAME( 2001, podrace,  hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Star Wars Pod Racer", GAME_NO_SOUND|GAME_NOT_WORKING )
+GAME( 2000, hikaru,   0,        hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Hikaru Bios", MACHINE_NO_SOUND|MACHINE_NOT_WORKING|MACHINE_IS_BIOS_ROOT )
+GAME( 1999, braveff,  hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Brave Fire Fighters", MACHINE_NO_SOUND|MACHINE_NOT_WORKING )
+GAME( 2000, airtrix,  hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Air Trix", MACHINE_NO_SOUND|MACHINE_NOT_WORKING )
+GAME( 2000, sgnascar, hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega / Electronic Arts", "NASCAR Racing", MACHINE_NO_SOUND|MACHINE_NOT_WORKING )
+GAME( 2001, pharrier, hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Planet Harriers", MACHINE_NO_SOUND|MACHINE_NOT_WORKING )
+GAME( 2001, podrace,  hikaru,   hikaru,   hikaru, driver_device,   0, ROT0, "Sega",            "Star Wars Pod Racer", MACHINE_NO_SOUND|MACHINE_NOT_WORKING )

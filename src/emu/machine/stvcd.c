@@ -1,4 +1,4 @@
-// license:MAME
+// license:LGPL-2.1+
 // copyright-holders:Angelo Salese, R. Belmont
 /***************************************************************************
 
@@ -862,7 +862,11 @@ void saturn_state::cd_exec_command( void )
 					//printf("Partition %08x %04x\n",bufnum,cr4);
 				}
 
-				hirqreg |= (CMOK|DRDY);
+				//printf("%04x\n",cr4);
+				if(cr4 == 0)
+					hirqreg |= (CMOK);
+				else
+					hirqreg |= (CMOK|DRDY);
 				status_type = 1;
 			}
 			break;
@@ -1429,7 +1433,7 @@ void saturn_state::stvcd_reset( void )
 	cd_stat |= CD_STAT_PERI;
 	cur_track = 0xff;
 
-	curdir.reset();
+	curdir.clear();
 
 	xfertype = XFERTYPE_INVALID;
 	xfertype32 = XFERTYPE32_INVALID;
@@ -1908,6 +1912,7 @@ void saturn_state::cd_writeWord(UINT32 addr, UINT16 data)
 		cr1 = data;
 		cd_stat &= ~CD_STAT_PERI;
 		cmd_pending |= 1;
+		sh1_timer->adjust(attotime::never);
 		break;
 	case 0x001c:
 	case 0x001e:
@@ -2140,7 +2145,7 @@ void saturn_state::make_dir_current(UINT32 fad)
 	dynamic_buffer sect(MAX_DIR_SIZE);
 	direntryT *curentry;
 
-	memset(sect, 0, MAX_DIR_SIZE);
+	memset(&sect[0], 0, MAX_DIR_SIZE);
 	if(sectlenin != 2048)
 		popmessage("Sector Length %d, contact MAMEdev (1)",sectlenin);
 
@@ -2165,7 +2170,7 @@ void saturn_state::make_dir_current(UINT32 fad)
 	}
 
 	curdir.resize(numentries);
-	curentry = curdir;
+	curentry = &curdir[0];
 	numfiles = numentries;
 
 	nextent = 0;
@@ -2233,7 +2238,7 @@ void saturn_state::make_dir_current(UINT32 fad)
 
 void saturn_state::stvcd_exit( void )
 {
-	curdir.reset();
+	curdir.clear();
 
 	if (cdrom)
 	{

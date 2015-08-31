@@ -1,10 +1,8 @@
+// license:GPL-2.0+
+// copyright-holders:Kevin Thacker, Dirk Best, Phill Harvey-Smith
 /******************************************************************************
 
     Tatung Einstein
-
-    license: MAME
-    copyright-holders: Kevin Thacker, Dirk Best, Phill Harvey-Smith
-
 
     TMS9129 VDP Graphics
         16k ram
@@ -736,7 +734,7 @@ static MACHINE_CONFIG_START( einstein, einstein_state )
 	/* uart */
 	MCFG_DEVICE_ADD(IC_I060, I8251, 0)
 
-	MCFG_WD1770x_ADD(IC_I042, XTAL_X002)
+	MCFG_WD1770_ADD(IC_I042, XTAL_X002)
 
 	MCFG_FLOPPY_DRIVE_ADD(IC_I042 ":0", einstein_floppies, "525dd", floppy_image_device::default_floppy_formats)
 	MCFG_FLOPPY_DRIVE_ADD(IC_I042 ":1", einstein_floppies, "525dd", floppy_image_device::default_floppy_formats)
@@ -832,4 +830,4 @@ ROM_END
 /*    YEAR  NAME      PARENT    COMPAT  MACHINE   INPUT           INIT  COMPANY   FULLNAME                             FLAGS */
 COMP( 1984, einstein, 0,        0,      einstein, einstein, driver_device,       0,    "Tatung", "Einstein TC-01",                    0 )
 COMP( 1984, einstei2, einstein, 0,      einstei2, einstein_80col, driver_device, 0,    "Tatung", "Einstein TC-01 + 80 column device", 0 )
-COMP( 1984, einst256, 0,        0,      einstein, einstein, driver_device,       0,    "Tatung", "Einstein 256",                         GAME_NOT_WORKING )
+COMP( 1984, einst256, 0,        0,      einstein, einstein, driver_device,       0,    "Tatung", "Einstein 256",                         MACHINE_NOT_WORKING )

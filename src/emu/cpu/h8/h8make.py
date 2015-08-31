@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
 USAGE = """
 Usage:
 %s h8.lst <type> h8.inc (type = o/h/s20/s26)
@@ -7,23 +9,23 @@ Usage:
 import sys
 
 def name_to_type(name):
-    if(name == "o"):
+    if name == "o":
         return 0
-    if(name == "h"):
+    if name == "h":
         return 1
-    if(name == "s20"):
+    if name == "s20":
         return 2
-    if(name == "s26"):
+    if name == "s26":
         return 3
-    print "Unknown chip type name %s" % name
+    sys.stderr.write("Unknown chip type name %s\n" % name)
     sys.exit(1)
 
 def type_to_device(dtype):
-    if(dtype == 0):
+    if dtype == 0:
         return "h8_device"
-    if(dtype == 1):
+    if dtype == 1:
         return "h8h_device"
-    if(dtype == 2):
+    if dtype == 2:
         return "h8s2000_device"
     return "h8s2600_device"
 
@@ -45,45 +47,45 @@ def has_eat(ins):
     return False
 
 def save_full_one(f, t, name, source):
-    print >>f, "void %s::%s_full()" % (t, name)
-    print >>f, "{"
+    print("void %s::%s_full()" % (t, name), file=f)
+    print("{", file=f)
     substate = 1
     for line in source:
         if has_memory(line):
-            print >>f, "\tif(icount <= bcount) { inst_substate = %d; return; }" % substate
-            print >>f, line
-            substate = substate + 1
+            print("\tif(icount <= bcount) { inst_substate = %d; return; }" % substate, file=f)
+            print(line, file=f)
+            substate += 1
         elif has_eat(line):
-            print >>f, "\tif(icount) icount = bcount; inst_substate = %d; return;" % substate
-            substate = substate + 1
+            print("\tif(icount) icount = bcount; inst_substate = %d; return;" % substate, file=f)
+            substate += 1
         else:
-            print >>f, line
-    print >>f, "}"
-    print >>f
+            print(line, file=f)
+    print("}", file=f)
+    print("", file=f)
 
 def save_partial_one(f, t, name, source):
-    print >>f, "void %s::%s_partial()" % (t, name)
-    print >>f, "{"
-    print >>f, "switch(inst_substate) {"
-    print >>f, "case 0:"
+    print("void %s::%s_partial()" % (t, name), file=f)
+    print("{", file=f)
+    print("switch(inst_substate) {", file=f)
+    print("case 0:", file=f)
     substate = 1
     for line in source:
         if has_memory(line):
-            print >>f, "\tif(icount <= bcount) { inst_substate = %d; return; }" % substate
-            print >>f, "case %d:;" % substate
-            print >>f, line
-            substate = substate + 1
+            print("\tif(icount <= bcount) { inst_substate = %d; return; }" % substate, file=f)
+            print("case %d:;" % substate, file=f)
+            print(line, file=f)
+            substate += 1
         elif has_eat(line):
-            print >>f, "\tif(icount) icount = bcount; inst_substate = %d; return;" % substate
-            print >>f, "case %d:;" % substate
-            substate = substate + 1
+            print("\tif(icount) icount = bcount; inst_substate = %d; return;" % substate, file=f)
+            print("case %d:;" % substate, file=f)
+            substate += 1
         else:
-            print >>f, line
-    print >>f, "\tbreak;"
-    print >>f, "}"
-    print >>f, "\tinst_substate = 0;"
-    print >>f, "}"
-    print >>f
+            print(line, file=f)
+    print("\tbreak;", file=f)
+    print("}", file=f)
+    print("\tinst_substate = 0;", file=f)
+    print("}", file=f)
+    print("", file=f)
 
 class Hash:
     def __init__(self, premask):
@@ -96,7 +98,7 @@ class Hash:
         if val in self.d:
             h = self.d[val]
             if h.premask != premask:
-                print "Premask conflict"
+                sys.stderr.write("Premask conflict\n")
                 sys.exit(1)
             return h
         h = Hash(premask)
@@ -105,7 +107,7 @@ class Hash:
     
     def set(self, val, opc):
         if val in self.d:
-            print "Collision on %s" % opc.description()
+            sys.stderr.write("Collision on %s\n" % opc.description())
             sys.exit(1)
         self.d[val] = opc
 
@@ -122,22 +124,22 @@ class Opcode:
         self.enabled = otype == -1 or (otype == 0 and dtype == 0) or (otype != 0 and dtype >= otype)
         self.needed = self.enabled and (otype == dtype or (otype == -1 and dtype == 0))
         if dtype == 0 and (am1 == "r16l" or am2 == "r16l"):
-            self.mask[len(self.mask)-1] = self.mask[len(self.mask)-1] | 0x08
+            self.mask[len(self.mask) - 1] |= 0x08
         if dtype == 0 and (am1 == "r16h" or am2 == "r16h"):
-            self.mask[len(self.mask)-1] = self.mask[len(self.mask)-1] | 0x80
+            self.mask[len(self.mask) - 1] |= 0x80
         extra_words = 0
         if (am1 == "abs16" or am2 == "abs16" or am1 == "abs16e" or am1 == "abs24e") and self.skip == 0:
-            extra_words = extra_words + 1
+            extra_words += 1
         if (am1 == "abs32" or am2 == "abs32") and self.skip == 0:
-            extra_words = extra_words + 2
+            extra_words += 2
         if am1 == "imm16" or am1 == "rel16" or am1 == "r16d16h" or am2 == "r16d16h" or am1 == "r32d16h" or am2 == "r32d16h":
-            extra_words = extra_words + 1
+            extra_words += 1
         if am1 == "imm32" or am1 == "r32d32hh" or am2 == "r32d32hh":
-            extra_words = extra_words + 2
+            extra_words += 2
         self.extra_words = extra_words
         base_offset = len(self.val)/2 + self.skip
         for i in range(0, extra_words):
-            self.source.append("\tfetch(%d);\n" % (i+base_offset));
+            self.source.append("\tfetch(%d);\n" % (i+base_offset))
 
     def description(self):
         return "%s %s %s" % (self.name, self.am1, self.am2)
@@ -185,7 +187,7 @@ class Opcode:
         else:
             flags = "%d" % size
         
-        print >>f, "\t{ %d, 0x%08x, 0x%08x, 0x%04x, 0x%04x, \"%s\", DASM_%s, DASM_%s, %s }, // %s" % ( slot, val, mask, val2, mask2, self.name, self.am1 if self.am1 != "-" else "none", self.am2 if self.am2 != "-" else "none", flags, "needed" if self.needed else "inherited")
+        print("\t{ %d, 0x%08x, 0x%08x, 0x%04x, 0x%04x, \"%s\", DASM_%s, DASM_%s, %s }, // %s" % ( slot, val, mask, val2, mask2, self.name, self.am1 if self.am1 != "-" else "none", self.am2 if self.am2 != "-" else "none", flags, "needed" if self.needed else "inherited"), file=f)
 
 class Special:
     def __init__(self, val, name, otype, dtype):
@@ -217,13 +219,13 @@ class Macro:
         lval = ""
         for i in range(len(self.params)-1, len(tokens)-1):
             if lval != "":
-                lval = lval + " "
+                lval += " "
             lval = lval + tokens[i+1]
         values.append(lval)
         for i in range(0, len(self.source)):
             line = self.source[i]
-            for i in range(0, len(self.params)):
-                line = line.replace(self.params[i], values[i])
+            for j in range(0, len(self.params)):
+                line = line.replace(self.params[j], values[j])
             target.add_source_line(line)
 
 class DispatchStep:
@@ -234,7 +236,7 @@ class DispatchStep:
         self.enabled = False
         self.mask = opc.mask[pos-1]
         for i in range(0, pos):
-            self.name = self.name + ("%02x" % opc.val[i])
+            self.name += "%02x" % opc.val[i]
         if pos == 2:
             self.skip = opc.skip
         else:
@@ -244,13 +246,14 @@ class DispatchStep:
         return True
 
     def source(self):
-        start = self.pos / 2
+        start = self.pos // 2
         end = start + self.skip
         s = []
         for i in range(start, end+1):
             s.append("\tIR[%d] = fetch();" % i)
         s.append("\tinst_state = 0x%x0000 | IR[%d];" % (self.id, end))
-        return s;
+        return s
+
 
 class OpcodeList:
     def __init__(self, fname, dtype):
@@ -261,11 +264,12 @@ class OpcodeList:
         self.macros = {}
         try:
             f = open(fname, "r")
-        except Exception, err:
-            print "Cannot read opcodes file %s [%s]" % (fname, err)
+        except Exception:
+            err = sys.exc_info()[1]
+            sys.stderr.write("Cannot read opcodes file %s [%s]\n" % (fname, err))
             sys.exit(1)
         
-        opc = None
+        inf = None
         for line in f:
             if line.startswith("#"):
                 continue
@@ -273,7 +277,7 @@ class OpcodeList:
             if not line:
                 continue
             if line.startswith(" ") or line.startswith("\t"):
-                if inf != None:
+                if inf is not None:
                     # append instruction to last opcode, maybe expand a macro
                     tokens = line.split()
                     if tokens[0] in self.macros:
@@ -329,7 +333,7 @@ class OpcodeList:
                     if v in h.d:
                         d = h.d[v]
                         if not d.is_dispatch():
-                            print "Collision on %s" % opc.description()
+                            sys.stderr.write("Collision on %s\n" % opc.description())
                             sys.exit(1)
                         if opc.enabled:
                             d.enabled = True
@@ -343,13 +347,13 @@ class OpcodeList:
                         h = self.get(d.id)
     
     def save_dasm(self, f, dname):
-        print >>f, "const %s::disasm_entry %s::disasm_entries[] = {" % (dname, dname)
+        print("const %s::disasm_entry %s::disasm_entries[] = {" % (dname, dname), file=f)
         for opc in self.opcode_info:
             if opc.enabled:
                 opc.save_dasm(f)
-        print >>f, "\t{ 0, 0, 0, 0, 0, \"illegal\", 0, 0, 2 },"
-        print >>f, "};"
-        print >>f
+        print("\t{ 0, 0, 0, 0, 0, \"illegal\", 0, 0, 2 },", file=f)
+        print("};", file=f)
+        print("", file=f)
     
     def save_opcodes(self, f, t):
         for opc in self.opcode_info:
@@ -368,44 +372,44 @@ class OpcodeList:
             save_partial_one(f, t, "dispatch_" + dsp.name, dsp.source())
     
     def save_exec(self, f, t, dtype, v):
-        print >>f, "void %s::do_exec_%s()" % (t, v)
-        print >>f, "{"
-        print >>f, "\tswitch(inst_state >> 16) {"
+        print("void %s::do_exec_%s()" % (t, v), file=f)
+        print("{", file=f)
+        print("\tswitch(inst_state >> 16) {", file=f)
         for i in range(0, len(self.dispatch_info)+2):
             if i == 1:
-                print >>f, "\tcase 0x01: {"
-                print >>f, "\t\tswitch(inst_state & 0xffff) {"
+                print("\tcase 0x01: {", file=f)
+                print("\t\tswitch(inst_state & 0xffff) {", file=f)
                 for sta in self.states_info:
                     if sta.enabled:
-                        print >>f, "\t\tcase 0x%02x: state_%s_%s(); break;" % (sta.val & 0xffff, sta.name, v)
-                print >>f, "\t\t}"
-                print >>f, "\t\tbreak;"
-                print >>f, "\t}"
+                        print("\t\tcase 0x%02x: state_%s_%s(); break;" % (sta.val & 0xffff, sta.name, v), file=f)
+                print("\t\t}", file=f)
+                print("\t\tbreak;", file=f)
+                print("\t}", file=f)
             else:
                 if i == 0 or self.dispatch_info[i-2].enabled:
-                    print >>f, "\tcase 0x%02x: {" % i
+                    print("\tcase 0x%02x: {" % i, file=f)
                     h = self.get(i)
-                    print >>f, "\t\tswitch((inst_state >> 8) & 0x%02x) {" % h.mask
+                    print("\t\tswitch((inst_state >> 8) & 0x%02x) {" % h.mask, file=f)
                     for val, h2 in sorted(h.d.items()):
                         if h2.enabled:
                             fmask = h2.premask | (h.mask ^ 0xff)
                             c = ""
                             s = 0
-                            while(s < 0x100):
-                                c = c + "case 0x%02x: " % (val | s)
-                                s = s + 1
-                                while(s & fmask):
-                                    s = s + (s & fmask)                    
-                            print >>f, "\t\t%s{" % c
+                            while s < 0x100:
+                                c += "case 0x%02x: " % (val | s)
+                                s += 1
+                                while s & fmask:
+                                    s += s & fmask
+                            print("\t\t%s{" % c, file=f)
                             if h2.mask == 0x00:
                                 n = h2.d[0]
                                 if n.is_dispatch():
-                                    print >>f, "\t\t\tdispatch_%s_%s();" % (n.name, v)
+                                    print("\t\t\tdispatch_%s_%s();" % (n.name, v), file=f)
                                 else:
-                                    print >>f, "\t\t\t%s_%s();" % (n.function_name(), v)
-                                print >>f, "\t\t\tbreak;"
+                                    print("\t\t\t%s_%s();" % (n.function_name(), v), file=f)
+                                print("\t\t\tbreak;", file=f)
                             else:
-                                print >>f, "\t\t\tswitch(inst_state & 0x%02x) {" % h2.mask
+                                print("\t\t\tswitch(inst_state & 0x%02x) {" % h2.mask, file=f)
                                 if i == 0:
                                     mpos = 1
                                 else:
@@ -419,29 +423,29 @@ class OpcodeList:
                                             fmask = fmask | n.mask[mpos]
                                         c = ""
                                         s = 0
-                                        while(s < 0x100):
-                                            c = c + "case 0x%02x: " % (val2 | s)
-                                            s = s + 1
-                                            while(s & fmask):
-                                                s = s + (s & fmask)
+                                        while s < 0x100:
+                                            c += "case 0x%02x: " % (val2 | s)
+                                            s += 1
+                                            while s & fmask:
+                                                s += s & fmask
                                         if n.is_dispatch():
-                                            print >>f, "\t\t\t%sdispatch_%s_%s(); break;" % (c, n.name, v)
+                                            print("\t\t\t%sdispatch_%s_%s(); break;" % (c, n.name, v), file=f)
                                         else:
-                                            print >>f, "\t\t\t%s%s_%s(); break;" % (c, n.function_name(), v)
-                                print >>f, "\t\t\tdefault: illegal(); break;"
-                                print >>f, "\t\t\t}"
-                                print >>f, "\t\t\tbreak;"
-                            print >>f, "\t\t}"
-                    print >>f, "\t\tdefault: illegal(); break;"
-                    print >>f, "\t\t}"
-                    print >>f, "\t\tbreak;"
-                    print >>f, "\t}"
-        print >>f, "\t}"
-        print >>f, "}"
+                                            print("\t\t\t%s%s_%s(); break;" % (c, n.function_name(), v), file=f)
+                                print("\t\t\tdefault: illegal(); break;", file=f)
+                                print("\t\t\t}", file=f)
+                                print("\t\t\tbreak;", file=f)
+                            print("\t\t}", file=f)
+                    print("\t\tdefault: illegal(); break;", file=f)
+                    print("\t\t}", file=f)
+                    print("\t\tbreak;", file=f)
+                    print("\t}", file=f)
+        print("\t}", file=f)
+        print("}", file=f)
 
 def main(argv):
     if len(argv) != 4:
-        print USAGE % argv[0]
+        print(USAGE % argv[0])
         return 1
 
     dtype = name_to_type(argv[2])
@@ -450,7 +454,8 @@ def main(argv):
     
     try:
         f = open(argv[3], "w")
-    except Exception, err:
+    except Exception:
+        err = sys.exc_info()[1]
         sys.stderr.write("cannot write file %s [%s]\n" % (argv[3], err))
         sys.exit(1)
 

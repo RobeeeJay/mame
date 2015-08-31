@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Pierpaolo Prazzoli
 /***************************************************************************
 
 Fighting Roller (c) 1983 Kaneko
@@ -429,6 +431,6 @@ ROM_START( rollace2 )
 ROM_END
 
 
-GAME( 1983, fightrol, 0,        rollrace, rollrace, driver_device, 0, ROT270, "Kaneko (Taito license)", "Fighting Roller", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1983, rollace,  fightrol, rollrace, rollrace, driver_device, 0, ROT270, "Kaneko (Williams license)", "Roller Aces (set 1)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1983, rollace2, fightrol, rollace2, rollrace, driver_device, 0, ROT90,  "Kaneko (Williams license)", "Roller Aces (set 2)", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1983, fightrol, 0,        rollrace, rollrace, driver_device, 0, ROT270, "Kaneko (Taito license)", "Fighting Roller", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1983, rollace,  fightrol, rollrace, rollrace, driver_device, 0, ROT270, "Kaneko (Williams license)", "Roller Aces (set 1)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )
+GAME( 1983, rollace2, fightrol, rollace2, rollrace, driver_device, 0, ROT90,  "Kaneko (Williams license)", "Roller Aces (set 2)", MACHINE_IMPERFECT_SOUND | MACHINE_SUPPORTS_SAVE )

@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Roberto Fresca
 /***************************************************************************************
 
     Product name:    Pitagorin Junior.
@@ -227,4 +229,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME    PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY   FULLNAME       FLAGS */
-COMP( 199?, pitagjr,    0,       0,  pitajr,   pitajr, driver_device,     0,  "VTech",   "Pitagorin Junior", GAME_IS_SKELETON)
+COMP( 199?, pitagjr,    0,       0,  pitajr,   pitajr, driver_device,     0,  "VTech",   "Pitagorin Junior", MACHINE_IS_SKELETON)

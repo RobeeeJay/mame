@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Miodrag Milanovic
 /***************************************************************************
 
         Kramer MC driver by Miodrag Milanovic
@@ -146,4 +148,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME   PARENT  COMPAT  MACHINE  INPUT   INIT                 COMPANY                 FULLNAME   FLAGS */
-COMP( 1987, kramermc,     0,      0,    kramermc,   kramermc, kramermc_state,   kramermc,"Manfred Kramer", "Kramer MC",      GAME_NO_SOUND)
+COMP( 1987, kramermc,     0,      0,    kramermc,   kramermc, kramermc_state,   kramermc,"Manfred Kramer", "Kramer MC",      MACHINE_NO_SOUND)

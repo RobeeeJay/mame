@@ -1,3 +1,5 @@
+// license:GPL-2.0+
+// copyright-holders:Raphael Nabet
 /*********************************************************************
 
     drivers/lisa.c
@@ -21,26 +23,6 @@
 
 static ADDRESS_MAP_START(lisa_map, AS_PROGRAM, 16, lisa_state )
 	AM_RANGE(0x000000, 0xffffff) AM_READWRITE(lisa_r, lisa_w)           /* no fixed map, we use an MMU */
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( lisa_cop_io_map, AS_IO, 8, lisa_state )
-	AM_RANGE(COP400_PORT_L, COP400_PORT_L) AM_NOP
-	AM_RANGE(COP400_PORT_G, COP400_PORT_G) AM_NOP
-	AM_RANGE(COP400_PORT_D, COP400_PORT_D) AM_NOP
-	AM_RANGE(COP400_PORT_IN, COP400_PORT_IN) AM_NOP
-	AM_RANGE(COP400_PORT_SK, COP400_PORT_SK) AM_WRITENOP
-	AM_RANGE(COP400_PORT_SIO, COP400_PORT_SIO) AM_NOP
-	AM_RANGE(COP400_PORT_CKO, COP400_PORT_CKO) AM_READNOP
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( kb_cop_io_map, AS_IO, 8, lisa_state )
-	AM_RANGE(COP400_PORT_L, COP400_PORT_L) AM_NOP
-	AM_RANGE(COP400_PORT_G, COP400_PORT_G) AM_NOP
-	AM_RANGE(COP400_PORT_D, COP400_PORT_D) AM_NOP
-	AM_RANGE(COP400_PORT_IN, COP400_PORT_IN) AM_NOP
-	AM_RANGE(COP400_PORT_SK, COP400_PORT_SK) AM_WRITENOP
-	AM_RANGE(COP400_PORT_SIO, COP400_PORT_SIO) AM_NOP
-	AM_RANGE(COP400_PORT_CKO, COP400_PORT_CKO) AM_READNOP
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START(lisa_fdc_map, AS_PROGRAM, 8, lisa_state )
@@ -120,11 +102,9 @@ static MACHINE_CONFIG_START( lisa, lisa_state )
 	MCFG_CPU_VBLANK_INT_DRIVER("screen", lisa_state,  lisa_interrupt)
 
 	MCFG_CPU_ADD(COP421_TAG, COP421, 3900000)
-	MCFG_CPU_IO_MAP(lisa_cop_io_map)
 	MCFG_COP400_CONFIG( COP400_CKI_DIVISOR_16, COP400_CKO_OSCILLATOR_OUTPUT, COP400_MICROBUS_ENABLED )
 
 	MCFG_CPU_ADD(KB_COP421_TAG, COP421, 3900000) // ?
-	MCFG_CPU_IO_MAP(kb_cop_io_map)
 	MCFG_COP400_CONFIG( COP400_CKI_DIVISOR_16, COP400_CKO_OSCILLATOR_OUTPUT, COP400_MICROBUS_ENABLED )
 
 	MCFG_CPU_ADD("fdccpu", M6504, 2000000)        /* 16.000 MHz / 8 in when DIS asserted, 16.000 MHz / 9 otherwise (?) */
@@ -497,10 +477,10 @@ ROM_END
 
 /*
     Lisa drivers boot MacWorks, but do not boot the Lisa OS, which is why we set
-    the GAME_NOT_WORKING flag...
+    the MACHINE_NOT_WORKING flag...
 */
 /*     YEAR  NAME      PARENT   COMPAT  MACHINE   INPUT  INIT   COMPANY  FULLNAME */
-COMP( 1983, lisa,     0,    0,  lisa,     lisa, lisa_state,  lisa2,         "Apple Computer",  "Lisa", GAME_NOT_WORKING )
-COMP( 1984, lisa2,    0,    0,  lisa,     lisa, lisa_state,  lisa2,         "Apple Computer",  "Lisa2", GAME_NOT_WORKING )
-COMP( 1984, lisa210,  lisa2,    0,  lisa210,  lisa, lisa_state,  lisa210,   "Apple Computer",  "Lisa2/10", GAME_NOT_WORKING )
-COMP( 1985, macxl,    lisa2,    0,  macxl,    lisa, lisa_state,  mac_xl,    "Apple Computer",  "Macintosh XL", /*GAME_NOT_WORKING*/0 )
+COMP( 1983, lisa,     0,    0,  lisa,     lisa, lisa_state,  lisa2,         "Apple Computer",  "Lisa", MACHINE_NOT_WORKING )
+COMP( 1984, lisa2,    0,    0,  lisa,     lisa, lisa_state,  lisa2,         "Apple Computer",  "Lisa2", MACHINE_NOT_WORKING )
+COMP( 1984, lisa210,  lisa2,    0,  lisa210,  lisa, lisa_state,  lisa210,   "Apple Computer",  "Lisa2/10", MACHINE_NOT_WORKING )
+COMP( 1985, macxl,    lisa2,    0,  macxl,    lisa, lisa_state,  mac_xl,    "Apple Computer",  "Macintosh XL", /*MACHINE_NOT_WORKING*/0 )

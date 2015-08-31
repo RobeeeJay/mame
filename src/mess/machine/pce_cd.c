@@ -1,3 +1,5 @@
+// license:BSD-3-Clause
+// copyright-holders:Wilbert Pol
 /************************************************************
 
 PC Engine CD HW notes:
@@ -78,6 +80,7 @@ const device_type PCE_CD = &device_creator<pce_cd_device>;
 
 pce_cd_device::pce_cd_device(const machine_config &mconfig, const char *tag, device_t *owner, UINT32 clock)
 					: device_t(mconfig, PCE_CD, "PCE CD Add-on", tag, owner, clock, "pcecd", __FILE__),
+						m_maincpu(*this, ":maincpu"),
 						m_msm(*this, "msm5205"),
 						m_cdda(*this, "cdda"),
 						m_nvram(*this, "bram"),
@@ -229,9 +232,17 @@ void pce_cd_device::late_setup()
 	m_msm->change_clock_w((PCE_CD_CLOCK / 6) / m_adpcm_clock_divider);
 }
 
+void pce_cd_device::nvram_init(nvram_device &nvram, void *data, size_t size)
+{
+	static const UINT8 init[8] = { 0x48, 0x55, 0x42, 0x4d, 0x00, 0xa0, 0x10, 0x80 };
+
+	memset(data, 0x00, size);
+	memcpy(data, init, sizeof(init));
+}
+
 // TODO: left and right speaker tags should be passed from the parent config, instead of using the hard-coded ones below!?!
 static MACHINE_CONFIG_FRAGMENT( pce_cd )
-	MCFG_NVRAM_ADD_0FILL("bram")
+	MCFG_NVRAM_ADD_CUSTOM_DRIVER("bram", pce_cd_device, nvram_init)
 
 	MCFG_CDROM_ADD("cdrom")
 	MCFG_CDROM_INTERFACE("pce_cdrom")
@@ -920,11 +931,11 @@ void pce_cd_device::set_irq_line(int num, int state)
 	if (m_regs[0x02] & m_regs[0x03] & 0x7c)
 	{
 		//printf("IRQ PEND = %02x MASK = %02x IRQ ENABLE %02X\n",m_regs[0x02] & m_regs[0x03] & 0x7c,m_regs[0x02] & 0x7c,m_regs[0x03] & 0x7c);
-		machine().device<cpu_device>("maincpu")->set_input_line(1, ASSERT_LINE);
+		m_maincpu->set_input_line(1, ASSERT_LINE);
 	}
 	else
 	{
-		machine().device<cpu_device>("maincpu")->set_input_line(1, CLEAR_LINE);
+		m_maincpu->set_input_line(1, CLEAR_LINE);
 	}
 }
 
@@ -1257,7 +1268,7 @@ UINT8 pce_cd_device::get_cd_data_byte()
 		if (m_scsi_IO)
 		{
 			m_scsi_ACK = 1;
-			machine().scheduler().timer_set(machine().device<cpu_device>("maincpu")->cycles_to_attotime(15), timer_expired_delegate(FUNC(pce_cd_device::clear_ack),this));
+			machine().scheduler().timer_set(m_maincpu->cycles_to_attotime(15), timer_expired_delegate(FUNC(pce_cd_device::clear_ack),this));
 		}
 	}
 	return data;

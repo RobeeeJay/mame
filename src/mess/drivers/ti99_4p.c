@@ -1,4 +1,4 @@
-// license:MAME|LGPL-2.1+
+// license:LGPL-2.1+
 // copyright-holders:Michael Zapf
 /****************************************************************************
 
@@ -44,9 +44,11 @@
 
 #include "machine/tms9901.h"
 #include "imagedev/cassette.h"
-#include "machine/ti99/videowrp.h"
+
+#include "bus/ti99x/videowrp.h"
+#include "bus/ti99x/joyport.h"
+
 #include "bus/ti99_peb/peribox.h"
-#include "machine/ti99/joyport.h"
 
 #define TMS9901_TAG "tms9901"
 #define SGCPU_TAG "sgcpu"
@@ -124,10 +126,10 @@ public:
 	UINT16  *m_rom6b;
 
 	// AMS RAM (1 Mib)
-	dynamic_array<UINT16> m_ram;
+	std::vector<UINT16> m_ram;
 
 	// Scratch pad ram (1 KiB)
-	dynamic_array<UINT16> m_scratchpad;
+	std::vector<UINT16> m_scratchpad;
 
 	// First joystick. 6 for TI-99/4A
 	int     m_firstjoy;
