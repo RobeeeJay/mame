@@ -34,11 +34,11 @@
 #include "emuopts.h"
 #include "rendutil.h"
 #include "vector.h"
-
+#include <math.h>
 
 
 #define VECTOR_WIDTH_DENOM          512
-
+#define VECTOR_TOTALFADETIME	1.0f
 
 #define MAX_POINTS  10000
 
@@ -145,6 +145,24 @@ float vector_device::m_flicker_correction = 0.0f;
 float vector_device::m_beam_width = 0.0f;
 int vector_device::m_flicker;
 int vector_device::m_vector_index;
+int vector_device::m_vector_index_minus_clips;
+
+/* The new vector flickering vars */
+
+/*	The line fade is the reduction in brightness between the starting point of a vector line and the actual line itself.
+	All vector lines have a slightly brighter starting point because the beam is not moving when the line is turned on. */
+int vector_device::m_vector_linefade = 16;
+int vector_device::m_vector_dotboost = 16;
+
+/* This is the internal counter which keeps track of the current amount of phosphor fade for the last drawn line */
+float vector_device::m_vector_intensityroller = 0;
+
+/* This texture represents the dot pixel */
+bitmap_rgb32* vector_device::m_dotbitmap;
+render_texture *vector_device::m_dottexture;
+
+/* The dimensions of the dot bitmap, ideally an odd number */
+#define DOTSIZE 7
 
 void vector_device::device_start()
 {
@@ -154,9 +172,39 @@ void vector_device::device_start()
 	set_flicker(machine().options().flicker());
 
 	m_vector_index = 0;
+	m_vector_index_minus_clips = 0;
 
 	/* allocate memory for tables */
 	m_vector_list = auto_alloc_array_clear(machine(), point, MAX_POINTS);
+	
+	/* allocate memory for the vector dot bitmap */	
+	m_dotbitmap = auto_bitmap_rgb32_alloc(machine(), DOTSIZE, DOTSIZE);
+	m_dottexture = machine().render().texture_alloc();
+	m_dottexture->set_bitmap(*m_dotbitmap, m_dotbitmap->cliprect(), TEXFORMAT_ARGB32);
+	
+	float ratio_degrees = (float)M_PI / (float)(DOTSIZE - 1);
+	
+	/* create dot bitmap */
+	for (int y = 0; y < DOTSIZE; y++)
+	{
+		for (int x = 0; x < DOTSIZE; x ++)
+		{
+			int intensity;
+//logerror("X: %i, X-Deg: %f, X-Sin: %f, Y: %i, Y-Deg: %f, Y-Sin: %f", x, (float)x * ratio_degrees, sinf((float)x * ratio_degrees), y, (float)y * ratio_degrees, sinf((float)y * ratio_degrees));
+			intensity = (sinf((float)x * ratio_degrees) * 128) + (sinf((float)y * ratio_degrees) * 128);
+			
+			logerror("X: %i, Y: %i, Intensity: %i", x, y, intensity);
+			
+			if (intensity > 255)
+				intensity = 255;
+			if (intensity < 0)
+				intensity = 0;
+			
+			//logerror(", Adjusted Intensity: %i\n", intensity);
+			
+			m_dotbitmap->pix32(y, x) = rgb_t(0xff, intensity, intensity, intensity);
+		}
+	}
 }
 
 void vector_device::set_flicker(float _flicker)
@@ -208,6 +256,7 @@ void vector_device::add_point (int x, int y, rgb_t color, int intensity)
 	newpoint->status = VDIRTY; /* mark identical lines as clean later */
 
 	m_vector_index++;
+	m_vector_index_minus_clips++;
 	if (m_vector_index >= MAX_POINTS)
 	{
 		m_vector_index--;
@@ -251,17 +300,36 @@ void vector_device::clear_list (void)
 UINT32 vector_device::screen_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
 {
 	UINT32 flags = PRIMFLAG_ANTIALIAS(screen.machine().options().antialias() ? 1 : 0) | PRIMFLAG_BLENDMODE(BLENDMODE_ADD) | PRIMFLAG_VECTOR(1);
+	UINT32 vector_flags = flags | PRIMFLAG_VECTOR(1);
 	const rectangle &visarea = screen.visible_area();
 	float xscale = 1.0f / (65536 * visarea.width());
 	float yscale = 1.0f / (65536 * visarea.height());
 	float xoffs = (float)visarea.min_x;
 	float yoffs = (float)visarea.min_y;
+	float intensity_stepchange, halfbeam_width_x, halfbeam_width_y;
 	point *curpoint;
 	render_bounds clip;
 	int lastx = 0, lasty = 0;
-	int i;
+	int i, linefade, dotboost;
 
 	curpoint = m_vector_list;
+	
+	/* Flicker is the total amount of phosphor fade to simulate, and it takes VECTOR_TOTALFADETIME frames
+		to travel through a full fade which creates a pleasant and convincing flicker illusion on an LCD display */
+	intensity_stepchange = (float)m_flicker / (float)(m_vector_index_minus_clips * VECTOR_TOTALFADETIME);
+	
+	/*if (!m_flicker)
+		linefade = 0;
+	else*/
+		linefade = m_vector_linefade;
+	
+	dotboost = m_vector_dotboost;
+	
+	/* Quick calc of half the beam width used for plotting dot texture */
+	//halfbeam_width = beam_width * (1.0f / (float)VECTOR_WIDTH_DENOM);
+	halfbeam_width_x = m_beam_width * (screen.container().xscale() / (float)VECTOR_WIDTH_DENOM);
+	halfbeam_width_y = m_beam_width * (screen.container().yscale() / (float)VECTOR_WIDTH_DENOM);
+	//logerror("X-Scale: %f, Y-Scale: %f, Orientation: %i, Aspect: %f\n", screen.container().xscale(), screen.container().yscale(), screen.container().orientation(), screen.container().pixel_aspect());
 
 	screen.container().empty();
 	screen.container().add_rect(0.0f, 0.0f, 1.0f, 1.0f, rgb_t(0xff,0x00,0x00,0x00), PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_VECTORBUF(1));
@@ -291,13 +359,54 @@ UINT32 vector_device::screen_update(screen_device &screen, bitmap_rgb32 &bitmap,
 			coords.y0 = ((float)lasty - yoffs) * yscale;
 			coords.x1 = ((float)curpoint->x - xoffs) * xscale;
 			coords.y1 = ((float)curpoint->y - yoffs) * yscale;
+			
+			if (m_flicker == 40)
+				logerror("Roller: %f, Intensity: %i\n", m_vector_intensityroller, curpoint->intensity);
+				
+			curpoint->intensity = (int)((float)curpoint->intensity - m_vector_intensityroller);
+			
+			if (m_flicker == 40)
+				logerror("Adjusted Intensity: %i, ", curpoint->intensity);
+			
+			if (curpoint->intensity < 0)
+					curpoint->intensity = 0;
+				
+			if (m_flicker == 40)
+				logerror("Final Intensity: %i\n", curpoint->intensity);
+
+			m_vector_intensityroller += intensity_stepchange;
+			if (m_vector_intensityroller > (float)m_flicker)
+				m_vector_intensityroller = 0;
 
 			if (curpoint->intensity != 0)
+			{
 				if (!render_clip_line(&coords, &clip))
-					screen.container().add_line(coords.x0, coords.y0, coords.x1, coords.y1,
+				{
+					// Check if this is a dot so we can use a bitmap instead of a line
+					if ((coords.x0 == coords.x1) && (coords.y0 == coords.y1))
+					{
+						curpoint->intensity += dotboost;
+						if (curpoint->intensity > 255)
+							curpoint->intensity = 255;
+						
+						// Add a bright pixel texture
+						screen.container().add_quad(coords.x0 - halfbeam_width_x, coords.y0 - halfbeam_width_y, coords.x1 + halfbeam_width_x, coords.y1 + halfbeam_width_y, (curpoint->intensity << 24) | (curpoint->col & 0xffffff), m_dottexture, flags);
+					}
+					else
+					{
+						screen.container().add_quad(coords.x0 - halfbeam_width_x, coords.y0 - halfbeam_width_y, coords.x0 + halfbeam_width_x, coords.y0 + halfbeam_width_y, (curpoint->intensity << 24) | (curpoint->col & 0xffffff), m_dottexture, flags);
+						
+						curpoint->intensity -= linefade;
+						if (curpoint->intensity < 0)
+							curpoint->intensity = 0;
+
+						screen.container().add_line(coords.x0, coords.y0, coords.x1, coords.y1,
 							m_beam_width * (1.0f / (float)VECTOR_WIDTH_DENOM),
 							(curpoint->intensity << 24) | (curpoint->col & 0xffffff),
-							flags);
+							vector_flags);
+					}
+				}
+			}
 
 			lastx = curpoint->x;
 			lasty = curpoint->y;

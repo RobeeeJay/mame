@@ -59,6 +59,12 @@ private:
 	static float m_beam_width;
 	point *m_vector_list;
 	static int m_vector_index;
+	static int m_vector_index_minus_clips;
+	static int m_vector_linefade;
+	static int m_vector_dotboost;
+	static float m_vector_intensityroller;
+	static bitmap_rgb32 *m_dotbitmap;
+	static render_texture *m_dottexture;
 };
 
 
