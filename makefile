@@ -98,7 +98,7 @@
 ##################   END USER-CONFIGURABLE OPTIONS   ######################
 ###########################################################################
 
-MAKEPARAMS := -R
+MAKEPARAMS := -R -j8
 
 #
 # Determine running OS
@@ -177,7 +177,7 @@ ifdef VERBOSE
 MAKEPARAMS += verbose=1
 else
 SILENT := @
-MAKEPARAMS += --no-print-directory
+MAKEPARAMS += -R -j8
 endif
 
 #-------------------------------------------------
