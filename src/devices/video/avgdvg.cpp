@@ -123,7 +123,7 @@ void avgdvg_device_base::vg_flush()
 			}
 
 			m_vector->add_point(x0, y0, m_vectbuf[i].color, 0);
-			m_vector->add_point(x1, y1, m_vectbuf[i].color, m_vectbuf[i].intensity);
+			m_vector->add_point(x1, y1, m_vectbuf[i].color, m_vectbuf[i].intensity, float(m_vectbuf[i].cycles) / float(MASTER_CLOCK));
 		}
 
 		if (m_vectbuf[i].status == VGCLIP)
@@ -143,7 +143,7 @@ void avgdvg_device_base::vg_flush()
 	m_nvect = 0;
 }
 
-void avgdvg_device_base::vg_add_point_buf(int x, int y, rgb_t color, int intensity)
+void avgdvg_device_base::vg_add_point_buf(int x, int y, rgb_t color, int intensity, int cycles)
 {
 	if (m_nvect < MAXVECT)
 	{
@@ -152,6 +152,7 @@ void avgdvg_device_base::vg_add_point_buf(int x, int y, rgb_t color, int intensi
 		m_vectbuf[m_nvect].y = y;
 		m_vectbuf[m_nvect].color = color;
 		m_vectbuf[m_nvect].intensity = intensity;
+		m_vectbuf[m_nvect].cycles = cycles;
 		m_nvect++;
 	}
 }
@@ -217,7 +218,7 @@ int dvg_device::handler_1() // dvg_dmald
 	return 0;
 }
 
-void dvg_device::dvg_draw_to(int x, int y, int intensity)
+void dvg_device::dvg_draw_to(int x, int y, int intensity, int cycles)
 {
 	apply_flipping(x, y);
 
@@ -226,7 +227,8 @@ void dvg_device::dvg_draw_to(int x, int y, int intensity)
 				(m_xmin + x - 512) << 16,
 				(m_ymin + 512 - y) << 16,
 				vector_device::color111(7),
-				pal4bit(intensity));
+				pal4bit(intensity),
+				cycles);
 }
 
 int dvg_device::handler_2() //dvg_gostrobe
@@ -307,9 +309,9 @@ int dvg_device::handler_2() //dvg_gostrobe
 			if (!(m_ypos & 0x400) && ((m_xpos ^ (m_xpos + dx)) & 0x400))
 			{
 				if ((m_xpos + dx) & 0x400)  // We are leaving the valid range
-					dvg_draw_to(m_xpos, m_ypos, m_intensity);
+					dvg_draw_to(m_xpos, m_ypos, m_intensity, cycles);
 				else                        // We are entering the valid range
-					dvg_draw_to((m_xpos + dx) & 0xfff, m_ypos, 0);
+					dvg_draw_to((m_xpos + dx) & 0xfff, m_ypos, 0, 0);
 			}
 			m_xpos = (m_xpos + dx) & 0xfff;
 		}
@@ -321,16 +323,16 @@ int dvg_device::handler_2() //dvg_gostrobe
 				if (!(m_xpos & 0x400))
 				{
 					if ((m_ypos + dy) & 0x400)
-						dvg_draw_to(m_xpos, m_ypos, m_intensity);
+						dvg_draw_to(m_xpos, m_ypos, m_intensity, cycles);
 					else
-						dvg_draw_to(m_xpos, (m_ypos + dy) & 0xfff, 0);
+						dvg_draw_to(m_xpos, (m_ypos + dy) & 0xfff, 0, 0);
 				}
 			}
 			m_ypos = (m_ypos + dy) & 0xfff;
 		}
 	}
 
-	dvg_draw_to(m_xpos, m_ypos, m_intensity);
+	dvg_draw_to(m_xpos, m_ypos, m_intensity, cycles);
 
 	return cycles;
 }
@@ -343,7 +345,7 @@ int dvg_device::handler_3() // dvg_haltstrobe
 	{
 		m_xpos = m_dvx & 0xfff;
 		m_ypos = m_dvy & 0xfff;
-		dvg_draw_to(m_xpos, m_ypos, 0);
+		dvg_draw_to(m_xpos, m_ypos, 0, 0);
 	}
 	return 0;
 }
@@ -664,7 +666,8 @@ int avg_device::handler_7() // avg_strobe3
 				x,
 				y,
 				vector_device::color111(m_color),
-				pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)));
+				pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)),
+				cycles);
 	}
 
 	return cycles;
@@ -715,7 +718,8 @@ int avg_tempest_device::handler_7() // tempest_strobe3
 				y - m_ycenter + m_xcenter,
 				x - m_xcenter + m_ycenter,
 				rgb_t(r, g, b),
-				pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)));
+				pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)),
+				cycles);
 	}
 
 	return cycles;
@@ -832,7 +836,8 @@ int avg_mhavoc_device::handler_7()  // mhavoc_strobe3
 						x,
 						y,
 						rgb_t(r, g, b),
-						pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)));
+						pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)),
+						8);
 				m_spkl_shift = (BIT(m_spkl_shift, 6) ^ BIT(m_spkl_shift, 5) ^ 1) | (m_spkl_shift << 1);
 
 				if ((m_spkl_shift & 0x7f) == 0x7f)
@@ -861,7 +866,8 @@ int avg_mhavoc_device::handler_7()  // mhavoc_strobe3
 					x,
 					y,
 					rgb_t(r, g, b),
-					pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)));
+					pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)),
+					cycles);
 		}
 	}
 
@@ -944,7 +950,8 @@ int avg_starwars_device::handler_7() // starwars_strobe3
 				m_xpos,
 				m_ypos,
 				vector_device::color111(m_color),
-				intensity);
+				intensity,
+				cycles);
 	}
 
 	return cycles;
@@ -1178,7 +1185,8 @@ int avg_bzone_device::handler_7() // bzone_strobe3
 				m_xpos,
 				m_ypos,
 				vector_device::color111(7),
-				pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)));
+				pal4bit(((m_int_latch >> 1) == 1) ? m_intensity : (m_int_latch & 0xe)),
+				cycles);
 	}
 
 	return cycles;

@@ -41,6 +41,7 @@ protected:
 		int x; int y;
 		rgb_t color;
 		int intensity;
+		int cycles;
 		int arg1; int arg2;
 		int status;
 	};
@@ -73,7 +74,7 @@ protected:
 	void vg_set_halt(int dummy);
 
 	void vg_flush();
-	void vg_add_point_buf(int x, int y, rgb_t color, int intensity);
+	void vg_add_point_buf(int x, int y, rgb_t color, int intensity, int cycles = 0);
 	void vg_add_clip(int xmin, int ymin, int xmax, int ymax);
 
 	required_device<vector_device> m_vector;
@@ -137,7 +138,7 @@ protected:
 	virtual void vgrst() override;
 
 private:
-	void dvg_draw_to(int x, int y, int intensity);
+	void dvg_draw_to(int x, int y, int intensity, int cycles);
 };
 
 

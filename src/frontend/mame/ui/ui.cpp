@@ -2136,6 +2136,9 @@ std::vector<ui::menu_item> mame_ui_manager::slider_init(running_machine &machine
 		{
 			// add vector control (FIXME: these should all be per-screen rather than global)
 			slider_alloc(_("Vector Flicker"), 0, 0, 1000, 10, std::bind(&mame_ui_manager::slider_flicker, this, std::ref(screen), _1, _2));
+			slider_alloc(_("Vector Phosphor Fade"), 0, 150, 500, 10, std::bind(&mame_ui_manager::slider_beam_fade, this, std::ref(screen), _1, _2));
+			slider_alloc(_("Vector Phosphor Fade Cycle"), 10, 12, 19, 1, std::bind(&mame_ui_manager::slider_beam_fade_cycle, this, std::ref(screen), _1, _2));
+			slider_alloc(_("Vector Beam Jitter"), 0, 1, 20, 1, std::bind(&mame_ui_manager::slider_beam_jitter, this, std::ref(screen), _1, _2));
 			slider_alloc(_("Beam Width Minimum"), 100, 100, 1000, 1, std::bind(&mame_ui_manager::slider_beam_width_min, this, std::ref(screen), _1, _2));
 			slider_alloc(_("Beam Width Maximum"), 100, 100, 1000, 1, std::bind(&mame_ui_manager::slider_beam_width_max, this, std::ref(screen), _1, _2));
 			slider_alloc(_("Beam Dot Size"), 100, 100, 1000, 1,  std::bind(&mame_ui_manager::slider_beam_dot_size, this, std::ref(screen), _1, _2));
@@ -2560,6 +2563,51 @@ int32_t mame_ui_manager::slider_flicker([[maybe_unused]] device_video_output_int
 	if (str)
 		*str = string_format(_("%1$1.2f"), vector_options::s_flicker);
 	return floorf(vector_options::s_flicker * 1000.0F + 0.5F);
+}
+
+
+//-------------------------------------------------
+//  slider_beam_fade - vector phosphor fade slider
+//  callback
+//-------------------------------------------------
+
+int32_t mame_ui_manager::slider_beam_fade([[maybe_unused]] device_video_output_interface &screen, std::string *str, int32_t newval)
+{
+	if (newval != SLIDER_NOCHANGE)
+		vector_options::s_beam_fade = float(newval) * 0.1F;
+	if (str)
+		*str = string_format(_("%1$1.1f"), vector_options::s_beam_fade);
+	return floorf(vector_options::s_beam_fade * 10.0F + 0.5F);
+}
+
+
+//-------------------------------------------------
+//  slider_beam_fade_cycle - vector phosphor fade
+//  cycle slider callback
+//-------------------------------------------------
+
+int32_t mame_ui_manager::slider_beam_fade_cycle([[maybe_unused]] device_video_output_interface &screen, std::string *str, int32_t newval)
+{
+	if (newval != SLIDER_NOCHANGE)
+		vector_options::s_beam_fade_cycle = float(newval) * 0.1F;
+	if (str)
+		*str = string_format(_("%1$1.1f"), vector_options::s_beam_fade_cycle);
+	return floorf(vector_options::s_beam_fade_cycle * 10.0F + 0.5F);
+}
+
+
+//-------------------------------------------------
+//  slider_beam_jitter - vector beam position
+//  jitter slider callback
+//-------------------------------------------------
+
+int32_t mame_ui_manager::slider_beam_jitter([[maybe_unused]] device_video_output_interface &screen, std::string *str, int32_t newval)
+{
+	if (newval != SLIDER_NOCHANGE)
+		vector_options::s_beam_jitter = float(newval) * 0.01F;
+	if (str)
+		*str = string_format(_("%1$1.2f"), vector_options::s_beam_jitter);
+	return floorf(vector_options::s_beam_jitter * 100.0F + 0.5F);
 }
 
 

@@ -2879,6 +2879,64 @@ Core Vector Options
 
             mame asteroid -flicker 0.15
 
+.. _mame-commandline-beamfade:
+
+**-beam_fade** *<value>*
+
+    Simulates phosphor fade on displays that have no phosphor.  This option
+    requires a float argument in the range of 0.00 - 50.00, the percentage of
+    its brightness that a visible line or dot loses over one frame.  With
+    ``50``, the first line drawn in a frame is at full brightness and the last
+    is at half, however many lines the frame has.  It also makes the start of
+    each vector brighter than the line, and draws isolated dots much brighter,
+    using a soft texture and extra energy for bloom, so that bullets stand out
+    as they do on a real monitor; ``-beam_dot_size`` sets the size of both.
+    On hardware that reports it (Atari's DVG and AVG), the time the beam took
+    sets the energy of dots and the relative brightness of lines.  Unlike
+    ``-flicker`` it does not use random numbers.  Use ``0`` to leave vectors
+    unchanged.
+
+    The default is ``15``.
+
+    Example:
+        .. code-block:: bash
+
+            mame asteroid -beam_fade 50
+
+.. _mame-commandline-beamfadecycle:
+
+**-beam_fade_cycle** *<frames>*
+
+    Number of frames the fade continues before brightness resets to full, in
+    the range of 1.00 - 1.90.  At ``1`` every frame starts at full brightness.
+    Higher values reset part way through a frame, so the reset point moves from
+    frame to frame.
+
+    The default is ``1.2``.
+
+    Example:
+        .. code-block:: bash
+
+            mame asteroid -beam_fade 25 -beam_fade_cycle 1.5
+
+.. _mame-commandline-beamjitter:
+
+**-beam_jitter** *<value>*
+
+    Moves each vector point by a small random amount every frame, like the noise
+    in a real monitor's deflection amplifiers.  This option requires a float
+    argument in the range of 0.00 - 0.20, the largest movement as a percentage of
+    screen height.  Lines stay joined to each other.  It does not affect
+    emulation, unlike ``-flicker``, which uses the machine's random numbers.
+    Use ``0`` to leave positions unchanged.
+
+    The default is ``0.01``.
+
+    Example:
+        .. code-block:: bash
+
+            mame asteroid -beam_jitter 0.1
+
 
 .. _mame-commandline-opengloptions:
 

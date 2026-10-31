@@ -6,6 +6,7 @@
 #pragma once
 
 #include "render.h"
+#include "vectorfade.h"
 
 #include <utility>
 
@@ -20,6 +21,9 @@ public:
 	friend class vector_device;
 
 	static float s_flicker;
+	static float s_beam_fade;
+	static float s_beam_fade_cycle;
+	static float s_beam_jitter;
 	static float s_beam_width_min;
 	static float s_beam_width_max;
 	static float s_beam_dot_size;
@@ -56,7 +60,8 @@ public:
 	std::pair<unsigned, unsigned> physical_aspect() const override;
 
 	void clear_list();
-	void add_point(int x, int y, rgb_t color, int intensity);
+	// dwell is seconds the beam took to reach this point, or 0 if the hardware model does not say
+	void add_point(int x, int y, rgb_t color, int intensity, float dwell = 0.0f);
 
 	// configuration
 	template <typename T> vector_device &set_refresh_hz(T &&hz) { m_frame_period = attotime::from_hz(hz); return *this; }
@@ -81,6 +86,7 @@ public:
 
 	// device-level overrides
 	virtual void device_start() override ATTR_COLD;
+	virtual void device_stop() override ATTR_COLD;
 
 	// notifiers
 	util::notifier_subscription add_frame_begin_notifier(frame_begin_delegate &&n);
@@ -110,11 +116,12 @@ private:
 	/* The vertices are buffered here */
 	struct point
 	{
-		point() : x(0), y(0), col(0), intensity(0) { }
+		point() : x(0), y(0), col(0), intensity(0), dwell(0.0f) { }
 
 		int x; int y;
 		rgb_t col;
 		int intensity;
+		float dwell;
 	};
 
 	std::unique_ptr<point[]> m_vector_list;
@@ -122,6 +129,12 @@ private:
 	int m_vector_index;
 	int m_min_intensity;
 	int m_max_intensity;
+	vector_fade m_fade;
+	vector_jitter m_jitter;
+	float m_prev_jitter_x;
+	float m_prev_jitter_y;
+	bitmap_argb32 m_dot_bitmap;
+	render_texture *m_dot_texture;
 
 	// vector screen configuration
 	rectangle m_visarea;

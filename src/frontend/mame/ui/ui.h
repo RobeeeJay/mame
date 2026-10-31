@@ -373,6 +373,9 @@ private:
 	int32_t slider_overxoffset(laserdisc_device &laserdisc, std::string *str, int32_t newval);
 	int32_t slider_overyoffset(laserdisc_device &laserdisc, std::string *str, int32_t newval);
 	int32_t slider_flicker(device_video_output_interface &screen, std::string *str, int32_t newval);
+	int32_t slider_beam_fade(device_video_output_interface &screen, std::string *str, int32_t newval);
+	int32_t slider_beam_fade_cycle(device_video_output_interface &screen, std::string *str, int32_t newval);
+	int32_t slider_beam_jitter(device_video_output_interface &screen, std::string *str, int32_t newval);
 	int32_t slider_beam_width_min(device_video_output_interface &screen, std::string *str, int32_t newval);
 	int32_t slider_beam_width_max(device_video_output_interface &screen, std::string *str, int32_t newval);
 	int32_t slider_beam_dot_size(device_video_output_interface &screen, std::string *str, int32_t newval);
